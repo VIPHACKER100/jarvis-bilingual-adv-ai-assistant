@@ -10,26 +10,34 @@ export interface ProcessedCommand {
   data?: any;
 }
 
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// Initialize Gemini API
+const API_KEY = process.env.GEMINI_API_KEY || "";
+const genAI = new GoogleGenerativeAI(API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
 // Keywords for robust language scoring
 const HINDI_KEYWORDS = new Set([
-  'kholo', 'band', 'karo', 'chalao', 'bhejo', 'kaun', 'kya', 'hai', 'samay', 
+  'kholo', 'band', 'karo', 'chalao', 'bhejo', 'kaun', 'kya', 'hai', 'samay',
   'tareekh', 'din', 'aaj', 'kal', 'suno', 'sun', 'raha', 'hu', 'mujhe', 'tum', 'aap',
   'namaste', 'shukriya', 'dhanyavad', 'kaise', 'madad', 'sakte', 'ho', 'btao', 'batao',
-  'dekhna', 'ruko', 'dheere', 'tez', 'badhao', 'kam', 'aawaz', 'par', 'ko', 'me', 
-  'se', 'ka', 'ki', 'aur', 'kahan', 'kab', 'kyu', 'kaise', 'open', 'karo' // 'open karo' common hinglish
+  'dekhna', 'ruko', 'dheere', 'tez', 'badhao', 'kam', 'aawaz', 'par', 'ko', 'me',
+  'se', 'ka', 'ki', 'aur', 'kahan', 'kab', 'kyu', 'open', // 'open karo' common hinglish
+  'mausam', 'tapman', 'garmi', 'sardi', 'hisab', 'jodo', 'ghatao', 'guna', 'bhag'
 ]);
 
 const ENGLISH_KEYWORDS = new Set([
   'open', 'close', 'play', 'send', 'message', 'tell', 'what', 'is', 'the', 'time', 'date',
   'today', 'who', 'are', 'you', 'hello', 'hi', 'thank', 'thanks', 'help', 'commands', 'features', 'list',
   'search', 'volume', 'increase', 'decrease', 'navigate', 'go', 'to', 'for', 'on',
-  'can', 'please', 'start', 'stop'
+  'can', 'please', 'start', 'stop', 'weather', 'temperature', 'forecast', 'calculate', 'solve', 'math', 'plus', 'minus', 'times', 'divided'
 ]);
 
 // Helper to robustly detect language based on script and keywords
 const detectLanguage = (text: string): 'en' | 'hi' => {
   const lowerText = text.toLowerCase();
-  
+
   // 1. Script Check (Absolute confidence for Devanagari)
   const devanagariRange = /[\u0900-\u097F]/;
   if (devanagariRange.test(text)) {
@@ -39,7 +47,7 @@ const detectLanguage = (text: string): 'en' | 'hi' => {
   // 2. Keyword Scoring for Latin script (Hinglish vs English)
   // Clean text: remove punctuation
   const tokens = lowerText.replace(/[^\w\s]/g, '').split(/\s+/);
-  
+
   let hiScore = 0;
   let enScore = 0;
 
@@ -53,11 +61,11 @@ const detectLanguage = (text: string): 'en' | 'hi' => {
   // Otherwise default to English as it's the global default for Latin script
   if (hiScore > enScore) return 'hi';
   if (enScore > hiScore) return 'en';
-  
+
   return 'en'; // Default fallback
 };
 
-export const processTranscript = (text: string): ProcessedCommand => {
+export const processTranscript = async (text: string): Promise<ProcessedCommand> => {
   // 1. Security Sanitization
   const cleanText = SecurityService.sanitizeCommand(text);
   const lowerText = cleanText.toLowerCase();
@@ -68,8 +76,8 @@ export const processTranscript = (text: string): ProcessedCommand => {
   if (SecurityService.analyzeForPhishing(cleanText)) {
     return {
       actionType: 'SECURITY_ALERT',
-      response: isHindi 
-        ? "चेतावनी: संवेदनशील जानकारी साझा न करें। यह एक सुरक्षा जोखिम हो सकता है।" 
+      response: isHindi
+        ? "चेतावनी: संवेदनशील जानकारी साझा न करें। यह एक सुरक्षा जोखिम हो सकता है।"
         : "SECURITY ALERT: Sensitive information detected. Do not share passwords or OTPs.",
       spokenResponse: isHindi
         ? "चेतावनी। सुरक्षा प्रोटोकॉल सक्रिय। संवेदनशील डेटा साझा न करें।"
@@ -105,8 +113,8 @@ export const processTranscript = (text: string): ProcessedCommand => {
 • Navigation: "Open Google", "Go to Twitter"
 • Media: "Play Iron Man trailer on YouTube"
 • Messaging: "Send message to Mom saying I'm home"
-• System: "What time is it?", "Volume up"`,
-        spokenResponse: "I can assist with navigation, media, and communication protocols. Displaying available command syntax now.",
+• System: "What time is it?", "Volume up", "Weather in Delhi", "Calculate 5 plus 3"`,
+        spokenResponse: "I can assist with navigation, media, communication, weather updates and calculations. Displaying available command syntax now.",
         language: 'en'
       };
     }
@@ -114,8 +122,8 @@ export const processTranscript = (text: string): ProcessedCommand => {
 
   // --- Greetings ---
   if (
-    lowerText.match(/^(hello|hi|hey|greetings)/) || 
-    lowerText.includes('hi jarvis') || 
+    lowerText.match(/^(hello|hi|hey|greetings)/) ||
+    lowerText.includes('hi jarvis') ||
     lowerText.match(/(?:नमस्ते|namaste|hello|pranam)/)
   ) {
     return {
@@ -126,10 +134,10 @@ export const processTranscript = (text: string): ProcessedCommand => {
   }
 
   if (
-    lowerText.includes('thank') || 
-    lowerText.includes('dhanyavad') || 
+    lowerText.includes('thank') ||
+    lowerText.includes('dhanyavad') ||
     lowerText.includes('shukriya') ||
-    lowerText.includes('धन्यवाद') || 
+    lowerText.includes('धन्यवाद') ||
     lowerText.includes('शुक्रिया')
   ) {
     return {
@@ -140,14 +148,14 @@ export const processTranscript = (text: string): ProcessedCommand => {
   }
 
   if (
-    lowerText.includes('who are you') || 
-    lowerText.match(/(?:tum|aap)\s+(?:kaun|kon)\s+(?:ho|hai)/) || 
+    lowerText.includes('who are you') ||
+    lowerText.match(/(?:tum|aap)\s+(?:kaun|kon)\s+(?:ho|hai)/) ||
     lowerText.includes('तुम कौन हो')
   ) {
     return {
       actionType: 'IDENTITY',
-      response: isHindi 
-        ? "मैं JARVIS हूँ, आपका निजी AI सहायक।" 
+      response: isHindi
+        ? "मैं JARVIS हूँ, आपका निजी AI सहायक।"
         : "I am JARVIS, your personal AI assistant.",
       language: detectedLang
     };
@@ -155,8 +163,8 @@ export const processTranscript = (text: string): ProcessedCommand => {
 
   // --- Web Navigation ---
   // Regex updated to handle Hinglish (Latin script Hindi)
-  const webMatch = 
-    lowerText.match(/(?:open|go to|navigate to|visit)\s+(.+)/i) || 
+  const webMatch =
+    lowerText.match(/(?:open|go to|navigate to|visit)\s+(.+)/i) ||
     lowerText.match(/(.+)\s+(?:kho(?:\s*)lo|kholo|open karo|par jao|par jaiye|chalo)/i) ||
     lowerText.match(/(.+)\s+(?:खोलो|पर जाओ|ओपन करो)/i) ||
     lowerText.match(/(?:वेबसाइट खोलो|website kholo)\s+(.+)/i);
@@ -166,12 +174,12 @@ export const processTranscript = (text: string): ProcessedCommand => {
     let site = webMatch[1].replace(/(?:website|vebsite|dot com|daat kaam)/gi, '').trim();
     // Remove trailing Hindi particles often caught in capture group
     site = site.replace(/\s+(?:kholo|karo|open|please)$/i, '');
-    
+
     // Fix common speech-to-text formatting
     site = site.replace(/\s+dot\s+com/g, '.com').replace(/\s+/g, '');
-    
+
     if (!site.includes('.')) site += '.com';
-    
+
     return {
       actionType: 'NAVIGATION',
       response: isHindi ? `${site} खोल रहा हूँ।` : `Opening ${site}.`,
@@ -181,7 +189,7 @@ export const processTranscript = (text: string): ProcessedCommand => {
   }
 
   // --- YouTube ---
-  const youtubeMatch = 
+  const youtubeMatch =
     // English
     lowerText.match(/(?:play|search|watch)\s+(.+?)\s+(?:on|in)\s+youtube/i) ||
     // Hinglish/Hindi: "song name youtube par chalao"
@@ -196,8 +204,8 @@ export const processTranscript = (text: string): ProcessedCommand => {
     const query = youtubeMatch[1].trim();
     return {
       actionType: 'YOUTUBE',
-      response: isHindi 
-        ? `YouTube पर ${query} खोज रहा हूँ।` 
+      response: isHindi
+        ? `YouTube पर ${query} खोज रहा हूँ।`
         : `Searching for ${query} on YouTube.`,
       language: detectedLang,
       externalUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
@@ -206,11 +214,11 @@ export const processTranscript = (text: string): ProcessedCommand => {
 
   // --- WhatsApp ---
   const whatsappEnglish = lowerText.match(/(?:send\s+message|msg|text)\s+to\s+(.+?)\s+(?:saying|that|:)\s+(.+)/i);
-  
+
   // Hinglish/Hindi: "mom ko message bhejo hello"
-  const whatsappHindi = 
+  const whatsappHindi =
     lowerText.match(/(.+?)\s+(?:ko|se)\s+(?:message|msg|sandesh)\s+(?:bhejo|karo|do)(?:\s+ki|\s+saying)?\s+(.+)/i) ||
-    lowerText.match(/(.+?)\s+(?:ko|se)\s+(?:kaho|bolo)\s+(.+)/i) || 
+    lowerText.match(/(.+?)\s+(?:ko|se)\s+(?:kaho|bolo)\s+(.+)/i) ||
     lowerText.match(/(.+?)\s+को\s+मैसेज\s+भेजो\s+(.+)/i) ||
     lowerText.match(/(.+?)\s+को\s+कहो\s+(.+)/i) ||
     lowerText.match(/व्हाट्सएप\s+पर\s+(.+?)\s+को\s+संदेश\s+दो\s+(.+)/i);
@@ -220,10 +228,10 @@ export const processTranscript = (text: string): ProcessedCommand => {
   if (waMatch) {
     const rawName = waMatch[1].trim();
     const message = waMatch[2].trim();
-    
+
     // Normalize name lookup
     const contactNumber = CONTACTS[rawName] || CONTACTS[rawName.toLowerCase()];
-    
+
     if (contactNumber) {
       // Validate Number using Security Service
       if (!SecurityService.validateWhatsAppNumber(contactNumber)) {
@@ -238,7 +246,7 @@ export const processTranscript = (text: string): ProcessedCommand => {
 
       return {
         actionType: 'WHATSAPP',
-        response: isHindi 
+        response: isHindi
           ? `WhatsApp खोल रहा हूँ। ${rawName} को संदेश: "${message}"`
           : `Opening WhatsApp. Messaging ${rawName}: "${message}"`,
         language: detectedLang,
@@ -247,7 +255,7 @@ export const processTranscript = (text: string): ProcessedCommand => {
     } else {
       return {
         actionType: 'ERROR',
-        response: isHindi 
+        response: isHindi
           ? `संपर्क सूची में '${rawName}' नहीं मिला।`
           : `Contact '${rawName}' not found in database.`,
         language: detectedLang
@@ -257,8 +265,8 @@ export const processTranscript = (text: string): ProcessedCommand => {
 
   // --- Time & Date ---
   if (
-    lowerText.includes('time') || 
-    lowerText.includes('samay') || 
+    lowerText.includes('time') ||
+    lowerText.includes('samay') ||
     lowerText.includes('समय') ||
     lowerText.includes('baje') ||
     lowerText.match(/kya\s+baj\s+raha\s+hai/)
@@ -267,16 +275,16 @@ export const processTranscript = (text: string): ProcessedCommand => {
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return {
       actionType: 'TIME',
-      response: isHindi 
-        ? `अभी समय ${timeStr} है।` 
+      response: isHindi
+        ? `अभी समय ${timeStr} है।`
         : `Current time is ${timeStr}.`,
       language: detectedLang
     };
   }
 
   if (
-    lowerText.includes('date') || 
-    lowerText.includes('tareekh') || 
+    lowerText.includes('date') ||
+    lowerText.includes('tareekh') ||
     lowerText.includes('तारीख') ||
     lowerText.includes('din') ||
     lowerText.includes('day')
@@ -285,18 +293,67 @@ export const processTranscript = (text: string): ProcessedCommand => {
     const dateStr = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     return {
       actionType: 'DATE',
-      response: isHindi 
-        ? `आज की तारीख है ${dateStr}।` 
+      response: isHindi
+        ? `आज की तारीख है ${dateStr}।`
         : `Today's date is ${dateStr}.`,
+      language: detectedLang
+    };
+  }
+
+  // --- Weather ---
+  if (
+    lowerText.includes('weather') ||
+    lowerText.includes('temperature') ||
+    lowerText.includes('mausam') ||
+    lowerText.includes('tapman')
+  ) {
+    // This is a mock implementation. In a real app, you'd fetch from an API.
+    // We'll extract a city if possible, otherwise default to "Current Location"
+    const cityMatch = lowerText.match(/(?:in|at|of|ka)\s+([a-zA-Z]+)/);
+    const city = cityMatch ? cityMatch[1] : (isHindi ? "यहाँ" : "your location");
+
+    // Mock data generation
+    const temp = Math.floor(Math.random() * (35 - 20) + 20);
+    const condition = ["Sunny", "Cloudy", "Rainy", "Clear"][Math.floor(Math.random() * 4)];
+
+    return {
+      actionType: 'WEATHER',
+      response: isHindi
+        ? `${city} में मौसम ${condition} है और तापमान ${temp} डिग्री सेल्सियस है।`
+        : `Weather in ${city} is ${condition} with a temperature of ${temp}°C.`,
+      language: detectedLang
+    };
+  }
+
+  // --- Calculator ---
+  const mathMatch = lowerText.match(/(\d+)\s*(plus|minus|times|divided by|\+|\-|\*|\/|jodo|ghatao|guna|bhag)\s*(\d+)/i);
+  if (mathMatch) {
+    const num1 = parseInt(mathMatch[1]);
+    const operator = mathMatch[2].toLowerCase();
+    const num2 = parseInt(mathMatch[3]);
+    let result = 0;
+
+    switch (operator) {
+      case 'plus': case '+': case 'jodo': result = num1 + num2; break;
+      case 'minus': case '-': case 'ghatao': result = num1 - num2; break;
+      case 'times': case '*': case 'guna': result = num1 * num2; break;
+      case 'divided by': case '/': case 'bhag': result = num1 / num2; break;
+    }
+
+    return {
+      actionType: 'CALCULATOR',
+      response: isHindi
+        ? `परिणाम ${result} है।`
+        : `The result is ${result}.`,
       language: detectedLang
     };
   }
 
   // --- Volume Control ---
   if (
-    lowerText.includes('increase') || 
-    lowerText.includes('up') || 
-    lowerText.includes('badao') || 
+    lowerText.includes('increase') ||
+    lowerText.includes('up') ||
+    lowerText.includes('badao') ||
     lowerText.includes('badhao') ||
     lowerText.includes('tez') ||
     lowerText.includes('ज्यादा') ||
@@ -312,10 +369,10 @@ export const processTranscript = (text: string): ProcessedCommand => {
   }
 
   if (
-    lowerText.includes('decrease') || 
-    lowerText.includes('down') || 
-    lowerText.includes('kam') || 
-    lowerText.includes('dheere') || 
+    lowerText.includes('decrease') ||
+    lowerText.includes('down') ||
+    lowerText.includes('kam') ||
+    lowerText.includes('dheere') ||
     lowerText.includes('low') ||
     lowerText.includes('ghatao') ||
     lowerText.includes('कम')
@@ -329,7 +386,28 @@ export const processTranscript = (text: string): ProcessedCommand => {
     }
   }
 
-  // --- Default Fallback ---
+  // --- Default Fallback with LLM (Gemini) ---
+  try {
+    if (API_KEY && API_KEY !== "your_api_key_here") {
+      const prompt = `You are JARVIS, an AI assistant. The user said: "${text}". 
+      Respond briefly in ${isHindi ? "Hindi" : "English"}. 
+      Keep it cool, slightly robotic but helpful. Max 2 sentences.`;
+
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const textResponse = response.text();
+
+      return {
+        actionType: 'CONVERSATION',
+        response: textResponse,
+        spokenResponse: textResponse,
+        language: detectedLang
+      };
+    }
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+  }
+
   return {
     actionType: 'UNKNOWN',
     response: isHindi ? "क्षमा करें, मुझे समझ नहीं आया।" : "I'm sorry, I didn't understand that command.",

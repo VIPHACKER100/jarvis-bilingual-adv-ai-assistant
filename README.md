@@ -49,7 +49,7 @@
    ```
 
 3. **Set up environment variables:**
-   Create a `.env.local` file and add your Gemini API Key (if required for advanced logic):
+   Create a `.env.local` file and add your Gemini API Key (Required for conversational AI features):
 
    ```env
    GEMINI_API_KEY=your_api_key_here

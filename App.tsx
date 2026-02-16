@@ -7,12 +7,14 @@ import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
 import { processTranscript } from './services/commandProcessor';
 import { INITIAL_VOLUME } from './constants';
+import { sfx } from './utils/audioUtils';
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<AppMode>(AppMode.IDLE);
   const [transcript, setTranscript] = useState<string>("");
   const [history, setHistory] = useState<CommandResult[]>([]);
   const [volume, setVolume] = useState<number>(INITIAL_VOLUME);
+
 
   // Default to Hindi-India to support bilingual/mixed usage better
   const [language, setLanguage] = useState<Language>(Language.HINDI);
@@ -82,13 +84,15 @@ const App: React.FC = () => {
       setMode(AppMode.PROCESSING);
 
       // Process Logic
-      const result = processTranscript(text);
+      const result = await processTranscript(text);
 
       // Execute Actions
       if (result.actionType === 'VOLUME_UP') {
         setVolume(v => Math.min(v + 10, 100));
+        sfx.playBlip();
       } else if (result.actionType === 'VOLUME_DOWN') {
         setVolume(v => Math.max(v - 10, 0));
+        sfx.playBlip();
       } else if (result.externalUrl) {
         window.open(result.externalUrl, '_blank');
       }
