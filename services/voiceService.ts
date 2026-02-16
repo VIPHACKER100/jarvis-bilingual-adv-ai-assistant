@@ -1,4 +1,4 @@
-import { Language } from '../types';
+import { Language, ISpeechRecognitionEvent, ISpeechRecognitionErrorEvent } from '../types';
 
 class VoiceService {
   private recognition: any = null;
@@ -33,21 +33,21 @@ class VoiceService {
       onError("not-supported");
       return;
     }
-    
+
     // If already listening, we can either ignore or stop and restart. 
     // For safety, if the flag is true, we assume it's running.
     if (this.isListening) {
-        return; 
+      return;
     }
 
-    this.recognition.onresult = (event: any) => {
+    this.recognition.onresult = (event: ISpeechRecognitionEvent) => {
       const result = event.results[event.resultIndex];
       const transcript = result[0].transcript;
       const isFinal = result.isFinal;
       onResult(transcript, isFinal);
     };
 
-    this.recognition.onerror = (event: any) => {
+    this.recognition.onerror = (event: ISpeechRecognitionErrorEvent) => {
       // Ignore 'no-speech' errors as they just mean silence, but pass others
       if (event.error !== 'no-speech') {
         onError(event.error);
@@ -86,24 +86,24 @@ class VoiceService {
     this.synthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    
+
     // Set language for TTS
     utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
-    
+
     // Try to find a suitable voice
     const voices = this.synthesis.getVoices();
     if (voices.length > 0) {
-        // Try to match the specific language voice
-        const preferredVoice = voices.find(v => v.lang.startsWith(utterance.lang));
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
-        }
+      // Try to match the specific language voice
+      const preferredVoice = voices.find(v => v.lang.startsWith(utterance.lang));
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
     }
 
     // Adjust pitch/rate for JARVIS-like robotic feel
     utterance.pitch = 0.9;
     utterance.rate = 1;
-    
+
     this.synthesis.speak(utterance);
   }
 }

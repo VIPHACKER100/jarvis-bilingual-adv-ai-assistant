@@ -6,20 +6,32 @@ declare global {
   }
 }
 
-export interface ISpeechRecognitionEvent {
-  results: {
-    [key: number]: {
-      [key: number]: {
-        transcript: string;
-      };
-      isFinal: boolean;
-    };
-    length: number;
-  };
+export interface ISpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
 }
 
-export interface ISpeechRecognitionErrorEvent {
+export interface ISpeechRecognitionErrorEvent extends Event {
   error: string;
+  message: string;
+}
+
+export interface SpeechRecognitionResultList {
+  [index: number]: SpeechRecognitionResult;
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+}
+
+export interface SpeechRecognitionResult {
+  [index: number]: SpeechRecognitionAlternative;
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+}
+
+export interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
 }
 
 export interface CommandResult {

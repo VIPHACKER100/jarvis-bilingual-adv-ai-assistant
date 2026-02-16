@@ -49,7 +49,7 @@
    Create a `.env.local` file and add your Gemini API Key (Required for conversational AI features):
 
    ```env
-   GEMINI_API_KEY=your_api_key_here
+   VITE_GEMINI_API_KEY=your_api_key_here
    ```
 
 4. **Run the development server:**
@@ -85,6 +85,6 @@
 
 ---
 
-*"I'm JARVIS. I'm here to help."*
+> *"I'm JARVIS. I'm here to help."*
 
-**Part of the VIPHACKER100 Ecosystem**
+> **Part of the VIPHACKER100 Ecosystem**
