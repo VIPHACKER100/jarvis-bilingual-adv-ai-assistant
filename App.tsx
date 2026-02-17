@@ -242,38 +242,38 @@ const App: FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col items-center bg-black relative overflow-x-hidden">
 
       {/* Background Grid/Effects */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.05)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
       <div className="absolute inset-0 bg-radial-gradient from-transparent to-black pointer-events-none"></div>
 
       {/* Header / Language Toggle */}
-      <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex flex-col md:flex-row justify-between items-center md:items-start z-20 gap-4 md:gap-0">
+      <header className="relative w-full max-w-6xl p-4 md:p-8 flex flex-col md:flex-row justify-between items-center z-20 gap-4">
         <div className="text-center md:text-left">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-[0.2em] text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-[0.3em] text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">
             JARVIS
           </h1>
-          <p className="text-[10px] md:text-xs text-slate-500 tracking-widest mt-1">PERSONAL AI ASSISTANT // BILINGUAL PROTOCOL</p>
+          <p className="text-[10px] md:text-xs text-slate-500 tracking-[0.4em] uppercase mt-2">Personal AI Assistant // Bilingual Protocol</p>
         </div>
 
-        <div className="flex flex-col items-center md:items-end gap-2">
+        <div className="flex flex-col items-center md:items-end gap-3">
           <button
             onClick={toggleLanguage}
-            className="flex items-center space-x-2 bg-slate-900/80 border border-slate-700 px-4 py-2 md:px-3 md:py-1 rounded text-xs tracking-wider hover:border-cyan-500 transition-colors backdrop-blur-sm"
+            className="flex items-center space-x-3 bg-slate-900/60 border border-slate-700/50 px-5 py-2 md:px-4 md:py-1.5 rounded-sm text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 backdrop-blur-md shadow-lg"
           >
             <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold" : "text-slate-600"}>ENGLISH</span>
-            <span className="text-slate-700">|</span>
+            <span className="text-slate-800">|</span>
             <span className={language === Language.HINDI ? "text-orange-400 font-bold" : "text-slate-600"}>हिंदी</span>
           </button>
-          <div className="text-[10px] text-slate-500 uppercase tracking-tighter md:tracking-normal">
-            Input Mode: {language === Language.HINDI ? 'Hi-IN (Mixed)' : 'En-US'}
+          <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+            Mode: {language === Language.HINDI ? 'Hi-IN (Mixed)' : 'En-US'}
           </div>
         </div>
       </header>
 
       {/* Main UI Container */}
-      <main className="relative z-10 flex flex-col items-center w-full max-w-4xl space-y-8 md:space-y-12 mt-16 md:mt-0">
+      <main className="relative z-10 flex flex-col items-center w-full max-w-4xl space-y-10 md:space-y-16 px-4 py-6">
 
         <div className="h-8 flex items-center justify-center">
           {mode === AppMode.LISTENING && (
@@ -321,17 +321,17 @@ const App: FC = () => {
         </div>
 
         {/* Bottom Modules */}
-        <div className="flex flex-col md:flex-row gap-6 w-full items-center md:items-start justify-center px-2">
+        <div className="flex flex-col md:flex-row gap-8 w-full items-center md:items-start justify-center">
           <HistoryLog history={history} />
-          <div className="flex flex-col space-y-4 w-full md:w-auto items-center md:items-start">
+          <div className="flex flex-col space-y-6 w-full md:w-auto items-center md:items-start">
             <VolumeControl level={volume} />
 
-            {/* Decorative Panel - Condensed for Mobile */}
-            <div className="border border-slate-800 bg-slate-900/40 p-3 w-full md:w-64 text-[10px] font-mono text-slate-500 grid grid-cols-2 md:block gap-x-4 gap-y-1">
-              <div className="flex justify-between"><span>CPU</span><span className="text-cyan-600">32%</span></div>
-              <div className="flex justify-between"><span>MEM</span><span className="text-cyan-600">14%</span></div>
+            {/* Decorative Panel - Fixed overlapping grid */}
+            <div className="border border-slate-800 bg-slate-900/40 p-4 w-full md:w-64 text-[10px] font-mono text-slate-500 grid grid-cols-2 gap-x-4 gap-y-2 rounded-sm backdrop-blur-sm">
+              <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>CPU</span><span className="text-cyan-600">32%</span></div>
+              <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>MEM</span><span className="text-cyan-600">14%</span></div>
               <div className="flex justify-between"><span>NET</span><span className="text-green-600 uppercase">Online</span></div>
-              <div className="flex justify-between"><span>MIC</span><span className={mode !== AppMode.IDLE ? "text-red-500 animate-pulse" : "text-slate-600"}>{mode !== AppMode.IDLE ? "ACTIVE" : "OFFLINE"}</span></div>
+              <div className="flex justify-between"><span>MIC</span><span className={mode !== AppMode.IDLE ? "text-red-500 animate-pulse font-bold" : "text-slate-600"}>{mode !== AppMode.IDLE ? "ACTIVE" : "OFFLINE"}</span></div>
             </div>
           </div>
         </div>
@@ -346,15 +346,16 @@ const App: FC = () => {
       />
 
       {/* Footer / Branding */}
-      <footer className="absolute bottom-4 flex flex-col items-center space-y-2 z-20">
-        <div className="flex space-x-4 text-[10px] md:text-xs font-mono tracking-widest">
-          <a href="https://viphacker100.com" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase">Website</a>
-          <a href="https://github.com/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase">GitHub</a>
-          <a href="https://linkedin.com/in/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase">LinkedIn</a>
-          <a href="https://instagram.com/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase">Instagram</a>
+      <footer className="relative w-full flex flex-col items-center space-y-4 z-20 mt-auto py-10 bg-black/60 backdrop-blur-sm border-t border-slate-900">
+        <div className="flex flex-wrap justify-center gap-6 text-[10px] md:text-xs font-mono tracking-widest">
+          <a href="https://viphacker100.com" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase border-b border-transparent hover:border-cyan-400 pb-1">Website</a>
+          <a href="https://github.com/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase border-b border-transparent hover:border-cyan-400 pb-1">GitHub</a>
+          <a href="https://linkedin.com/in/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase border-b border-transparent hover:border-cyan-400 pb-1">LinkedIn</a>
+          <a href="https://instagram.com/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase border-b border-transparent hover:border-cyan-400 pb-1">Instagram</a>
         </div>
-        <div className="text-slate-700 text-[8px] md:text-[10px] tracking-[0.3em] font-light uppercase text-center px-4">
-          VIPHACKER100 OS V4.2.1 | DESIGNED BY <span className="text-slate-500 font-semibold">VIPHACKER100 (ARYAN AHIRWAR)</span>
+        <div className="text-slate-700 text-[8px] md:text-[9px] tracking-[0.4em] font-light uppercase text-center px-4 leading-loose">
+          VIPHACKER100 OS V4.2.1 | DESIGNED & DEVELOPED BY <br className="md:hidden" />
+          <span className="text-slate-500 font-bold border-b border-slate-800">VIPHACKER100 (ARYAN AHIRWAR)</span>
         </div>
       </footer>
     </div>

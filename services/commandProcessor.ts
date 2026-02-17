@@ -391,42 +391,58 @@ export const processTranscript = async (text: string): Promise<ProcessedCommand>
     }
   }
 
-  // --- Default Fallback with LLM (OpenRouter) ---
+  // --- Default Fallback with LLM (OpenRouter or Google Gemini) ---
   try {
     if (API_KEY && API_KEY !== "PLACEHOLDER_API_KEY") {
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          "model": "nvidia/nemotron-3-nano-30b-a3b:free",
-          "messages": [
-            {
-              "role": "system",
-              "content": `You are JARVIS, a highly intelligent and helpful AI assistant. Respond in a natural, polite, and human-like manner in ${isHindi ? "Hindi" : "English"}. Avoid sounding overly robotic. Keep it concise (max 2 sentences).`
-            },
-            {
-              "role": "user",
-              "content": text
-            }
-          ]
-        })
-      });
+      let textResponse = "";
 
-      const data = await response.json();
-      const textResponse = data.choices?.[0]?.message?.content || (isHindi ? "क्षमा करें, मैं अभी उत्तर नहीं दे सकता।" : "I am unable to respond at the moment.");
+      const isGoogleKey = API_KEY.startsWith("AIza");
+      const systemPrompt = `You are JARVIS, a highly intelligent and helpful AI assistant. Respond in a natural, polite, and human-like manner in ${isHindi ? "Hindi" : "English"}. Avoid sounding overly robotic. Keep it concise (max 2 sentences).`;
 
-      return {
-        actionType: 'CONVERSATION',
-        response: textResponse,
-        spokenResponse: textResponse,
-        language: detectedLang
-      };
+      if (isGoogleKey) {
+        // Direct Google Gemini API
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: `${systemPrompt}\n\nUser: ${text}` }]
+            }]
+          })
+        });
+        const data = await response.json();
+        textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      } else {
+        // OpenRouter API
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+            "messages": [
+              { "role": "system", "content": systemPrompt },
+              { "role": "user", "content": text }
+            ]
+          })
+        });
+        const data = await response.json();
+        textResponse = data.choices?.[0]?.message?.content || "";
+      }
+
+      if (textResponse) {
+        return {
+          actionType: 'CONVERSATION',
+          response: textResponse,
+          spokenResponse: textResponse,
+          language: detectedLang
+        };
+      }
     }
   } catch (error) {
-    console.error("OpenRouter API Error:", error);
+    console.error("LLM API Error:", error);
   }
 
   return {
