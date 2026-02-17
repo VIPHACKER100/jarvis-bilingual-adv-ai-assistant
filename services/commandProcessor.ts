@@ -10,7 +10,7 @@ export interface ProcessedCommand {
   data?: any;
 }
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
 
 // ... (keywords remain unchanged)
 
@@ -418,7 +418,9 @@ export const processTranscript = async (text: string): Promise<ProcessedCommand>
           method: "POST",
           headers: {
             "Authorization": `Bearer ${API_KEY}`,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://viphacker100.com",
+            "X-Title": "JARVIS AI"
           },
           body: JSON.stringify({
             "model": "nvidia/nemotron-3-nano-30b-a3b:free",
