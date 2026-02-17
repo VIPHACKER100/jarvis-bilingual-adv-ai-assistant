@@ -3,9 +3,14 @@ import { ArcReactor } from './components/ArcReactor';
 import { HistoryLog } from './components/HistoryLog';
 import { VolumeControl } from './components/VolumeControl';
 import { PermissionModal } from './components/PermissionModal';
+import { ConfirmationModal } from './src/components/ConfirmationModal';
+import { MemoryViewer } from './src/components/MemoryViewer';
+import { AutomationDashboard } from './src/components/AutomationDashboard';
+import { DesktopControls } from './components/DesktopControls';
+import { MediaTools } from './components/MediaTools';
 import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
-import { processTranscript } from './services/commandProcessor';
+import { useJarvisBridge } from './src/hooks/useJarvisBridge';
 import { INITIAL_VOLUME } from './constants';
 import { sfx } from './utils/audioUtils';
 
@@ -15,10 +20,25 @@ const App: FC = () => {
   const [history, setHistory] = useState<CommandResult[]>([]);
   const [volume, setVolume] = useState<number>(INITIAL_VOLUME);
 
-
   // Default to Hindi-India to support bilingual/mixed usage better
   const [language, setLanguage] = useState<Language>(Language.HINDI);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [showMemoryViewer, setShowMemoryViewer] = useState(false);
+  const [showAutomationDashboard, setShowAutomationDashboard] = useState(false);
+  const [showAdvancedHelper, setShowAdvancedHelper] = useState(false);
+
+  // Backend integration
+  const {
+    isConnected,
+    connectionStatus,
+    systemStatus,
+    sendCommand,
+    lastResponse,
+    pendingConfirmation,
+    confirmCommand,
+    error: bridgeError,
+    reconnect,
+  } = useJarvisBridge();
 
   // References to manage state in async callbacks
   const processingRef = useRef(false);
@@ -72,6 +92,58 @@ const App: FC = () => {
     voiceService.setLanguage(language);
   }, [language]);
 
+  // Handle backend responses
+  useEffect(() => {
+    if (lastResponse) {
+      // Handle volume updates from backend
+      if (lastResponse.command_key === 'volume_up' && lastResponse.success) {
+        setVolume(lastResponse.volume || Math.min(volume + 10, 100));
+        sfx.playBlip();
+      } else if (lastResponse.command_key === 'volume_down' && lastResponse.success) {
+        setVolume(lastResponse.volume || Math.max(volume - 10, 0));
+        sfx.playBlip();
+      }
+
+      // Add to history
+      addToHistory({
+        transcript: transcript,
+        response: lastResponse.response,
+        actionType: lastResponse.command_key.toUpperCase(),
+        language: lastResponse.language,
+        timestamp: Date.now()
+      });
+
+      // Speak response
+      setMode(AppMode.SPEAKING);
+      voiceService.speak(lastResponse.response, lastResponse.language);
+
+      // Reset after speaking delay
+      setTimeout(() => {
+        processingRef.current = false;
+        if (isActiveRef.current) {
+          startListening();
+        } else {
+          setMode(AppMode.IDLE);
+        }
+      }, 2000);
+    }
+  }, [lastResponse]);
+
+  // Handle bridge errors
+  useEffect(() => {
+    if (bridgeError) {
+      console.error('Backend error:', bridgeError);
+      addToHistory({
+        transcript: "",
+        response: `Backend Error: ${bridgeError}`,
+        actionType: "ERROR",
+        language: language === Language.HINDI ? 'hi' : 'en',
+        timestamp: Date.now(),
+        isSystemMessage: true
+      });
+    }
+  }, [bridgeError]);
+
   const addToHistory = (entry: CommandResult) => {
     setHistory(prev => [...prev, entry]);
   };
@@ -83,44 +155,9 @@ const App: FC = () => {
       processingRef.current = true;
       setMode(AppMode.PROCESSING);
 
-      // Process Logic
-      const result = await processTranscript(text);
-
-      // Execute Actions
-      if (result.actionType === 'VOLUME_UP') {
-        setVolume(v => Math.min(v + 10, 100));
-        sfx.playBlip();
-      } else if (result.actionType === 'VOLUME_DOWN') {
-        setVolume(v => Math.max(v - 10, 0));
-        sfx.playBlip();
-      } else if (result.externalUrl) {
-        window.open(result.externalUrl, '_blank');
-      }
-
-      // Add to History
-      addToHistory({
-        transcript: text,
-        response: result.response,
-        actionType: result.actionType,
-        language: result.language,
-        timestamp: Date.now()
-      });
-
-      // Speak Response
-      setMode(AppMode.SPEAKING);
-      // Prioritize spokenResponse for TTS if it exists (e.g. for long help lists)
-      voiceService.speak(result.spokenResponse || result.response, result.language);
-
-      // Reset after speaking delay (simulated) or just restart listening
-      setTimeout(() => {
-        processingRef.current = false;
-        // Only restart listening if we are still active (user hasn't deactivated)
-        if (isActiveRef.current) {
-          startListening();
-        } else {
-          setMode(AppMode.IDLE);
-        }
-      }, 2000);
+      // Send command to backend
+      const langCode = language === Language.HINDI ? 'hi' : 'en';
+      sendCommand(text, langCode);
     }
   };
 
@@ -164,6 +201,10 @@ const App: FC = () => {
         startListening();
         return;
       }
+    } else if (error === 'aborted') {
+      // 'aborted' often happens on tab switch/refresh or stopListening call. Ignore.
+      processingRef.current = false;
+      return;
     } else if (errorMessages[error]) {
       const isHindi = language === Language.HINDI;
       userMessage = isHindi ? errorMessages[error].hi : errorMessages[error].en;
@@ -241,6 +282,35 @@ const App: FC = () => {
     setLanguage(prev => prev === Language.ENGLISH ? Language.HINDI : Language.ENGLISH);
   };
 
+  const handleConfirmAction = () => {
+    confirmCommand(true);
+  };
+
+  const handleCancelAction = () => {
+    confirmCommand(false);
+    processingRef.current = false;
+    if (isActiveRef.current) {
+      startListening();
+    } else {
+      setMode(AppMode.IDLE);
+    }
+  };
+
+  // Format system stats for display
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const formatUptime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center bg-black relative overflow-x-hidden">
 
@@ -258,6 +328,26 @@ const App: FC = () => {
         </div>
 
         <div className="flex flex-col items-center md:items-end gap-3">
+          {/* Connection Status */}
+          <div className={`flex items-center gap-2 text-[10px] font-mono tracking-wider px-3 py-1 rounded border ${isConnected
+            ? 'border-green-500/50 text-green-400 bg-green-500/10'
+            : connectionStatus === 'connecting'
+              ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10'
+              : 'border-red-500/50 text-red-400 bg-red-500/10'
+            }`}>
+            <span className={`w-2 h-2 rounded-full animate-pulse ${isConnected ? 'bg-green-400' : connectionStatus === 'connecting' ? 'bg-yellow-400' : 'bg-red-400'
+              }`}></span>
+            <span>{isConnected ? 'BACKEND ONLINE' : connectionStatus === 'connecting' ? 'CONNECTING...' : 'BACKEND OFFLINE'}</span>
+            {!isConnected && (
+              <button
+                onClick={reconnect}
+                className="ml-2 text-cyan-400 hover:text-cyan-300 underline"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+
           <button
             onClick={toggleLanguage}
             className="flex items-center space-x-3 bg-slate-900/60 border border-slate-700/50 px-5 py-2 md:px-4 md:py-1.5 rounded-sm text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 backdrop-blur-md shadow-lg"
@@ -326,14 +416,106 @@ const App: FC = () => {
           <div className="flex flex-col space-y-6 w-full md:w-auto items-center md:items-start">
             <VolumeControl level={volume} />
 
-            {/* Decorative Panel - Fixed overlapping grid */}
-            <div className="border border-slate-800 bg-slate-900/40 p-4 w-full md:w-64 text-[10px] font-mono text-slate-500 grid grid-cols-2 gap-x-4 gap-y-2 rounded-sm backdrop-blur-sm">
-              <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>CPU</span><span className="text-cyan-600">32%</span></div>
-              <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>MEM</span><span className="text-cyan-600">14%</span></div>
-              <div className="flex justify-between"><span>NET</span><span className="text-green-600 uppercase">Online</span></div>
-              <div className="flex justify-between"><span>MIC</span><span className={mode !== AppMode.IDLE ? "text-red-500 animate-pulse font-bold" : "text-slate-600"}>{mode !== AppMode.IDLE ? "ACTIVE" : "OFFLINE"}</span></div>
-            </div>
+            {/* Real System Status Panel */}
+            {systemStatus && systemStatus.success && (
+              <div className="border border-cyan-500/30 bg-slate-900/60 p-4 w-full md:w-64 text-[10px] font-mono rounded-sm backdrop-blur-sm">
+                <div className="text-cyan-400 uppercase tracking-wider mb-3 pb-2 border-b border-cyan-500/20">
+                  SYSTEM STATUS
+                </div>
+
+                {/* Battery */}
+                {systemStatus.battery?.percent !== null && (
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-slate-400">BATTERY</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${systemStatus.battery.is_charging
+                            ? 'bg-green-500 animate-pulse'
+                            : systemStatus.battery.percent < 20
+                              ? 'bg-red-500'
+                              : 'bg-cyan-500'
+                            }`}
+                          style={{ width: `${systemStatus.battery.percent}%` }}
+                        ></div>
+                      </div>
+                      <span className={systemStatus.battery.percent < 20 ? 'text-red-400' : 'text-cyan-400'}>
+                        {systemStatus.battery.percent}%
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* CPU */}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-slate-400">CPU</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${systemStatus.cpu.percent > 80 ? 'bg-red-500' : 'bg-cyan-500'
+                          }`}
+                        style={{ width: `${Math.min(systemStatus.cpu.percent, 100)}%` }}
+                      ></div>
+                    </div>
+                    <span className={systemStatus.cpu.percent > 80 ? 'text-red-400' : 'text-cyan-400'}>
+                      {systemStatus.cpu.percent.toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Memory */}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-slate-400">MEMORY</span>
+                  <span className="text-cyan-400">{formatBytes(systemStatus.memory.used)} / {formatBytes(systemStatus.memory.total)}</span>
+                </div>
+
+                {/* Volume */}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-slate-400">VOLUME</span>
+                  <span className="text-cyan-400">{systemStatus.volume}%</span>
+                </div>
+
+                {/* Uptime */}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-slate-400">UPTIME</span>
+                  <span className="text-cyan-400">{formatUptime(systemStatus.uptime)}</span>
+                </div>
+
+                {/* Platform */}
+                <div className="flex justify-between items-center pt-2 border-t border-slate-700/50">
+                  <span className="text-slate-500">PLATFORM</span>
+                  <span className="text-green-400 uppercase">{systemStatus.platform}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Fallback Stats Panel */}
+            {!systemStatus && (
+              <div className="border border-slate-800 bg-slate-900/40 p-4 w-full md:w-64 text-[10px] font-mono grid grid-cols-2 gap-x-4 gap-y-2 rounded-sm backdrop-blur-sm">
+                <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>CPU</span><span className="text-cyan-600">--%</span></div>
+                <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>MEM</span><span className="text-cyan-600">--%</span></div>
+                <div className="flex justify-between"><span>NET</span><span className="text-green-600 uppercase">Online</span></div>
+                <div className="flex justify-between"><span>MIC</span><span className={mode !== AppMode.IDLE ? "text-red-500 animate-pulse font-bold" : "text-slate-600"}>{mode !== AppMode.IDLE ? "ACTIVE" : "OFFLINE"}</span></div>
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Advanced Tools Toggle */}
+        <div className="w-full flex flex-col items-center gap-4">
+          <button
+            onClick={() => setShowAdvancedHelper(!showAdvancedHelper)}
+            className="text-cyan-500/50 hover:text-cyan-400 text-[10px] tracking-[0.2em] uppercase border-b border-transparent hover:border-cyan-500/50 transition-all"
+          >
+            {showAdvancedHelper ? 'Hide Advanced Tools' : 'Show Advanced Tools'}
+          </button>
+
+          {showAdvancedHelper && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <DesktopControls language={language === Language.HINDI ? 'hi' : 'en'} />
+              <MediaTools language={language === Language.HINDI ? 'hi' : 'en'} />
+            </div>
+          )}
         </div>
 
       </main>
@@ -344,6 +526,46 @@ const App: FC = () => {
         onClose={() => setShowPermissionModal(false)}
         language={language === Language.HINDI ? 'hi' : 'en'}
       />
+
+      {/* Confirmation Modal for Dangerous Commands */}
+      <ConfirmationModal
+        isOpen={!!pendingConfirmation}
+        confirmation={pendingConfirmation}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
+      />
+
+      {/* Memory Viewer */}
+      <MemoryViewer
+        isOpen={showMemoryViewer}
+        onClose={() => setShowMemoryViewer(false)}
+      />
+
+      {/* Automation Dashboard */}
+      <AutomationDashboard
+        isOpen={showAutomationDashboard}
+        onClose={() => setShowAutomationDashboard(false)}
+      />
+
+      {/* Phase 4 Quick Access Buttons */}
+      <div className="fixed bottom-4 right-4 z-30 flex gap-2">
+        <button
+          onClick={() => setShowMemoryViewer(true)}
+          className="bg-slate-800/80 hover:bg-slate-700 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg backdrop-blur-sm transition-all hover:scale-105 flex items-center gap-2 text-sm"
+          title="View Memory & History"
+        >
+          <span>🧠</span>
+          <span className="hidden md:inline">Memory</span>
+        </button>
+        <button
+          onClick={() => setShowAutomationDashboard(true)}
+          className="bg-slate-800/80 hover:bg-slate-700 border border-purple-500/30 text-purple-400 px-3 py-2 rounded-lg backdrop-blur-sm transition-all hover:scale-105 flex items-center gap-2 text-sm"
+          title="Automation & Macros"
+        >
+          <span>⚡</span>
+          <span className="hidden md:inline">Auto</span>
+        </button>
+      </div>
 
       {/* Footer / Branding */}
       <footer className="relative w-full flex flex-col items-center space-y-4 z-20 mt-auto py-10 bg-black/60 backdrop-blur-sm border-t border-slate-900">

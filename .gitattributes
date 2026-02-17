@@ -1,0 +1,22 @@
+# Handle line endings automatically for files detected as text 
+# and perform CRLF normalization on Windows.
+* text=auto
+
+# Explicitly declare text files you want to always be LF or CRLF
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.css text
+*.html text
+*.json text
+*.md text
+*.py text
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
