@@ -5,7 +5,7 @@ import asyncio
 import subprocess
 import pyperclip
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any, cast
 from PIL import Image, ImageFilter, ImageEnhance
 import pytesseract
 from PyPDF2 import PdfMerger, PdfReader, PdfWriter
@@ -34,7 +34,10 @@ class MediaProcessor:
 
     # ==================== OCR FUNCTIONS ====================
 
-    async def extract_text_from_image(self, image_path: str, language: str = 'en') -> Dict:
+    async def extract_text_from_image(
+            self,
+            image_path: str,
+            language: str = 'en') -> Dict:
         """Extract text from image file"""
         try:
             path = Path(image_path).expanduser().resolve()
@@ -76,7 +79,11 @@ class MediaProcessor:
                 'response': 'Failed to extract text from image'
             }
 
-    async def extract_text_from_pdf(self, pdf_path: str, page_number: Optional[int] = None, language: str = 'en') -> Dict:
+    async def extract_text_from_pdf(
+            self,
+            pdf_path: str,
+            page_number: Optional[int] = None,
+            language: str = 'en') -> Dict:
         """Extract text from PDF file"""
         try:
             path = Path(pdf_path).expanduser().resolve()
@@ -111,7 +118,9 @@ class MediaProcessor:
                         text += page.extract_text() + "\n"
 
                 if text.strip():
-                    log_command(f'PDF text extract from {path.name}', 'ocr_pdf', True)
+                    log_command(
+                        f'PDF text extract from {
+                            path.name}', 'ocr_pdf', True)
                     return {
                         'success': True,
                         'action_type': 'OCR_PDF',
@@ -121,11 +130,14 @@ class MediaProcessor:
                         'pages': len(reader.pages),
                         'response': f'Extracted text from {len(reader.pages)} pages'
                     }
-            except:
+            except BaseException:
                 pass  # Fall through to OCR
 
             # Use OCR for scanned PDFs
-            images = convert_from_path(str(path), first_page=page_number, last_page=page_number)
+            images = convert_from_path(
+                str(path),
+                first_page=page_number,
+                last_page=page_number)
 
             if not images:
                 return {
@@ -190,7 +202,11 @@ class MediaProcessor:
 
     # ==================== PDF TOOLS ====================
 
-    async def merge_pdfs(self, pdf_files: List[str], output_path: str, language: str = 'en') -> Dict:
+    async def merge_pdfs(
+            self,
+            pdf_files: List[str],
+            output_path: str,
+            language: str = 'en') -> Dict:
         """Merge multiple PDFs into one"""
         try:
             merger = PdfMerger()
@@ -223,7 +239,12 @@ class MediaProcessor:
                 'response': 'Failed to merge PDFs'
             }
 
-    async def split_pdf(self, pdf_path: str, pages: List[int], output_path: str, language: str = 'en') -> Dict:
+    async def split_pdf(
+            self,
+            pdf_path: str,
+            pages: List[int],
+            output_path: str,
+            language: str = 'en') -> Dict:
         """Extract specific pages from PDF"""
         try:
             path = Path(pdf_path).expanduser().resolve()
@@ -266,7 +287,12 @@ class MediaProcessor:
                 'response': 'Failed to split PDF'
             }
 
-    async def pdf_to_images(self, pdf_path: str, output_folder: Optional[str] = None, dpi: int = 200, language: str = 'en') -> Dict:
+    async def pdf_to_images(
+            self,
+            pdf_path: str,
+            output_folder: Optional[str] = None,
+            dpi: int = 200,
+            language: str = 'en') -> Dict:
         """Convert PDF pages to images"""
         try:
             path = Path(pdf_path).expanduser().resolve()
@@ -292,7 +318,7 @@ class MediaProcessor:
 
             saved_files = []
             for i, image in enumerate(images):
-                image_path = output_dir / f'page_{i+1:03d}.png'
+                image_path = output_dir / f'page_{i + 1:03d}.png'
                 image.save(str(image_path), 'PNG')
                 saved_files.append(str(image_path))
 
@@ -316,7 +342,11 @@ class MediaProcessor:
                 'response': 'Failed to convert PDF to images'
             }
 
-    async def images_to_pdf(self, image_paths: List[str], output_path: str, language: str = 'en') -> Dict:
+    async def images_to_pdf(
+            self,
+            image_paths: List[str],
+            output_path: str,
+            language: str = 'en') -> Dict:
         """Convert images to PDF"""
         try:
             images = []
@@ -347,12 +377,18 @@ class MediaProcessor:
                     'PDF',
                     resolution=100.0,
                     save_all=True,
-                    append_images=list(images[i] for i in range(1, len(images)))
-                )
+                    append_images=list(
+                        images[i] for i in range(
+                            1,
+                            len(images))))
             else:
                 images[0].save(str(output), 'PDF', resolution=100.0)
 
-            log_command(f'images to PDF: {len(images)} images', 'images_to_pdf', True)
+            log_command(
+                f'images to PDF: {
+                    len(images)} images',
+                'images_to_pdf',
+                True)
 
             return {
                 'success': True,
@@ -373,7 +409,12 @@ class MediaProcessor:
 
     # ==================== IMAGE TOOLS ====================
 
-    async def convert_image(self, input_path: str, output_path: str, format: Optional[str] = None, language: str = 'en') -> Dict:
+    async def convert_image(
+            self,
+            input_path: str,
+            output_path: str,
+            format: Optional[str] = None,
+            language: str = 'en') -> Dict:
         """Convert image to different format"""
         try:
             path = Path(input_path).expanduser().resolve()
@@ -395,14 +436,20 @@ class MediaProcessor:
                 format = suffix[1:].upper() if suffix else "PNG"
 
             # Convert RGBA to RGB for JPEG
-            if format.upper() in ['JPEG', 'JPG'] and image.mode in ('RGBA', 'LA', 'P'):
+            if format.upper() in [
+                    'JPEG', 'JPG'] and image.mode in (
+                    'RGBA', 'LA', 'P'):
                 image = image.convert('RGB')
 
             # Save
             output = Path(output_path).expanduser().resolve()
             image.save(str(output), format.upper())
 
-            log_command(f'convert image {path.name} to {format}', 'convert_image', True)
+            log_command(
+                f'convert image {
+                    path.name} to {format}',
+                'convert_image',
+                True)
 
             return {
                 'success': True,
@@ -422,8 +469,14 @@ class MediaProcessor:
                 'response': 'Failed to convert image'
             }
 
-    async def resize_image(self, input_path: str, output_path: str, width: Optional[int] = None, height: Optional[int] = None, 
-                          maintain_aspect: bool = True, language: str = 'en') -> Dict:
+    async def resize_image(
+            self,
+            input_path: str,
+            output_path: str,
+            width: Optional[int] = None,
+            height: Optional[int] = None,
+            maintain_aspect: bool = True,
+            language: str = 'en') -> Dict:
         """Resize image dimensions"""
         try:
             path = Path(input_path).expanduser().resolve()
@@ -485,7 +538,12 @@ class MediaProcessor:
                 'response': 'Failed to resize image'
             }
 
-    async def compress_image(self, input_path: str, output_path: str, quality: int = 85, language: str = 'en') -> Dict:
+    async def compress_image(
+            self,
+            input_path: str,
+            output_path: str,
+            quality: int = 85,
+            language: str = 'en') -> Dict:
         """Compress image file size"""
         try:
             path = Path(input_path).expanduser().resolve()
@@ -523,9 +581,14 @@ class MediaProcessor:
                 'output': str(output),
                 'original_size': original_size,
                 'new_size': new_size,
-                'reduction_percent': float(round(reduction, 1)) if reduction >= 0 else 0.0,
-                'response': f'Compressed by {reduction:.1f}% ({self._format_size(original_size)} → {self._format_size(new_size)})'
-            }
+                'reduction_percent': float(
+                    round(
+                        reduction,
+                        1)) if reduction >= 0 else 0.0,
+                'response': f'Compressed by {
+                    reduction:.1f}% ({
+                    self._format_size(original_size)} → {
+                        self._format_size(new_size)})'}
 
         except Exception as e:
             logger.error(f'Error compressing image: {e}')
@@ -536,18 +599,27 @@ class MediaProcessor:
                 'response': 'Failed to compress image'
             }
 
-    async def batch_images_to_pdf(self, source_folder: str, output_name: str = "batch_images.pdf", language: str = 'en') -> Dict:
+    async def batch_images_to_pdf(
+            self,
+            source_folder: str,
+            output_name: str = "batch_images.pdf",
+            language: str = 'en') -> Dict:
         """Convert all images in a folder to a single PDF"""
         try:
             folder = Path(source_folder).expanduser().resolve()
             if not folder.exists() or not folder.is_dir():
-                return {'success': False, 'error': 'Folder not found', 'response': 'Source folder not found'}
+                return {
+                    'success': False,
+                    'error': 'Folder not found',
+                    'response': 'Source folder not found'}
 
             image_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif']
-            image_paths = [str(f) for f in folder.iterdir() if f.suffix.lower() in image_extensions]
-            
+            image_paths = [str(f) for f in folder.iterdir()
+                           if f.suffix.lower() in image_extensions]
+
             if not image_paths:
-                return {'success': False, 'error': 'No images found', 'response': 'No images found in the specified folder'}
+                return {'success': False, 'error': 'No images found',
+                        'response': 'No images found in the specified folder'}
 
             output_path = folder / output_name
             return await self.images_to_pdf(image_paths, str(output_path), language)
@@ -555,7 +627,11 @@ class MediaProcessor:
             logger.error(f'Error in batch images to PDF: {e}')
             return {'success': False, 'error': str(e)}
 
-    async def scan_folder(self, folder_path: str, file_type: str = "all", language: str = 'en') -> Dict:
+    async def scan_folder(
+            self,
+            folder_path: str,
+            file_type: str = "all",
+            language: str = 'en') -> Dict:
         """Scan folder for specific file types (media, pdf, etc.)"""
         try:
             folder = Path(folder_path).expanduser().resolve()
@@ -563,18 +639,29 @@ class MediaProcessor:
                 return {'success': False, 'error': 'Folder not found'}
 
             extensions = {
-                "media": ['.png', '.jpg', '.jpeg', '.mp4', '.mp3', '.wav', '.mov'],
+                "media": [
+                    '.png',
+                    '.jpg',
+                    '.jpeg',
+                    '.mp4',
+                    '.mp3',
+                    '.wav',
+                    '.mov'],
                 "pdf": ['.pdf'],
-                "doc": ['.doc', '.docx', '.txt', '.rtf'],
-                "all": []
-            }
+                "doc": [
+                    '.doc',
+                    '.docx',
+                    '.txt',
+                    '.rtf'],
+                "all": []}
 
             target_exts = extensions.get(file_type.lower(), [])
             found_files = []
 
             for root, _, files in os.walk(folder):
                 for file in files:
-                    if not target_exts or Path(file).suffix.lower() in target_exts:
+                    if not target_exts or Path(
+                            file).suffix.lower() in target_exts:
                         found_files.append({
                             'name': file,
                             'path': os.path.join(root, file),
@@ -582,8 +669,9 @@ class MediaProcessor:
                         })
 
             # Limit results for performance
-            limited_files = list(found_files[i] for i in range(min(100, len(found_files))))
-            
+            limited_files = list(found_files[i]
+                                 for i in range(min(100, len(found_files))))
+
             return {
                 'success': True,
                 'action_type': 'SCAN_FOLDER',
@@ -591,8 +679,9 @@ class MediaProcessor:
                 'type': file_type,
                 'files': limited_files,
                 'count': len(found_files),
-                'response': f'Found {len(found_files)} {file_type} files in {folder.name}'
-            }
+                'response': f'Found {
+                    len(found_files)} {file_type} files in {
+                    folder.name}'}
         except Exception as e:
             logger.error(f'Error scanning folder: {e}')
             return {'success': False, 'error': str(e)}
@@ -607,7 +696,10 @@ class MediaProcessor:
             else:
                 subprocess.run(['pinta'])
 
-            return {'success': True, 'action_type': 'MAKE_DRAWING', 'response': 'Drawing app opened'}
+            return {
+                'success': True,
+                'action_type': 'MAKE_DRAWING',
+                'response': 'Drawing app opened'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
@@ -619,12 +711,12 @@ class MediaProcessor:
                 pyautogui.hotkey('command', 'c')
             else:
                 pyautogui.hotkey('ctrl', 'c')
-            
+
             # Wait a bit for clipboard update
             await asyncio.sleep(0.5)
-            
+
             selected_text = pyperclip.paste()
-            
+
             return {
                 'success': True,
                 'action_type': 'GET_SELECTED_TEXT',
@@ -634,21 +726,30 @@ class MediaProcessor:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    async def read_pdf(self, pdf_path: str, page_number: Optional[int] = None, language: str = 'en') -> Dict:
+    async def read_pdf(
+            self,
+            pdf_path: str,
+            page_number: Optional[int] = None,
+            language: str = 'en') -> Dict:
         """Read PDF content aloud (via frontend TTS)"""
         result = await self.extract_text_from_pdf(pdf_path, page_number, language)
         if result['success']:
             text = result['text']
             # Limit text length for reading
             read_limit = 2000
-            read_text = text[:read_limit] + "..." if len(text) > read_limit else text
-            
+            read_text = text[:read_limit] + \
+                "..." if len(text) > read_limit else text
+
             return {
                 'success': True,
                 'action_type': 'READ_TEXT',
                 'text': read_text,
                 'file': pdf_path,
-                'response': f"Reading PDF: {Path(pdf_path).name}" if language == 'en' else f"PDF पढ़ रहा हूँ: {Path(pdf_path).name}"
+                'response': (
+                    f"Reading PDF: {Path(pdf_path).name}"
+                    if language == 'en'
+                    else f"PDF पढ़ रहा हूँ: {Path(pdf_path).name}"
+                )
             }
         return result
 
@@ -661,10 +762,13 @@ class MediaProcessor:
                 return {
                     'success': True,
                     'action_type': 'READ_TEXT',
-                    'text': 'The screen appears to be empty or has no recognizable text.',
+                    'text': (
+                        'The screen appears to be empty '
+                        'or has no recognizable text.'
+                    ),
                     'response': 'Screen is empty'
                 }
-            
+
             # Narrate the text
             return {
                 'success': True,
@@ -681,9 +785,13 @@ class MediaProcessor:
         if result['success']:
             text = result['text']
             # Simple summarization: first few lines or key words
-            lines = [l.strip() for l in str(text).split('\n') if l.strip()]
-            summary = ", ".join(lines[:5]) if lines else "Nothing found"
-            
+            lines = [
+                line.strip()
+                for line in str(text).split('\n')
+                if line.strip()
+            ]
+            summary = ", ".join(cast(Any, lines)[:5]) if lines else "None"
+
             return {
                 'success': True,
                 'summary': summary,
@@ -691,18 +799,21 @@ class MediaProcessor:
             }
         return result
 
-    async def draw_shape(self, shape: str = "circle", language: str = 'en') -> Dict:
+    async def draw_shape(
+            self,
+            shape: str = "circle",
+            language: str = 'en') -> Dict:
         """Draw a simple shape using mouse automation"""
         try:
             import math
-            
+
             # Start position (center of screen)
             sw, sh = pyautogui.size()
             cx, cy = sw // 2, sh // 2
-            
+
             pyautogui.moveTo(cx, cy)
             pyautogui.mouseDown()
-            
+
             if shape.lower() == "circle":
                 radius = 100
                 for i in range(0, 361, 10):
@@ -716,9 +827,9 @@ class MediaProcessor:
                 pyautogui.dragRel(0, size)
                 pyautogui.dragRel(-size, 0)
                 pyautogui.dragRel(0, -size)
-            
+
             pyautogui.mouseUp()
-            
+
             return {
                 'success': True,
                 'action_type': 'DRAW_SHAPE',

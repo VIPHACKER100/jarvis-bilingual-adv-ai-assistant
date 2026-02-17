@@ -42,7 +42,8 @@ class FileManager:
 
         # Fuzzy match
         keys = list(self.quick_access_paths.keys())
-        best_match = process.extractOne(folder_lower, keys, scorer=fuzz.partial_ratio)
+        best_match = process.extractOne(
+            folder_lower, keys, scorer=fuzz.partial_ratio)
         if best_match and best_match[1] >= 70:
             return self.quick_access_paths[best_match[0]]
 
@@ -51,12 +52,15 @@ class FileManager:
             path = Path(folder_name).expanduser().resolve()
             if path.exists():
                 return path
-        except:
+        except BaseException:
             pass
 
         return None
 
-    async def open_folder(self, folder_name: str, language: str = 'en') -> Dict:
+    async def open_folder(
+            self,
+            folder_name: str,
+            language: str = 'en') -> Dict:
         """Open folder in file explorer"""
         try:
             folder_path = self._get_folder_path(folder_name)
@@ -83,8 +87,10 @@ class FileManager:
                 'success': True,
                 'action_type': 'OPEN_FOLDER',
                 'folder': str(folder_path),
-                'response': parser.get_response('app_opened', language, folder_name)
-            }
+                'response': parser.get_response(
+                    'app_opened',
+                    language,
+                    folder_name)}
 
         except Exception as e:
             logger.error(f'Error opening folder {folder_name}: {e}')
@@ -95,7 +101,11 @@ class FileManager:
                 'response': f'Failed to open folder {folder_name}'
             }
 
-    async def list_files(self, folder_name: str = None, pattern: str = '*', language: str = 'en') -> Dict:
+    async def list_files(
+            self,
+            folder_name: str = None,
+            pattern: str = '*',
+            language: str = 'en') -> Dict:
         """List files in folder with optional pattern matching"""
         try:
             if folder_name:
@@ -121,10 +131,10 @@ class FileManager:
                         'name': item.name,
                         'path': str(item),
                         'size': stat.st_size if item.is_file() else None,
-                        'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                        'modified': datetime.fromtimestamp(
+                            stat.st_mtime).isoformat(),
                         'is_file': item.is_file(),
-                        'is_dir': item.is_dir()
-                    }
+                        'is_dir': item.is_dir()}
 
                     if item.is_dir():
                         folders.append(info)
@@ -155,7 +165,11 @@ class FileManager:
                 'response': 'Failed to list files'
             }
 
-    async def search_files(self, search_name: str, folder_name: str = None, language: str = 'en') -> Dict:
+    async def search_files(
+            self,
+            search_name: str,
+            folder_name: str = None,
+            language: str = 'en') -> Dict:
         """Search for files by name"""
         try:
             if folder_name:
@@ -184,7 +198,8 @@ class FileManager:
 
                 for item in files + dirs:
                     item_lower = item.lower()
-                    if search_lower in item_lower or fuzz.partial_ratio(search_lower, item_lower) >= 70:
+                    if search_lower in item_lower or fuzz.partial_ratio(
+                            search_lower, item_lower) >= 70:
                         full_path = Path(root) / item
                         try:
                             stat = full_path.stat()
@@ -195,7 +210,7 @@ class FileManager:
                                 'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
                                 'is_file': full_path.is_file()
                             })
-                        except:
+                        except BaseException:
                             continue
 
                 if len(matches) >= 20:
@@ -220,7 +235,11 @@ class FileManager:
                 'response': 'Failed to search files'
             }
 
-    async def create_folder(self, folder_name: str, parent_path: str = None, language: str = 'en') -> Dict:
+    async def create_folder(
+            self,
+            folder_name: str,
+            parent_path: str = None,
+            language: str = 'en') -> Dict:
         """Create new folder"""
         try:
             if parent_path:
@@ -254,7 +273,11 @@ class FileManager:
                 'response': f'Failed to create folder {folder_name}'
             }
 
-    async def delete_file(self, file_path: str, language: str = 'en', confirmed: bool = False) -> Dict:
+    async def delete_file(
+            self,
+            file_path: str,
+            language: str = 'en',
+            confirmed: bool = False) -> Dict:
         """Delete file or folder (with confirmation)"""
         if not confirmed:
             return {
@@ -263,8 +286,9 @@ class FileManager:
                 'action_type': 'DELETE_FILE',
                 'file': file_path,
                 'response': f'Are you sure you want to delete "{file_path}"?',
-                'confirmation_context': {'command': 'delete_file', 'file_path': file_path}
-            }
+                'confirmation_context': {
+                    'command': 'delete_file',
+                    'file_path': file_path}}
 
         try:
             path = Path(file_path).expanduser().resolve()
@@ -309,7 +333,11 @@ class FileManager:
                 'response': f'Failed to delete {file_path}'
             }
 
-    async def copy_file(self, source: str, destination: str, language: str = 'en') -> Dict:
+    async def copy_file(
+            self,
+            source: str,
+            destination: str,
+            language: str = 'en') -> Dict:
         """Copy file or folder"""
         try:
             src_path = Path(source).expanduser().resolve()
@@ -324,7 +352,10 @@ class FileManager:
                 }
 
             if src_path.is_dir():
-                shutil.copytree(src_path, dst_path / src_path.name, dirs_exist_ok=True)
+                shutil.copytree(
+                    src_path,
+                    dst_path / src_path.name,
+                    dirs_exist_ok=True)
             else:
                 shutil.copy2(src_path, dst_path)
 
@@ -347,7 +378,11 @@ class FileManager:
                 'response': 'Failed to copy file'
             }
 
-    async def move_file(self, source: str, destination: str, language: str = 'en') -> Dict:
+    async def move_file(
+            self,
+            source: str,
+            destination: str,
+            language: str = 'en') -> Dict:
         """Move file or folder"""
         try:
             src_path = Path(source).expanduser().resolve()
@@ -382,7 +417,11 @@ class FileManager:
                 'response': 'Failed to move file'
             }
 
-    async def rename_file(self, old_path: str, new_name: str, language: str = 'en') -> Dict:
+    async def rename_file(
+            self,
+            old_path: str,
+            new_name: str,
+            language: str = 'en') -> Dict:
         """Rename file or folder"""
         try:
             src_path = Path(old_path).expanduser().resolve()
@@ -398,7 +437,10 @@ class FileManager:
             new_path = src_path.parent / new_name
             src_path.rename(new_path)
 
-            log_command(f'rename {old_path} to {new_name}', 'rename_file', True)
+            log_command(
+                f'rename {old_path} to {new_name}',
+                'rename_file',
+                True)
 
             return {
                 'success': True,
@@ -417,7 +459,10 @@ class FileManager:
                 'response': 'Failed to rename file'
             }
 
-    async def get_file_info(self, file_path: str, language: str = 'en') -> Dict:
+    async def get_file_info(
+            self,
+            file_path: str,
+            language: str = 'en') -> Dict:
         """Get file information"""
         try:
             path = Path(file_path).expanduser().resolve()

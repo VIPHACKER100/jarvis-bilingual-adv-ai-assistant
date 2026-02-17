@@ -24,7 +24,10 @@ class DesktopManager:
 
     # ==================== SCREENSHOT FUNCTIONS ====================
 
-    async def take_screenshot(self, save_to_file: bool = True, language: str = 'en') -> Dict:
+    async def take_screenshot(
+            self,
+            save_to_file: bool = True,
+            language: str = 'en') -> Dict:
         """Take full screenshot"""
         try:
             screenshot = pyautogui.screenshot()
@@ -37,7 +40,8 @@ class DesktopManager:
             file_path = None
             if save_to_file:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                file_path = self.screenshots_dir / f"screenshot_{timestamp}.png"
+                file_path = self.screenshots_dir / \
+                    f"screenshot_{timestamp}.png"
                 screenshot.save(str(file_path))
 
             log_command('take screenshot', 'screenshot', True)
@@ -48,8 +52,9 @@ class DesktopManager:
                 'image': f'data:image/png;base64,{img_str}',
                 'file_path': str(file_path) if file_path else None,
                 'size': screenshot.size,
-                'response': f'Screenshot captured ({screenshot.size[0]}x{screenshot.size[1]})'
-            }
+                'response': f'Screenshot captured ({
+                    screenshot.size[0]}x{
+                    screenshot.size[1]})'}
 
         except Exception as e:
             logger.error(f'Error taking screenshot: {e}')
@@ -60,8 +65,14 @@ class DesktopManager:
                 'response': 'Failed to take screenshot'
             }
 
-    async def take_screenshot_region(self, x: int, y: int, width: int, height: int, 
-                                     save_to_file: bool = True, language: str = 'en') -> Dict:
+    async def take_screenshot_region(
+            self,
+            x: int,
+            y: int,
+            width: int,
+            height: int,
+            save_to_file: bool = True,
+            language: str = 'en') -> Dict:
         """Take screenshot of specific region"""
         try:
             screenshot = pyautogui.screenshot(region=(x, y, width, height))
@@ -74,10 +85,12 @@ class DesktopManager:
             file_path = None
             if save_to_file:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                file_path = self.screenshots_dir / f"screenshot_region_{timestamp}.png"
+                file_path = self.screenshots_dir / \
+                    f"screenshot_region_{timestamp}.png"
                 screenshot.save(str(file_path))
 
-            log_command(f'take region screenshot {x},{y},{width},{height}', 'screenshot_region', True)
+            log_command(
+                f'take region screenshot {x},{y},{width},{height}', 'screenshot_region', True)
 
             return {
                 'success': True,
@@ -97,11 +110,16 @@ class DesktopManager:
                 'response': 'Failed to take screenshot'
             }
 
-    async def save_screenshot(self, image_data: str, filename: Optional[str] = None, language: str = 'en') -> Dict:
+    async def save_screenshot(
+            self,
+            image_data: str,
+            filename: Optional[str] = None,
+            language: str = 'en') -> Dict:
         """Save base64 screenshot to file"""
         try:
             # Decode base64
-            image_bytes = base64.b64decode(image_data.split(',')[1] if ',' in image_data else image_data)
+            image_bytes = base64.b64decode(image_data.split(
+                ',')[1] if ',' in image_data else image_data)
             image = Image.open(io.BytesIO(image_bytes))
 
             # Generate filename
@@ -153,12 +171,19 @@ class DesktopManager:
                 'response': 'Failed to get clipboard text'
             }
 
-    async def set_clipboard_text(self, text: str, language: str = 'en') -> Dict:
+    async def set_clipboard_text(
+            self,
+            text: str,
+            language: str = 'en') -> Dict:
         """Set text to clipboard"""
         try:
             pyperclip.copy(text)
 
-            log_command(f'copy text to clipboard ({len(text)} chars)', 'clipboard_set_text', True)
+            log_command(
+                f'copy text to clipboard ({
+                    len(text)} chars)',
+                'clipboard_set_text',
+                True)
 
             return {
                 'success': True,
@@ -378,7 +403,11 @@ class DesktopManager:
                 'response': 'Failed to get screen resolution'
             }
 
-    async def show_notification(self, title: str, message: str, language: str = 'en') -> Dict:
+    async def show_notification(
+            self,
+            title: str,
+            message: str,
+            language: str = 'en') -> Dict:
         """Show system notification"""
         try:
             if is_windows():
@@ -411,30 +440,55 @@ class DesktopManager:
 
     # ==================== ADVANCED WINDOWS FEATURES ====================
 
-    async def change_wallpaper(self, image_path: str, language: str = 'en') -> Dict:
+    async def change_wallpaper(
+            self,
+            image_path: str,
+            language: str = 'en') -> Dict:
         """Change desktop wallpaper"""
         try:
             path = Path(image_path).expanduser().resolve()
             if not path.exists():
-                return {'success': False, 'error': 'Image not found', 'response': 'Wallpaper image not found'}
+                return {
+                    'success': False,
+                    'error': 'Image not found',
+                    'response': 'Wallpaper image not found'}
 
             if is_windows():
                 SPI_SETDESKWALLPAPER = 20
-                ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, str(path), 3)  # type: ignore
+                ctypes.windll.user32.SystemParametersInfoW(
+                    SPI_SETDESKWALLPAPER, 0, str(path), 3)  # type: ignore
             elif is_macos():
                 script = f'tell application "System Events" to set picture of every desktop to POSIX file "{path}"'
                 subprocess.run(['osascript', '-e', script])
             else:
                 # GNOME example
-                subprocess.run(['gsettings', 'set', 'org.gnome.desktop.background', 'picture-uri', f'file://{path}'])
+                subprocess.run(['gsettings',
+                                'set',
+                                'org.gnome.desktop.background',
+                                'picture-uri',
+                                f'file://{path}'])
 
-            log_command(f'change wallpaper to {path.name}', 'change_wallpaper', True)
-            return {'success': True, 'action_type': 'CHANGE_WALLPAPER', 'path': str(path), 'response': 'Wallpaper changed successfully'}
+            log_command(
+                f'change wallpaper to {
+                    path.name}',
+                'change_wallpaper',
+                True)
+            return {
+                'success': True,
+                'action_type': 'CHANGE_WALLPAPER',
+                'path': str(path),
+                'response': 'Wallpaper changed successfully'}
         except Exception as e:
             logger.error(f'Error changing wallpaper: {e}')
-            return {'success': False, 'error': str(e), 'response': 'Failed to change wallpaper'}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': 'Failed to change wallpaper'}
 
-    async def empty_recycle_bin(self, language: str = 'en', confirmed: bool = False) -> Dict:
+    async def empty_recycle_bin(
+            self,
+            language: str = 'en',
+            confirmed: bool = False) -> Dict:
         """Empty system recycle bin"""
         if not confirmed:
             return {
@@ -450,36 +504,50 @@ class DesktopManager:
                 import winshell
                 winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=True)
             elif is_macos():
-                subprocess.run(['osascript', '-e', 'tell application "Finder" to empty trash'])
+                subprocess.run(
+                    ['osascript', '-e', 'tell application "Finder" to empty trash'])
             else:
                 os.system('rm -rf ~/.local/share/Trash/*')
 
             log_command('empty recycle bin', 'empty_recycle_bin', True)
-            return {'success': True, 'action_type': 'EMPTY_RECYCLE_BIN', 'response': 'Recycle bin emptied'}
+            return {
+                'success': True,
+                'action_type': 'EMPTY_RECYCLE_BIN',
+                'response': 'Recycle bin emptied'}
         except Exception as e:
             logger.error(f'Error emptying recycle bin: {e}')
-            return {'success': False, 'error': str(e), 'response': 'Failed to empty recycle bin'}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': 'Failed to empty recycle bin'}
 
-    async def toggle_taskbar(self, show: Optional[bool] = None, language: str = 'en') -> Dict:
+    async def toggle_taskbar(
+            self,
+            show: Optional[bool] = None,
+            language: str = 'en') -> Dict:
         """Hide or show the Windows taskbar"""
         if not is_windows():
-            return {'success': False, 'error': 'Not supported on this platform'}
+            return {
+                'success': False,
+                'error': 'Not supported on this platform'}
 
         try:
             # Find the taskbar window
-            hwnd = ctypes.windll.user32.FindWindowW("Shell_TrayWnd", None)  # type: ignore
-            
+            hwnd = ctypes.windll.user32.FindWindowW(
+                "Shell_TrayWnd", None)  # type: ignore
+
             SW_HIDE = 0
             SW_SHOW = 5
-            
-            current_state = ctypes.windll.user32.IsWindowVisible(hwnd)  # type: ignore
-            
+
+            current_state = ctypes.windll.user32.IsWindowVisible(
+                hwnd)  # type: ignore
+
             if show is None:
                 # Toggle based on current state
                 should_show = not current_state
             else:
                 should_show = show
-            
+
             if should_show:
                 ctypes.windll.user32.ShowWindow(hwnd, SW_SHOW)  # type: ignore
                 status = 'shown'
@@ -487,65 +555,111 @@ class DesktopManager:
                 ctypes.windll.user32.ShowWindow(hwnd, SW_HIDE)  # type: ignore
                 status = 'hidden'
 
-            return {'success': True, 'action_type': 'TOGGLE_TASKBAR', 'status': status, 'response': f'Taskbar {status}'}
+            return {
+                'success': True,
+                'action_type': 'TOGGLE_TASKBAR',
+                'status': status,
+                'response': f'Taskbar {status}'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
-    async def toggle_desktop_icons(self, show: Optional[bool] = None, language: str = 'en') -> Dict:
+    async def toggle_desktop_icons(
+            self,
+            show: Optional[bool] = None,
+            language: str = 'en') -> Dict:
         """Hide or show desktop icons (Windows)"""
         if not is_windows():
-            return {'success': False, 'error': 'Not supported on this platform'}
+            return {
+                'success': False,
+                'error': 'Not supported on this platform'}
 
         try:
             import winreg
             key_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_ALL_ACCESS)
-            
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                key_path,
+                0,
+                winreg.KEY_ALL_ACCESS)
+
             if show is None:
                 # Get current value
                 current_value, _ = winreg.QueryValueEx(key, "HideIcons")
                 should_hide = 0 if current_value == 1 else 1
             else:
                 should_hide = 0 if show else 1
-            
-            winreg.SetValueEx(key, "HideIcons", 0, winreg.REG_DWORD, should_hide)
+
+            winreg.SetValueEx(
+                key,
+                "HideIcons",
+                0,
+                winreg.REG_DWORD,
+                should_hide)
             winreg.CloseKey(key)
-            
+
             # Refresh desktop to apply changes
-            # This is tricky without restart/logout, but sending a message usually works
-            ctypes.windll.user32.SendMessageW(0xffff, 0x0111, 0x1a221, 0) # type: ignore (WM_COMMAND, refresh)
-            
+            # This is tricky without restart/logout, but sending a message
+            # usually works
+            ctypes.windll.user32.SendMessageW(
+                0xffff, 0x0111, 0x1a221, 0)  # type: ignore (WM_COMMAND, refresh)
+
             status = 'hidden' if should_hide else 'shown'
-            return {'success': True, 'action_type': 'TOGGLE_ICONS', 'status': status, 'response': f'Desktop icons {status}'}
+            return {
+                'success': True,
+                'action_type': 'TOGGLE_ICONS',
+                'status': status,
+                'response': f'Desktop icons {status}'}
         except Exception as e:
             logger.error(f'Error toggling icons: {e}')
             return {'success': False, 'error': str(e)}
 
-    async def set_theme(self, theme: str = 'dark', language: str = 'en') -> Dict:
+    async def set_theme(
+            self,
+            theme: str = 'dark',
+            language: str = 'en') -> Dict:
         """Set Windows system theme (light/dark)"""
         if not is_windows():
-            return {'success': False, 'error': 'Not supported on this platform'}
+            return {
+                'success': False,
+                'error': 'Not supported on this platform'}
 
         try:
             import winreg
             key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_ALL_ACCESS)
-            
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                key_path,
+                0,
+                winreg.KEY_ALL_ACCESS)
+
             value = 0 if theme.lower() == 'dark' else 1
-            
+
             # Apps use light/dark mode
-            winreg.SetValueEx(key, "AppsUseLightTheme", 0, winreg.REG_DWORD, value)
+            winreg.SetValueEx(
+                key,
+                "AppsUseLightTheme",
+                0,
+                winreg.REG_DWORD,
+                value)
             # System uses light/dark mode
-            winreg.SetValueEx(key, "SystemUsesLightTheme", 0, winreg.REG_DWORD, value)
-            
+            winreg.SetValueEx(key, "SystemUsesLightTheme",
+                              0, winreg.REG_DWORD, value)
+
             winreg.CloseKey(key)
-            
-            return {'success': True, 'action_type': 'SET_THEME', 'theme': theme, 'response': f'System theme set to {theme}'}
+
+            return {
+                'success': True,
+                'action_type': 'SET_THEME',
+                'theme': theme,
+                'response': f'System theme set to {theme}'}
         except Exception as e:
             logger.error(f'Error setting theme: {e}')
             return {'success': False, 'error': str(e)}
 
-    async def zoom_screen(self, level: str = 'in', language: str = 'en') -> Dict:
+    async def zoom_screen(
+            self,
+            level: str = 'in',
+            language: str = 'en') -> Dict:
         """Zoom screen using Windows Magnifier or built-in hotkeys"""
         try:
             if is_windows():
@@ -559,7 +673,11 @@ class DesktopManager:
                 else:
                     pyautogui.hotkey('command', 'option', '-')
 
-            return {'success': True, 'action_type': 'ZOOM', 'level': level, 'response': f'Zoomed {level}'}
+            return {
+                'success': True,
+                'action_type': 'ZOOM',
+                'level': level,
+                'response': f'Zoomed {level}'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 

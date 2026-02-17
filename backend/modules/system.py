@@ -1,7 +1,7 @@
 import psutil
 import time
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional, cast
 from modules.bilingual_parser import parser
 from utils.platform_utils import (
     shutdown_system, restart_system, sleep_system,
@@ -9,12 +9,13 @@ from utils.platform_utils import (
 )
 from utils.logger import log_command, logger
 
+
 class SystemModule:
     """Handle system-related commands"""
-    
+
     def __init__(self):
         pass
-    
+
     async def get_system_status(self, language: str = 'en') -> Dict[str, Any]:
         """Get complete system status"""
         try:
@@ -25,11 +26,11 @@ class SystemModule:
                 'is_charging': battery.power_plugged if battery else None,
                 'secs_left': battery.secsleft if battery else None
             }
-            
+
             # CPU
             cpu_percent = psutil.cpu_percent(interval=0.1)
             cpu_count = psutil.cpu_count()
-            
+
             # Memory
             memory = psutil.virtual_memory()
             memory_info = {
@@ -38,7 +39,7 @@ class SystemModule:
                 'percent': memory.percent,
                 'available': memory.available
             }
-            
+
             # Disk
             disk = psutil.disk_usage('/')
             disk_info = {
@@ -47,7 +48,7 @@ class SystemModule:
                 'free': disk.free,
                 'percent': (disk.used / disk.total) * 100
             }
-            
+
             # Network
             net_io = psutil.net_io_counters()
             network_info = {
@@ -56,45 +57,43 @@ class SystemModule:
                 'packets_sent': net_io.packets_sent,
                 'packets_recv': net_io.packets_recv
             }
-            
+
             # Uptime
             boot_time = psutil.boot_time()
             uptime_seconds = time.time() - boot_time
-            
+
             # Current volume
             current_volume = get_volume()
-            
+
             return {
                 'success': True,
                 'battery': battery_info,
                 'cpu': {
                     'percent': cpu_percent,
-                    'count': cpu_count
-                },
+                    'count': cpu_count},
                 'memory': memory_info,
                 'disk': disk_info,
                 'network': network_info,
                 'uptime': uptime_seconds,
                 'volume': current_volume,
                 'platform': 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux',
-                'timestamp': datetime.now().isoformat()
-            }
-            
+                'timestamp': datetime.now().isoformat()}
+
         except Exception as e:
             logger.error(f"Error getting system status: {e}")
             return {
                 'success': False,
                 'error': str(e)
             }
-    
+
     async def get_battery_status(self, language: str = 'en') -> Dict[str, Any]:
         """Get battery information"""
         try:
             battery = psutil.sensors_battery()
             if battery:
                 response_text = parser.get_response(
-                    'battery_status', 
-                    language, 
+                    'battery_status',
+                    language,
                     int(battery.percent)
                 )
                 return {
@@ -107,41 +106,44 @@ class SystemModule:
                 return {
                     'success': False,
                     'error': 'No battery found',
-                    'response': parser.get_response('battery_status', language, 'unknown')
-                }
+                    'response': parser.get_response(
+                        'battery_status',
+                        language,
+                        'unknown')}
         except Exception as e:
             return {
                 'success': False,
                 'error': str(e)
             }
-    
+
     async def get_time(self, language: str = 'en') -> Dict[str, Any]:
         """Get current time"""
         now = datetime.now()
         time_str = now.strftime('%I:%M %p')  # 12-hour format
         response_text = parser.get_response('time_is', language, time_str)
-        
+
         return {
             'success': True,
             'time': now.isoformat(),
             'formatted': time_str,
             'response': response_text
         }
-    
+
     async def get_date(self, language: str = 'en') -> Dict[str, Any]:
         """Get current date"""
         now = datetime.now()
         date_str = now.strftime('%A, %B %d, %Y')  # Full format
         response_text = parser.get_response('date_is', language, date_str)
-        
+
         return {
             'success': True,
             'date': now.isoformat(),
             'formatted': date_str,
             'response': response_text
         }
-    
-    async def shutdown(self, language: str = 'en', confirmed: bool = False) -> Dict[str, Any]:
+
+    async def shutdown(self, language: str = 'en',
+                       confirmed: bool = False) -> Dict[str, Any]:
         """Shutdown computer"""
         if not confirmed:
             return {
@@ -150,17 +152,18 @@ class SystemModule:
                 'confirmation_id': None,
                 'response': parser.get_response('confirm_shutdown', language)
             }
-        
+
         log_command('shutdown', 'shutdown', True)
         success, stdout, stderr = shutdown_system()
-        
+
         return {
             'success': success,
             'response': parser.get_response('shutdown_initiated', language),
             'error': stderr if not success else None
         }
-    
-    async def restart(self, language: str = 'en', confirmed: bool = False) -> Dict[str, Any]:
+
+    async def restart(self, language: str = 'en',
+                      confirmed: bool = False) -> Dict[str, Any]:
         """Restart computer"""
         if not confirmed:
             return {
@@ -169,44 +172,48 @@ class SystemModule:
                 'confirmation_id': None,
                 'response': parser.get_response('confirm_restart', language)
             }
-        
+
         log_command('restart', 'restart', True)
         success, stdout, stderr = restart_system()
-        
+
         return {
             'success': success,
             'response': parser.get_response('restart_initiated', language),
             'error': stderr if not success else None
         }
-    
-    async def sleep(self, language: str = 'en', confirmed: bool = False) -> Dict[str, Any]:
+
+    async def sleep(self, language: str = 'en',
+                    confirmed: bool = False) -> Dict[str, Any]:
         """Sleep/suspend computer"""
         if not confirmed:
             return {
                 'success': False,
                 'requires_confirmation': True,
                 'confirmation_id': None,
-                'response': parser.get_response('confirm_shutdown', language)  # Reuse
+                # Reuse
+                'response': parser.get_response('confirm_shutdown', language)
             }
-        
+
         log_command('sleep', 'sleep', True)
         success, stdout, stderr = sleep_system()
-        
+
         return {
             'success': success,
             'response': parser.get_response('shutdown_initiated', language),
             'error': stderr if not success else None
         }
-    
+
     async def volume_up(self, language: str = 'en') -> Dict[str, Any]:
         """Increase volume"""
         try:
             current = get_volume()
             new_volume = min(current + 10, 100)
             success = set_volume(new_volume)
-            
-            log_command('volume_up', 'volume_up', success, {'from': current, 'to': new_volume})
-            
+
+            log_command(
+                'volume_up', 'volume_up', success, {
+                    'from': current, 'to': new_volume})
+
             return {
                 'success': success,
                 'volume': new_volume,
@@ -216,18 +223,21 @@ class SystemModule:
             return {
                 'success': False,
                 'error': str(e),
-                'response': parser.get_response('command_not_understood', language)
-            }
-    
+                'response': parser.get_response(
+                    'command_not_understood',
+                    language)}
+
     async def volume_down(self, language: str = 'en') -> Dict[str, Any]:
         """Decrease volume"""
         try:
             current = get_volume()
             new_volume = max(current - 10, 0)
             success = set_volume(new_volume)
-            
-            log_command('volume_down', 'volume_down', success, {'from': current, 'to': new_volume})
-            
+
+            log_command(
+                'volume_down', 'volume_down', success, {
+                    'from': current, 'to': new_volume})
+
             return {
                 'success': success,
                 'volume': new_volume,
@@ -237,15 +247,16 @@ class SystemModule:
             return {
                 'success': False,
                 'error': str(e),
-                'response': parser.get_response('command_not_understood', language)
-            }
+                'response': parser.get_response(
+                    'command_not_understood',
+                    language)}
 
     async def get_brightness(self) -> int:
         """Get current screen brightness"""
         try:
             import screen_brightness_control as sbc
             return sbc.get_brightness()[0]
-        except:
+        except BaseException:
             return 50
 
     async def set_brightness(self, level: int) -> bool:
@@ -254,7 +265,7 @@ class SystemModule:
             import screen_brightness_control as sbc
             sbc.set_brightness(level)
             return True
-        except:
+        except BaseException:
             return False
 
     async def brightness_up(self, language: str = 'en') -> Dict[str, Any]:
@@ -263,16 +274,21 @@ class SystemModule:
             current = await self.get_brightness()
             new_level = min(current + 10, 100)
             success = await self.set_brightness(new_level)
-            
-            log_command('brightness_up', 'brightness_up', success, {'from': current, 'to': new_level})
-            
+
+            log_command(
+                'brightness_up', 'brightness_up', success, {
+                    'from': current, 'to': new_level})
+
             return {
                 'success': success,
                 'brightness': new_level,
                 'response': f"Brightness increased to {new_level}%" if language == 'en' else f"ब्राइटनेस {new_level}% तक बढ़ गई"
             }
         except Exception as e:
-            return {'success': False, 'error': str(e), 'response': "Failed to change brightness"}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "Failed to change brightness"}
 
     async def brightness_down(self, language: str = 'en') -> Dict[str, Any]:
         """Decrease brightness"""
@@ -280,16 +296,21 @@ class SystemModule:
             current = await self.get_brightness()
             new_level = max(current - 10, 0)
             success = await self.set_brightness(new_level)
-            
-            log_command('brightness_down', 'brightness_down', success, {'from': current, 'to': new_level})
-            
+
+            log_command(
+                'brightness_down', 'brightness_down', success, {
+                    'from': current, 'to': new_level})
+
             return {
                 'success': success,
                 'brightness': new_level,
                 'response': f"Brightness decreased to {new_level}%" if language == 'en' else f"ब्राइटनेस {new_level}% तक कम हो गई"
             }
         except Exception as e:
-            return {'success': False, 'error': str(e), 'response': "Failed to change brightness"}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "Failed to change brightness"}
 
     async def get_network_info(self, language: str = 'en') -> Dict[str, Any]:
         """Get network connection information"""
@@ -297,21 +318,22 @@ class SystemModule:
             import socket
             hostname = socket.gethostname()
             ip_address = socket.gethostbyname(hostname)
-            
+
             # Use psutil for interface details
             addrs = psutil.net_if_addrs()
             stats = psutil.net_if_stats()
-            
+
             interfaces = []
             for name, addr_list in addrs.items():
                 is_up = stats.get(name).isup if name in stats else False
                 if is_up:
                     for addr in addr_list:
-                        if addr.family == socket.AF_INET: # IPv4
-                            interfaces.append({'name': name, 'ip': addr.address})
+                        if addr.family == socket.AF_INET:  # IPv4
+                            interfaces.append(
+                                {'name': name, 'ip': addr.address})
 
             response = f"Network Info: Connected as {hostname} (IP: {ip_address})" if language == 'en' else f"नेटवर्क जानकारी: {hostname} के रूप में जुड़ा हुआ है (IP: {ip_address})"
-            
+
             return {
                 'success': True,
                 'hostname': hostname,
@@ -320,57 +342,70 @@ class SystemModule:
                 'response': response
             }
         except Exception as e:
-            return {'success': False, 'error': str(e), 'response': "Failed to get network info"}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "Failed to get network info"}
 
-    async def google_search(self, query: str, language: str = 'en') -> Dict[str, Any]:
+    async def google_search(
+            self, query: str, language: str = 'en') -> Dict[str, Any]:
         """Open web browser for Google search"""
         try:
             import webbrowser
             url = f"https://www.google.com/search?q={query}"
             webbrowser.open(url)
-            
+
             log_command(f"search {query}", "google_search", True)
-            
+
             return {
                 'success': True,
                 'query': query,
                 'response': f"Searching for '{query}' on Google" if language == 'en' else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
             }
         except Exception as e:
-            return {'success': False, 'error': str(e), 'response': "Failed to open search"}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "Failed to open search"}
 
-    async def get_weather(self, city: str = None, language: str = 'en') -> Dict[str, Any]:
+    async def get_weather(self,
+                          city: Optional[str] = None,
+                          language: str = 'en') -> Dict[str,
+                                                        Any]:
         """Get weather info (simplified browser-based or API if key available)"""
         # For a production app, we'd use an API. For this, we can open a browser or use a simple scraper.
-        # Let's open the browser for now as a more reliable "feature" for the user.
+        # Let's open the browser for now as a more reliable "feature" for the
+        # user.
         try:
             import webbrowser
             query = f"weather in {city}" if city else "weather today"
             url = f"https://www.google.com/search?q={query}"
             webbrowser.open(url)
-            
+
             return {
-                'success': True,
-                'city': city,
-                'response': f"Checking weather for {city or 'current location'}" if language == 'en' else f"{city or 'वर्तमान स्थान'} के लिए मौसम की जानकारी देख रहा हूँ"
-            }
+                'success': True, 'city': city, 'response': f"Checking weather for {
+                    city or 'current location'}" if language == 'en' else f"{
+                    city or 'वर्तमान स्थान'} के लिए मौसम की जानकारी देख रहा हूँ"}
         except Exception as e:
-            return {'success': False, 'error': str(e), 'response': "Failed to get weather"}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "Failed to get weather"}
 
     async def get_uptime(self, language: str = 'en') -> Dict[str, Any]:
         """Get system uptime"""
         try:
             boot_time = psutil.boot_time()
             uptime_seconds = time.time() - boot_time
-            
+
             # Format uptime
             days = int(uptime_seconds // (24 * 3600))
             hours = int((uptime_seconds % (24 * 3600)) // 3600)
             minutes = int((uptime_seconds % 3600) // 60)
-            
+
             uptime_str = f"{days}d {hours}h {minutes}m"
             response = f"System Uptime: {uptime_str}" if language == 'en' else f"सिस्टम अपटाइम: {uptime_str}"
-            
+
             return {
                 'success': True,
                 'uptime_seconds': uptime_seconds,
@@ -378,7 +413,11 @@ class SystemModule:
                 'response': response
             }
         except Exception as e:
-            return {'success': False, 'error': str(e), 'response': "Failed to get uptime"}
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "Failed to get uptime"}
+
 
 # Singleton instance
 system_module = SystemModule()

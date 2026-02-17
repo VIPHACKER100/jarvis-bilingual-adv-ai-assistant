@@ -100,16 +100,20 @@ async def broadcast_system_status():
             logger.error(f"Error in status broadcast: {e}")
 
 async def handle_command(websocket: Optional[WebSocket], command: str, 
-                         language: str = None, override_params: Dict = None) -> Dict[str, Any]:
+                         language: Optional[str] = None, 
+                         override_params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Process a command and return result"""
+    # Use English as default language
+    current_lang = language or 'en'
+    
     # Detect language if not provided
-    if not language:
-        language = parser.detect_language(command)
+    if not current_lang:
+        current_lang = parser.detect_language(command)
     
     # Parse command
     command_key, detected_lang, params = parser.parse_command(command)
     if detected_lang:
-        language = detected_lang
+        current_lang = detected_lang
         
     # Apply parameters override (from macros)
     if override_params:
@@ -271,7 +275,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
                 parts = [p.strip() for p in str(params).split(',')]
                 if len(parts) >= 2:
                     contact = parts[0]
-                    message = ' '.join(parts[1:])
+                    message = ' '.join(cast(Any, parts)[1:])
                     result = await whatsapp_manager.send_message_web(contact, message, language)
                 else:
                     # If only one part, assume it's the contact
@@ -494,30 +498,29 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     # Post-process result: Handle confirmation request if needed
     res = cast(Dict[str, Any], result)
     if res and res.get('requires_confirmation') and not res.get('confirmation_id'):
+        det = cast(Dict[str, Any], res.get('details', {}))
         details = {
             'command_key': command_key,
             'params': params,
-            'language': language
+            'language': current_lang
         }
-        # Add any extra details from result
-        if 'details' in result:
-            details.update(result['details'])
+        details.update(det)
             
         confirmation_id = security.request_confirmation(
             command_key=command_key,
             command_text=command,
-            language=language or 'en',
+            language=current_lang,
             details=details
         )
-        result['confirmation_id'] = confirmation_id
+        res['confirmation_id'] = confirmation_id
     
     # Add metadata
-    if result:
-        result['command_key'] = command_key
-        result['language'] = language or 'en'
-        result['timestamp'] = datetime.now().isoformat()
+    if res:
+        res['command_key'] = command_key
+        res['language'] = current_lang
+        res['timestamp'] = datetime.now().isoformat()
     
-    return result
+    return res
 
 
 @app.get("/api/system/status")
@@ -1257,13 +1260,13 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         logger.info(f"Client {client_id} disconnected")
         if client_id in connected_clients:
-            del connected_clients[client_id]
+            del cast(Any, connected_clients)[client_id]
         log_system_event("CLIENT_DISCONNECTED", {"client_id": client_id})
         
     except Exception as e:
         logger.error(f"WebSocket error for client {client_id}: {e}")
         if client_id in connected_clients:
-            del connected_clients[client_id]
+            del cast(Any, connected_clients)[client_id]
 
 # Serve frontend if it exists - MOVED TO END to prevent intercepting API/WS routes
 frontend_dir = Path("frontend")
