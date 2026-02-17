@@ -1269,7 +1269,7 @@ async def websocket_endpoint(websocket: WebSocket):
             del cast(Any, connected_clients)[client_id]
 
 # Serve frontend if it exists - MOVED TO END to prevent intercepting API/WS routes
-frontend_dir = Path("frontend")
+frontend_dir = Path(__file__).parent.parent / "dist"  # Point to ../dist
 if frontend_dir.exists():
     # Only mount if index.html exists in the directory
     if (frontend_dir / "index.html").exists():
