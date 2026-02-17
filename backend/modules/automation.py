@@ -369,7 +369,7 @@ class AutomationManager:
         """Get a specific macro"""
         return self.macros.get(macro_id)
     
-    def run_macro(self, macro_id: str, callback: Callable = None) -> bool:
+    async def run_macro(self, macro_id: str, callback: Callable = None) -> bool:
         """Execute a macro"""
         if macro_id not in self.macros:
             return False
@@ -388,11 +388,13 @@ class AutomationManager:
                 parameters = cmd_data.get('parameters', {})
                 
                 if callback:
-                    callback(command, parameters)
+                    res = callback(command, parameters)
+                    if asyncio.iscoroutine(res):
+                        await res
                 
                 # Wait for specified delay
                 if delay > 0:
-                    time.sleep(delay)
+                    await asyncio.sleep(delay)
                 
             except Exception as e:
                 logger.error(f"Error executing macro command: {e}")

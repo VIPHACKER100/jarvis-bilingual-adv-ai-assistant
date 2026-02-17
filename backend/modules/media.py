@@ -390,8 +390,9 @@ class MediaProcessor:
             image = Image.open(path)
 
             # Determine output format
+            suffix = str(Path(output_path).suffix)
             if not format:
-                format = Path(output_path).suffix[1:].upper() if Path(output_path).suffix else "PNG"
+                format = suffix[1:].upper() if suffix else "PNG"
 
             # Convert RGBA to RGB for JPEG
             if format.upper() in ['JPEG', 'JPG'] and image.mode in ('RGBA', 'LA', 'P'):
@@ -522,7 +523,7 @@ class MediaProcessor:
                 'output': str(output),
                 'original_size': original_size,
                 'new_size': new_size,
-                'reduction_percent': round(reduction, 1) if reduction >= 0 else 0.0,
+                'reduction_percent': float(round(reduction, 1)) if reduction >= 0 else 0.0,
                 'response': f'Compressed by {reduction:.1f}% ({self._format_size(original_size)} → {self._format_size(new_size)})'
             }
 
@@ -629,6 +630,100 @@ class MediaProcessor:
                 'action_type': 'GET_SELECTED_TEXT',
                 'text': selected_text,
                 'response': f'Retrieved selected text: "{selected_text[:50]}..."'
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    async def read_pdf(self, pdf_path: str, page_number: Optional[int] = None, language: str = 'en') -> Dict:
+        """Read PDF content aloud (via frontend TTS)"""
+        result = await self.extract_text_from_pdf(pdf_path, page_number, language)
+        if result['success']:
+            text = result['text']
+            # Limit text length for reading
+            read_limit = 2000
+            read_text = text[:read_limit] + "..." if len(text) > read_limit else text
+            
+            return {
+                'success': True,
+                'action_type': 'READ_TEXT',
+                'text': read_text,
+                'file': pdf_path,
+                'response': f"Reading PDF: {Path(pdf_path).name}" if language == 'en' else f"PDF पढ़ रहा हूँ: {Path(pdf_path).name}"
+            }
+        return result
+
+    async def narrate_screen(self, language: str = 'en') -> Dict:
+        """Narrate what's currently on screen"""
+        result = await self.extract_text_from_screenshot(language)
+        if result['success']:
+            text = result['text']
+            if not text.strip():
+                return {
+                    'success': True,
+                    'action_type': 'READ_TEXT',
+                    'text': 'The screen appears to be empty or has no recognizable text.',
+                    'response': 'Screen is empty'
+                }
+            
+            # Narrate the text
+            return {
+                'success': True,
+                'action_type': 'READ_TEXT',
+                'text': f"On your screen, I see: {text[:1000]}",
+                'response': "Narrating screen content"
+            }
+        return result
+
+    async def get_screen_summary(self, language: str = 'en') -> Dict:
+        """Get a summary of what's on screen"""
+        # This would ideally use a Vision LLM, but for now we use OCR
+        result = await self.extract_text_from_screenshot(language)
+        if result['success']:
+            text = result['text']
+            # Simple summarization: first few lines or key words
+            lines = [l.strip() for l in str(text).split('\n') if l.strip()]
+            summary = ", ".join(lines[:5]) if lines else "Nothing found"
+            
+            return {
+                'success': True,
+                'summary': summary,
+                'response': f"Screen summary: {summary}"
+            }
+        return result
+
+    async def draw_shape(self, shape: str = "circle", language: str = 'en') -> Dict:
+        """Draw a simple shape using mouse automation"""
+        try:
+            import math
+            
+            # Start position (center of screen)
+            sw, sh = pyautogui.size()
+            cx, cy = sw // 2, sh // 2
+            
+            pyautogui.moveTo(cx, cy)
+            pyautogui.mouseDown()
+            
+            if shape.lower() == "circle":
+                radius = 100
+                for i in range(0, 361, 10):
+                    angle = math.radians(i)
+                    x = cx + radius * math.cos(angle)
+                    y = cy + radius * math.sin(angle)
+                    pyautogui.moveTo(x, y)
+            elif shape.lower() == "square":
+                size = 200
+                pyautogui.dragRel(size, 0)
+                pyautogui.dragRel(0, size)
+                pyautogui.dragRel(-size, 0)
+                pyautogui.dragRel(0, -size)
+            
+            pyautogui.mouseUp()
+            
+            return {
+                'success': True,
+                'action_type': 'DRAW_SHAPE',
+                'shape': shape,
+                'response': f"Drew a {shape}"
             }
         except Exception as e:
             return {'success': False, 'error': str(e)}

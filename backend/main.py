@@ -1,7 +1,7 @@
 import json
 import asyncio
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional, cast
 from pathlib import Path
 from dataclasses import asdict
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Response
@@ -21,6 +21,8 @@ from modules.file_manager import file_manager
 from modules.media import media_processor
 from modules.desktop import desktop_manager
 from modules.llm import llm_module
+from modules.automation import automation_manager
+from modules.memory import memory_manager
 from utils.logger import logger, log_command, log_system_event
 
 # Track connected clients
@@ -39,10 +41,16 @@ async def lifespan(app: FastAPI):
     # Start background tasks
     status_broadcast_task = asyncio.create_task(broadcast_system_status())
     
+    # Start automation scheduler
+    automation_manager.start_scheduler()
+    automation_manager.create_preset_tasks()
+    automation_manager.create_preset_macros()
+    
     yield
     
     # Cleanup
     status_broadcast_task.cancel()
+    automation_manager.stop_scheduler()
     logger.info("JARVIS Backend shutting down...")
     log_system_event("SHUTDOWN", {})
 
@@ -84,15 +92,15 @@ async def broadcast_system_status():
                 
                 # Remove disconnected clients
                 for client_id in disconnected:
-                    if client_id in connected_clients:
-                        del connected_clients[client_id]
+                    connected_clients.pop(client_id, None)
                         
         except asyncio.CancelledError:
             break
         except Exception as e:
             logger.error(f"Error in status broadcast: {e}")
 
-async def handle_command(websocket: WebSocket, command: str, language: str = None) -> Dict[str, Any]:
+async def handle_command(websocket: Optional[WebSocket], command: str, 
+                         language: str = None, override_params: Dict = None) -> Dict[str, Any]:
     """Process a command and return result"""
     # Detect language if not provided
     if not language:
@@ -102,11 +110,46 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
     command_key, detected_lang, params = parser.parse_command(command)
     if detected_lang:
         language = detected_lang
+        
+    # Apply parameters override (from macros)
+    if override_params:
+        if params:
+            params.update(override_params)
+        else:
+            params = override_params
+    
+    # Check if command matches a macro trigger phrase (voice trigger)
+    macro = automation_manager.find_macro_by_trigger(command)
+    if macro:
+        logger.info(f"Voice trigger matched macro: {macro.name}")
+        
+        # Define callback for macro commands
+        async def macro_cmd_callback(cmd, p):
+            res = await handle_command(websocket, cmd, language, p)
+            if websocket:
+                try:
+                    await websocket.send_json({
+                        'type': 'macro_update',
+                        'command': cmd,
+                        'result': res
+                    })
+                except:
+                    pass
+        
+        # Start macro in background
+        asyncio.create_task(automation_manager.run_macro(macro.id, macro_cmd_callback))
+        
+        return {
+            'success': True,
+            'action_type': 'MACRO_STARTED',
+            'response': f"Executing macro: {macro.name}" if language == 'en' else f"मैक्रो शुरू कर रहा हूँ: {macro.name}",
+            'macro_name': macro.name
+        }
     
     logger.info(f"Command received: '{command}' -> '{command_key}' (lang: {language})")
     
     # Route to appropriate module
-    result = None
+    result: Dict[str, Any] = {}
     
     # System commands
     if command_key == 'system_status':
@@ -139,13 +182,15 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
     # Window commands
     elif command_key == 'open_app':
         if params:
-            result = await window_manager.open_app(params, language)
+            app_name = params.get('app', str(params)) if isinstance(params, dict) else str(params)
+            result = await window_manager.open_app(app_name, language)
         else:
             result = {'success': False, 'error': 'No app name specified'}
     
     elif command_key == 'close_app':
         if params:
-            result = await window_manager.close_app(params, language)
+            app_name = params.get('app', str(params)) if isinstance(params, dict) else str(params)
+            result = await window_manager.close_app(app_name, language)
         else:
             result = {'success': False, 'error': 'No app name specified'}
     
@@ -154,6 +199,21 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
     
     elif command_key == 'maximize':
         result = await window_manager.maximize_window(params, language)
+        
+    elif command_key == 'activate_window' or command_key == 'focus_window':
+        if params:
+            result = await window_manager.activate_window(params, language)
+        else:
+            result = {'success': False, 'error': 'No window title specified'}
+            
+    elif command_key == 'close_window':
+        if params:
+            result = await window_manager.close_window_by_title(params, language)
+        else:
+            result = await window_manager.close_app(params, language)
+            
+    elif command_key == 'center_window':
+        result = await window_manager.center_window(language)
     
     elif command_key == 'show_desktop':
         result = await window_manager.show_desktop(language)
@@ -167,8 +227,11 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
         # Parse coordinates from params
         if params:
             try:
-                coords = params.replace(',', ' ').split()
-                x, y = int(coords[0]), int(coords[1])
+                if isinstance(params, dict):
+                    x, y = int(params.get('x', 0)), int(params.get('y', 0))
+                else:
+                    coords = str(params).replace(',', ' ').split()
+                    x, y = int(coords[0]), int(coords[1])
                 result = await input_controller.move_cursor(x, y)
             except:
                 result = {'success': False, 'error': 'Invalid coordinates. Format: X Y'}
@@ -198,8 +261,23 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
     
     # WhatsApp commands
     elif command_key == 'whatsapp_message':
-        # Parse contact and message
-        result = await whatsapp_manager.open_whatsapp_web(language)
+        # Parse contact and message if they are in params (e.g., "Aryan, Hello there")
+        if params:
+            if isinstance(params, dict):
+                contact = params.get('contact', params.get('to', ''))
+                message = params.get('message', params.get('text', ''))
+                result = await whatsapp_manager.send_message_web(contact, message, language)
+            else:
+                parts = [p.strip() for p in str(params).split(',')]
+                if len(parts) >= 2:
+                    contact = parts[0]
+                    message = ' '.join(parts[1:])
+                    result = await whatsapp_manager.send_message_web(contact, message, language)
+                else:
+                    # If only one part, assume it's the contact
+                    result = await whatsapp_manager.send_message_web(str(params), "", language)
+        else:
+            result = await whatsapp_manager.open_whatsapp_web(language)
     
     elif command_key == 'whatsapp_call':
         if params:
@@ -251,9 +329,14 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
     
     elif command_key == 'convert_image':
         if params:
-            parts = params.split()
-            if len(parts) >= 2:
-                result = await media_processor.convert_image(parts[0], parts[1])
+            if isinstance(params, dict):
+                src, dest = params.get('input', ''), params.get('output', '')
+            else:
+                parts = str(params).split()
+                src, dest = (parts[0], parts[1]) if len(parts) >= 2 else ('', '')
+            
+            if src and dest:
+                result = await media_processor.convert_image(src, dest)
             else:
                 result = {'success': False, 'error': 'Input and output paths required'}
         else:
@@ -261,9 +344,16 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
     
     elif command_key == 'resize_image':
         if params:
-            parts = params.split()
-            if len(parts) >= 4:
-                result = await media_processor.resize_image(parts[0], parts[1], int(parts[2]), int(parts[3]))
+            if isinstance(params, dict):
+                src, dest = params.get('input', ''), params.get('output', '')
+                w, h = params.get('width', 0), params.get('height', 0)
+            else:
+                parts = str(params).split()
+                src, dest = (parts[0], parts[1]) if len(parts) >= 2 else ('', '')
+                w, h = (int(parts[2]), int(parts[3])) if len(parts) >= 4 else (0, 0)
+                
+            if src and dest and w and h:
+                result = await media_processor.resize_image(src, dest, int(w), int(h))
             else:
                 result = {'success': False, 'error': 'Input, output, width, height required'}
         else:
@@ -304,11 +394,38 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
     elif command_key == 'toggle_taskbar':
         result = await desktop_manager.toggle_taskbar(language=language)
         
-    elif command_key == 'zoom_in':
-        result = await desktop_manager.zoom_screen('in', language)
-        
     elif command_key == 'zoom_out':
         result = await desktop_manager.zoom_screen('out', language)
+        
+    elif command_key == 'toggle_icons':
+        result = await desktop_manager.toggle_desktop_icons(language=language)
+        
+    elif command_key == 'set_theme':
+        if params:
+            result = await desktop_manager.set_theme(params, language)
+        else:
+            result = {'success': False, 'error': 'No theme specified (light/dark)'}
+        
+    elif command_key == 'brightness_up':
+        result = await system_module.brightness_up(language)
+        
+    elif command_key == 'brightness_down':
+        result = await system_module.brightness_down(language)
+        
+    elif command_key == 'network_info':
+        result = await system_module.get_network_info(language)
+        
+    elif command_key == 'uptime':
+        result = await system_module.get_uptime(language)
+        
+    elif command_key == 'google_search':
+        if params:
+            result = await system_module.google_search(params, language)
+        else:
+            result = {'success': False, 'error': 'No search query specified'}
+            
+    elif command_key == 'weather':
+        result = await system_module.get_weather(params, language)
         
     # Extra Media/Utility commands
     elif command_key == 'batch_pdf':
@@ -328,6 +445,28 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
         
     elif command_key == 'get_selected_text':
         result = await media_processor.get_selected_text(language)
+        
+    elif command_key == 'read_pdf':
+        if params:
+            result = await media_processor.read_pdf(params, language=language)
+        else:
+            result = {'success': False, 'error': 'No PDF path specified'}
+            
+    elif command_key == 'run_macro':
+        if params:
+            result = {'success': automation_manager.run_macro(params), 'response': f"Running macro: {params}"}
+        else:
+            result = {'success': False, 'error': 'No macro ID specified'}
+            
+    elif command_key == 'automation_status':
+        result = automation_manager.get_scheduler_status()
+        result['success'] = True
+        
+    elif command_key == 'narrate_screen':
+        result = await media_processor.narrate_screen(language)
+        
+    elif command_key == 'screen_summary':
+        result = await media_processor.get_screen_summary(language)
     
     else:
         # Unknown command - Try LLM fallback
@@ -352,10 +491,30 @@ async def handle_command(websocket: WebSocket, command: str, language: str = Non
             }
             log_command(command, 'unknown', False)
     
+    # Post-process result: Handle confirmation request if needed
+    res = cast(Dict[str, Any], result)
+    if res and res.get('requires_confirmation') and not res.get('confirmation_id'):
+        details = {
+            'command_key': command_key,
+            'params': params,
+            'language': language
+        }
+        # Add any extra details from result
+        if 'details' in result:
+            details.update(result['details'])
+            
+        confirmation_id = security.request_confirmation(
+            command_key=command_key,
+            command_text=command,
+            language=language or 'en',
+            details=details
+        )
+        result['confirmation_id'] = confirmation_id
+    
     # Add metadata
     if result:
         result['command_key'] = command_key
-        result['language'] = language
+        result['language'] = language or 'en'
         result['timestamp'] = datetime.now().isoformat()
     
     return result

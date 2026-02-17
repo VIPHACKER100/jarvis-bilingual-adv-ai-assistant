@@ -519,5 +519,81 @@ class WindowManager:
                 'error': str(e)
             }
 
+    async def activate_window(self, window_title: str, language: str = 'en') -> Dict:
+        """Bring a window to front and focus it"""
+        try:
+            if is_windows() and self.win32gui:
+                windows = self._get_window_list_windows()
+                titles = [w.title for w in windows]
+                best_match = process.extractOne(window_title.lower(), [t.lower() for t in titles], scorer=fuzz.partial_ratio)
+                
+                if best_match and best_match[1] >= 60:
+                    idx = [t.lower() for t in titles].index(best_match[0])
+                    hwnd = windows[idx].hwnd
+                    
+                    # Force bringing to foreground
+                    if self.win32gui.IsIconic(hwnd):
+                        self.win32gui.ShowWindow(hwnd, self.win32con.SW_RESTORE)
+                    self.win32gui.SetForegroundWindow(hwnd)
+                    
+                    return {
+                        'success': True,
+                        'action_type': 'ACTIVATE_WINDOW',
+                        'window': windows[idx].title,
+                        'response': f"Activated {windows[idx].title}"
+                    }
+            
+            return {'success': False, 'error': 'Window not found'}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    async def close_window_by_title(self, window_title: str, language: str = 'en') -> Dict:
+        """Close a window by matching its title"""
+        try:
+            if is_windows() and self.win32gui:
+                windows = self._get_window_list_windows()
+                titles = [w.title for w in windows]
+                best_match = process.extractOne(window_title.lower(), [t.lower() for t in titles], scorer=fuzz.partial_ratio)
+                
+                if best_match and best_match[1] >= 60:
+                    idx = [t.lower() for t in titles].index(best_match[0])
+                    hwnd = windows[idx].hwnd
+                    self.win32gui.PostMessage(hwnd, self.win32con.WM_CLOSE, 0, 0)
+                    
+                    return {
+                        'success': True,
+                        'action_type': 'CLOSE_WINDOW',
+                        'window': windows[idx].title,
+                        'response': f"Closed {windows[idx].title}"
+                    }
+            return {'success': False, 'error': 'Window not found'}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    async def center_window(self, language: str = 'en') -> Dict:
+        """Center the foreground window on screen"""
+        try:
+            if is_windows() and self.win32gui:
+                import pyautogui
+                sw, sh = pyautogui.size()
+                hwnd = self.win32gui.GetForegroundWindow()
+                left, top, right, bottom = self.win32gui.GetWindowRect(hwnd)
+                w = right - left
+                h = bottom - top
+                
+                x = (sw - w) // 2
+                y = (sh - h) // 2
+                
+                self.win32gui.MoveWindow(hwnd, x, y, w, h, True)
+                
+                return {
+                    'success': True,
+                    'action_type': 'CENTER_WINDOW',
+                    'response': 'Centered active window'
+                }
+            return {'success': False, 'error': 'Not supported on this platform'}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
 # Singleton instance
 window_manager = WindowManager()

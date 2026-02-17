@@ -492,16 +492,57 @@ class DesktopManager:
             return {'success': False, 'error': str(e)}
 
     async def toggle_desktop_icons(self, show: Optional[bool] = None, language: str = 'en') -> Dict:
-        """Hide or show desktop icons"""
+        """Hide or show desktop icons (Windows)"""
         if not is_windows():
             return {'success': False, 'error': 'Not supported on this platform'}
 
         try:
-            # This is complex in Windows (requires finding WorkerW or Progman and sending messages)
-            # A simpler way is to use a registry toggle or specific hotkey-like behavior.
-            # For now, let's use a placeholder response or a common hotkey if available.
-            return {'success': False, 'error': 'Feature implementation in progress for this OS version'}
+            import winreg
+            key_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_ALL_ACCESS)
+            
+            if show is None:
+                # Get current value
+                current_value, _ = winreg.QueryValueEx(key, "HideIcons")
+                should_hide = 0 if current_value == 1 else 1
+            else:
+                should_hide = 0 if show else 1
+            
+            winreg.SetValueEx(key, "HideIcons", 0, winreg.REG_DWORD, should_hide)
+            winreg.CloseKey(key)
+            
+            # Refresh desktop to apply changes
+            # This is tricky without restart/logout, but sending a message usually works
+            ctypes.windll.user32.SendMessageW(0xffff, 0x0111, 0x1a221, 0) # type: ignore (WM_COMMAND, refresh)
+            
+            status = 'hidden' if should_hide else 'shown'
+            return {'success': True, 'action_type': 'TOGGLE_ICONS', 'status': status, 'response': f'Desktop icons {status}'}
         except Exception as e:
+            logger.error(f'Error toggling icons: {e}')
+            return {'success': False, 'error': str(e)}
+
+    async def set_theme(self, theme: str = 'dark', language: str = 'en') -> Dict:
+        """Set Windows system theme (light/dark)"""
+        if not is_windows():
+            return {'success': False, 'error': 'Not supported on this platform'}
+
+        try:
+            import winreg
+            key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_ALL_ACCESS)
+            
+            value = 0 if theme.lower() == 'dark' else 1
+            
+            # Apps use light/dark mode
+            winreg.SetValueEx(key, "AppsUseLightTheme", 0, winreg.REG_DWORD, value)
+            # System uses light/dark mode
+            winreg.SetValueEx(key, "SystemUsesLightTheme", 0, winreg.REG_DWORD, value)
+            
+            winreg.CloseKey(key)
+            
+            return {'success': True, 'action_type': 'SET_THEME', 'theme': theme, 'response': f'System theme set to {theme}'}
+        except Exception as e:
+            logger.error(f'Error setting theme: {e}')
             return {'success': False, 'error': str(e)}
 
     async def zoom_screen(self, level: str = 'in', language: str = 'en') -> Dict:

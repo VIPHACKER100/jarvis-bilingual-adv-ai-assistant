@@ -26,7 +26,10 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
             scanPlaceholder: 'Folder to scan...',
             convert: 'Convert',
             scan: 'Scan',
-            type: 'Type'
+            type: 'Type',
+            readPdf: 'Read PDF Aloud',
+            narrate: 'Narrate Screen',
+            summary: 'Screen Summary'
         },
         hi: {
             title: 'मीडिया टूल्स',
@@ -39,7 +42,10 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
             scanPlaceholder: 'स्कैन करने के लिए फोल्डर...',
             convert: 'बदलें',
             scan: 'खोजें',
-            type: 'प्रकार'
+            type: 'प्रकार',
+            readPdf: 'पीडीएफ पढ़ें',
+            narrate: 'स्क्रीन सुनाओ',
+            summary: 'स्क्रीन सारांश'
         }
     };
 
@@ -72,6 +78,32 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
                     </div>
                 </div>
 
+                {/* Read PDF */}
+                <div className="flex flex-col gap-2">
+                    <span className="text-slate-400 text-[10px] uppercase">{t.readPdf}</span>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            placeholder="PDF Path..."
+                            className="bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded w-full focus:border-purple-500 outline-none"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    send(`read pdf ${e.currentTarget.value}`);
+                                }
+                            }}
+                        />
+                        <button
+                            onClick={(e) => {
+                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                send(`read pdf ${input.value}`);
+                            }}
+                            className="bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 px-3 py-1 rounded border border-purple-500/50"
+                        >
+                            🔊
+                        </button>
+                    </div>
+                </div>
+
                 {/* Scan Folder */}
                 <div className="flex flex-col gap-2">
                     <span className="text-slate-400 text-[10px] uppercase">{t.scanFolder}</span>
@@ -79,6 +111,7 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
                         <select
                             value={scanType}
                             onChange={(e) => setScanType(e.target.value)}
+                            title={t.type}
                             className="bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded w-1/3 focus:border-purple-500 outline-none"
                         >
                             <option value="all">All</option>
@@ -99,32 +132,48 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
                     </div>
                 </div>
 
-                {/* Quick Tools */}
-                <div className="grid grid-cols-3 gap-2 col-span-1 md:col-span-2 mt-2">
+                {/* Narrate & Summary */}
+                <div className="grid grid-cols-2 gap-2 mt-auto">
                     <button
-                        onClick={() => send('make drawing')}
-                        className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-yellow-400 p-2 rounded border border-yellow-500/30 transition-all hover:scale-105"
+                        onClick={() => send('narrate screen')}
+                        className="bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-cyan-500/30 text-[10px]"
                     >
-                        <span className="text-xl">🎨</span>
-                        <span className="text-[9px] uppercase">{t.drawing}</span>
+                        🎤 {t.narrate}
                     </button>
-
                     <button
-                        onClick={() => send('get selected text')}
-                        className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 p-2 rounded border border-cyan-500/30 transition-all hover:scale-105"
+                        onClick={() => send('screen summary')}
+                        className="bg-slate-800 hover:bg-slate-700 text-purple-400 py-1 rounded border border-purple-500/30 text-[10px]"
                     >
-                        <span className="text-xl">📋</span>
-                        <span className="text-[9px] uppercase">{t.selection}</span>
-                    </button>
-
-                    <button
-                        onClick={() => send('ocr image')}
-                        className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-green-400 p-2 rounded border border-green-500/30 transition-all hover:scale-105"
-                    >
-                        <span className="text-xl">👁️</span>
-                        <span className="text-[9px] uppercase">{t.ocr}</span>
+                        📝 {t.summary}
                     </button>
                 </div>
+            </div>
+
+            {/* Quick Tools */}
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800/50">
+                <button
+                    onClick={() => send('make drawing')}
+                    className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-yellow-400 p-2 rounded border border-yellow-500/30 transition-all hover:scale-105"
+                >
+                    <span className="text-xl">🎨</span>
+                    <span className="text-[9px] uppercase">{t.drawing}</span>
+                </button>
+
+                <button
+                    onClick={() => send('get selected text')}
+                    className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 p-2 rounded border border-cyan-500/30 transition-all hover:scale-105"
+                >
+                    <span className="text-xl">📋</span>
+                    <span className="text-[9px] uppercase">{t.selection}</span>
+                </button>
+
+                <button
+                    onClick={() => send('ocr image')}
+                    className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-green-400 p-2 rounded border border-green-500/30 transition-all hover:scale-105"
+                >
+                    <span className="text-xl">👁️</span>
+                    <span className="text-[9px] uppercase">{t.ocr}</span>
+                </button>
             </div>
         </div>
     );

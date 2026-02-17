@@ -25,7 +25,12 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
             show: 'Show',
             hide: 'Hide',
             in: 'In',
-            out: 'Out'
+            out: 'Out',
+            theme: 'System Theme',
+            dark: 'Dark',
+            light: 'Light',
+            icons: 'Desktop Icons',
+            center: 'Center Active Window'
         },
         hi: {
             title: 'डेस्कटॉप कंट्रोल',
@@ -38,7 +43,12 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
             show: 'दिखाओ',
             hide: 'छुपाओ',
             in: 'बड़ा',
-            out: 'छोटा'
+            out: 'छोटा',
+            theme: 'सिस्टम थीम',
+            dark: 'डार्क',
+            light: 'लाइट',
+            icons: 'डेस्कटॉप आइकन्स',
+            center: 'विंडो बीच में लाओ'
         }
     };
 
@@ -71,57 +81,96 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
                     </div>
                 </div>
 
-                {/* Quick Actions */}
+                {/* Theme & Icons */}
                 <div className="grid grid-cols-2 gap-2">
-                    {/* Recycle Bin */}
                     <div className="flex flex-col gap-1">
-                        <span className="text-slate-400 text-[10px] uppercase">{t.recycle}</span>
-                        <button
-                            onClick={() => send(language === 'hi' ? 'recycle bin khali karo' : 'empty recycle bin')}
-                            className="bg-red-500/10 hover:bg-red-500/30 text-red-400 px-2 py-2 rounded border border-red-500/30 transition-all"
-                        >
-                            🗑️ {t.recycleConfirm}
-                        </button>
-                    </div>
-
-                    {/* Taskbar */}
-                    <div className="flex flex-col gap-1">
-                        <span className="text-slate-400 text-[10px] uppercase">{t.taskbar}</span>
+                        <span className="text-slate-400 text-[10px] uppercase">{t.theme}</span>
                         <div className="flex gap-1">
                             <button
-                                onClick={() => send(language === 'hi' ? 'taskbar dikhao' : 'show taskbar')}
-                                className="flex-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-slate-700"
+                                onClick={() => send('set theme to dark')}
+                                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-1 rounded border border-slate-700"
                             >
-                                {t.show}
+                                🌙 {t.dark}
                             </button>
                             <button
-                                onClick={() => send(language === 'hi' ? 'taskbar chhupao' : 'hide taskbar')}
-                                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-1 rounded border border-slate-700"
+                                onClick={() => send('set theme to light')}
+                                className="flex-1 bg-slate-800 hover:bg-slate-700 text-yellow-400 py-1 rounded border border-slate-700"
                             >
-                                {t.hide}
+                                ☀️ {t.light}
                             </button>
                         </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <span className="text-slate-400 text-[10px] uppercase">{t.icons}</span>
+                        <button
+                            onClick={() => send('toggle desktop icons')}
+                            className="bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-slate-700 h-full"
+                        >
+                            🖥️ TOGGLE
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* Zoom */}
-            <div className="flex flex-col gap-1 mt-3">
-                <span className="text-slate-400 text-[10px] uppercase">{t.zoom}</span>
-                <div className="flex gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4">
+                {/* Taskbar */}
+                <div className="flex flex-col gap-1">
+                    <span className="text-slate-400 text-[10px] uppercase">{t.taskbar}</span>
+                    <div className="flex gap-1">
+                        <button
+                            onClick={() => send(language === 'hi' ? 'taskbar dikhao' : 'show taskbar')}
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-slate-700"
+                        >
+                            {t.show}
+                        </button>
+                        <button
+                            onClick={() => send(language === 'hi' ? 'taskbar chhupao' : 'hide taskbar')}
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-1 rounded border border-slate-700"
+                        >
+                            {t.hide}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Zoom */}
+                <div className="flex flex-col gap-1">
+                    <span className="text-slate-400 text-[10px] uppercase">{t.zoom}</span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => send('zoom in')}
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-green-400 py-1 rounded border border-slate-700"
+                        >
+                            🔍+ {t.in}
+                        </button>
+                        <button
+                            onClick={() => send('zoom out')}
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-orange-400 py-1 rounded border border-slate-700"
+                        >
+                            🔍- {t.out}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Center Window */}
+                <div className="flex flex-col gap-1">
+                    <span className="text-slate-400 text-[10px] uppercase">Window</span>
                     <button
-                        onClick={() => send('zoom in')}
-                        className="flex-1 bg-slate-800 hover:bg-slate-700 text-green-400 py-1 rounded border border-slate-700"
+                        onClick={() => send('center window')}
+                        className="bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-slate-700 h-full"
                     >
-                        🔍+ {t.in}
-                    </button>
-                    <button
-                        onClick={() => send('zoom out')}
-                        className="flex-1 bg-slate-800 hover:bg-slate-700 text-orange-400 py-1 rounded border border-slate-700"
-                    >
-                        🔍- {t.out}
+                        🎯 {t.center}
                     </button>
                 </div>
+            </div>
+
+            {/* Recycle Bin */}
+            <div className="mt-4 pt-3 border-t border-slate-800/50">
+                <button
+                    onClick={() => send(language === 'hi' ? 'recycle bin khali karo' : 'empty recycle bin')}
+                    className="w-full bg-red-500/10 hover:bg-red-500/30 text-red-400 px-2 py-2 rounded border border-red-500/30 transition-all flex items-center justify-center gap-2"
+                >
+                    🗑️ {t.recycleConfirm}
+                </button>
             </div>
         </div>
     );

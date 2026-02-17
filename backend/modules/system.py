@@ -240,5 +240,145 @@ class SystemModule:
                 'response': parser.get_response('command_not_understood', language)
             }
 
+    async def get_brightness(self) -> int:
+        """Get current screen brightness"""
+        try:
+            import screen_brightness_control as sbc
+            return sbc.get_brightness()[0]
+        except:
+            return 50
+
+    async def set_brightness(self, level: int) -> bool:
+        """Set screen brightness (0-100)"""
+        try:
+            import screen_brightness_control as sbc
+            sbc.set_brightness(level)
+            return True
+        except:
+            return False
+
+    async def brightness_up(self, language: str = 'en') -> Dict[str, Any]:
+        """Increase brightness"""
+        try:
+            current = await self.get_brightness()
+            new_level = min(current + 10, 100)
+            success = await self.set_brightness(new_level)
+            
+            log_command('brightness_up', 'brightness_up', success, {'from': current, 'to': new_level})
+            
+            return {
+                'success': success,
+                'brightness': new_level,
+                'response': f"Brightness increased to {new_level}%" if language == 'en' else f"ब्राइटनेस {new_level}% तक बढ़ गई"
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'response': "Failed to change brightness"}
+
+    async def brightness_down(self, language: str = 'en') -> Dict[str, Any]:
+        """Decrease brightness"""
+        try:
+            current = await self.get_brightness()
+            new_level = max(current - 10, 0)
+            success = await self.set_brightness(new_level)
+            
+            log_command('brightness_down', 'brightness_down', success, {'from': current, 'to': new_level})
+            
+            return {
+                'success': success,
+                'brightness': new_level,
+                'response': f"Brightness decreased to {new_level}%" if language == 'en' else f"ब्राइटनेस {new_level}% तक कम हो गई"
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'response': "Failed to change brightness"}
+
+    async def get_network_info(self, language: str = 'en') -> Dict[str, Any]:
+        """Get network connection information"""
+        try:
+            import socket
+            hostname = socket.gethostname()
+            ip_address = socket.gethostbyname(hostname)
+            
+            # Use psutil for interface details
+            addrs = psutil.net_if_addrs()
+            stats = psutil.net_if_stats()
+            
+            interfaces = []
+            for name, addr_list in addrs.items():
+                is_up = stats.get(name).isup if name in stats else False
+                if is_up:
+                    for addr in addr_list:
+                        if addr.family == socket.AF_INET: # IPv4
+                            interfaces.append({'name': name, 'ip': addr.address})
+
+            response = f"Network Info: Connected as {hostname} (IP: {ip_address})" if language == 'en' else f"नेटवर्क जानकारी: {hostname} के रूप में जुड़ा हुआ है (IP: {ip_address})"
+            
+            return {
+                'success': True,
+                'hostname': hostname,
+                'ip': ip_address,
+                'interfaces': interfaces,
+                'response': response
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'response': "Failed to get network info"}
+
+    async def google_search(self, query: str, language: str = 'en') -> Dict[str, Any]:
+        """Open web browser for Google search"""
+        try:
+            import webbrowser
+            url = f"https://www.google.com/search?q={query}"
+            webbrowser.open(url)
+            
+            log_command(f"search {query}", "google_search", True)
+            
+            return {
+                'success': True,
+                'query': query,
+                'response': f"Searching for '{query}' on Google" if language == 'en' else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'response': "Failed to open search"}
+
+    async def get_weather(self, city: str = None, language: str = 'en') -> Dict[str, Any]:
+        """Get weather info (simplified browser-based or API if key available)"""
+        # For a production app, we'd use an API. For this, we can open a browser or use a simple scraper.
+        # Let's open the browser for now as a more reliable "feature" for the user.
+        try:
+            import webbrowser
+            query = f"weather in {city}" if city else "weather today"
+            url = f"https://www.google.com/search?q={query}"
+            webbrowser.open(url)
+            
+            return {
+                'success': True,
+                'city': city,
+                'response': f"Checking weather for {city or 'current location'}" if language == 'en' else f"{city or 'वर्तमान स्थान'} के लिए मौसम की जानकारी देख रहा हूँ"
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'response': "Failed to get weather"}
+
+    async def get_uptime(self, language: str = 'en') -> Dict[str, Any]:
+        """Get system uptime"""
+        try:
+            boot_time = psutil.boot_time()
+            uptime_seconds = time.time() - boot_time
+            
+            # Format uptime
+            days = int(uptime_seconds // (24 * 3600))
+            hours = int((uptime_seconds % (24 * 3600)) // 3600)
+            minutes = int((uptime_seconds % 3600) // 60)
+            
+            uptime_str = f"{days}d {hours}h {minutes}m"
+            response = f"System Uptime: {uptime_str}" if language == 'en' else f"सिस्टम अपटाइम: {uptime_str}"
+            
+            return {
+                'success': True,
+                'uptime_seconds': uptime_seconds,
+                'formatted': uptime_str,
+                'response': response
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'response': "Failed to get uptime"}
+
 # Singleton instance
 system_module = SystemModule()
