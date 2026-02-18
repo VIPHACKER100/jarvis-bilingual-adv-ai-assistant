@@ -60,6 +60,19 @@ Complete reference of all voice commands supported by JARVIS.
 
 ---
 
+## 🌐 Web & Search Commands
+
+| English | Hindi | Description |
+|---------|-------|-------------|
+| "Google search [query]" | "Google search karo [query]" | Executed Google search |
+| "Search for [query]" | "[query] dhoondo" | Search on Google |
+| "Open browser" | "Browser kholo" | Open default browser |
+| "New tab" | "Naya tab kholo" | Open new browser tab |
+| "Open [website.com]" | "[website.com] kholo" | Open specific URL |
+| "Search [query]" | "[query] search karo" | Smart search extraction |
+
+---
+
 ## 🪟 Window Management Commands
 
 ### Open Applications
@@ -313,19 +326,23 @@ Complete reference of all voice commands supported by JARVIS.
 ## 💡 Tips for Best Results
 
 ### Speaking Tips
+
 1. **Speak clearly** - Enunciate words
 2. **Moderate pace** - Not too fast, not too slow
 3. **Minimal background noise** - Quiet environment works best
 4. **Use keywords** - Say "Open Chrome" rather than "Can you please open Chrome"
 
 ### Command Tips
+
 1. **Be specific** - "Open Downloads" vs "Open folder"
 2. **Use proper names** - "Close Notepad" vs "Close text editor"
 3. **Add parameters** - "Volume up 20" vs just "Volume up"
 4. **Wait for response** - Let JARVIS finish before next command
 
 ### Language Mixing
+
 JARVIS supports Hinglish (mixed Hindi-English):
+
 - "Chrome kholo"
 - "Volume badhao"
 - "Downloads folder kholo"
@@ -336,12 +353,14 @@ JARVIS supports Hinglish (mixed Hindi-English):
 ## 🔒 Safety Features
 
 Commands marked with ⚠️ require confirmation:
+
 - Shutdown/Restart/Sleep
 - Delete files
 - Close applications
 - Format operations
 
 **Confirmation Process:**
+
 1. JARVIS asks for confirmation
 2. You have 30 seconds to respond
 3. Say "Yes" or click Confirm
@@ -370,6 +389,7 @@ Commands marked with ⚠️ require confirmation:
 ## 🆘 Troubleshooting Commands
 
 If JARVIS doesn't understand:
+
 1. **Rephrase** - Try different words
 2. **Speak slower** - Reduce speed
 3. **Check language** - Verify EN/हिंदी toggle

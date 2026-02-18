@@ -128,6 +128,10 @@ HINDI_COMMANDS = {
     'scan_folder': ['scan folder', 'folder scan karo', 'file dhoondo folder mein'],
     'make_drawing': ['make drawing', 'drawing banao', 'paint kholo', 'sketch banao'],
     'get_selected_text': ['get selected text', 'select kiya hua text', 'selected text padho', 'text copy karo selection se'],
+    
+    # Search & Browser
+    'google_search': ['search', 'google search', 'dhoondo', 'dhundo', 'pata karo', 'khojo', 'search karo'],
+    'open_browser': ['open browser', 'browser kholo', 'new tab', 'naya tab', 'internet kholo'],
 }
 
 # Response templates

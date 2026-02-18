@@ -1,6 +1,7 @@
 from config import HINDI_COMMANDS, RESPONSES
 from typing import Dict, Tuple, Optional
 import sys
+import re
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -98,20 +99,51 @@ class BilingualParser:
         text_lower = text.lower().strip()
         lang = self.detect_language(text_lower)
 
-        # Try to match against Hindi command phrases
-        for phrase, command_key in self.command_map.items():
+        # Try to match against Hindi command phrases (sorted by length to match longest first)
+        sorted_phrases = sorted(self.command_map.items(), key=lambda x: len(x[0]), reverse=True)
+        
+        for phrase, command_key in sorted_phrases:
             if phrase in text_lower:
+                # Special handling for "search" to avoid matching "search file" incorrectly
+                if phrase == 'search' and 'search file' in text_lower:
+                    continue
+                    
                 # Extract parameters (text after the command phrase)
-                param_start = text_lower.find(phrase) + len(phrase)
+                phrase_index = text_lower.find(phrase)
+                param_start = phrase_index + len(phrase)
                 params = text[param_start:].strip()
-                return command_key, lang, params if params else None
+                
+                # Cleanup parameters
+                prev_params = None
+                clean_params = params
+                while clean_params != prev_params:
+                    prev_params = clean_params
+                    clean_params = re.sub(r'^(?:and|for|ki|ko|search|search\s+for|google|google\s+search|open|start|with)\s+', '', clean_params, flags=re.IGNORECASE).strip()
+                
+                # If parameters were cleaned but now look like a search, change command_key
+                if clean_params and command_key in ['open_browser', 'open_app'] and ('search' in text_lower or 'new tab' in text_lower):
+                    return 'google_search', lang, clean_params
+                    
+                return command_key, lang, clean_params if clean_params else None
 
         # Try English patterns
-        if any(
-            word in text_lower for word in [
-                'shutdown',
-                'turn off',
-                'power off']):
+        if any(word in text_lower for word in ['google search', 'search google for', 'search for']):
+            query = text_lower.replace('google search', '').replace('search google for', '').replace('search for', '').strip()
+            return 'google_search', lang, query if query else None
+        elif any(word in text_lower for word in ['new tab', 'open browser', 'open chrome', 'search']):
+            query = text_lower.replace('new tab', '').replace('open browser', '').replace('open chrome', '').replace('search', '').strip()
+            # If there's content after "search", it's a google search
+            if query and ('search' in text_lower or 'new tab' in text_lower or 'open' in text_lower):
+                # Aggressively cleanup leading particles
+                prev_query = None
+                while query != prev_query:
+                    prev_query = query
+                    query = re.sub(r'^(?:and|for|ki|ko|search|search\s+for|google|google\s+search|open|start|with)\s+', '', query, flags=re.IGNORECASE).strip()
+                
+                if query:
+                    return 'google_search', lang, query
+            return 'open_browser', lang, None
+        elif any(word in text_lower for word in ['shutdown', 'turn off', 'power off']):
             return 'shutdown', lang, None
         elif any(word in text_lower for word in ['restart', 'reboot']):
             return 'restart', lang, None

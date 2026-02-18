@@ -1,0 +1,49 @@
+[
+  {
+    "id": "9df92d90",
+    "name": "Good Morning",
+    "description": "Daily morning routine",
+    "command": "show_desktop",
+    "schedule_type": "daily",
+    "schedule_time": "08:00",
+    "days": [],
+    "enabled": false,
+    "created_at": "2026-02-18T13:25:02.475166",
+    "last_run": "",
+    "run_run": "",
+    "run_count": 0,
+    "parameters": {}
+  },
+  {
+    "id": "2f839aa1",
+    "name": "System Check",
+    "description": "Check system status",
+    "command": "system_status",
+    "schedule_type": "interval",
+    "schedule_time": "60",
+    "days": [],
+    "enabled": false,
+    "created_at": "2026-02-18T13:25:02.476673",
+    "last_run": "",
+    "run_run": "",
+    "run_count": 0,
+    "parameters": {}
+  },
+  {
+    "id": "1c680e65",
+    "name": "Weekly Cleanup",
+    "description": "Clean up old files",
+    "command": "cleanup_temp",
+    "schedule_type": "weekly",
+    "schedule_time": "10:00",
+    "days": [
+      "sunday"
+    ],
+    "enabled": false,
+    "created_at": "2026-02-18T13:25:02.479687",
+    "last_run": "",
+    "run_run": "",
+    "run_count": 0,
+    "parameters": {}
+  }
+]

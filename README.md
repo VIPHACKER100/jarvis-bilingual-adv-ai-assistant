@@ -12,9 +12,14 @@ A futuristic, cross-platform, voice-activated AI assistant with **complete syste
 
 ---
 
-## 🌟 What's New (v2.0)
+## 🌟 What's New (v2.1)
 
-### ✅ Complete 3-Phase Implementation
+### ✅ Enhanced Smart Awareness
+
+- **Web Search Integration** - Smarter "new tab" and "search" command parsing
+- **Domain Detection** - Directly open websites like `hackerone.com` or `google.com`
+- **LLM Fallback** - Robust Sequential Model strategy with OpenRouter fallback
+- **Build v2.1** - Improved PyInstaller asset bundling and path resolution
 
 **Phase 1: Core System** ✅
 

@@ -1,6 +1,6 @@
-# 📦 JARVIS Distribution Guide
+# 📦 JARVIS Distribution Guide (v2.1)
 
-Complete guide for packaging and distributing JARVIS AI Assistant.
+Complete guide for packaging and distributing JARVIS AI Assistant with enhanced asset bundling.
 
 ---
 

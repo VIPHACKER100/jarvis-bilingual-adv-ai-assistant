@@ -2,6 +2,8 @@ import psutil
 import subprocess
 import time
 import platform
+import re
+import webbrowser
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 from fuzzywuzzy import fuzz, process
@@ -182,7 +184,6 @@ class WindowManager:
                 app_name_lower = app_name.lower()
                 for key, url in web_mappings.items():
                     if key in app_name_lower:
-                        import webbrowser
                         webbrowser.open(url)
                         log_command(f"open website {app_name}", "open_app", True)
                         return {
@@ -192,9 +193,27 @@ class WindowManager:
                             'response': f"Opening {key.capitalize()} in your browser"
                         }
 
+                # Check for URLs or domain-like names (e.g., hackerone.com)
+                url_pattern = r'^(https?://)?([a-z0-9-]+\.)+[a-z]{2,}(/.*)?$'
+                if re.match(url_pattern, app_name_lower):
+                    url = app_name if app_name_lower.startswith('http') else f"https://{app_name}"
+                    webbrowser.open(url)
+                    log_command(f"open web address {app_name}", "open_app", True)
+                    return {
+                        'success': True,
+                        'action_type': 'OPEN_APP',
+                        'app_name': app_name,
+                        'response': f"Opening {app_name} in your browser"
+                    }
+
                 # Try system command
                 if is_windows():
-                    subprocess.Popen(f'start {app_name}', shell=True)
+                    # For Windows, we wrap in quotes to handle spaces, and use 'start'
+                    # But only if it survives a safety check (simple name)
+                    if re.match(r'^[a-zA-Z0-9_\-\s\. ]+$', app_name):
+                        subprocess.Popen(f'start "" "{app_name}"', shell=True)
+                    else:
+                        subprocess.Popen(f'start {app_name}', shell=True)
                 elif is_macos():
                     subprocess.Popen(['open', '-a', app_name])
                 else:

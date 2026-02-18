@@ -54,11 +54,23 @@ GET /
 {
   "status": "online",
   "name": "JARVIS Backend",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "platform": "windows",
   "timestamp": "2024-01-01T12:00:00"
 }
 ```
+
+### Web Search (New in v2.1)
+
+```http
+POST /api/command
+{
+  "command": "search for Jarvis Lab",
+  "language": "en"
+}
+```
+
+**Result:** Opens default browser with Google Search for "Jarvis Lab".
 
 ### System Status
 

@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
     log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "2.0.0"
+        "version": "2.1.0"
     })
     
     # Start background tasks
@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="JARVIS Backend",
     description="Cross-platform AI assistant backend with window management and automation",
-    version="2.0.0",
+    version="2.1.0",
     lifespan=lifespan
 )
 
@@ -190,6 +190,14 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             result = await window_manager.open_app(app_name, language)
         else:
             result = {'success': False, 'error': 'No app name specified'}
+            
+    elif command_key == 'open_browser':
+        if params:
+            result = await system_module.google_search(str(params), language)
+        else:
+            import webbrowser
+            webbrowser.open("https://www.google.com")
+            result = {'success': True, 'action_type': 'OPEN_BROWSER', 'response': 'Opening a new browser tab.'}
     
     elif command_key == 'close_app':
         if params:
