@@ -1,0 +1,46 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Glow -->
+  <circle cx="100" cy="100" r="90" fill="url(#paint0_radial)" fill-opacity="0.2"/>
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="85" stroke="#00D4FF" stroke-width="2" stroke-dasharray="20 10"/>
+  <circle cx="100" cy="100" r="80" stroke="#00D4FF" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Rotating Segments -->
+  <path d="M100 30C138.66 30 170 61.3401 170 100" stroke="#00D4FF" stroke-width="4" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="10s" repeatCount="indefinite" />
+  </path>
+  <path d="M100 170C61.3401 170 30 138.66 30 100" stroke="#00D4FF" stroke-width="4" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="15s" repeatCount="indefinite" />
+  </path>
+  
+  <!-- Inner HUD Rings -->
+  <circle cx="100" cy="100" r="60" stroke="#00D4FF" stroke-width="1" stroke-dasharray="5 5" opacity="0.3"/>
+  <circle cx="100" cy="100" r="50" stroke="#00D4FF" stroke-width="2" opacity="0.8"/>
+  
+  <!-- The Core -->
+  <circle cx="100" cy="100" r="35" fill="url(#paint1_radial)"/>
+  <circle cx="100" cy="100" r="30" stroke="white" stroke-width="0.5" opacity="0.5"/>
+  
+  <!-- Core Flare -->
+  <circle cx="100" cy="100" r="15" fill="white" fill-opacity="0.8">
+    <animate attributeName="r" values="12;16;12" dur="2s" repeatCount="indefinite" />
+    <animate attributeName="fill-opacity" values="0.5;0.9;0.5" dur="2s" repeatCount="indefinite" />
+  </circle>
+
+  <!-- Hexagon Detail -->
+  <path d="M100 75L121.651 87.5V112.5L100 125L78.3494 112.5V87.5L100 75Z" stroke="#00D4FF" stroke-width="1" opacity="0.4"/>
+
+  <!-- Definitions -->
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(90)">
+      <stop stop-color="#00D4FF"/>
+      <stop offset="1" stop-color="#00D4FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(35)">
+      <stop stop-color="white"/>
+      <stop offset="0.2" stop-color="#00D4FF"/>
+      <stop offset="1" stop-color="#002B36"/>
+    </radialGradient>
+  </defs>
+</svg>

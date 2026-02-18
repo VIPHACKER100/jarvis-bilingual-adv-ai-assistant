@@ -1,49 +1,70 @@
-# 🤖 JARVIS: Bilingual AI Assistant with Full System Control
+<div align="center">
 
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.2-646CFF?style=for-the-badge&logo=vite)](https://vitejs.dev/)
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python)](https://python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+<img src="docs/assets/jarvis_logo.svg" width="150" height="150" alt="JARVIS Logo">
 
-A futuristic, cross-platform, voice-activated AI assistant with **complete system control** capabilities. Supports both **English** and **Hindi** (Hinglish) with a sleek cyberpunk UI inspired by Tony Stark's JARVIS.
+# 🤖 JARVIS
+
+### **The Ultimate Bilingual AI System Assistant**
+
+[![Version](https://img.shields.io/badge/Version-2.1.0-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 
 ![JARVIS Banner](https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6)
 
+**A futuristic, voice-activated system controller for Windows, macOS, and Linux.**  
+*Bilingual (English/Hindi) • 100+ Commands • Full Hardware Control*
+
+[Setup Guide](docs/SETUP.md) • [Command List](docs/COMMANDS.md) • [Troubleshooting](docs/TROUBLESHOOTING.md)
+
+---
+</div>
+
 ---
 
-## 🌟 What's New (v2.1)
+## 🌟 Modern Capabilities (v2.1)
 
-### ✅ Enhanced Smart Awareness
+### 🚀 **What's New?**
 
-- **Web Search Integration** - Smarter "new tab" and "search" command parsing
-- **Domain Detection** - Directly open websites like `hackerone.com` or `google.com`
-- **LLM Fallback** - Robust Sequential Model strategy with OpenRouter fallback
-- **Build v2.1** - Improved PyInstaller asset bundling and path resolution
+- 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
+- 🎯 **Domain Detection** - Instantly open websites like `hackerone.com` or `google.com` by name.
+- 🧠 **LLM Fallback** - Robust Sequential Model strategy with OpenRouter redundancy.
+- 🏗️ **Build v2.1** - Optimized PyInstaller bundling for a faster, lighter executable.
 
-**Phase 1: Core System** ✅
+---
 
-- Real-time system monitoring (CPU, Memory, Battery, Network, Disk)
-- Power management with safety confirmations
-- Volume and brightness control
-- Cross-platform support (Windows/macOS/Linux)
+## 🛠️ Core System Pillars
 
-**Phase 2: Window & Input Control** ✅
+<table align="center">
+  <tr>
+    <td width="33%" align="center"><b>📡 System Monitoring</b></td>
+    <td width="33%" align="center"><b>🪟 Window Control</b></td>
+    <td width="33%" align="center"><b>📄 File & Media</b></td>
+  </tr>
+  <tr>
+    <td valign="top">
+      - Real-time CPU/GPU tracking<br>
+      - Battery & Power diagnostics<br>
+      - Network & Disk health stats<br>
+      - Brightness & Volume control
+    </td>
+    <td valign="top">
+      - Smart App Launching<br>
+      - Window Snapping/Resizing<br>
+      - Active App Management<br>
+      - Taskbar & Shell toggles
+    </td>
+    <td valign="top">
+      - Advanced File Search<br>
+      - Image/PDF OCR Extraction<br>
+      - PDF Merging & Splitting<br>
+      - Batch Image Compression
+    </td>
+  </tr>
+</table>
 
-- Open/close any application
-- Window management (minimize, maximize, snap)
-- Mouse automation (move, click, scroll, drag)
-- Keyboard automation (type, hotkeys)
-- WhatsApp Web & Desktop automation
-
-**Phase 3: File & Media Processing** ✅
-
-- File manager (search, create, delete, copy, move)
-- OCR: Extract text from images, PDFs, screenshots
-- PDF tools (merge, split, convert)
-- Image processing (convert, resize, compress)
-- Screenshots and clipboard operations
-- Media playback controls
+---
 
 ---
 
@@ -243,32 +264,29 @@ npm run dev
 
 ---
 
-## 🏗️ Architecture
+## 📊 Technical Architecture
 
-```text
-JARVIS Assistant v2.0
-│
-├── Frontend (React + TypeScript + Vite)
-│   ├── Voice Recognition (Web Speech API)
-│   ├── Cyberpunk UI (Tailwind CSS)
-│   ├── Real-time Dashboard
-│   └── WebSocket Client
-│
-├── Backend (Python + FastAPI)
-│   ├── System Module (Monitoring)
-│   ├── Window Manager (Apps)
-│   ├── Input Controller (Mouse/Keyboard)
-│   ├── File Manager (File operations)
-│   ├── Media Processor (OCR/PDF/Images)
-│   ├── Desktop Manager (Screenshots)
-│   ├── WhatsApp Automation
-│   └── Security Layer
-│
-└── Communication
-    ├── WebSocket (Real-time)
-    ├── REST API (50+ endpoints)
-    └── JSON Protocol
+```mermaid
+graph TD
+    User((User Voice)) --> Voice[Web Speech API]
+    Voice --> Frontend[React v19 Dashboard]
+    Frontend -- WebSocket --> Backend[FastAPI Controller]
+    Backend --> LogicCore{Bilingual Parser}
+    LogicCore --> System[System Module]
+    LogicCore --> Window[Window Manager]
+    LogicCore --> File[File Engine]
+    LogicCore --> Media[Media Processor]
+    System --> OS[Windows/Linux/macOS API]
 ```
+
+### **The Tech Stack**
+
+- **Frontend**: `React 19`, `TypeScript 5.8`, `Tailwind CSS`
+- **Backend**: `Python 3.11`, `FastAPI`, `PyAutoGUI`
+- **Intelligence**: `Bilingual Parser`, `OpenRouter LLM`
+- **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`
+
+---
 
 ---
 
@@ -409,60 +427,43 @@ pip install -r requirements.txt --force-reinstall
 
 ---
 
-## 📚 Documentation
+## �️ Security & Privacy
 
-- **[SETUP.md](docs/SETUP.md)** - Detailed installation
-- **[API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)** - API reference
-- **[COMMANDS.md](docs/COMMANDS.md)** - Complete command list
-- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open Pull Request
+- 🔐 **Confirmation System** - Dangerous actions require explicit user approval.
+- ⏱️ **Auto-Cancel** - 30-second timeout if no response is received.
+- 🗑️ **Safe Deletion** - All file deletions move to the recycle bin first.
+- 👤 **Local Processing** - Most operations stay strictly on your device.
+- 🛡️ **No Tracking** - Private, secure, and data-collection free.
 
 ---
 
-## 📜 License
+## 🤝 Community & Support
 
-MIT License - see [LICENSE](LICENSE) file
-
----
-
-## 🙏 Acknowledgments
-
-- Inspired by Tony Stark's JARVIS (Iron Man)
-- Built with React, FastAPI, Tailwind CSS
-- Voice: Web Speech API
-- Automation: PyAutoGUI, PyWin32
-- OCR: Tesseract
+- **Bugs?** [Open an Issue](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant/issues)
+- **Help?** [Full Setup Guide](docs/SETUP.md)
+- **Features?** Fork and submit a PR!
 
 ---
 
-## 📞 Connect
+## � Connect with VIPHACKER100
 
-### VIPHACKER100 (Aryan Ahirwar)
-
-- 🌐 **Website**: [viphacker100.com](https://viphacker100.com)
-- 💻 **GitHub**: [@VIPHACKER100](https://github.com/VIPHACKER100)
-- 💼 **LinkedIn**: [VIPHACKER100](https://linkedin.com/in/viphacker100)
-- 📸 **Instagram**: [@viphacker100](https://instagram.com/viphacker100)
+| Channel | Link |
+|---------|------|
+| 🌐 **Website** | [viphacker100.com](https://viphacker100.com) |
+| 💻 **GitHub** | [@VIPHACKER100](https://github.com/VIPHACKER100) |
+| 💼 **LinkedIn** | [Aryan Ahirwar](https://linkedin.com/in/viphacker100) |
+| 📸 **Instagram** | [@viphacker100](https://instagram.com/viphacker100) |
 
 ---
 
 <div align="center">
 
-### **JARVIS - Your Personal AI Assistant**
+### **JARVIS - The Future of System Control**
 
-#### "I'm here to help."
+#### *"I'm here to help."*
 
-Made with ❤️ by **VIPHACKER100**
+Built with 🤍 by **VIPHACKER100**
 
-⭐ Star this repo if you find it useful!
+⭐ **Star this repo if you find it useful!**
 
 </div>
