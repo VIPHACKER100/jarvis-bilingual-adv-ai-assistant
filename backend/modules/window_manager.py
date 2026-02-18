@@ -165,6 +165,33 @@ class WindowManager:
                         'get_response') else f"Opening {app_name}",
                     'executable': executable}
             else:
+                # Check for popular websites as fallback
+                web_mappings = {
+                    'youtube': 'https://www.youtube.com',
+                    'google': 'https://www.google.com',
+                    'facebook': 'https://www.facebook.com',
+                    'instagram': 'https://www.instagram.com',
+                    'twitter': 'https://www.twitter.com',
+                    'x': 'https://www.x.com',
+                    'github': 'https://www.github.com',
+                    'chatgpt': 'https://chatgpt.com',
+                    'gmail': 'https://mail.google.com',
+                    'netflix': 'https://www.netflix.com',
+                }
+                
+                app_name_lower = app_name.lower()
+                for key, url in web_mappings.items():
+                    if key in app_name_lower:
+                        import webbrowser
+                        webbrowser.open(url)
+                        log_command(f"open website {app_name}", "open_app", True)
+                        return {
+                            'success': True,
+                            'action_type': 'OPEN_APP',
+                            'app_name': app_name,
+                            'response': f"Opening {key.capitalize()} in your browser"
+                        }
+
                 # Try system command
                 if is_windows():
                     subprocess.Popen(f'start {app_name}', shell=True)
