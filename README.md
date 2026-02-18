@@ -11,7 +11,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 
-![JARVIS Banner](https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6)
+![JARVIS Banner]()
 
 **A futuristic, voice-activated system controller for Windows, macOS, and Linux.**  
 *Bilingual (English/Hindi) • 100+ Commands • Full Hardware Control*
