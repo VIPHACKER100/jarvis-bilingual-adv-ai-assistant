@@ -118,9 +118,7 @@ class MediaProcessor:
                         text += page.extract_text() + "\n"
 
                 if text.strip():
-                    log_command(
-                        f'PDF text extract from {
-                            path.name}', 'ocr_pdf', True)
+                    log_command(f'PDF text extract from {path.name}', 'ocr_pdf', True)
                     return {
                         'success': True,
                         'action_type': 'OCR_PDF',
@@ -384,11 +382,7 @@ class MediaProcessor:
             else:
                 images[0].save(str(output), 'PDF', resolution=100.0)
 
-            log_command(
-                f'images to PDF: {
-                    len(images)} images',
-                'images_to_pdf',
-                True)
+            log_command(f'images to PDF: {len(images)} images', 'images_to_pdf', True)
 
             return {
                 'success': True,
@@ -445,11 +439,7 @@ class MediaProcessor:
             output = Path(output_path).expanduser().resolve()
             image.save(str(output), format.upper())
 
-            log_command(
-                f'convert image {
-                    path.name} to {format}',
-                'convert_image',
-                True)
+            log_command(f'convert image {path.name} to {format}', 'convert_image', True)
 
             return {
                 'success': True,
@@ -585,10 +575,7 @@ class MediaProcessor:
                     round(
                         reduction,
                         1)) if reduction >= 0 else 0.0,
-                'response': f'Compressed by {
-                    reduction:.1f}% ({
-                    self._format_size(original_size)} → {
-                        self._format_size(new_size)})'}
+                'response': f'Compressed by {reduction:.1f}% ({self._format_size(original_size)} → {self._format_size(new_size)})'}
 
         except Exception as e:
             logger.error(f'Error compressing image: {e}')
@@ -679,9 +666,7 @@ class MediaProcessor:
                 'type': file_type,
                 'files': limited_files,
                 'count': len(found_files),
-                'response': f'Found {
-                    len(found_files)} {file_type} files in {
-                    folder.name}'}
+                'response': f'Found {len(found_files)} {file_type} files in {folder.name}'}
         except Exception as e:
             logger.error(f'Error scanning folder: {e}')
             return {'success': False, 'error': str(e)}

@@ -12,37 +12,75 @@ block_cipher = None
 
 # Define all hidden imports that PyInstaller might miss
 hidden_imports = [
+    # Core web framework
     'fastapi',
     'uvicorn',
     'websockets',
-    'psutil',
-    'pyautogui',
-    'pyperclip',
-    'PIL',
-    'pytesseract',
-    'PyPDF2',
-    'pdf2image',
-    'fuzzywuzzy',
-    'fuzzywuzzy.fuzz',
-    'fuzzywuzzy.process',
-    'Levenshtein',
-    'schedule',
-    'pydantic',
     'starlette',
     'anyio',
     'h11',
     'click',
     'colorama',
-    'idna',
-    'charset_normalizer',
-    'urllib3',
-    'certifi',
-    'packaging',
+    
+    # System utilities
+    'psutil',
+    'pyautogui',
+    'pyperclip',
+    'pycaw',
+    'screen_brightness_control',
+    
+    # Image processing
+    'PIL',
+    'PIL.Image',
+    'PIL.ImageOps',
+    'PIL.ImageFilter',
+    'PIL.ImageDraw',
+    
+    # OCR and PDF
+    'pytesseract',
+    'PyPDF2',
+    'pdf2image',
+    
+    # Text processing
+    'fuzzywuzzy',
+    'fuzzywuzzy.fuzz',
+    'fuzzywuzzy.process',
+    'Levenshtein',
+    'rapidfuzz',
+    
+    # Scheduling
+    'schedule',
+    
+    # Data validation
+    'pydantic',
+    'pydantic_core',
     'annotated_types',
     'typing_extensions',
     'typing_inspection',
-    'annotated_doc',
-    'pydantic_core',
+    
+    # HTTP and networking
+    'requests',
+    'urllib3',
+    'certifi',
+    'charset_normalizer',
+    'idna',
+    'packaging',
+    
+    # Configuration
+    'dotenv',
+    
+    # Windows COM
+    'win32com',
+    'win32gui',
+    'win32con',
+    'win32api',
+    'pythoncom',
+    'comtypes',
+    'ctypes',
+    'winshell',
+    'win10toast',
+    
+    # Project modules
     'modules.system',
     'modules.window_manager',
     'modules.input_control',
@@ -56,22 +94,11 @@ hidden_imports = [
     'modules.context',
     'modules.automation',
     'modules.llm',
+    
+    # Utilities
     'utils.platform_utils',
     'utils.logger',
     'config',
-    'requests',
-    'dotenv',
-    'win32com',
-    'win32gui',
-    'win32con',
-    'win32api',
-    'pythoncom',
-    'pycaw',
-    'comtypes',
-    'ctypes',
-    'winshell',
-    'win10toast',
-    'screen_brightness_control',
 ]
 
 # Collect all data files

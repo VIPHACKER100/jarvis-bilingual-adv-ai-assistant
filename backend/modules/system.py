@@ -382,10 +382,14 @@ class SystemModule:
             url = f"https://www.google.com/search?q={query}"
             webbrowser.open(url)
 
+            weather_target = city or ('current location' if language == 'en' else 'वर्तमान स्थान')
+            response_text = f"Checking weather for {weather_target}" if language == 'en' else f"{weather_target} के लिए मौसम की जानकारी देख रहा हूँ"
+            
             return {
-                'success': True, 'city': city, 'response': f"Checking weather for {
-                    city or 'current location'}" if language == 'en' else f"{
-                    city or 'वर्तमान स्थान'} के लिए मौसम की जानकारी देख रहा हूँ"}
+                'success': True, 
+                'city': city, 
+                'response': response_text
+            }
         except Exception as e:
             return {
                 'success': False,

@@ -52,9 +52,7 @@ class DesktopManager:
                 'image': f'data:image/png;base64,{img_str}',
                 'file_path': str(file_path) if file_path else None,
                 'size': screenshot.size,
-                'response': f'Screenshot captured ({
-                    screenshot.size[0]}x{
-                    screenshot.size[1]})'}
+                'response': f'Screenshot captured ({screenshot.size[0]}x{screenshot.size[1]})'}
 
         except Exception as e:
             logger.error(f'Error taking screenshot: {e}')
@@ -179,11 +177,7 @@ class DesktopManager:
         try:
             pyperclip.copy(text)
 
-            log_command(
-                f'copy text to clipboard ({
-                    len(text)} chars)',
-                'clipboard_set_text',
-                True)
+            log_command(f'copy text to clipboard ({len(text)} chars)', 'clipboard_set_text', True)
 
             return {
                 'success': True,
@@ -468,11 +462,7 @@ class DesktopManager:
                                 'picture-uri',
                                 f'file://{path}'])
 
-            log_command(
-                f'change wallpaper to {
-                    path.name}',
-                'change_wallpaper',
-                True)
+            log_command(f'change wallpaper to {path.name}', 'change_wallpaper', True)
             return {
                 'success': True,
                 'action_type': 'CHANGE_WALLPAPER',

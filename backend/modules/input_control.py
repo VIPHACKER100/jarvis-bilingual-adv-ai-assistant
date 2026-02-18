@@ -52,9 +52,7 @@ class InputController:
                 return {
                     'success': False,
                     'action_type': 'MOVE_CURSOR',
-                    'error': f'Coordinates out of bounds. Screen size: {
-                        self.screen_width}x{
-                        self.screen_height}'}
+                    'error': f'Coordinates out of bounds. Screen size: {self.screen_width}x{self.screen_height}'}
 
             # Add human-like movement
             pyautogui.moveTo(x, y, duration=duration,

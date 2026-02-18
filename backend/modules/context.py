@@ -130,10 +130,7 @@ class ContextManager:
         # Detect user mood
         self.current_context.user_mood = self._detect_mood(user_input)
 
-        logger.info(
-            f"Context updated: topic={
-                self.current_context.active_topic}, " f"mood={
-                self.current_context.user_mood}")
+        logger.info(f"Context updated: topic={self.current_context.active_topic}, mood={self.current_context.user_mood}")
 
     def analyze_intent(
             self,

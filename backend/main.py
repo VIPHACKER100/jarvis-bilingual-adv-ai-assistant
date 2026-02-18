@@ -458,7 +458,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             
     elif command_key == 'run_macro':
         if params:
-            result = {'success': automation_manager.run_macro(params), 'response': f"Running macro: {params}"}
+            result = {'success': await automation_manager.run_macro(params), 'response': f"Running macro: {params}"}
         else:
             result = {'success': False, 'error': 'No macro ID specified'}
             
@@ -647,7 +647,7 @@ async def move_cursor(move_data: Dict[str, Any]):
     return await input_controller.move_cursor(x, y)
 
 @app.post("/api/input/click")
-async def click_mouse(click_data: Dict[str, Any] = None):
+async def click_mouse(click_data: Optional[Dict[str, Any]] = None):
     """Click mouse"""
     button = click_data.get("button", "left") if click_data else "left"
     return await input_controller.click(button)
@@ -694,7 +694,7 @@ async def api_open_folder(folder_data: Dict[str, Any]):
     return await file_manager.open_folder(folder_name, language)
 
 @app.get("/api/files/list")
-async def api_list_files(folder: str = None, pattern: str = "*"):
+async def api_list_files(folder: Optional[str] = None, pattern: str = "*"):
     """List files in folder"""
     return await file_manager.list_files(folder, pattern)
 
@@ -1066,7 +1066,7 @@ async def api_save_conversation(conv_data: Dict[str, Any]):
     return {"success": success, "id": entry.id}
 
 @app.get("/api/memory/conversations")
-async def api_get_conversations(limit: int = 10, session_id: str = None):
+async def api_get_conversations(limit: int = 10, session_id: Optional[str] = None):
     """Get recent conversations"""
     from modules.memory import memory_manager
     
@@ -1112,7 +1112,7 @@ async def api_save_memory_fact(fact_data: Dict[str, Any]):
     return {"success": success}
 
 @app.get("/api/memory/facts")
-async def api_get_memory_facts(category: str = None):
+async def api_get_memory_facts(category: Optional[str] = None):
     """Get user facts/memories"""
     from modules.memory import memory_manager
     
@@ -1269,20 +1269,73 @@ async def websocket_endpoint(websocket: WebSocket):
             del cast(Any, connected_clients)[client_id]
 
 # Serve frontend if it exists - MOVED TO END to prevent intercepting API/WS routes
-frontend_dir = Path(__file__).parent.parent / "dist"  # Point to ../dist
-if frontend_dir.exists():
-    # Only mount if index.html exists in the directory
-    if (frontend_dir / "index.html").exists():
-        logger.info(f"Serving frontend from {frontend_dir}")
-        app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
-    else:
-        @app.get("/")
-        async def root():
-            return {"status": "online", "message": "Backend server is running (frontend not found)"}
+# Resolve frontend dist directory - works for both dev and PyInstaller frozen builds
+def _find_frontend_dir() -> tuple[Optional[Path], list[str]]:
+    """Find the frontend dist directory in multiple candidate locations."""
+    import sys
+    import os
+    candidates = []
+    
+    # 0. Manual override via environment variable
+    env_path = os.environ.get("JARVIS_FRONTEND_DIR")
+    if env_path:
+        candidates.append(Path(env_path))
+    
+    # 1. PyInstaller frozen: check _MEIPASS and relative to executable
+    if getattr(sys, 'frozen', False):
+        # sys._MEIPASS is the internal bundle directory
+        if hasattr(sys, '_MEIPASS'):
+            bundle_dir = Path(cast(str, sys._MEIPASS))
+            candidates.append(bundle_dir / "frontend")
+            candidates.append(bundle_dir / "dist")
+            
+        exe_dir = Path(sys.executable).parent
+        candidates.append(exe_dir / "frontend")
+        candidates.append(exe_dir / "dist")
+        candidates.append(exe_dir / "_internal" / "frontend")
+        candidates.append(exe_dir / "_internal" / "dist")
+    
+    # 2. Normal Python: relative to this file
+    try:
+        base_path = Path(__file__).resolve().parent.parent
+        candidates.append(base_path / "dist")
+        candidates.append(base_path / "frontend")
+        candidates.append(base_path / "backend" / "dist")
+    except:
+        pass
+    
+    # 3. Fallback: relative to current working directory
+    cwd = Path.cwd()
+    candidates.append(cwd / "dist")
+    candidates.append(cwd / "frontend")
+    candidates.append(cwd.parent / "dist")
+    candidates.append(cwd / "backend" / "dist")
+    
+    checked_paths = []
+    for candidate in candidates:
+        candidate_path = str(candidate)
+        if candidate_path not in checked_paths:
+            checked_paths.append(candidate_path)
+            if candidate.exists() and (candidate / "index.html").exists():
+                return candidate, checked_paths
+    
+    return None, checked_paths
+
+frontend_dir, checked_locations = _find_frontend_dir()
+if frontend_dir is not None:
+    logger.info(f"Serving frontend from {frontend_dir}")
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 else:
+    logger.warning(f"Frontend dist not found. Checked locations: {checked_locations}")
     @app.get("/")
     async def root():
-        return {"status": "online", "message": "Backend server is running (frontend directory not found)"}
+        return {
+            "status": "online", 
+            "message": "Backend server is running (frontend directory not found)",
+            "checked_paths": checked_locations,
+            "cwd": str(Path.cwd()),
+            "frozen": getattr(sys, 'frozen', False)
+        }
 
 if __name__ == "__main__":
     import uvicorn

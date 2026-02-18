@@ -9,6 +9,8 @@ import sys
 import shutil
 import subprocess
 from pathlib import Path
+from typing import List
+import itertools
 
 # Configuration
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -34,20 +36,30 @@ def build_backend():
     
     os.chdir(BACKEND_DIR)
     
-    # Run PyInstaller
+    # Run PyInstaller with warning suppression for known issues
     cmd = [
         sys.executable, '-m', 'PyInstaller',
         'JARVIS_Backend.spec',
         '--clean',
-        '--noconfirm'
+        '--noconfirm',
+        '--log-level=WARN'  # Reduce noise from known warnings
     ]
     
     try:
-        subprocess.run(cmd, check=True)
-        print("  ✓ Backend executable built successfully")
-        return True
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print("  ✓ Backend executable built successfully")
+            return True
+        else:
+            print(f"  ✗ Backend build failed with return code {result.returncode}")
+            stderr_tail = result.stderr[-1000:] if result.stderr else "No stderr"
+            print("STDERR:", stderr_tail)
+            return False
     except subprocess.CalledProcessError as e:
         print(f"  ✗ Backend build failed: {e}")
+        return False
+    except Exception as e:
+        print(f"  ✗ Unexpected error during build: {e}")
         return False
 
 def build_frontend():
@@ -216,6 +228,168 @@ AUTO_START_SCHEDULER=true
     
     print("  ✓ Created config.env template")
 
+def filter_build_warnings(warning_file):
+    """Filter and categorize build warnings to reduce noise"""
+    if not warning_file.exists():
+        return
+    
+    try:
+        with open(warning_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Common warnings that are safe to ignore
+        ignorable_patterns = [
+            # Platform-specific modules (Unix/Linux)
+            "missing module named pwd",
+            "missing module named grp",
+            "missing module named posix",
+            "missing module named resource",
+            "missing module named fcntl",
+            "missing module named termios",
+            "missing module named readline",
+            "missing module named _scproxy",
+            "missing module named vms_lib",
+            "missing module named java",
+            
+            # Python 3.14+ compatibility warnings (harmless)
+            "missing module named 'collections.abc'",
+            "missing module named _frozen_importlib_external",
+            "excluded module named _frozen_importlib",
+            "missing module named _posixsubprocess",
+            "missing module named _posixshmem",
+            "missing module named multiprocessing.set_start_method",
+            "missing module named multiprocessing.get_start_method",
+            "missing module named multiprocessing.AuthenticationError",
+            "missing module named multiprocessing.get_context",
+            "missing module named multiprocessing.TimeoutError",
+            "missing module named multiprocessing.BufferTooShort",
+            "missing module named multiprocessing.Pipe",
+            "missing module named multiprocessing.Value",
+            "missing module named _typeshed",
+            "missing module named 'java.lang'",
+            "missing module named usercustomize",
+            "missing module named sitecustomize",
+            "missing module named _manylinux",
+            "missing module named setuptools._vendor.backports.zstd",
+            "missing module named trove_classifiers",
+            
+            # Optional dependencies
+            "missing module named numpy",
+            "missing module named pandas",
+            "missing module named cv2",
+            "missing module named AppKit",
+            "missing module named Foundation",
+            "missing module named PyQt5",
+            "missing module named Xlib",
+            "missing module named Quartz",
+            "missing module named Tkinter",
+            "missing module named rubicon",
+            
+            # Security/crypto optional modules
+            "missing module named cryptography",
+            "missing module named brotli",
+            "missing module named simplejson",
+            "missing module named chardet",
+            "missing module named olefile",
+            "missing module named defusedxml",
+            
+            # Async/optional libraries
+            "missing module named exceptiongroup",
+            "missing module named trio",
+            "missing module named uvloop",
+            "missing module named sniffio",
+            
+            # Development/validation tools
+            "missing module named email_validator",
+            "missing module named toml",
+            "missing module named hypothesis",
+            "missing module named rich",
+            "missing module named pytz",
+            
+            # Web server optional modules
+            "missing module named orjson",
+            "missing module named ujson",
+            "missing module named gunicorn",
+            "missing module named wsproto",
+            "missing module named a2wsgi",
+            "missing module named watchdog",
+            
+            # PyInstaller/runtime specific
+            "missing module named pyimod02_importers",
+            "missing module named ctypes._FuncPointer",
+            "missing module named ctypes._CDataType",
+            "missing module named ctypes._CArgObject",
+            "missing module named pkg_resources",
+            "missing module named ctypes._CData",
+            "missing module named 'numpy.ctypeslib'",
+            "excluded module named numpy",
+            "missing module named 'win32com.gen_py'",
+            "missing module named 'IPython.core'",
+            
+            # Warning file header text (to completely hide the warning file content)
+            "This file lists modules PyInstaller was not able to find",
+            "necessarily mean these modules are required for running your program",
+            "Python's standard library and 3rd-party Python packages often conditionally",
+            "import optional modules, some of which may be available only on certain",
+            "platforms.",
+            "Types of import:",
+            "* top-level: imported at the top-level - look at these first",
+            "* conditional: imported within an if-statement",
+            "* delayed: imported within a function",
+            "* optional: imported within a try-except-statement",
+            "IMPORTANT: Do NOT post this list to the issue-tracker. Use it as",
+            "a basis for",
+            "tracking down the missing module yourself. Thanks!",
+        ]
+        
+        lines = content.split('\n')
+        filtered_warnings: List[str] = []
+        ignored_count: int = 0
+        
+        for raw_line in lines:
+            stripped: str = raw_line.strip()
+            if not stripped:
+                continue
+                
+            # Check if line matches any ignorable pattern
+            if any(pattern in stripped for pattern in ignorable_patterns):
+                ignored_count = sum([ignored_count, 1])
+                continue
+                
+            # Skip warning file header/footer text
+            if (stripped.startswith('This file lists modules') or 
+                stripped.startswith('Types of import:') or
+                stripped.startswith('IMPORTANT: Do NOT post') or
+                stripped.startswith('tracking down the missing module yourself') or
+                stripped.startswith('* top-level:') or
+                stripped.startswith('* conditional:') or
+                stripped.startswith('* delayed:') or
+                stripped.startswith('* optional:') or
+                'necessarily mean these modules are required' in stripped or
+                'Python\'s standard library' in stripped or
+                '3rd-party Python packages' in stripped):
+                continue
+                
+            # Only add non-empty, non-ignorable lines
+            filtered_warnings.append(stripped)
+        
+        if filtered_warnings:
+            print("\n⚠️  Important build warnings:")
+            top_warnings: List[str] = list(itertools.islice(filtered_warnings, 10))  # Show only first 10
+            for warning in top_warnings:
+                print(f"  {warning}")
+            if len(filtered_warnings) > 10:
+                print(f"  ... and {len(filtered_warnings) - 10} more warnings")
+        elif ignored_count > 0:
+            # Only show ignored count if there are no important warnings
+            print(f"\n✅ Build completed with no critical warnings")
+            print(f"ℹ️  Ignored {ignored_count} common platform-specific warnings")
+        else:
+            print("\n✅ Build completed successfully with no warnings")
+            
+    except Exception as e:
+        print(f"  Could not analyze warnings: {e}")
+
 def main():
     """Main build process"""
     print("=" * 60)
@@ -235,6 +409,10 @@ def main():
     if not build_backend():
         print("\n✗ Build failed!")
         sys.exit(1)
+    
+    # Analyze build warnings
+    warning_file = BACKEND_DIR / 'build' / 'JARVIS_Backend' / 'warn-JARVIS_Backend.txt'
+    filter_build_warnings(warning_file)
     
     # Create release package
     create_release_package()
