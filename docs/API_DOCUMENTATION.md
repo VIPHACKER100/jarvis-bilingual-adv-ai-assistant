@@ -48,20 +48,7 @@ All responses follow this structure:
 GET /
 ```
 
-**Response:**
-
-```json
-{
-  "status": "online",
-  "name": "JARVIS Backend",
-  "version": "2.1.0",
-  "platform": "windows",
-  "timestamp": "2024-01-01T12:00:00"
-}
-```
-
-### Web Search (New in v2.1)
-
+```http
 ```http
 POST /api/command
 {

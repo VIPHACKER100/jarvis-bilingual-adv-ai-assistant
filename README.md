@@ -28,9 +28,10 @@
 ### 🚀 **What's New?**
 
 - 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
-- 🎯 **Domain Detection** - Instantly open websites like `hackerone.com` or `google.com` by name.
-- 🧠 **LLM Fallback** - Robust Sequential Model strategy with OpenRouter redundancy.
-- 🏗️ **Build v2.1** - Optimized PyInstaller bundling for a faster, lighter executable.
+- 🎯 **Noun-First Hindi Parsing** - Better support for natural Hindi grammar (e.g., "[Folder] kholo").
+- 🖱️ **Enhanced Scroll Control** - Significantly faster scrolling with natural language multipliers ("a lot", "slightly").
+- 📂 **Full System Navigation** - Instant access to Home, Music, and Videos folders.
+- 🏗️ **Build v2.1.0** - Optimized PyInstaller bundling for a faster, lighter executable.
 
 ---
 
@@ -109,9 +110,9 @@
 
 ### 📁 File Management
 
-- **Quick Access** - Downloads, Documents, Desktop, Pictures
+- **Quick Access** - Home, Downloads, Documents, Desktop, Pictures, Videos, Music
 - **File Operations** - Create, delete, copy, move, rename
-- **Search** - Find files by name
+- **Search** - Find files by name (Noun-first supported)
 - **Information** - File size, type, dates
 - **Safety** - Delete moves to trash (recoverable)
 

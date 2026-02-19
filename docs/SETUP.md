@@ -1,6 +1,3 @@
-# JARVIS Setup Guide
-
-Complete installation and setup instructions for JARVIS Bilingual AI Assistant.
 
 ---
 

@@ -269,11 +269,24 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         else:
             result = {'success': False, 'error': 'No text specified'}
     
-    elif command_key == 'scroll_up':
-        result = await input_controller.scroll(5)
-    
-    elif command_key == 'scroll_down':
-        result = await input_controller.scroll(-5)
+    elif command_key == 'scroll_up' or command_key == 'scroll_down':
+        # Default scroll amount (300 is roughly one notch on many systems)
+        base_amount = 300
+        
+        # Adjust based on intensity keywords in params
+        multiplier = 1.0
+        if params:
+            p_lower = str(params).lower()
+            if any(w in p_lower for w in ['a lot', 'very', 'much', 'bahut', 'jyada']):
+                multiplier = 3.0
+            elif any(w in p_lower for w in ['little', 'slightly', 'thoda', 'slowly']):
+                multiplier = 0.5
+        
+        scroll_amount = int(base_amount * multiplier)
+        if command_key == 'scroll_down':
+            scroll_amount = -scroll_amount
+            
+        result = await input_controller.scroll(scroll_amount)
     
     # WhatsApp commands
     elif command_key == 'whatsapp_message':

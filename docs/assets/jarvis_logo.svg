@@ -1,46 +1,154 @@
 <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background Glow -->
-  <circle cx="100" cy="100" r="90" fill="url(#paint0_radial)" fill-opacity="0.2"/>
-  
-  <!-- Outer Ring -->
-  <circle cx="100" cy="100" r="85" stroke="#00D4FF" stroke-width="2" stroke-dasharray="20 10"/>
-  <circle cx="100" cy="100" r="80" stroke="#00D4FF" stroke-width="1" opacity="0.5"/>
-  
-  <!-- Rotating Segments -->
-  <path d="M100 30C138.66 30 170 61.3401 170 100" stroke="#00D4FF" stroke-width="4" stroke-linecap="round">
-    <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="10s" repeatCount="indefinite" />
-  </path>
-  <path d="M100 170C61.3401 170 30 138.66 30 100" stroke="#00D4FF" stroke-width="4" stroke-linecap="round">
-    <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="15s" repeatCount="indefinite" />
-  </path>
-  
-  <!-- Inner HUD Rings -->
-  <circle cx="100" cy="100" r="60" stroke="#00D4FF" stroke-width="1" stroke-dasharray="5 5" opacity="0.3"/>
-  <circle cx="100" cy="100" r="50" stroke="#00D4FF" stroke-width="2" opacity="0.8"/>
-  
-  <!-- The Core -->
-  <circle cx="100" cy="100" r="35" fill="url(#paint1_radial)"/>
-  <circle cx="100" cy="100" r="30" stroke="white" stroke-width="0.5" opacity="0.5"/>
-  
-  <!-- Core Flare -->
-  <circle cx="100" cy="100" r="15" fill="white" fill-opacity="0.8">
-    <animate attributeName="r" values="12;16;12" dur="2s" repeatCount="indefinite" />
-    <animate attributeName="fill-opacity" values="0.5;0.9;0.5" dur="2s" repeatCount="indefinite" />
-  </circle>
-
-  <!-- Hexagon Detail -->
-  <path d="M100 75L121.651 87.5V112.5L100 125L78.3494 112.5V87.5L100 75Z" stroke="#00D4FF" stroke-width="1" opacity="0.4"/>
-
-  <!-- Definitions -->
   <defs>
-    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(90)">
-      <stop stop-color="#00D4FF"/>
-      <stop offset="1" stop-color="#00D4FF" stop-opacity="0"/>
+    <!-- Enhanced Gradients -->
+    <radialGradient id="glowBg" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0%" stop-color="#00D4FF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#00D4FF" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(35)">
-      <stop stop-color="white"/>
-      <stop offset="0.2" stop-color="#00D4FF"/>
-      <stop offset="1" stop-color="#002B36"/>
+    
+    <radialGradient id="coreGradient" cx="0.4" cy="0.4" r="0.7">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="15%" stop-color="#00D4FF" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#0088FF" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#001B28" stop-opacity="1"/>
     </radialGradient>
+    
+    <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D4FF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#00D4FF" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#00D4FF" stop-opacity="0"/>
+    </linearGradient>
+    
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="deepGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
+  
+  <!-- Background Glow -->
+  <circle cx="100" cy="100" r="95" fill="url(#glowBg)"/>
+  
+  <!-- Pulsing Background Ring -->
+  <circle cx="100" cy="100" r="90" stroke="#00D4FF" stroke-width="1" fill="none" opacity="0.2">
+    <animate attributeName="stroke-width" values="1;2;1" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Outer Dashed Ring (Static) -->
+  <circle cx="100" cy="100" r="85" stroke="#00D4FF" stroke-width="2" stroke-dasharray="20 10" fill="none" filter="url(#glow)"/>
+  <circle cx="100" cy="100" r="80" stroke="#00D4FF" stroke-width="1" fill="none" opacity="0.4"/>
+  
+  <!-- Fast Rotating Segment 1 -->
+  <g>
+    <path d="M100 25C142.467 25 177 59.5329 177 102" stroke="#00D4FF" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#deepGlow)">
+      <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="8s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Slower Rotating Segment 2 -->
+  <g>
+    <path d="M100 175C57.5329 175 23 140.467 23 98" stroke="#00D4FF" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7" filter="url(#deepGlow)">
+      <animateTransform attributeName="transform" type="rotate" from="180 100 100" to="-180 100 100" dur="12s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Counter-rotating Segment 3 -->
+  <g opacity="0.6">
+    <path d="M100 30C139.76 30 172 62.2401 172 102" stroke="#0088FF" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#glow)">
+      <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="-360 100 100" dur="15s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Middle HUD Ring 1 -->
+  <circle cx="100" cy="100" r="65" stroke="#00D4FF" stroke-width="1.5" stroke-dasharray="8 4" fill="none" opacity="0.5"/>
+  
+  <!-- Middle HUD Ring 2 (Pulsing) -->
+  <circle cx="100" cy="100" r="55" stroke="#00D4FF" stroke-width="2" fill="none" opacity="0.6">
+    <animate attributeName="r" values="55;57;55" dur="2.5s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-width" values="2;1.5;2" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Inner Dashed Ring -->
+  <circle cx="100" cy="100" r="48" stroke="#00D4FF" stroke-width="1" stroke-dasharray="5 3" fill="none" opacity="0.4"/>
+  
+  <!-- Decorative Crosshair Points -->
+  <g stroke="#00D4FF" stroke-width="1.5" opacity="0.5">
+    <line x1="100" y1="18" x2="100" y2="25"/>
+    <line x1="182" y1="100" x2="175" y2="100"/>
+    <line x1="100" y1="182" x2="100" y2="175"/>
+    <line x1="18" y1="100" x2="25" y2="100"/>
+  </g>
+  
+  <!-- Core Circle with Enhanced Gradient -->
+  <circle cx="100" cy="100" r="36" fill="url(#coreGradient)" filter="url(#deepGlow)"/>
+  <circle cx="100" cy="100" r="33" stroke="#00D4FF" stroke-width="1" fill="none" opacity="0.4"/>
+  
+  <!-- Hexagon Detail (Animated) -->
+  <g filter="url(#glow)">
+    <path d="M100 72L123.205 86V114L100 128L76.795 114V86L100 72Z" stroke="#00D4FF" stroke-width="1.5" fill="none" opacity="0.5">
+      <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="20s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Inner Hexagon (Counter-rotating) -->
+  <g opacity="0.3">
+    <path d="M100 80L117.32 90V110L100 120L82.68 110V90L100 80Z" stroke="#0088FF" stroke-width="1" fill="none">
+      <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="-360 100 100" dur="25s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Core Pulsing Flare (Enhanced) -->
+  <circle cx="100" cy="100" r="14" fill="white" fill-opacity="0.9" filter="url(#deepGlow)">
+    <animate attributeName="r" values="12;18;12" dur="2.2s" repeatCount="indefinite"/>
+    <animate attributeName="fill-opacity" values="0.6;0.95;0.6" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Secondary Pulse Ring -->
+  <circle cx="100" cy="100" r="18" stroke="#00D4FF" stroke-width="1.5" fill="none" opacity="0.4">
+    <animate attributeName="r" values="15;25;15" dur="2.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0;0.6" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Accent Dots (Orbiting) -->
+  <g filter="url(#glow)">
+    <circle cx="100" cy="50" r="2" fill="#00D4FF">
+      <animateMotion dur="10s" repeatCount="indefinite">
+        <mpath href="#orbitPath"/>
+      </animateMotion>
+    </circle>
+    <circle cx="150" cy="100" r="2" fill="#00D4FF" opacity="0.7">
+      <animateMotion dur="10s" repeatCount="indefinite" keyPoints="0.25;1" keyTimes="0;1">
+        <mpath href="#orbitPath"/>
+      </animateMotion>
+    </circle>
+    <circle cx="100" cy="150" r="2" fill="#0088FF" opacity="0.6">
+      <animateMotion dur="10s" repeatCount="indefinite" keyPoints="0.5;1" keyTimes="0;1">
+        <mpath href="#orbitPath"/>
+      </animateMotion>
+    </circle>
+  </g>
+  
+  <!-- Orbit Path Definition -->
+  <path id="orbitPath" d="M100 50 A50 50 0 0 1 150 100 A50 50 0 0 1 100 150 A50 50 0 0 1 50 100 A50 50 0 0 1 100 50" fill="none" stroke="none"/>
+  
+  <!-- Subtle Scan Lines (Animated) -->
+  <g stroke="#00D4FF" stroke-width="0.5" opacity="0.2">
+    <line x1="70" y1="100" x2="130" y2="100">
+      <animate attributeName="opacity" values="0.1;0.3;0.1" dur="1.5s" repeatCount="indefinite"/>
+    </line>
+    <line x1="100" y1="70" x2="100" y2="130">
+      <animate attributeName="opacity" values="0.1;0.3;0.1" dur="1.5s" repeatCount="indefinite" begin="0.75s"/>
+    </line>
+  </g>
 </svg>

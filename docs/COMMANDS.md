@@ -132,8 +132,12 @@ Complete reference of all voice commands supported by JARVIS.
 | "Click" | "Click karo" | Left click |
 | "Double click" | "Do bar click karo" | Double click |
 | "Right click" | "Right click karo" | Right click |
-| "Scroll up" | "Upar scroll karo" | Scroll up |
-| "Scroll down" | "Neeche scroll karo" | Scroll down |
+| "Scroll up" | "Upar scroll karo" | Scroll up (Standard: 300) |
+| "Scroll up a lot" | "Jyada upar scroll" | Scroll up 3x faster |
+| "Scroll up slightly" | "Thoda upar scroll" | Scroll up 0.5x speed |
+| "Scroll down" | "Neeche scroll karo" | Scroll down (Standard: 300) |
+| "Scroll down a lot" | "Jyada neeche scroll" | Scroll down 3x faster |
+| "Scroll down slightly" | "Thoda neeche scroll" | Scroll down 0.5x speed |
 | "Drag to X Y" | "X Y pe drag karo" | Drag and drop |
 
 ### Keyboard Input
@@ -170,7 +174,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "Open Pictures" | "Pictures kholo" | Open Pictures folder |
 | "Open Videos" | "Videos kholo" | Open Videos folder |
 | "Open Music" | "Music kholo" | Open Music folder |
-| "Open Home" | "Home kholo" | Open Home directory |
+| "Open Home" | "Home kholo" | Open Home directory (User Profile) |
 | "Open folder [name]" | "[name] folder kholo" | Open specific folder |
 
 ### File Operations
