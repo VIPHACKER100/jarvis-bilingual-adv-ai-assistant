@@ -1,8 +1,25 @@
+# -*- coding: utf-8 -*-
 import logging
 import os
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+
+
+class UTF8ConsoleHandler(logging.StreamHandler):
+    """Custom console handler that handles UTF-8 encoding properly on Windows"""
+    def __init__(self, stream=None):
+        if stream is None:
+            stream = sys.stdout
+        super().__init__(stream)
+        
+        # Set encoding to UTF-8 on Windows
+        if sys.platform == 'win32' and hasattr(stream, 'reconfigure'):
+            try:
+                stream.reconfigure(encoding='utf-8', errors='replace')
+            except:
+                pass  # Fallback if reconfigure fails
 
 # Setup paths
 BASE_DIR = Path(__file__).parent.parent
@@ -26,30 +43,35 @@ def setup_logger(name="jarvis"):
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     
-    # Console handler
-    console_handler = logging.StreamHandler()
+    # Console handler with UTF-8 encoding
+    console_handler = UTF8ConsoleHandler()
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    # File handler (rotating)
+    # Prevent propagation to avoid duplicate logs
+    logger.propagate = False
+    
+    # File handler (rotating) with UTF-8 encoding
     log_file = LOGS_DIR / "jarvis.log"
     file_handler = TimedRotatingFileHandler(
         log_file,
         when='midnight',
         interval=1,
-        backupCount=LOG_RETENTION_DAYS
+        backupCount=LOG_RETENTION_DAYS,
+        encoding='utf-8'
     )
     file_handler.setLevel(getattr(logging, LOG_LEVEL.upper()))
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     
-    # Error file handler
+    # Error file handler with UTF-8 encoding
     error_file = LOGS_DIR / "error.log"
     error_handler = RotatingFileHandler(
         error_file,
         maxBytes=10485760,  # 10MB
-        backupCount=5
+        backupCount=5,
+        encoding='utf-8'
     )
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(formatter)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import asyncio
 from datetime import datetime
@@ -183,6 +184,9 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     elif command_key == 'volume_down':
         result = await system_module.volume_down(language)
     
+    elif command_key == 'mute':
+        result = await system_module.toggle_mute(language)
+    
     # Window commands
     elif command_key == 'open_app':
         if params:
@@ -298,14 +302,17 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             result = {'success': False, 'error': 'No contact specified'}
     
     # ==================== PHASE 3: FILE MANAGER COMMANDS ====================
-    elif command_key == 'open_folder' or command_key == 'open_downloads' or command_key == 'open_documents' or command_key == 'open_desktop' or command_key == 'open_pictures':
+    elif command_key in ['open_folder', 'open_downloads', 'open_documents', 'open_desktop', 'open_pictures', 'open_videos', 'open_music', 'open_home']:
         folder_map = {
             'open_downloads': 'downloads',
             'open_documents': 'documents',
             'open_desktop': 'desktop',
-            'open_pictures': 'pictures'
+            'open_pictures': 'pictures',
+            'open_videos': 'videos',
+            'open_music': 'music',
+            'open_home': 'home'
         }
-        folder_name = folder_map.get(command_key, params) if params else folder_map.get(command_key, 'home')
+        folder_name = folder_map.get(command_key, params if params else 'home')
         result = await file_manager.open_folder(folder_name, language)
     
     elif command_key == 'search_files':

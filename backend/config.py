@@ -45,9 +45,25 @@ HINDI_COMMANDS = {
     'sleep': ['sleep', 'sone do', 'suspend'],
     
     # Volume
-    'volume_up': ['volume up', 'aawaz badhao', 'awaz badhao', 'tez karo', 'sound badhao', 'volume badao'],
-    'volume_down': ['volume down', 'aawaz kam karo', 'awaz kam karo', 'dheere karo', 'sound kam', 'volume ghatao'],
-    'mute': ['mute', 'silent', 'khamosh', 'band karo'],
+    'volume_up': [
+        'volume up', 'aawaz badhao', 'awaz badhao', 'tez karo', 'sound badhao', 'volume badao',
+        # English synonyms
+        'increase volume', 'increase sound', 'increase audio',
+        'raise volume', 'raise sound', 'raise audio',
+        'louder', 'sound up', 'audio up', 'turn up volume', 'turn up sound',
+    ],
+    'volume_down': [
+        'volume down', 'aawaz kam karo', 'awaz kam karo', 'dheere karo', 'sound kam', 'volume ghatao',
+        # English synonyms
+        'decrease volume', 'decrease sound', 'decrease audio',
+        'lower volume', 'lower sound', 'lower audio', 'reduce volume', 'reduce sound',
+        'quieter', 'sound down', 'audio down', 'turn down volume', 'turn down sound',
+    ],
+    'mute': [
+        'mute', 'silent', 'khamosh', 'unmute',
+        # English synonyms
+        'silence', 'no sound', 'toggle mute', 'mute audio', 'mute sound', 'mute volume',
+    ],
     
     # System
     'time': ['time', 'samay', 'samay kya hai', 'time kya hai', 'baje kya hue', 'kitne baje hai'],
@@ -86,10 +102,13 @@ HINDI_COMMANDS = {
     
     # Phase 3: File Manager
     'open_folder': ['open folder', 'folder kholo', 'directory kholo', 'explore', 'folder open karo'],
-    'open_downloads': ['open downloads', 'downloads kholo', 'download folder'],
-    'open_documents': ['open documents', 'documents kholo', 'docs kholo'],
-    'open_desktop': ['open desktop', 'desktop kholo'],
-    'open_pictures': ['open pictures', 'pictures kholo', 'photos kholo'],
+    'open_downloads': ['open downloads', 'open download', 'downloads kholo', 'download folder', 'downloads', 'download'],
+    'open_documents': ['open documents', 'open document', 'documents kholo', 'docs kholo', 'documents', 'document', 'docs'],
+    'open_desktop': ['open desktop', 'desktop kholo', 'desktop'],
+    'open_pictures': ['open pictures', 'open picture', 'pictures kholo', 'photos kholo', 'pictures', 'picture', 'photos', 'photo'],
+    'open_videos': ['open videos', 'open video', 'videos kholo', 'movies kholo', 'videos', 'video', 'movies', 'movie'],
+    'open_music': ['open music', 'music kholo', 'gaane kholo', 'music', 'songs', 'gaane'],
+    'open_home': ['open home', 'home kholo', 'home directory', 'home folder', 'home', 'main folder'],
     'search_files': ['search file', 'file dhoondo', 'find file', 'dhundho', 'search karo'],
     'create_folder': ['create folder', 'naya folder', 'new folder', 'folder banao'],
     'delete_file': ['delete file', 'file hatao', 'remove file', 'delete karo', 'hatao'],
@@ -112,9 +131,17 @@ HINDI_COMMANDS = {
     'take_screenshot': ['take screenshot', 'screenshot lo', 'screen capture karo', 'photo lo'],
     'get_clipboard': ['get clipboard', 'clipboard dekhoo', 'copy kiya hua dekhoo'],
     'set_clipboard': ['set clipboard', 'clipboard mein daalo', 'copy karo'],
-    'media_play': ['play media', 'play pause', 'music chalao', 'video chalao'],
-    'media_next': ['next track', 'agla gaana', 'next song'],
-    'media_previous': ['previous track', 'pichla gaana', 'previous song'],
+    'media_play': [
+        'play media', 'play pause', 'music chalao', 'video chalao',
+        # English natural phrases
+        'play music', 'play song', 'play audio', 'play video',
+        'start music', 'start playing', 'start song',
+        'resume music', 'resume media', 'resume playing',
+        'pause music', 'pause song', 'pause media',
+        'toggle music', 'toggle media',
+    ],
+    'media_next': ['next track', 'agla gaana', 'next song', 'next music', 'skip song', 'skip track'],
+    'media_previous': ['previous track', 'pichla gaana', 'previous song', 'prev track', 'previous music'],
     
     # Advanced Desktop
     'change_wallpaper': ['change wallpaper', 'wallpaper badlo', 'background badlo', 'desktop picture'],
@@ -168,6 +195,8 @@ RESPONSES = {
         'image_compressed': 'Image compressed by {0}%.',
         'screenshot_saved': 'Screenshot saved.',
         'clipboard_set': 'Copied to clipboard.',
+        'muted': 'System muted.',
+        'unmuted': 'System unmuted.',
         'command_not_understood': "I'm sorry, I didn't understand that command.",
         'confirmation_timeout': 'Confirmation timed out. Action cancelled.',
     },
@@ -203,6 +232,8 @@ RESPONSES = {
         'image_compressed': 'इमेज {0}% कम हो गई।',
         'screenshot_saved': 'स्क्रीनशॉट सेव हो गया।',
         'clipboard_set': 'क्लिपबोर्ड में कॉपी हो गया।',
+        'muted': 'सिस्टम म्यूट कर दिया गया है।',
+        'unmuted': 'सिस्टम अनम्यूट कर दिया गया है।',
         'command_not_understood': 'क्षमा करें, मुझे यह समझ नहीं आया।',
         'confirmation_timeout': 'पुष्टि का समय समाप्त हो गया। कार्य रद्द कर दिया गया है।',
     }

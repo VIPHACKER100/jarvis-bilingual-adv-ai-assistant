@@ -108,10 +108,17 @@ class BilingualParser:
                 if phrase == 'search' and 'search file' in text_lower:
                     continue
                     
-                # Extract parameters (text after the command phrase)
+                # Extract parameters (text before or after the command phrase)
                 phrase_index = text_lower.find(phrase)
-                param_start = phrase_index + len(phrase)
-                params = text[param_start:].strip()
+                params_after = text[phrase_index + len(phrase):].strip()
+                params_before = text[:phrase_index].strip()
+                
+                # In Hindi, nouns often come before the verb/phrase (e.g., "Aryan folder kholo")
+                # In English, parameters usually come after (e.g., "Open folder Aryan")
+                if lang == 'hi' and params_before and not params_after:
+                    params = params_before
+                else:
+                    params = params_after
                 
                 # Cleanup parameters
                 prev_params = None
@@ -149,11 +156,11 @@ class BilingualParser:
             return 'restart', lang, None
         elif any(word in text_lower for word in ['sleep', 'suspend']):
             return 'sleep', lang, None
-        elif 'volume up' in text_lower or 'increase volume' in text_lower:
+        elif any(kw in text_lower for kw in ['volume up', 'increase volume', 'increase sound', 'increase audio', 'raise volume', 'raise sound', 'louder']):
             return 'volume_up', lang, None
-        elif 'volume down' in text_lower or 'decrease volume' in text_lower:
+        elif any(kw in text_lower for kw in ['volume down', 'decrease volume', 'decrease sound', 'decrease audio', 'lower volume', 'lower sound', 'quieter']):
             return 'volume_down', lang, None
-        elif 'mute' in text_lower:
+        elif any(kw in text_lower for kw in ['mute', 'silence', 'no sound', 'toggle mute', 'unmute']):
             return 'mute', lang, None
         elif any(word in text_lower for word in ['time', 'what time']):
             return 'time', lang, None
@@ -163,6 +170,26 @@ class BilingualParser:
             return 'battery', lang, None
         elif any(word in text_lower for word in ['system status', 'pc status', 'status check']):
             return 'system_status', lang, None
+        # Media playback English fallback
+        elif any(kw in text_lower for kw in [
+            'play music', 'play song', 'play audio', 'play video',
+            'start music', 'start song', 'start playing',
+            'resume music', 'resume song', 'resume media', 'resume playing',
+            'pause music', 'pause song', 'pause media',
+            'toggle music', 'toggle media', 'play media', 'play pause',
+        ]):
+            return 'media_play', lang, None
+        elif any(kw in text_lower for kw in [
+            'next track', 'next song', 'next music', 'skip song', 'skip track'
+        ]):
+            return 'media_next', lang, None
+        elif any(kw in text_lower for kw in [
+            'previous track', 'previous song', 'previous music', 'prev track', 'prev song'
+        ]):
+            return 'media_previous', lang, None
+        # Screenshot English fallback
+        elif any(kw in text_lower for kw in ['take screenshot', 'screenshot', 'screen capture']):
+            return 'take_screenshot', lang, None
 
         return 'unknown', lang, None
 

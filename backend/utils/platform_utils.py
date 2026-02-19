@@ -128,3 +128,46 @@ def get_volume():
         success, output, _ = run_command("amixer get Master | grep -oP '\\[\\K[0-9]+(?=%\\])'")
         return int(output.strip()) if success else 50
     return 50
+
+def set_mute(mute_state):
+    """Set system mute state (True/False)"""
+    if is_windows():
+        try:
+            from ctypes import cast, POINTER
+            from comtypes import CLSCTX_ALL
+            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            devices = AudioUtilities.GetSpeakers()
+            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+            volume = cast(interface, POINTER(IAudioEndpointVolume))
+            volume.SetMute(1 if mute_state else 0, None)
+            return True
+        except:
+            return False
+    elif is_macos():
+        state = 'true' if mute_state else 'false'
+        return run_command(f"osascript -e 'set volume output muted {state}'")
+    elif is_linux():
+        action = 'mute' if mute_state else 'unmute'
+        return run_command(f"amixer set Master {action}")
+    return False
+
+def is_muted():
+    """Check if system is muted"""
+    if is_windows():
+        try:
+            from ctypes import cast, POINTER
+            from comtypes import CLSCTX_ALL
+            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            devices = AudioUtilities.GetSpeakers()
+            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+            volume = cast(interface, POINTER(IAudioEndpointVolume))
+            return volume.GetMute() == 1
+        except:
+            return False
+    elif is_macos():
+        success, output, _ = run_command("osascript -e 'output muted of (get volume settings)'")
+        return output.strip().lower() == 'true' if success else False
+    elif is_linux():
+        success, output, _ = run_command("amixer get Master")
+        return '[off]' in output if success else False
+    return False

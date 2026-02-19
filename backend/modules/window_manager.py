@@ -98,6 +98,8 @@ class WindowManager:
             'calculator': ['calc.exe', 'calculator.app', 'gnome-calculator', 'kcalc'],
             'explorer': ['explorer.exe', 'finder.app', 'nautilus', 'dolphin'],
             'vscode': ['code.exe', 'visual studio code.app', 'code'],
+            'vs code': ['code.exe', 'visual studio code.app', 'code'],
+            'visual studio code': ['code.exe', 'visual studio code.app', 'code'],
             'spotify': ['spotify.exe', 'spotify.app', 'spotify'],
             'whatsapp': ['whatsapp.exe', 'whatsapp.app', 'whatsapp'],
             'word': ['winword.exe', 'microsoft word.app'],
@@ -111,31 +113,37 @@ class WindowManager:
         for key, executables in common_apps.items():
             if key in app_name_lower or app_name_lower in key:
                 for exe in executables:
+                    # Check PATH first (very reliable for things like 'code')
+                    import shutil
+                    which_name = exe if exe.endswith('.exe') else exe.replace('.exe', '')
+                    resolved = shutil.which(which_name)
+                    if resolved:
+                        return resolved
+
                     if is_windows():
-                        # Try to find in Program Files
                         import os
-                        program_files = os.environ.get(
-                            'PROGRAMFILES', 'C:\\Program Files')
-                        program_files_x86 = os.environ.get(
-                            'PROGRAMFILES(X86)', 'C:\\Program Files (x86)')
+                        program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
+                        program_files_x86 = os.environ.get('PROGRAMFILES(X86)', 'C:\\Program Files (x86)')
                         localappdata = os.environ.get('LOCALAPPDATA', '')
 
+                        # Common paths + specific VS Code paths
                         paths = [
-                            os.path.join(
-                                program_files, exe.replace(
-                                    '.exe', ''), exe), os.path.join(
-                                program_files_x86, exe.replace(
-                                    '.exe', ''), exe), os.path.join(
-                                localappdata, exe.replace(
-                                    '.exe', ''), exe), ]
+                            os.path.join(program_files, exe.replace('.exe', ''), exe),
+                            os.path.join(program_files_x86, exe.replace('.exe', ''), exe),
+                            os.path.join(localappdata, exe.replace('.exe', ''), exe),
+                            # VS Code specific (User install)
+                            os.path.join(localappdata, "Programs", "Microsoft VS Code", "bin", "code.cmd"),
+                            os.path.join(localappdata, "Programs", "Microsoft VS Code", "Code.exe"),
+                        ]
                         for path in paths:
                             if os.path.exists(path):
                                 return path
                     else:
-                        # For macOS/Linux, check PATH
-                        import shutil
-                        if shutil.which(exe.replace('.exe', '')):
-                            return exe.replace('.exe', '')
+                        # macOS/Linux handled by shutil.which above, but keeping logic for .app
+                        if exe.endswith('.app') and is_macos():
+                            app_path = f"/Applications/{exe}"
+                            if os.path.exists(app_path):
+                                return app_path
 
         return None
 

@@ -5,7 +5,8 @@ from typing import Dict, Any, List, Optional, cast
 from modules.bilingual_parser import parser
 from utils.platform_utils import (
     shutdown_system, restart_system, sleep_system,
-    set_volume, get_volume, is_windows, is_macos, is_linux
+    set_volume, get_volume, set_mute, is_muted,
+    is_windows, is_macos, is_linux
 )
 from utils.logger import log_command, logger
 
@@ -250,6 +251,33 @@ class SystemModule:
                 'response': parser.get_response(
                     'command_not_understood',
                     language)}
+
+    async def toggle_mute(self, language: str = 'en') -> Dict[str, Any]:
+        """Toggle system mute state"""
+        try:
+            muted = is_muted()
+            new_state = not muted
+            success = set_mute(new_state)
+
+            log_command('mute', 'mute', success, {'state': 'muted' if new_state else 'unmuted'})
+
+            if new_state:
+                response = parser.get_response('muted', language)
+            else:
+                response = parser.get_response('unmuted', language)
+
+            return {
+                'success': success,
+                'is_muted': new_state,
+                'response': response
+            }
+        except Exception as e:
+            logger.error(f"Error toggling mute: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'response': parser.get_response('command_not_understood', language)
+            }
 
     async def get_brightness(self) -> int:
         """Get current screen brightness"""
