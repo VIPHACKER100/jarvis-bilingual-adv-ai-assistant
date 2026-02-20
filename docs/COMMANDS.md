@@ -7,9 +7,9 @@ Complete reference of all voice commands supported by JARVIS.
 ## 🎙️ How to Use
 
 1. **Activate JARVIS** - Click the Arc Reactor or say "Hey JARVIS"
-2. **Speak naturally** - Commands work in both English and Hindi
+2. **Speak naturally** - Commands work seamlessly in English, Hinglish, and **Native Devanagari Script** (Hindi natively transcribed via Web Speech API).
 3. **Wait for beep** - JARVIS will respond when ready
-4. **Use parameters** - Add details like "Open Chrome" or "Volume up 20"
+4. **Use parameters** - Add details like "Open Chrome", "Volume up 20" or "लड़कियों की फोटो गूगल सर्च करो"
 
 ---
 

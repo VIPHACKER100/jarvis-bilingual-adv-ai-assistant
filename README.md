@@ -28,9 +28,10 @@
 ### 🚀 **What's New?**
 
 - 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
-- 🎯 **Noun-First Hindi Parsing** - Better support for natural Hindi grammar (e.g., "[Folder] kholo").
+- 🎯 **Native Devanagari Script Support** - Full web speech API pipeline mapping directly supports native Devanagari Hindi text recognition flawlessly.
+- 🎯 **Noun-First Hindi Parsing** - Better support for natural Hindi grammar (e.g., "[Folder] kholo") by aggressively stripping generic verbs.
 - 🖱️ **Enhanced Scroll Control** - Significantly faster scrolling with natural language multipliers ("a lot", "slightly").
-- 📂 **Full System Navigation** - Instant access to Home, Music, and Videos folders.
+- 🎨 **Compliant Styling** - Inline style warnings resolved via dynamically computed class scopes.
 - 🏗️ **Build v2.1.0** - Optimized PyInstaller bundling for a faster, lighter executable.
 
 ---
@@ -449,7 +450,7 @@ pip install -r requirements.txt --force-reinstall
 ## � Connect with VIPHACKER100
 
 | Channel | Link |
-|---------|------|
+| --------- | ------ |
 | 🌐 **Website** | [viphacker100.com](https://viphacker100.com) |
 | 💻 **GitHub** | [@VIPHACKER100](https://github.com/VIPHACKER100) |
 | 💼 **LinkedIn** | [Aryan Ahirwar](https://linkedin.com/in/viphacker100) |
