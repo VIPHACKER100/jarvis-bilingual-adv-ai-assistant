@@ -2,7 +2,7 @@ import os
 import json
 import platform
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore
 
 load_dotenv()
 

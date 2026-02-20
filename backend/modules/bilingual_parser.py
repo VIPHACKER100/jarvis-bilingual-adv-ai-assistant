@@ -1,4 +1,4 @@
-from config import HINDI_COMMANDS, RESPONSES
+from config import HINDI_COMMANDS, RESPONSES  # type: ignore
 from typing import Dict, Tuple, Optional
 import sys
 import re
@@ -110,8 +110,8 @@ class BilingualParser:
                     
                 # Extract parameters (text before or after the command phrase)
                 phrase_index = text_lower.find(phrase)
-                params_after = text[phrase_index + len(phrase):].strip()
-                params_before = text[:phrase_index].strip()
+                params_after = text[phrase_index + len(phrase):].strip()  # type: ignore
+                params_before = text[:phrase_index].strip()  # type: ignore
                 
                 # Clean up Hindi trailing noise words
                 noise_hindi_words = {
@@ -123,11 +123,11 @@ class BilingualParser:
                 for _ in range(2):
                     for word in noise_hindi_words:
                         if clean_after.endswith(" " + word):
-                            clean_after = clean_after[:-(len(word)+1)].strip()
+                            clean_after = clean_after[:-(len(word)+1)].strip()  # type: ignore
                         elif clean_after == word:
                             clean_after = ""
                         if clean_after.startswith(word + " "):
-                            clean_after = clean_after[len(word)+1:].strip()
+                            clean_after = clean_after[len(word)+1:].strip()  # type: ignore
                         elif clean_after == word:
                             clean_after = ""
                 
