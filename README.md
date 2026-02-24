@@ -463,7 +463,7 @@ pip install -r requirements.txt --force-reinstall
 
 #### *"I'm here to help."*
 
-Built with 🤍 by **VIPHACKER100**
+Built with 🤍 by **VIPHACKER100 "Aryan Ahirwar"**
 
 ⭐ **Star this repo if you find it useful!**
 
