@@ -52,7 +52,8 @@ class DesktopManager:
                 'image': f'data:image/png;base64,{img_str}',
                 'file_path': str(file_path) if file_path else None,
                 'size': screenshot.size,
-                'response': f'Screenshot captured ({screenshot.size[0]}x{screenshot.size[1]})'}
+                'response': parser.get_response('screenshot_captured', language)
+            }
 
         except Exception as e:
             logger.error(f'Error taking screenshot: {e}')
@@ -228,7 +229,7 @@ class DesktopManager:
             return {
                 'success': True,
                 'action_type': 'MEDIA_PLAY_PAUSE',
-                'response': 'Play/Pause toggled'
+                'response': parser.get_response('media_play_pause', language)
             }
 
         except Exception as e:
@@ -250,7 +251,7 @@ class DesktopManager:
             return {
                 'success': True,
                 'action_type': 'MEDIA_NEXT',
-                'response': 'Next track'
+                'response': parser.get_response('media_next', language)
             }
 
         except Exception as e:
@@ -272,7 +273,7 @@ class DesktopManager:
             return {
                 'success': True,
                 'action_type': 'MEDIA_PREVIOUS',
-                'response': 'Previous track'
+                'response': parser.get_response('media_prev', language)
             }
 
         except Exception as e:
@@ -294,7 +295,7 @@ class DesktopManager:
             return {
                 'success': True,
                 'action_type': 'MEDIA_STOP',
-                'response': 'Media stopped'
+                'response': parser.get_response('media_stop', language)
             }
 
         except Exception as e:

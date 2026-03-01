@@ -131,21 +131,25 @@ HINDI_COMMANDS = {
     'images_to_pdf': ['images to pdf', 'images ko pdf mein convert karo', 'इमेज को पीडीएफ में बदलो'],
     
     # Phase 3: Desktop
-    'take_screenshot': ['take screenshot', 'screenshot lo', 'screen capture karo', 'photo lo', 'स्क्रीनशॉट लो', 'स्क्रीन कैप्चर करो', 'फोटो लो'],
+    'take_screenshot': [
+        'take screenshot', 'screenshot lo', 'screen capture karo', 'photo lo', 
+        'स्क्रीनशॉट लो', 'स्क्रीन कैप्चर करो', 'फोटो लो', 'स्क्रीनशॉट खींचो', 'स्क्रीनशॉट खींचिए',
+        'कैप्चर करो', 'कैप्चर'
+    ],
     'get_clipboard': ['get clipboard', 'clipboard dekhoo', 'copy kiya hua dekhoo', 'क्लिपबोर्ड देखो', 'क्या कॉपी किया है'],
     'set_clipboard': ['set clipboard', 'clipboard mein daalo', 'copy karo', 'क्लिपबोर्ड में डालो', 'कॉपी करो'],
     'media_play': [
         'play media', 'play pause', 'music chalao', 'video chalao',
-        'मीडिया चलाओ', 'म्यूजिक चलाओ', 'गाना चलाओ', 'वीडियो चलाओ', 'प्ले', 'पॉज', 'रोको', 'चलाओ',
+        'मीडिया चलाओ', 'म्यूजिक चलाओ', 'गाना चलाओ', 'वीडियो चलाओ', 'प्ले', 'पॉज', 'रोको', 'चलाओ', 'वीडियो रोको', 'गाना रोको',
         # English natural phrases
         'play music', 'play song', 'play audio', 'play video',
         'start music', 'start playing', 'start song',
         'resume music', 'resume media', 'resume playing',
         'pause music', 'pause song', 'pause media',
-        'toggle music', 'toggle media',
+        'toggle music', 'toggle media', 'play pause',
     ],
-    'media_next': ['next track', 'agla gaana', 'next song', 'next music', 'skip song', 'skip track', 'अगला गाना', 'नेक्स्ट ट्रैक', 'अगला'],
-    'media_previous': ['previous track', 'pichla gaana', 'previous song', 'prev track', 'previous music', 'पिछला गाना', 'पीछे का गाना', 'पिछला'],
+    'media_next': ['next track', 'agla gaana', 'next song', 'next music', 'skip song', 'skip track', 'अगला गाना', 'नेक्स्ट ट्रैक', 'अगला', 'आगे वाला गाना', 'आगे बढ़ाओ'],
+    'media_previous': ['previous track', 'pichla gaana', 'previous song', 'prev track', 'previous music', 'पिछला गाना', 'पीछे का गाना', 'पिछला', 'पीछे वाला गाना', 'पीछे करो'],
     
     # Advanced Desktop
     'change_wallpaper': ['change wallpaper', 'wallpaper badlo', 'background badlo', 'desktop picture', 'वॉलपेपर बदलो', 'बैकग्राउंड बदलो', 'वॉलपेपर चेंज करो'],
@@ -205,6 +209,11 @@ RESPONSES = {
         'unmuted': 'System unmuted.',
         'command_not_understood': "I'm sorry, I didn't understand that command.",
         'confirmation_timeout': 'Confirmation timed out. Action cancelled.',
+        'media_play_pause': 'Media play/pause toggled.',
+        'media_next': 'Skipped to next track.',
+        'media_prev': 'Went back to previous track.',
+        'media_stop': 'Media playback stopped.',
+        'screenshot_captured': 'Screenshot captured successfully.',
     },
     'hi': {
         'confirm_shutdown': 'क्या आप वाकई कंप्यूटर बंद करना चाहते हैं?',
@@ -244,6 +253,11 @@ RESPONSES = {
         'unmuted': 'सिस्टम अनम्यूट कर दिया गया है।',
         'command_not_understood': 'क्षमा करें, मुझे यह समझ नहीं आया।',
         'confirmation_timeout': 'पुष्टि का समय समाप्त हो गया। कार्य रद्द कर दिया गया है।',
+        'media_play_pause': 'मीडिया प्ले/पॉज टॉगल किया गया।',
+        'media_next': 'अगले गाने पर स्विच किया गया।',
+        'media_prev': 'पिछले गाने पर वापस गए।',
+        'media_stop': 'मीडिया प्लेबैक रोक दिया गया।',
+        'screenshot_captured': 'स्क्रीनशॉट सफलतापूर्वक कैप्चर किया गया।',
     }
 }
 
