@@ -419,6 +419,10 @@ const App: FC = () => {
             {/* Real System Status Panel */}
             {systemStatus && systemStatus.success && (
               <div className="border border-cyan-500/30 bg-slate-900/60 p-4 w-full md:w-64 text-[10px] font-mono rounded-sm backdrop-blur-sm">
+                <style>{`
+                  .battery-bar-width { width: ${systemStatus.battery?.percent != null ? systemStatus.battery.percent : 0}%; }
+                  .cpu-bar-width { width: ${systemStatus.cpu ? Math.min(systemStatus.cpu.percent, 100) : 0}%; }
+                `}</style>
                 <div className="text-cyan-400 uppercase tracking-wider mb-3 pb-2 border-b border-cyan-500/20">
                   SYSTEM STATUS
                 </div>
@@ -430,13 +434,12 @@ const App: FC = () => {
                     <div className="flex items-center gap-2">
                       <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${systemStatus.battery.is_charging
+                          className={`h-full rounded-full battery-bar-width ${systemStatus.battery.is_charging
                             ? 'bg-green-500 animate-pulse'
                             : systemStatus.battery.percent < 20
                               ? 'bg-red-500'
                               : 'bg-cyan-500'
                             }`}
-                          style={{ width: `${systemStatus.battery.percent}%` }}
                         ></div>
                       </div>
                       <span className={systemStatus.battery.percent < 20 ? 'text-red-400' : 'text-cyan-400'}>
@@ -452,9 +455,8 @@ const App: FC = () => {
                   <div className="flex items-center gap-2">
                     <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${systemStatus.cpu.percent > 80 ? 'bg-red-500' : 'bg-cyan-500'
+                        className={`h-full rounded-full cpu-bar-width ${systemStatus.cpu.percent > 80 ? 'bg-red-500' : 'bg-cyan-500'
                           }`}
-                        style={{ width: `${Math.min(systemStatus.cpu.percent, 100)}%` }}
                       ></div>
                     </div>
                     <span className={systemStatus.cpu.percent > 80 ? 'text-red-400' : 'text-cyan-400'}>

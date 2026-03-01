@@ -53,6 +53,7 @@ export interface CommandResponse {
   confirmation_id?: string;
   data?: Record<string, any>;
   error?: string;
+  volume?: number;
   timestamp: string;
 }
 

@@ -6,7 +6,7 @@
 
 ### **The Ultimate Bilingual AI System Assistant**
 
-[![Version](https://img.shields.io/badge/Version-2.1.0-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-2.1.1-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -28,10 +28,10 @@
 ### 🚀 **What's New?**
 
 - 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
-- 🎯 **Noun-First Hindi Parsing** - Better support for natural Hindi grammar (e.g., "[Folder] kholo").
-- 🖱️ **Enhanced Scroll Control** - Significantly faster scrolling with natural language multipliers ("a lot", "slightly").
-- 📂 **Full System Navigation** - Instant access to Home, Music, and Videos folders.
-- 🏗️ **Build v2.1.0** - Optimized PyInstaller bundling for a faster, lighter executable.
+- 🎯 **Native Devanagari Script Support** - Full web speech API pipeline mapping directly supports native Devanagari Hindi text recognition flawlessly.
+- 🛠️ **v2.1.1: Dynamic Volume & Brightness** - Control levels using percentages or specified amounts (e.g., "Aawaz 20% badhao").
+- 🔡 **v2.1.1: Bilingual App Mapping** - Launch common apps using native Hindi names like "नोटपैड" or "कैलकुलेटर".
+- 🏗️ **Build Optimization** - Optimized PyInstaller bundling for a faster, lighter executable.
 
 ---
 
@@ -214,7 +214,7 @@ npm run dev
 ```text
 "What time is it?" / "Samay kya hai?"
 "Shutdown computer" / "Computer band karo"
-"Volume up" / "Aawaz badhao"
+"Volume up 20%" / "Aawaz 20 percent badhao"
 "Battery status" / "Battery kitni hai?"
 ```
 
@@ -222,7 +222,7 @@ npm run dev
 
 ```text
 "Open Chrome" / "Chrome kholo"
-"Close Notepad" / "Notepad band karo"
+"Open Notepad" / "नोटपैड खोलो"
 "Minimize window" / "Window chhota karo"
 "Show desktop" / "Desktop dikhavo"
 ```
@@ -449,7 +449,7 @@ pip install -r requirements.txt --force-reinstall
 ## � Connect with VIPHACKER100
 
 | Channel | Link |
-|---------|------|
+| --------- | ------ |
 | 🌐 **Website** | [viphacker100.com](https://viphacker100.com) |
 | 💻 **GitHub** | [@VIPHACKER100](https://github.com/VIPHACKER100) |
 | 💼 **LinkedIn** | [Aryan Ahirwar](https://linkedin.com/in/viphacker100) |

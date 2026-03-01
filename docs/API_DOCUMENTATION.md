@@ -777,6 +777,12 @@ Currently no rate limiting for local usage. Future versions may implement limits
 
 ## Changelog
 
+### v2.1.1
+
+- Added dynamic volume/brightness control (optional amount parameter)
+- Added bilingual application mapping (Hindi app names support)
+- Improved localized responses for system commands
+
 ### v2.0.0
 
 - Added File Manager endpoints

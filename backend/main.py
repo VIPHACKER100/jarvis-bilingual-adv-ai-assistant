@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+import sys
 import json
 import asyncio
 from datetime import datetime
@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
     log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "2.1.0"
+        "version": "2.1.1"
     })
     
     # Start background tasks
@@ -58,7 +58,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="JARVIS Backend",
     description="Cross-platform AI assistant backend with window management and automation",
-    version="2.1.0",
+    version="2.1.1",
     lifespan=lifespan
 )
 
@@ -158,34 +158,42 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     
     # System commands
     if command_key == 'system_status':
-        result = await system_module.get_system_status(language)
+        result = await system_module.get_system_status(current_lang)
     
     elif command_key == 'time':
-        result = await system_module.get_time(language)
+        result = await system_module.get_time(current_lang)
     
     elif command_key == 'date':
-        result = await system_module.get_date(language)
+        result = await system_module.get_date(current_lang)
     
     elif command_key == 'battery':
-        result = await system_module.get_battery_status(language)
+        result = await system_module.get_battery_status(current_lang)
     
     elif command_key == 'shutdown':
-        result = await system_module.shutdown(language)
+        result = await system_module.shutdown(current_lang)
     
     elif command_key == 'restart':
-        result = await system_module.restart(language)
+        result = await system_module.restart(current_lang)
     
     elif command_key == 'sleep':
-        result = await system_module.sleep(language)
+        result = await system_module.sleep(current_lang)
     
-    elif command_key == 'volume_up':
-        result = await system_module.volume_up(language)
-    
-    elif command_key == 'volume_down':
-        result = await system_module.volume_down(language)
+    elif command_key == 'volume_up' or command_key == 'volume_down':
+        # Extract amount from params if present
+        amount = None
+        if params:
+            import re
+            nums = re.findall(r'\d+', str(params))
+            if nums:
+                amount = int(nums[0])
+        
+        if command_key == 'volume_up':
+            result = await system_module.volume_up(amount, current_lang)
+        else:
+            result = await system_module.volume_down(amount, current_lang)
     
     elif command_key == 'mute':
-        result = await system_module.toggle_mute(language)
+        result = await system_module.toggle_mute(current_lang)
     
     # Window commands
     elif command_key == 'open_app':

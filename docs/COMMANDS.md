@@ -7,9 +7,9 @@ Complete reference of all voice commands supported by JARVIS.
 ## 🎙️ How to Use
 
 1. **Activate JARVIS** - Click the Arc Reactor or say "Hey JARVIS"
-2. **Speak naturally** - Commands work in both English and Hindi
+2. **Speak naturally** - Commands work seamlessly in English, Hinglish, and **Native Devanagari Script** (Hindi natively transcribed via Web Speech API).
 3. **Wait for beep** - JARVIS will respond when ready
-4. **Use parameters** - Add details like "Open Chrome" or "Volume up 20"
+4. **Use parameters** - Add details like "Open Chrome", "Volume up 20" or "लड़कियों की फोटो गूगल सर्च करो"
 
 ---
 
@@ -18,7 +18,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Time & Date
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "What time is it?" | "Samay kya hai?" | Get current time |
 | "What's the time?" | "Kitne baje hai?" | Get current time |
 | "Tell me the time" | "Time batao" | Get current time |
@@ -29,7 +29,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Battery & Power
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Battery status" | "Battery kitni hai?" | Check battery level |
 | "How much battery?" | "Kitni charge bachi hai?" | Check battery level |
 | "Is charging?" | "Charge ho raha hai?" | Check if plugged in |
@@ -39,7 +39,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Power Control ⚠️
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Shutdown computer" | "Computer band karo" | Shutdown (needs confirmation) |
 | "Turn off PC" | "PC band karo" | Shutdown (needs confirmation) |
 | "Restart computer" | "Computer restart karo" | Restart (needs confirmation) |
@@ -50,20 +50,28 @@ Complete reference of all voice commands supported by JARVIS.
 ### Volume Control
 
 | English | Hindi | Description |
-|---------|-------|-------------|
-| "Volume up" | "Aawaz badhao" | Increase volume |
-| "Volume down" | "Aawaz kam karo" | Decrease volume |
+| :--- | :--- | :--- |
+| "Volume up [amount]" | "Aawaz [amount] badhao" | Increase volume by % |
+| "Volume down [amount]" | "Aawaz [amount] kam karo" | Decrease volume by % |
 | "Mute" | "Mute karo" | Mute system |
 | "Unmute" | "Unmute karo" | Unmute system |
-| "Increase sound" | "Sound badhao" | Volume up |
-| "Decrease sound" | "Sound kam karo" | Volume down |
+| "Set volume to [X]" | "Aawaz [X] par set karo" | Set exact volume % |
+
+### Brightness Control
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Brightness up" | "Roshni badhao" | Increase brightness |
+| "Brightness down" | "Roshni kam karo" | Decrease brightness |
+| "Raise brightness" | "Brightness badhao" | Screen brightness +10% |
+| "Lower brightness" | "Brightness kam karo" | Screen brightness -10% |
 
 ---
 
 ## 🌐 Web & Search Commands
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Google search [query]" | "Google search karo [query]" | Executed Google search |
 | "Search for [query]" | "[query] dhoondo" | Search on Google |
 | "Open browser" | "Browser kholo" | Open default browser |
@@ -78,22 +86,22 @@ Complete reference of all voice commands supported by JARVIS.
 ### Open Applications
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Open Chrome" | "Chrome kholo" | Open Google Chrome |
 | "Open Firefox" | "Firefox kholo" | Open Firefox browser |
 | "Open Edge" | "Edge kholo" | Open Microsoft Edge |
-| "Open Notepad" | "Notepad kholo" | Open Notepad |
+| "Open Notepad" | "NotePad kholo" | Open Notepad |
+| "Open Notepad (Devanagari)" | "नोटपैड खोलो" | Open Notepad (Native) |
 | "Open Calculator" | "Calculator kholo" | Open Calculator |
-| "Open Word" | "Word kholo" | Open Microsoft Word |
-| "Open Excel" | "Excel kholo" | Open Microsoft Excel |
-| "Open VS Code" | "VS Code kholo" | Open Visual Studio Code |
-| "Open Spotify" | "Spotify kholo" | Open Spotify |
+| "Open Calculator (Devanagari)" | "कैलकुलेटर खोलो" | Open Calc (Native) |
+| "Open VS Code" | "VS Code kholo" | Open VS Code |
+| "Open Code" | "कोड खोलो" | Open VS Code (Native) |
 | "Start [app name]" | "[app] chalu karo" | Open any application |
 
 ### Close Applications
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Close Chrome" | "Chrome band karo" | Close Chrome |
 | "Close Notepad" | "Notepad band karo" | Close Notepad |
 | "Close window" | "Window band karo" | Close active window |
@@ -103,7 +111,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Window Control
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Minimize window" | "Window chhota karo" | Minimize active window |
 | "Maximize window" | "Window bada karo" | Maximize active window |
 | "Restore window" | "Window wapas lao" | Restore window |
@@ -120,7 +128,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Mouse Movement
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Move cursor to X Y" | "Cursor X Y le jao" | Move to coordinates |
 | "Move mouse to center" | "Mouse center mein le jao" | Center of screen |
 | "Get cursor position" | "Cursor position batao" | Current coordinates |
@@ -128,7 +136,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Mouse Actions
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Click" | "Click karo" | Left click |
 | "Double click" | "Do bar click karo" | Double click |
 | "Right click" | "Right click karo" | Right click |
@@ -143,7 +151,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Keyboard Input
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Type [text]" | "[text] likho" | Type text |
 | "Press Enter" | "Enter daba" | Press Enter key |
 | "Press Escape" | "Escape daba" | Press Escape |
@@ -167,7 +175,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Open Folders
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Open Downloads" | "Downloads kholo" | Open Downloads folder |
 | "Open Documents" | "Documents kholo" | Open Documents folder |
 | "Open Desktop" | "Desktop kholo" | Open Desktop folder |
@@ -180,7 +188,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### File Operations
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Search file [name]" | "[name] file dhoondo" | Search for file |
 | "Find [name]" | "[name] dhundho" | Search files |
 | "Create folder [name]" | "[name] folder banao" | Create new folder |
@@ -200,7 +208,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Image OCR
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Extract text from image" | "Image se text nikalo" | OCR on image file |
 | "Read this image" | "Ye image padho" | Extract image text |
 | "Get text from photo" | "Photo se text lo" | OCR on photo |
@@ -208,7 +216,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### PDF OCR
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Extract text from PDF" | "PDF se text nikalo" | OCR on PDF |
 | "Read PDF" | "PDF padho" | Extract PDF text |
 | "PDF to text" | "PDF ko text mein badlo" | Convert PDF to text |
@@ -216,7 +224,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Screenshot OCR
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Screenshot and extract text" | "Screenshot lo aur text nikalo" | Capture & OCR |
 | "Read screen" | "Screen padho" | OCR current screen |
 | "Copy text from screen" | "Screen se text copy karo" | Extract visible text |
@@ -228,7 +236,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### PDF Operations
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Merge PDFs" | "PDFs jodo" | Combine multiple PDFs |
 | "Combine PDF files" | "PDF files jodo" | Merge PDFs |
 | "Split PDF" | "PDF alag karo" | Extract pages |
@@ -243,7 +251,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Format Conversion
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Convert to PNG" | "PNG mein convert karo" | Convert image to PNG |
 | "Convert to JPG" | "JPG mein convert karo" | Convert image to JPEG |
 | "Convert to WebP" | "WebP mein convert karo" | Convert to WebP |
@@ -252,7 +260,7 @@ Complete reference of all voice commands supported by JARVIS.
 ### Image Editing
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Resize image" | "Image resize karo" | Change image size |
 | "Make image smaller" | "Image chhota karo" | Reduce dimensions |
 | "Compress image" | "Image compress karo" | Reduce file size |
@@ -265,10 +273,11 @@ Complete reference of all voice commands supported by JARVIS.
 ## 📸 Screenshot Commands
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Take screenshot" | "Screenshot lo" | Full screen capture |
-| "Screenshot" | "Screenshot lo" | Capture screen |
-| "Capture screen" | "Screen capture karo" | Full screenshot |
+| "Snapshot" | "स्क्रीनशॉट खींचो" | Native Hindi action |
+| "Capture screen" | "स्क्रीन कैप्चर करो" | Full screenshot |
+| "Take photo" | "फोटो खींचो" | Casual Hindi command |
 | "Screenshot region" | "Region ka screenshot lo" | Capture specific area |
 | "Save screenshot" | "Screenshot save karo" | Save to file |
 
@@ -277,7 +286,7 @@ Complete reference of all voice commands supported by JARVIS.
 ## 📋 Clipboard Commands
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Get clipboard" | "Clipboard dekhoo" | Read clipboard text |
 | "Show clipboard" | "Clipboard dikhavo" | Display clipboard |
 | "Set clipboard [text]" | "[text] clipboard mein daalo" | Copy text |
@@ -289,14 +298,14 @@ Complete reference of all voice commands supported by JARVIS.
 ## 🎵 Media Control Commands
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Play music" | "Music chalao" | Play/Pause media |
 | "Pause music" | "Music roko" | Pause playback |
-| "Play pause" | "Play pause karo" | Toggle play/pause |
+| "Toggle playback" | "प्ले पॉज करो" | Media toggle |
 | "Next song" | "Agla gaana" | Next track |
-| "Next track" | "Agla track" | Skip forward |
+| "Next" | "आगे बढ़ाओ" | Skip forward |
 | "Previous song" | "Pichla gaana" | Previous track |
-| "Previous track" | "Pichla track" | Go back |
+| "Go back" | "पीछे करो" | Skip backward |
 | "Stop music" | "Music band karo" | Stop playback |
 | "Volume up" | "Volume badhao" | Increase volume |
 | "Volume down" | "Volume kam karo" | Decrease volume |
@@ -307,7 +316,7 @@ Complete reference of all voice commands supported by JARVIS.
 ## 📱 WhatsApp Commands
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Open WhatsApp" | "WhatsApp kholo" | Open WhatsApp |
 | "Send message to [name]" | "[name] ko message bhejo" | Send WhatsApp message |
 | "Message [name] saying [text]" | "[name] ko bolo [text]" | Send message with text |
@@ -319,7 +328,7 @@ Complete reference of all voice commands supported by JARVIS.
 ## 🆘 Help Commands
 
 | English | Hindi | Description |
-|---------|-------|-------------|
+| :--- | :--- | :--- |
 | "Help" | "Madad chahiye" | Show help |
 | "What can you do?" | "Tum kya kar sakte ho?" | List capabilities |
 | "Commands" | "Commands batao" | Show command list |
@@ -376,7 +385,7 @@ Commands marked with ⚠️ require confirmation:
 ## 📝 Command Categories Summary
 
 | Category | English Commands | Hindi Commands | Total |
-|----------|-----------------|----------------|-------|
+| :--- | :--- | :--- | :--- |
 | System | 15 | 15 | 30 |
 | Window Management | 12 | 12 | 24 |
 | Input Control | 18 | 18 | 36 |
@@ -409,4 +418,4 @@ If JARVIS doesn't understand:
 
 ---
 
-**Happy Voice Controlling! 🎙️**
+### Happy Voice Controlling! 🎙️

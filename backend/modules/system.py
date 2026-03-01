@@ -204,21 +204,22 @@ class SystemModule:
             'error': stderr if not success else None
         }
 
-    async def volume_up(self, language: str = 'en') -> Dict[str, Any]:
+    async def volume_up(self, amount: Optional[int] = None, language: str = 'en') -> Dict[str, Any]:
         """Increase volume"""
         try:
             current = get_volume()
-            new_volume = min(current + 10, 100)
+            increment = amount if amount is not None else 10
+            new_volume = min(current + increment, 100)
             success = set_volume(new_volume)
 
             log_command(
                 'volume_up', 'volume_up', success, {
-                    'from': current, 'to': new_volume})
+                    'from': current, 'to': new_volume, 'amount': increment})
 
             return {
                 'success': success,
                 'volume': new_volume,
-                'response': parser.get_response('volume_increased', language)
+                'response': parser.get_response('volume_increased', language, new_volume)
             }
         except Exception as e:
             return {
@@ -228,21 +229,22 @@ class SystemModule:
                     'command_not_understood',
                     language)}
 
-    async def volume_down(self, language: str = 'en') -> Dict[str, Any]:
+    async def volume_down(self, amount: Optional[int] = None, language: str = 'en') -> Dict[str, Any]:
         """Decrease volume"""
         try:
             current = get_volume()
-            new_volume = max(current - 10, 0)
+            decrement = amount if amount is not None else 10
+            new_volume = max(current - decrement, 0)
             success = set_volume(new_volume)
 
             log_command(
                 'volume_down', 'volume_down', success, {
-                    'from': current, 'to': new_volume})
+                    'from': current, 'to': new_volume, 'amount': decrement})
 
             return {
                 'success': success,
                 'volume': new_volume,
-                'response': parser.get_response('volume_decreased', language)
+                'response': parser.get_response('volume_decreased', language, new_volume)
             }
         except Exception as e:
             return {
@@ -310,7 +312,7 @@ class SystemModule:
             return {
                 'success': success,
                 'brightness': new_level,
-                'response': f"Brightness increased to {new_level}%" if language == 'en' else f"ब्राइटनेस {new_level}% तक बढ़ गई"
+                'response': parser.get_response('brightness_increased', language, new_level)
             }
         except Exception as e:
             return {
@@ -332,7 +334,7 @@ class SystemModule:
             return {
                 'success': success,
                 'brightness': new_level,
-                'response': f"Brightness decreased to {new_level}%" if language == 'en' else f"ब्राइटनेस {new_level}% तक कम हो गई"
+                'response': parser.get_response('brightness_decreased', language, new_level)
             }
         except Exception as e:
             return {

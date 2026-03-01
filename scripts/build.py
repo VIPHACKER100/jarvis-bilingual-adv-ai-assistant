@@ -8,6 +8,7 @@ import os
 import sys
 import shutil
 import subprocess
+import zipfile
 from pathlib import Path
 from typing import List
 import itertools
@@ -109,9 +110,10 @@ def create_launcher_script():
     launcher_content = '''@echo off
 chcp 65001 >nul
 title JARVIS AI Assistant
+taskkill /F /IM JARVIS_Backend.exe 2>nul
 echo.
 echo ╔═══════════════════════════════════════╗
-echo ║     JARVIS AI Assistant v2.0          ║
+echo ║     JARVIS AI Assistant v2.1.1        ║
 echo ║     Made by VIPHACKER100              ║
 echo ╚═══════════════════════════════════════╝
 echo.
@@ -142,7 +144,7 @@ timeout /t 2 >nul
 
 def create_release_readme():
     """Create release README"""
-    readme_content = '''# JARVIS AI Assistant v2.0
+    readme_content = '''# JARVIS AI Assistant v2.1.1
 
 ## 🚀 Quick Start
 
@@ -227,6 +229,31 @@ AUTO_START_SCHEDULER=true
         f.write(env_content)
     
     print("  ✓ Created config.env template")
+
+def zip_release_package():
+    """Create a zip archive of the release folder"""
+    zip_filename = f"JARVIS_v2.1.1.zip"
+    zip_path = PROJECT_ROOT / zip_filename
+    
+    print(f"\n🤐 Zipping release package into {zip_filename}...")
+    
+    try:
+        # Remove old zip if exists
+        if zip_path.exists():
+            zip_path.unlink()
+            
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for root, dirs, files in os.walk(RELEASE_DIR):
+                for file in files:
+                    file_path = Path(root) / file
+                    arcname = file_path.relative_to(RELEASE_DIR)
+                    zipf.write(file_path, arcname)
+        
+        print(f"  ✓ Created {zip_filename}")
+        return True
+    except Exception as e:
+        print(f"  ✗ Failed to create zip: {e}")
+        return False
 
 def filter_build_warnings(warning_file):
     """Filter and categorize build warnings to reduce noise"""
@@ -326,6 +353,26 @@ def filter_build_warnings(warning_file):
             "missing module named 'win32com.gen_py'",
             "missing module named 'IPython.core'",
             
+            # New noisy warnings detected in v2.1
+            "missing module named 'org.python'",
+            "missing module named org",
+            "missing module named asyncio.DefaultEventLoopPolicy",
+            "missing module named pyparsing.Word",
+            "missing module named railroad",
+            "missing module named 'pkg_resources.extern.pyparsing'",
+            "missing module named 'pkg_resources.extern.importlib_resources'",
+            "missing module named 'pkg_resources.extern.more_itertools'",
+            "missing module named 'com.sun'",
+            "missing module named com",
+            
+            # Common library-specific noise
+            "missing module named _winreg",
+            "missing module named 'pkg_resources.extern.jaraco'",
+            "missing module named 'rich.",
+            "missing module named pygments.",
+            "missing module named 'numpy.typing'",
+            "missing module named ctags",
+            
             # Warning file header text (to completely hide the warning file content)
             "This file lists modules PyInstaller was not able to find",
             "necessarily mean these modules are required for running your program",
@@ -393,7 +440,7 @@ def filter_build_warnings(warning_file):
 def main():
     """Main build process"""
     print("=" * 60)
-    print("JARVIS AI Assistant v2.0 - Build Script")
+    print("JARVIS AI Assistant v2.1.1 - Build Script")
     print("Made by VIPHACKER100")
     print("=" * 60)
     
@@ -417,14 +464,17 @@ def main():
     # Create release package
     create_release_package()
     
+    # Zip release package
+    zip_release_package()
+    
     print("\n" + "=" * 60)
     print("✅ Build completed successfully!")
     print(f"📁 Release package: {RELEASE_DIR}")
+    print(f"📦 Distribution Zip: {PROJECT_ROOT / 'JARVIS_v2.1.1.zip'}")
     print("=" * 60)
     print("\nTo distribute:")
-    print("1. Zip the 'release' folder")
-    print("2. Share JARVIS_v2.0.zip")
-    print("3. Users just run START_JARVIS.bat")
+    print("1. Share JARVIS_v2.1.1.zip")
+    print("2. Users just unzip and run START_JARVIS.bat")
 
 if __name__ == '__main__':
     main()

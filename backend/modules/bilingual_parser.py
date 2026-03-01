@@ -1,4 +1,4 @@
-from config import HINDI_COMMANDS, RESPONSES
+from config import HINDI_COMMANDS, RESPONSES  # type: ignore
 from typing import Dict, Tuple, Optional
 import sys
 import re
@@ -110,13 +110,36 @@ class BilingualParser:
                     
                 # Extract parameters (text before or after the command phrase)
                 phrase_index = text_lower.find(phrase)
-                params_after = text[phrase_index + len(phrase):].strip()
-                params_before = text[:phrase_index].strip()
+                params_after = text[phrase_index + len(phrase):].strip()  # type: ignore
+                params_before = text[:phrase_index].strip()  # type: ignore
+                
+                # Clean up Hindi trailing noise words
+                noise_hindi_words = {
+                    'karo', 'khol', 'chalao', 'kholiye', 'dikhaiye', 'bataiye', 
+                    'kijiye', 'kar', 'करो', 'खोलें', 'चालू करो', 'चलाओ', 'कीजिए', 
+                    'बताओ', 'दिखाओ', 'में', 'को', 'पर'
+                }
+                clean_after = params_after
+                for _ in range(2):
+                    for word in noise_hindi_words:
+                        if clean_after.endswith(" " + word):
+                            clean_after = clean_after[:-(len(word)+1)].strip()  # type: ignore
+                        elif clean_after == word:
+                            clean_after = ""
+                        if clean_after.startswith(word + " "):
+                            clean_after = clean_after[len(word)+1:].strip()  # type: ignore
+                        elif clean_after == word:
+                            clean_after = ""
                 
                 # In Hindi, nouns often come before the verb/phrase (e.g., "Aryan folder kholo")
                 # In English, parameters usually come after (e.g., "Open folder Aryan")
-                if lang == 'hi' and params_before and not params_after:
-                    params = params_before
+                if lang == 'hi':
+                    if params_before and clean_after:
+                        params = f"{params_before} {clean_after}"
+                    elif params_before:
+                        params = params_before
+                    else:
+                        params = clean_after if clean_after else params_after
                 else:
                     params = params_after
                 
