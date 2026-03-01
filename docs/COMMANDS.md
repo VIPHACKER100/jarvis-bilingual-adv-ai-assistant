@@ -51,12 +51,20 @@ Complete reference of all voice commands supported by JARVIS.
 
 | English | Hindi | Description |
 |---------|-------|-------------|
-| "Volume up" | "Aawaz badhao" | Increase volume |
-| "Volume down" | "Aawaz kam karo" | Decrease volume |
+| "Volume up [amount]" | "Aawaz [amount] badhao" | Increase volume by % |
+| "Volume down [amount]" | "Aawaz [amount] kam karo" | Decrease volume by % |
 | "Mute" | "Mute karo" | Mute system |
 | "Unmute" | "Unmute karo" | Unmute system |
-| "Increase sound" | "Sound badhao" | Volume up |
-| "Decrease sound" | "Sound kam karo" | Volume down |
+| "Set volume to [X]" | "Aawaz [X] par set karo" | Set exact volume % |
+
+### Brightness Control
+
+| English | Hindi | Description |
+|---------|-------|-------------|
+| "Brightness up" | "Roshni badhao" | Increase brightness |
+| "Brightness down" | "Roshni kam karo" | Decrease brightness |
+| "Raise brightness" | "Brightness badhao" | Screen brightness +10% |
+| "Lower brightness" | "Brightness kam karo" | Screen brightness -10% |
 
 ---
 
@@ -82,12 +90,12 @@ Complete reference of all voice commands supported by JARVIS.
 | "Open Chrome" | "Chrome kholo" | Open Google Chrome |
 | "Open Firefox" | "Firefox kholo" | Open Firefox browser |
 | "Open Edge" | "Edge kholo" | Open Microsoft Edge |
-| "Open Notepad" | "Notepad kholo" | Open Notepad |
+| "Open Notepad" | "NotePad kholo" | Open Notepad |
+| "Open Notepad (Devanagari)" | "नोटपैड खोलो" | Open Notepad (Native) |
 | "Open Calculator" | "Calculator kholo" | Open Calculator |
-| "Open Word" | "Word kholo" | Open Microsoft Word |
-| "Open Excel" | "Excel kholo" | Open Microsoft Excel |
-| "Open VS Code" | "VS Code kholo" | Open Visual Studio Code |
-| "Open Spotify" | "Spotify kholo" | Open Spotify |
+| "Open Calculator (Devanagari)" | "कैलकुलेटर खोलो" | Open Calc (Native) |
+| "Open VS Code" | "VS Code kholo" | Open VS Code |
+| "Open Code" | "कोड खोलो" | Open VS Code (Native) |
 | "Start [app name]" | "[app] chalu karo" | Open any application |
 
 ### Close Applications
