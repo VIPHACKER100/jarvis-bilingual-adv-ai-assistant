@@ -1,9 +1,10 @@
 @echo off
 chcp 65001 >nul
 title JARVIS AI Assistant
+taskkill /F /IM JARVIS_Backend.exe 2>nul
 echo.
 echo ╔═══════════════════════════════════════╗
-echo ║     JARVIS AI Assistant v2.1.0        ║
+echo ║     JARVIS AI Assistant v2.1.1        ║
 echo ║     Made by VIPHACKER100              ║
 echo ╚═══════════════════════════════════════╝
 echo.

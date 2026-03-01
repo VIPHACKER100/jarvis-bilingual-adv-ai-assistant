@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+import sys
 import json
 import asyncio
 from datetime import datetime
@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
     log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "2.1.0"
+        "version": "2.1.1"
     })
     
     # Start background tasks
@@ -58,7 +58,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="JARVIS Backend",
     description="Cross-platform AI assistant backend with window management and automation",
-    version="2.1.0",
+    version="2.1.1",
     lifespan=lifespan
 )
 
