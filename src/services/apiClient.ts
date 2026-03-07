@@ -70,6 +70,69 @@ class ApiClient {
 
     return response.json();
   }
+
+  // Get conversation history
+  async getConversations(limit: number = 50, session_id?: string): Promise<{
+    success: boolean;
+    conversations: any[];
+  }> {
+    const url = new URL(`${this.baseUrl}/api/memory/conversations`);
+    url.searchParams.append('limit', limit.toString());
+    if (session_id) {
+      url.searchParams.append('session_id', session_id);
+    }
+
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      throw new Error('Failed to get conversations');
+    }
+    return response.json();
+  }
+
+  // Get memory stats
+  async getMemoryStats(days: number = 7): Promise<{
+    success: boolean;
+    stats: any;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/stats?days=${days}`);
+    if (!response.ok) {
+      throw new Error('Failed to get memory stats');
+    }
+    return response.json();
+  }
+
+  // Save conversation (optional, usually done by backend, but useful for manual additions)
+  async saveConversation(convData: any): Promise<{ success: boolean; id: number }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/conversation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(convData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save conversation');
+    }
+    return response.json();
+  }
+
+  // Get user facts/memories
+  async getMemoryFacts(category?: string): Promise<{
+    success: boolean;
+    facts: any[];
+  }> {
+    const url = new URL(`${this.baseUrl}/api/memory/facts`);
+    if (category) {
+      url.searchParams.append('category', category);
+    }
+
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      throw new Error('Failed to get memory facts');
+    }
+    return response.json();
+  }
 }
 
 // Export singleton instance

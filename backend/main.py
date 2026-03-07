@@ -102,7 +102,8 @@ async def broadcast_system_status():
 
 async def handle_command(websocket: Optional[WebSocket], command: str, 
                          language: Optional[str] = None, 
-                         override_params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+                         override_params: Optional[Dict[str, Any]] = None,
+                         session_id: Optional[str] = None) -> Dict[str, Any]:
     """Process a command and return result"""
     # Use English as default language
     current_lang = language or 'en'
@@ -130,7 +131,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         
         # Define callback for macro commands
         async def macro_cmd_callback(cmd, p):
-            res = await handle_command(websocket, cmd, language, p)
+            res = await handle_command(websocket, cmd, language, p, session_id)
             if websocket:
                 try:
                     await websocket.send_json({
@@ -556,6 +557,21 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         res['language'] = current_lang
         res['timestamp'] = datetime.now().isoformat()
     
+    # NEW: Persist to memory manager
+    try:
+        from modules.memory import ConversationEntry
+        entry = ConversationEntry(
+            user_input=command,
+            jarvis_response=res.get('response', ''),
+            command_type=command_key,
+            success=res.get('success', True),
+            language=current_lang,
+            session_id=session_id or ""
+        )
+        memory_manager.save_conversation(entry)
+    except Exception as e:
+        logger.error(f"Error persisting conversation to database: {e}")
+    
     return res
 
 
@@ -573,7 +589,7 @@ async def execute_command(command_data: Dict[str, Any]):
     if not command:
         raise HTTPException(status_code=400, detail="Command is required")
     
-    result = await handle_command(None, command, language)
+    result = await handle_command(None, command, language, session_id=command_data.get("session_id"))
     return result
 
 @app.post("/api/confirm/{confirmation_id}")
@@ -1264,7 +1280,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 command = message.get("command", "")
                 language = message.get("language", "en")
                 
-                result = await handle_command(websocket, command, language)
+                result = await handle_command(websocket, command, language, session_id=client_id)
                 
                 # Send response
                 await websocket.send_json({
