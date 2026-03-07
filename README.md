@@ -25,7 +25,7 @@
 ### 🚀 **What's New?**
 
 - 🧠 **Neural Memory System** - Remembers user facts, persistent conversation logs, and real-time semantic extraction.
-- 🗣️ **Advanced Bilingual Intelligence** - Perfected Hinglish support with deep NLP parameter extraction.
+- 🗣️ **Advanced Bilingual Intelligence** - Perfected Hinglish support with deep NLP parameter extraction and adaptive Natural Voice TTS.
 - 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
 - 🎯 **Native Devanagari Script Support** - Full web speech API pipeline mapping directly supports native Devanagari Hindi text recognition flawlessly.
 - 🏢 **NVIDIA AI Integration (v2.2)** - Support for high-performance NVIDIA NIM models with automatic failover to OpenRouter.
@@ -68,7 +68,7 @@
 ### 🎙️ Voice & Language
 
 - **Bilingual Voice Recognition** - English and Hindi (Hinglish supported)
-- **Natural Text-to-Speech** - Responds in user's language
+- **Natural Text-to-Speech** - Responds in user's language with adaptive pitch control for Hinglish
 - **Mixed Language Support** - "Volume badhao" or "Play song on YouTube"
 - **100+ Voice Commands** - All features accessible via voice
 
