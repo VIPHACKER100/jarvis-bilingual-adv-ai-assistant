@@ -6,23 +6,37 @@ Complete API reference for JARVIS Backend.
 
 ## Base URL
 
-```
+```bash
 http://localhost:8000
 ```
 
 ## WebSocket URL
 
-```
+```bash
 ws://localhost:8000/ws
 ```
 
 ---
 
-## Authentication
+## Large Language Model (LLM)
 
-Currently, JARVIS runs locally without authentication. Future versions will include API keys.
+JARVIS supports multiple LLM providers for conversational intelligence.
+
+### Configuration
+
+Update `backend/config.py` or `.env` to switch providers:
+
+- `LLM_PROVIDER`: `nvidia` (default) or `openrouter`.
+- `NVIDIA_MODEL`: Model ID for NVIDIA (e.g., `qwen/qwen2.5-7b-instruct`).
+- `OPENROUTER_MODEL`: Model ID for OpenRouter.
+
+### Failover Mechanism
+
+If the primary provider fails, JARVIS automatically attempts to use the secondary provider to maintain functionality. For example, if NVIDIA returns a 401 or 500 error, JARVIS will automatically try the configured OpenRouter model.
 
 ---
+
+## Authentication
 
 ## Response Format
 

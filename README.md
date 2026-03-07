@@ -6,7 +6,7 @@
 
 ### **The Ultimate Bilingual AI System Assistant**
 
-[![Version](https://img.shields.io/badge/Version-2.1.1-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-2.2.0-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -29,8 +29,10 @@
 
 - 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
 - 🎯 **Native Devanagari Script Support** - Full web speech API pipeline mapping directly supports native Devanagari Hindi text recognition flawlessly.
-- 🛠️ **v2.1.1: Dynamic Volume & Brightness** - Control levels using percentages or specified amounts (e.g., "Aawaz 20% badhao").
-- 🔡 **v2.1.1: Bilingual App Mapping** - Launch common apps using native Hindi names like "नोटपैड" or "कैलकुलेटर".
+- 🏢 **NVIDIA AI Integration (v2.2)** - Support for high-performance NVIDIA NIM models with automatic failover to OpenRouter.
+- ⚙️ **Dynamic Model Selection** - Easily switch models (e.g., Qwen 2.5, Llama 3.1) via `config.py` or `.env`.
+- 🛠️ **v2.1.1: Dynamic Volume & Brightness** - Control levels using percentages or specified amounts.
+- 🔡 **v2.1.1: Bilingual App Mapping** - Launch common apps using native Hindi names.
 - 🏗️ **Build Optimization** - Optimized PyInstaller bundling for a faster, lighter executable.
 
 ---
@@ -284,7 +286,7 @@ graph TD
 
 - **Frontend**: `React 19`, `TypeScript 5.8`, `Tailwind CSS`
 - **Backend**: `Python 3.11`, `FastAPI`, `PyAutoGUI`
-- **Intelligence**: `Bilingual Parser`, `OpenRouter LLM`
+- **Intelligence**: `Bilingual Parser`, `NVIDIA NIM` / `OpenRouter LLM`
 - **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`
 
 ---

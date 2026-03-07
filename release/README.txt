@@ -1,4 +1,4 @@
-# JARVIS AI Assistant v2.1.1
+# JARVIS AI Assistant v2.2.0
 
 ## 🚀 Quick Start
 
@@ -45,7 +45,7 @@
 
 - Website: https://viphacker100.com
 - GitHub: https://github.com/VIPHACKER100
-- Email: support@viphacker100.com
+- Email: viphacker.100.org@gmail.com
 
 ---
 Made with ❤️ by VIPHACKER100 (Aryan Ahirwar)

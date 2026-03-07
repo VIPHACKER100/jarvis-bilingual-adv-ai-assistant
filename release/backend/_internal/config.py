@@ -26,6 +26,11 @@ ENABLE_DANGEROUS_COMMANDS = os.getenv("ENABLE_DANGEROUS_COMMANDS", "true").lower
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOG_RETENTION_DAYS = int(os.getenv("LOG_RETENTION_DAYS", 30))
 
+# LLM Config
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "nvidia").lower()
+NVIDIA_MODEL = os.getenv("NVIDIA_MODEL", "qwen/qwen2.5-7b-instruct") # Stable default
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
+
 # Platform
 PLATFORM = platform.system().lower()  # 'windows', 'darwin', 'linux'
 

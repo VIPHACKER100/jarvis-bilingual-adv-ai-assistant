@@ -113,7 +113,7 @@ title JARVIS AI Assistant
 taskkill /F /IM JARVIS_Backend.exe 2>nul
 echo.
 echo ╔═══════════════════════════════════════╗
-echo ║     JARVIS AI Assistant v2.1.1        ║
+echo ║     JARVIS AI Assistant v2.2.0        ║
 echo ║     Made by VIPHACKER100              ║
 echo ╚═══════════════════════════════════════╝
 echo.
@@ -144,7 +144,7 @@ timeout /t 2 >nul
 
 def create_release_readme():
     """Create release README"""
-    readme_content = '''# JARVIS AI Assistant v2.1.1
+    readme_content = '''# JARVIS AI Assistant v2.2.0
 
 ## 🚀 Quick Start
 
@@ -191,7 +191,7 @@ def create_release_readme():
 
 - Website: https://viphacker100.com
 - GitHub: https://github.com/VIPHACKER100
-- Email: support@viphacker100.com
+- Email: viphacker.100.org@gmail.com
 
 ---
 Made with ❤️ by VIPHACKER100 (Aryan Ahirwar)
@@ -232,7 +232,7 @@ AUTO_START_SCHEDULER=true
 
 def zip_release_package():
     """Create a zip archive of the release folder"""
-    zip_filename = f"JARVIS_v2.1.1.zip"
+    zip_filename = f"JARVIS_v2.2.0.zip"
     zip_path = PROJECT_ROOT / zip_filename
     
     print(f"\n🤐 Zipping release package into {zip_filename}...")
@@ -440,7 +440,7 @@ def filter_build_warnings(warning_file):
 def main():
     """Main build process"""
     print("=" * 60)
-    print("JARVIS AI Assistant v2.1.1 - Build Script")
+    print("JARVIS AI Assistant v2.2.0 - Build Script")
     print("Made by VIPHACKER100")
     print("=" * 60)
     
@@ -470,10 +470,10 @@ def main():
     print("\n" + "=" * 60)
     print("✅ Build completed successfully!")
     print(f"📁 Release package: {RELEASE_DIR}")
-    print(f"📦 Distribution Zip: {PROJECT_ROOT / 'JARVIS_v2.1.1.zip'}")
+    print(f"📦 Distribution Zip: {PROJECT_ROOT / 'JARVIS_v2.2.0.zip'}")
     print("=" * 60)
     print("\nTo distribute:")
-    print("1. Share JARVIS_v2.1.1.zip")
+    print("1. Share JARVIS_v2.2.0.zip")
     print("2. Users just unzip and run START_JARVIS.bat")
 
 if __name__ == '__main__':
