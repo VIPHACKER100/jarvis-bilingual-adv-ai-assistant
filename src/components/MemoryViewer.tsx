@@ -208,10 +208,10 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                 </div>
               ) : (
                 <div className="divide-y divide-slate-800">
-                  {filteredConversations.map((conv) => (
+                  {filteredConversations.map((conv, idx) => (
                     <div
                       key={conv.id}
-                      className={`p-5 hover:bg-slate-800/30 transition-all border-l-2 ${conv.success ? 'border-transparent' : 'border-red-500/50 bg-red-900/5'
+                      className={`p-5 hover:bg-slate-800/30 transition-all border-l-2 animate-in delay-${idx % 5} ${conv.success ? 'border-transparent' : 'border-red-500/50 bg-red-900/5'
                         }`}
                     >
                       <div className="flex justify-between items-start mb-3">
@@ -294,8 +294,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                       <p className="text-slate-200 text-sm italic">"{fact.value}"</p>
                       <div className="mt-3 w-full h-1 bg-slate-900 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-orange-500/50"
-                          style={{ width: `${fact.confidence * 100}%` }}
+                          className="h-full bg-orange-500/50 transition-all duration-1000 ease-out fact-progress-bar"
+                          style={{ '--width': `${fact.confidence * 100}%` } as any}
                         />
                       </div>
                       <div className="flex justify-between text-[8px] font-mono text-slate-600 mt-1 uppercase">
@@ -356,8 +356,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                               </div>
                               <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-gradient-to-r from-cyan-600 to-purple-600 rounded-full"
-                                  style={{ width: `${percentage}%` }}
+                                  className="h-full bg-gradient-to-r from-cyan-600 to-purple-600 rounded-full transition-all duration-1000 protocol-progress-bar"
+                                  style={{ '--width': `${percentage}%` } as any}
                                 />
                               </div>
                             </div>
@@ -378,8 +378,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                         return (
                           <div key={lang} className="flex flex-col items-center">
                             <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold mb-2 ${isHinglish ? 'border-purple-500 text-purple-400' :
-                                isHindi ? 'border-orange-500 text-orange-400' :
-                                  'border-cyan-500 text-cyan-400'
+                              isHindi ? 'border-orange-500 text-orange-400' :
+                                'border-cyan-500 text-cyan-400'
                               }`}>
                               {lang === 'hi-EN' ? 'HI-EN' : lang.toUpperCase()}
                             </div>
@@ -437,6 +437,18 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
         </div>
       </div>
       <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { 
+          animation: fadeIn 0.4s ease-out forwards; 
+          opacity: 0; 
+        }
+        .delay-0 { animation-delay: 0s; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .fact-progress-bar { width: var(--width, 0%); }
+        .protocol-progress-bar { width: var(--width, 0%); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.1); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.2); border-radius: 3px; }

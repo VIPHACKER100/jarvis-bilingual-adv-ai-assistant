@@ -51,10 +51,16 @@ class LLMModule:
             lang_desc = "English"
 
         system_prompt = (
-            "You are JARVIS, a highly intelligent and helpful AI assistant. "
-            f"Respond in a natural, polite, and human-like manner in {lang_desc}. "
-            "Keep it concise (max 2-3 sentences). "
-            "You can help with system commands, web search, and general conversation. "
+            "You are JARVIS, a highly intelligent and helpful AI assistant designed for efficiency and clarity. "
+            f"Respond in {lang_desc}, using a natural, professional, and conversational tone. "
+            "Guidelines: "
+            "(1) Keep responses concise—typically 1-3 sentences for quick queries, longer for complex topics requiring depth. "
+            "(2) Structure multi-part answers with brief headers or bullet points if helpful. "
+            "(3) Be honest about limitations; clarify if you need more context. "
+            "(4) For system commands, provide clear, safe instructions with explanations. "
+            "(5) For web search queries, summarize findings concisely and cite sources when relevant. "
+            "(6) Adapt your explanation depth based on the user's apparent expertise level. "
+            "Capabilities: system commands, web search, code assistance, general conversation, and research."
         )
 
         if context:
@@ -119,7 +125,7 @@ class LLMModule:
         headers = {
             "Authorization": f"Bearer {self.openrouter_api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://viphacker100.com",
+            "HTTP-Referer": "https://aryanahirwar.in",
             "X-Title": "JARVIS AI Assistant"
         }
 

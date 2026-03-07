@@ -57,4 +57,4 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 ## 📞 Still need help?
 
 - Open an issue on [GitHub](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant/issues).
-- Visit [viphacker100.com](https://viphacker100.com) for updates.
+- Visit [aryanahirwar.in](https://aryanahirwar.in) for updates.

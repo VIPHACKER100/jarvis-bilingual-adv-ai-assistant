@@ -149,12 +149,33 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         # Start macro in background
         asyncio.create_task(automation_manager.run_macro(macro.id, macro_cmd_callback))
         
-        return {
+        res = {
             'success': True,
             'action_type': 'MACRO_STARTED',
             'response': f"Executing macro: {macro.name}" if language == 'en' else f"मैक्रो शुरू कर रहा हूँ: {macro.name}",
-            'macro_name': macro.name
+            'macro_name': macro.name,
+            'command_key': 'macro',
+            'language': current_lang,
+            'timestamp': datetime.now().isoformat()
         }
+
+        # Persist macro trigger to memory
+        try:
+            from modules.memory import ConversationEntry
+            entry = ConversationEntry(
+                user_input=command,
+                jarvis_response=res['response'],
+                command_type='macro',
+                success=True,
+                language=current_lang,
+                session_id=session_id or ""
+            )
+            memory_manager.save_conversation(entry)
+            context_manager.update_context(command, 'macro', True, session_id or "default")
+        except Exception as e:
+            logger.error(f"Error persisting macro to memory: {e}")
+
+        return res
     
     logger.info(f"Command received: '{command}' -> '{command_key}' (lang: {language})")
     

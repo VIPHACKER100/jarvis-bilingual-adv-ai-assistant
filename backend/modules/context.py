@@ -381,17 +381,22 @@ class ContextManager:
         # Simple extraction patterns
         patterns = [
             # Personal Info
-            (r"(?:my name is|i am|called)\s+([a-zA-Z\s]{2,20})", "name", "personal"),
-            (r"(?:i live in|i'm from)\s+([a-zA-Z\s]{2,30})", "location", "personal"),
-            (r"(?:my birthday is|born on)\s+([a-zA-Z0-9\s]{4,20})", "birthday", "personal"),
+            (r"(?:my name is|i am|called|naam hai)\s+([a-zA-Z\s]{2,20})", "name", "personal"),
+            (r"(?:i live in|i'm from|rehta hoon|living in)\s+([a-zA-Z\s]{2,30})", "location", "personal"),
+            (r"(?:my birthday is|born on|janamdin)\s+([a-zA-Z0-9\s]{4,20})", "birthday", "personal"),
             
-            # Preferences
-            (r"(?:i love|i like|my favorite)\s+([a-zA-Z\s]{2,30})", "preference", "preferences"),
-            (r"(?:i work as|my job is)\s+([a-zA-Z\s]{2,30})", "job", "personal"),
+            # Profession & Role
+            (r"(?:i work as|my job is|i am a)\s+([a-zA-Z\s]{2,30})", "profession", "personal"),
+            (r"(?:i study|student of)\s+([a-zA-Z\s]{2,30})", "education", "personal"),
             
-            # Contacts
+            # Preferences & Hobbies
+            (r"(?:i love|i like|i enjoy|pasand hai)\s+([a-zA-Z\s]{2,30})", "preference", "preferences"),
+            (r"(?:i play|hobby is)\s+([a-zA-Z\s]{2,30})", "hobby", "preferences"),
+            
+            # Contacts & Relations
             (r"(?:my boss is|work with)\s+([a-zA-Z\s]{2,20})", "boss", "contacts"),
-            (r"(?:my friend is|friend named)\s+([a-zA-Z\s]{2,20})", "friend", "contacts")
+            (r"(?:my friend is|friend named)\s+([a-zA-Z\s]{2,20})", "friend", "contacts"),
+            (r"(?:my (wife|husband|son|daughter|brother|sister) is)\s+([a-zA-Z\s]{2,20})", "family", "contacts")
         ]
         
         text_lower = text.lower()

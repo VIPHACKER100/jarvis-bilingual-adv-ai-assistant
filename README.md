@@ -452,7 +452,7 @@ pip install -r requirements.txt --force-reinstall
 
 | Channel | Link |
 | --------- | ------ |
-| 🌐 **Website** | [viphacker100.com](https://viphacker100.com) |
+| 🌐 **Website** | [aryanahirwar.in](https://aryanahirwar.in) |
 | 💻 **GitHub** | [@VIPHACKER100](https://github.com/VIPHACKER100) |
 | 💼 **LinkedIn** | [Aryan Ahirwar](https://linkedin.com/in/viphacker100) |
 | 📸 **Instagram** | [@viphacker100](https://instagram.com/viphacker100) |
