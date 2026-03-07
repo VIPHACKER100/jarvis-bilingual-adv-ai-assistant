@@ -38,7 +38,7 @@ export interface CommandResult {
   transcript: string;
   response: string;
   actionType: string;
-  language: 'en' | 'hi';
+  language: 'en' | 'hi' | 'hinglish';
   timestamp: number;
   isSystemMessage?: boolean;
 }
@@ -53,4 +53,5 @@ export enum AppMode {
 export enum Language {
   ENGLISH = 'en-US',
   HINDI = 'hi-IN',
+  HINGLISH = 'hi-EN',
 }

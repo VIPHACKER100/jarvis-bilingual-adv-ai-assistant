@@ -17,6 +17,7 @@ interface MemoryViewerProps {
 }
 
 interface MemoryFact {
+  id: number;
   key: string;
   value: string;
   category: string;
@@ -64,6 +65,45 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
     setLoading(false);
   };
 
+  const handleClearHistory = async () => {
+    if (!window.confirm("Are you sure you want to PERMANENTLY delete ALL conversation history?")) return;
+
+    try {
+      const res = await fetch('http://localhost:8000/api/memory/conversations', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setConversations([]);
+        loadData();
+      }
+    } catch (error) {
+      console.error("Failed to clear history:", error);
+    }
+  };
+
+  const handleDeleteFact = async (id: number) => {
+    if (!window.confirm("Delete this memory?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/memory/fact/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setFacts(prev => prev.filter(f => f.id !== id));
+      }
+    } catch (error) {
+      console.error("Failed to delete fact:", error);
+    }
+  };
+
+  const exportHistory = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(conversations, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `jarvis_history_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
   const filteredConversations = conversations.filter(conv =>
     conv.user_input.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.jarvis_response.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -109,8 +149,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
           <button
             onClick={() => setViewMode('history')}
             className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'history'
-                ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/30'
+              : 'text-slate-400 hover:text-slate-200'
               }`}
           >
             History Log
@@ -118,8 +158,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
           <button
             onClick={() => setViewMode('memories')}
             className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'memories'
-                ? 'bg-orange-600/20 text-orange-400 border border-orange-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-orange-600/20 text-orange-400 border border-orange-500/30'
+              : 'text-slate-400 hover:text-slate-200'
               }`}
           >
             Core Memories
@@ -127,8 +167,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
           <button
             onClick={() => setViewMode('analytics')}
             className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'analytics'
-                ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30'
+              : 'text-slate-400 hover:text-slate-200'
               }`}
           >
             Analytics Dashboard
@@ -180,8 +220,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                         </span>
                         <div className="flex gap-2">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${conv.success
-                              ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                              : 'bg-red-500/10 text-red-400 border-red-500/20'
+                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                            : 'bg-red-500/10 text-red-400 border-red-500/20'
                             }`}>
                             {conv.success ? 'VALID' : 'FAILED'}
                           </span>
@@ -230,14 +270,23 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {filteredFacts.map((fact, idx) => (
-                    <div key={idx} className="bg-slate-800/40 border border-slate-700 rounded-lg p-4 hover:border-orange-500/30 transition-all group">
+                    <div key={idx} className="bg-slate-800/40 border border-slate-700 rounded-lg p-4 hover:border-orange-500/30 transition-all group relative">
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 uppercase tracking-tighter">
                           {fact.category}
                         </span>
-                        <span className="text-[9px] font-mono text-slate-500">
-                          UPDATED: {formatTimestamp(fact.updated_at)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-mono text-slate-500">
+                            UPDATED: {formatTimestamp(fact.updated_at)}
+                          </span>
+                          <button
+                            onClick={() => handleDeleteFact(fact.id)}
+                            className="text-slate-500 hover:text-red-400 transition-colors text-xs"
+                            title="Delete memory"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </div>
                       <h4 className="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-1 group-hover:text-white transition-colors">
                         {fact.key.replace(/_/g, ' ')}
@@ -323,15 +372,21 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                       <span className="text-orange-400">🌐</span> Linguistic Pattern Analysis
                     </h3>
                     <div className="flex items-center gap-8 justify-center py-4">
-                      {Object.entries(stats.languages || {}).map(([lang, count]) => (
-                        <div key={lang} className="flex flex-col items-center">
-                          <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold mb-2 ${lang === 'hi' ? 'border-orange-500 text-orange-400' : 'border-cyan-500 text-cyan-400'
-                            }`}>
-                            {lang.toUpperCase()}
+                      {Object.entries(stats.languages || {}).map(([lang, count]) => {
+                        const isHinglish = lang === 'hi-EN' || lang === 'hinglish';
+                        const isHindi = lang === 'hi' && !isHinglish;
+                        return (
+                          <div key={lang} className="flex flex-col items-center">
+                            <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold mb-2 ${isHinglish ? 'border-purple-500 text-purple-400' :
+                                isHindi ? 'border-orange-500 text-orange-400' :
+                                  'border-cyan-500 text-cyan-400'
+                              }`}>
+                              {lang === 'hi-EN' ? 'HI-EN' : lang.toUpperCase()}
+                            </div>
+                            <span className="text-xs text-white font-mono">{count as number} entries</span>
                           </div>
-                          <span className="text-xs text-white font-mono">{count as number} entries</span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </>
@@ -350,6 +405,22 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
             REC_COUNT: {viewMode === 'history' ? filteredConversations.length : 'N/A'} // STATS_HORIZON: 7D
           </span>
           <div className="flex gap-2">
+            {viewMode === 'history' && conversations.length > 0 && (
+              <>
+                <button
+                  onClick={exportHistory}
+                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-[10px] transition-all border border-slate-600 flex items-center gap-1"
+                >
+                  <span>📥</span> EXPORT
+                </button>
+                <button
+                  onClick={handleClearHistory}
+                  className="px-3 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded text-[10px] transition-all border border-red-500/30 flex items-center gap-1"
+                >
+                  <span>🗑️</span> WIPE LOGS
+                </button>
+              </>
+            )}
             <button
               onClick={loadData}
               className="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs transition-all border border-slate-600"

@@ -156,8 +156,10 @@ const App: FC = () => {
       setMode(AppMode.PROCESSING);
 
       // Send command to backend
-      const langCode = language === Language.HINDI ? 'hi' : 'en';
-      sendCommand(text, langCode);
+      const langCode =
+        language === Language.HINGLISH ? 'hinglish' :
+          language === Language.HINDI ? 'hi' : 'en';
+      sendCommand(text, langCode as any);
     }
   };
 
@@ -227,7 +229,8 @@ const App: FC = () => {
       setTranscript(userMessage);
 
       // Speak the critical error so the user knows why it stopped
-      voiceService.speak(userMessage, language === Language.HINDI ? 'hi' : 'en');
+      const speakLang = language === Language.HINGLISH ? 'hinglish' : (language === Language.HINDI ? 'hi' : 'en');
+      voiceService.speak(userMessage, speakLang as any);
 
       addToHistory({
         transcript: "",
@@ -279,7 +282,11 @@ const App: FC = () => {
   };
 
   const toggleLanguage = () => {
-    setLanguage(prev => prev === Language.ENGLISH ? Language.HINDI : Language.ENGLISH);
+    setLanguage(prev => {
+      if (prev === Language.ENGLISH) return Language.HINDI;
+      if (prev === Language.HINDI) return Language.HINGLISH;
+      return Language.ENGLISH;
+    });
   };
 
   const handleConfirmAction = () => {
@@ -352,12 +359,14 @@ const App: FC = () => {
             onClick={toggleLanguage}
             className="flex items-center space-x-3 bg-slate-900/60 border border-slate-700/50 px-5 py-2 md:px-4 md:py-1.5 rounded-sm text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 backdrop-blur-md shadow-lg"
           >
-            <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold" : "text-slate-600"}>ENGLISH</span>
+            <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold" : "text-slate-600"}>EN</span>
             <span className="text-slate-800">|</span>
             <span className={language === Language.HINDI ? "text-orange-400 font-bold" : "text-slate-600"}>हिंदी</span>
+            <span className="text-slate-800">|</span>
+            <span className={language === Language.HINGLISH ? "text-purple-400 font-bold" : "text-slate-600"}>HI-EN</span>
           </button>
           <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
-            Mode: {language === Language.HINDI ? 'Hi-IN (Mixed)' : 'En-US'}
+            Mode: {language === Language.HINGLISH ? 'Hinglish (Latin)' : language === Language.HINDI ? 'Hi-IN (Native)' : 'En-US'}
           </div>
         </div>
       </header>

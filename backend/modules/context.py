@@ -1,11 +1,11 @@
 import re
 import json
+import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
-
 from modules.bilingual_parser import parser
-from modules.memory import memory_manager, ConversationEntry
+from modules.memory import memory_manager, ConversationEntry, MemoryEntry
 from utils.logger import logger
 
 
@@ -20,7 +20,7 @@ class ContextState:
     active_topic: str = ""  # e.g., "file_management", "media", "system"
     user_mood: str = "neutral"  # happy, frustrated, neutral
     pending_action: Optional[Dict] = None
-    context_variables: Dict = None  # Store temporary context
+    context_variables: Optional[Dict] = None  # Store temporary context
 
     def __post_init__(self):
         if self.context_variables is None:
@@ -31,8 +31,8 @@ class ContextState:
 class IntentAnalysis:
     """Analysis of user intent"""
     primary_intent: str = ""  # e.g., "open_app", "search_file", "question"
-    secondary_intents: List[str] = None
-    entities: Dict[str, Any] = None  # Extracted entities
+    secondary_intents: Optional[List[str]] = None
+    entities: Optional[Dict[str, Any]] = None  # Extracted entities
     confidence: float = 0.0
     requires_clarification: bool = False
     suggested_response: str = ""
@@ -129,6 +129,9 @@ class ContextManager:
 
         # Detect user mood
         self.current_context.user_mood = self._detect_mood(user_input)
+        
+        # NEW: Extract and save personal facts from input
+        asyncio.create_task(self.extract_and_save_facts(user_input))
 
         logger.info(f"Context updated: topic={self.current_context.active_topic}, mood={self.current_context.user_mood}")
 
@@ -155,7 +158,7 @@ class ContextManager:
             analysis.confidence = min(0.5 + (len(detected_intents) * 0.1), 0.9)
 
         # Extract entities
-        analysis.entities = self._extract_entities(user_input)
+        analysis.entities = self._extract_entities(user_input, analysis)
 
         # Check if clarification is needed
         if analysis.confidence < 0.3 or len(user_input.split()) < 2:
@@ -202,10 +205,11 @@ class ContextManager:
 
         return 'neutral'
 
-    def _extract_entities(self, user_input: str) -> Dict[str, Any]:
+    def _extract_entities(self, user_input: str, analysis: IntentAnalysis) -> Dict[str, Any]:
         """Extract entities from user input"""
         entities = {}
-
+        user_input_lower = user_input.lower()
+        
         # Extract file paths
         file_pattern = r'[\w\s-]+\.(txt|pdf|jpg|png|doc|docx|xls|xlsx|mp3|mp4)'
         files = re.findall(file_pattern, user_input, re.IGNORECASE)
@@ -243,8 +247,10 @@ class ContextManager:
             'calculator',
             'whatsapp']
         for app in common_apps:
-            if app in user_input.lower():
-                entities['app_name'] = app
+            if app in user_input_lower:
+                if analysis.entities is None:
+                    analysis.entities = {}
+                analysis.entities['app_name'] = app
                 break
 
         return entities
@@ -357,12 +363,64 @@ class ContextManager:
 
     def set_context_variable(self, key: str, value: Any) -> None:
         """Set a temporary context variable"""
+        if self.current_context.context_variables is None:
+            self.current_context.context_variables = {}
         self.current_context.context_variables[key] = value
         logger.info(f"Set context variable: {key} = {value}")
 
     def get_context_variable(self, key: str) -> Optional[Any]:
         """Get a context variable"""
+        if self.current_context.context_variables is None:
+            return None
         return self.current_context.context_variables.get(key)
+
+    async def extract_and_save_facts(self, text: str) -> None:
+        """Extract personal facts from text and save to memory"""
+        from modules.memory import MemoryEntry
+        
+        # Simple extraction patterns
+        patterns = [
+            # Personal Info
+            (r"(?:my name is|i am|called)\s+([a-zA-Z\s]{2,20})", "name", "personal"),
+            (r"(?:i live in|i'm from)\s+([a-zA-Z\s]{2,30})", "location", "personal"),
+            (r"(?:my birthday is|born on)\s+([a-zA-Z0-9\s]{4,20})", "birthday", "personal"),
+            
+            # Preferences
+            (r"(?:i love|i like|my favorite)\s+([a-zA-Z\s]{2,30})", "preference", "preferences"),
+            (r"(?:i work as|my job is)\s+([a-zA-Z\s]{2,30})", "job", "personal"),
+            
+            # Contacts
+            (r"(?:my boss is|work with)\s+([a-zA-Z\s]{2,20})", "boss", "contacts"),
+            (r"(?:my friend is|friend named)\s+([a-zA-Z\s]{2,20})", "friend", "contacts")
+        ]
+        
+        text_lower = text.lower()
+        for pattern, base_key, category in patterns:
+            match = re.search(pattern, text_lower)
+            if match:
+                value = match.group(1).strip()
+                # Clean up if matched "favorite color" instead of just "color"
+                if "favorite" in base_key and "is" in value:
+                    value = value.split("is")[-1].strip()
+                
+                # Check for "my favorite X is Y"
+                if "my favorite" in text_lower:
+                    pref_match = re.search(r"my favorite\s+([\w\s]+)\s+is\s+([\w\s]+)", text_lower)
+                    if pref_match:
+                        key = f"favorite_{pref_match.group(1).strip().replace(' ', '_')}"
+                        val = pref_match.group(2).strip()
+                        memory_manager.save_memory(MemoryEntry(
+                            key=key, value=val, category="preferences", source="conversation"
+                        ))
+                        continue
+
+                memory_manager.save_memory(MemoryEntry(
+                    key=base_key,
+                    value=value,
+                    category=category,
+                    source="conversation",
+                    confidence=0.8
+                ))
 
     def clear_context(self) -> None:
         """Clear current context"""

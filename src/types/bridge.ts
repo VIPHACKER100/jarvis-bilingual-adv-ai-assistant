@@ -39,7 +39,7 @@ export interface SystemStatus {
 export interface CommandRequest {
   id: string;
   command: string;
-  language: 'en' | 'hi';
+  language: 'en' | 'hi' | 'hinglish';
   timestamp: number;
 }
 
@@ -47,7 +47,7 @@ export interface CommandResponse {
   success: boolean;
   action_type?: string;
   command_key: string;
-  language: 'en' | 'hi';
+  language: 'en' | 'hi' | 'hinglish';
   response: string;
   requires_confirmation?: boolean;
   confirmation_id?: string;
@@ -61,7 +61,7 @@ export interface ConfirmationRequest {
   confirmation_id: string;
   command_key: string;
   command_text: string;
-  language: 'en' | 'hi';
+  language: 'en' | 'hi' | 'hinglish';
   response: string;
   timeout: number;
 }

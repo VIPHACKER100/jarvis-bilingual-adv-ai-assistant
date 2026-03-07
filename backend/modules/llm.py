@@ -39,16 +39,28 @@ class LLMModule:
     async def get_response(
             self,
             text: str,
-            language: str = 'en') -> Optional[str]:
+            language: str = 'en',
+            context: Optional[str] = None) -> Optional[str]:
         """Get a response from the LLM with automatic fallback"""
         
+        if language == 'hi':
+            lang_desc = "Hindi (Devanagari script)"
+        elif language == 'hinglish':
+            lang_desc = "Hinglish (Hindi words written in Latin/English script)"
+        else:
+            lang_desc = "English"
+
         system_prompt = (
             "You are JARVIS, a highly intelligent and helpful AI assistant. "
-            f"Respond in a natural, polite, and human-like manner in {'Hindi' if language == 'hi' else 'English'}. "
+            f"Respond in a natural, polite, and human-like manner in {lang_desc}. "
             "Keep it concise (max 2-3 sentences). "
             "You can help with system commands, web search, and general conversation. "
-            "If the user asks for a command you can't perform, explain it politely."
         )
+
+        if context:
+            system_prompt += f"\n\nUSER CONTEXT:\n{context}\n\nUse this information to provide more personalized and relevant responses."
+        
+        system_prompt += "\nIf the user asks for a command you can't perform, explain it politely."
 
         if self.provider == "nvidia" and self.nvidia_api_key:
             return await self._get_nvidia_response(text, system_prompt)

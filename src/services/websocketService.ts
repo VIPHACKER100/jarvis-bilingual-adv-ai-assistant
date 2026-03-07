@@ -51,7 +51,7 @@ class WebSocketService {
       this.ws.onclose = () => {
         this.stopPingInterval();
         this.notifyStatusChange('disconnected');
-        
+
         if (!this.isIntentionallyClosed) {
           this.attemptReconnect();
         }
@@ -71,7 +71,7 @@ class WebSocketService {
   disconnect(): void {
     this.isIntentionallyClosed = true;
     this.stopPingInterval();
-    
+
     if (this.ws) {
       this.ws.close();
       this.ws = null;
@@ -129,7 +129,7 @@ class WebSocketService {
   }
 
   // Commands
-  sendCommand(command: string, language: 'en' | 'hi' = 'en'): void {
+  sendCommand(command: string, language: 'en' | 'hi' | 'hinglish' = 'en'): void {
     if (this.ws?.readyState !== WebSocket.OPEN) {
       console.error('[JARVIS] WebSocket not connected');
       return;

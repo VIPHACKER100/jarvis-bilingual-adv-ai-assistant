@@ -5,6 +5,9 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional, cast
 from pathlib import Path
 from dataclasses import asdict
+
+# Add current directory to path for imports when run from elsewhere
+sys.path.insert(0, str(Path(__file__).parent))
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -24,6 +27,7 @@ from modules.desktop import desktop_manager
 from modules.llm import llm_module
 from modules.automation import automation_manager
 from modules.memory import memory_manager
+from modules.context import context_manager
 from utils.logger import logger, log_command, log_system_event
 
 # Track connected clients
@@ -114,7 +118,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     
     # Parse command
     command_key, detected_lang, params = parser.parse_command(command)
-    if detected_lang:
+    if detected_lang and language != 'hinglish':
         current_lang = detected_lang
         
     # Apply parameters override (from macros)
@@ -512,7 +516,27 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     else:
         # Unknown command - Try LLM fallback
         logger.info(f"Unknown command '{command_key}', trying LLM fallback...")
-        llm_response = await llm_module.get_response(command, language)
+        
+        # Build context for LLM
+        context_str = ""
+        try:
+            # Get user facts
+            facts = memory_manager.search_memory("")
+            if facts:
+                context_str += "Known facts about the user:\n"
+                for f in facts[:10]: # Limit to top 10 facts
+                    context_str += f"- {f.key}: {f.value}\n"
+            
+            # Get recent history
+            history = context_manager.get_conversation_context(limit=3)
+            if history:
+                context_str += "\nRecent conversation:\n"
+                for h in history:
+                    context_str += f"User: {h.user_input}\nJARVIS: {h.jarvis_response}\n"
+        except Exception as e:
+            logger.error(f"Error gathering context for LLM: {e}")
+
+        llm_response = await llm_module.get_response(command, language, context=context_str)
         
         if llm_response:
             result = {
@@ -572,6 +596,17 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     except Exception as e:
         logger.error(f"Error persisting conversation to database: {e}")
     
+    # Update context
+    try:
+        context_manager.update_context(
+            user_input=command,
+            command_type=command_key or "conversation",
+            success=res.get('success', False),
+            session_id=session_id or "default"
+        )
+    except Exception as e:
+        logger.error(f"Error updating context: {e}")
+        
     return res
 
 
@@ -646,6 +681,38 @@ async def confirm_command(confirmation_id: str, confirmation_data: Dict[str, Any
         "approved": False,
         "message": "Command cancelled by user"
     }
+
+@app.get("/api/memory/facts")
+async def api_get_memory_facts(category: Optional[str] = None):
+    """Get all user facts/memories"""
+    from modules.memory import memory_manager
+    if category:
+        facts = memory_manager.get_memories_by_category(category)
+    else:
+        # Search all with empty string to get all
+        facts = memory_manager.search_memory("")
+    
+    return {
+        "success": True, 
+        "facts": [
+            {
+                "id": f.id,
+                "key": f.key,
+                "value": f.value,
+                "category": f.category,
+                "confidence": f.confidence,
+                "updated_at": f.updated_at
+            }
+            for f in facts
+        ]
+    }
+
+@app.delete("/api/memory/fact/{fact_id}")
+async def api_delete_fact(fact_id: int):
+    """Delete a specific fact by ID"""
+    from modules.memory import memory_manager
+    success = memory_manager.delete_memory_by_id(fact_id)
+    return {"success": success}
 
 # Window management endpoints
 @app.get("/api/windows/list")
@@ -1146,6 +1213,13 @@ async def api_get_memory_stats(days: int = 7):
     
     stats = memory_manager.get_conversation_stats(days)
     return {"success": True, "stats": stats}
+
+@app.delete("/api/memory/conversations")
+async def api_delete_conversations():
+    """Wipe all conversation history"""
+    from modules.memory import memory_manager
+    success = memory_manager.delete_all_conversations()
+    return {"success": success}
 
 @app.post("/api/memory/fact")
 async def api_save_memory_fact(fact_data: Dict[str, Any]):

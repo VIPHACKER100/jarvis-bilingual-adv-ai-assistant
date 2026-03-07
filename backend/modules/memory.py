@@ -153,7 +153,7 @@ class MemoryManager:
     def get_recent_conversations(
             self,
             limit: int = 10,
-            session_id: str = None) -> List[ConversationEntry]:
+            session_id: Optional[str] = None) -> List[ConversationEntry]:
         """Get recent conversation history"""
         try:
             conn = sqlite3.connect(str(self.db_path))
@@ -278,7 +278,10 @@ class MemoryManager:
                 GROUP BY language
             ''', (since,))
             languages = {row[0]: row[1] for row in cursor.fetchall()}
-
+            
+            # Map 'hi-EN' or 'hinglish' to a consistent key if needed
+            # In our case, the frontend uses 'hi-EN' and backend might see 'hinglish'
+            
             conn.close()
 
             return {
@@ -530,6 +533,34 @@ class MemoryManager:
         except Exception as e:
             logger.error(f"Error cleaning up old data: {e}")
             return 0
+
+    def delete_all_conversations(self) -> bool:
+        """Wipe all conversion history"""
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM conversations')
+            conn.commit()
+            conn.close()
+            logger.info("All conversation history deleted")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting all conversations: {e}")
+            return False
+
+    def delete_memory_by_id(self, memory_id: int) -> bool:
+        """Delete specific memory fact by ID"""
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM memory WHERE id = ?', (memory_id,))
+            conn.commit()
+            conn.close()
+            logger.info(f"Deleted memory fact ID: {memory_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting memory fact {memory_id}: {e}")
+            return False
 
 
 # Singleton instance

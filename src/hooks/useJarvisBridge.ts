@@ -1,33 +1,33 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { websocketService } from '../services/websocketService';
 import { apiClient } from '../services/apiClient';
-import { 
-  SystemStatus, 
-  CommandResponse, 
-  ConfirmationRequest, 
+import {
+  SystemStatus,
+  CommandResponse,
+  ConfirmationRequest,
   ConnectionStatus,
-  WebSocketMessage 
+  WebSocketMessage
 } from '../types/bridge';
 
 interface UseJarvisBridgeReturn {
   // Connection
   isConnected: boolean;
   connectionStatus: ConnectionStatus;
-  
+
   // System status
   systemStatus: SystemStatus | null;
-  
+
   // Commands
-  sendCommand: (command: string, language?: 'en' | 'hi') => void;
+  sendCommand: (command: string, language?: 'en' | 'hi' | 'hinglish') => void;
   lastResponse: CommandResponse | null;
-  
+
   // Confirmations
   pendingConfirmation: ConfirmationRequest | null;
   confirmCommand: (approved: boolean) => void;
-  
+
   // Error
   error: string | null;
-  
+
   // Actions
   reconnect: () => void;
   requestStatus: () => void;
@@ -87,7 +87,7 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
         if (message.data) {
           const response = message.data as CommandResponse;
           setLastResponse(response);
-          
+
           // Check if confirmation is required
           if (response.requires_confirmation && response.confirmation_id) {
             setPendingConfirmation({
@@ -130,7 +130,7 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
   }, []);
 
   // Send command
-  const sendCommand = useCallback((command: string, language: 'en' | 'hi' = 'en') => {
+  const sendCommand = useCallback((command: string, language: 'en' | 'hi' | 'hinglish' = 'en') => {
     if (!isConnected) {
       setError('Not connected to backend');
       return;
@@ -157,7 +157,7 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
       }
 
       setPendingConfirmation(null);
-      
+
       if (confirmationTimeoutRef.current) {
         clearTimeout(confirmationTimeoutRef.current);
         confirmationTimeoutRef.current = null;

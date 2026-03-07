@@ -81,14 +81,18 @@ class VoiceService {
     }
   }
 
-  public speak(text: string, lang: 'en' | 'hi' = 'en') {
+  public speak(text: string, lang: 'en' | 'hi' | 'hinglish' = 'en') {
     // Cancel any current speech
     this.synthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
 
     // Set language for TTS
-    utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+    if (lang === 'hinglish') {
+      utterance.lang = 'en-IN'; // Indian English handles Hinglish best
+    } else {
+      utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+    }
 
     // Try to find a suitable voice
     const voices = this.synthesis.getVoices();
