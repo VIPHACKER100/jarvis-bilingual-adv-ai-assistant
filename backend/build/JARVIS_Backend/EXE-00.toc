@@ -79,7 +79,7 @@
  [],
  False,
  False,
- 1772889565,
+ 1772895038,
  [('run.exe',
    'C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')],
