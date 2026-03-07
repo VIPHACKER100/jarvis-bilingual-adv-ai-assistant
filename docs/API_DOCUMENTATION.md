@@ -702,6 +702,86 @@ POST /api/desktop/media/stop?language=en
 
 ---
 
+## Memory & Analytics
+
+### Save Conversation
+
+```http
+POST /api/memory/conversation
+Content-Type: application/json
+
+{
+  "user_input": "Hello JARVIS",
+  "jarvis_response": "Hello Aryan, how can I help you?",
+  "command_type": "conversation",
+  "success": true,
+  "language": "hi-EN",
+  "session_id": "123456"
+}
+```
+
+### Get Recent Conversations
+
+```http
+GET /api/memory/conversations?limit=10
+```
+
+### Get Memory Stats (Analytics)
+
+```http
+GET /api/memory/stats?days=7
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "stats": {
+    "total_conversations": 150,
+    "successful_commands": 145,
+    "success_rate": 96.6,
+    "command_types": {
+      "open_app": 45,
+      "google_search": 20
+    },
+    "languages": {
+      "en": 100,
+      "hi-EN": 50
+    },
+    "period_days": 7
+  }
+}
+```
+
+### Delete All Conversations
+
+```http
+DELETE /api/memory/conversations
+```
+
+### Save User Fact
+
+```http
+POST /api/memory/fact
+Content-Type: application/json
+
+{
+  "key": "company",
+  "value": "Google",
+  "category": "job",
+  "source": "auto-extraction"
+}
+```
+
+### Get User Facts
+
+```http
+GET /api/memory/facts?category=job
+```
+
+---
+
 ## WebSocket Protocol
 
 ### Connect
@@ -768,7 +848,7 @@ ws.send(JSON.stringify({
 ## Error Codes
 
 | Status Code | Description |
-|-------------|-------------|
+| ----------- | ----------- |
 | 400 | Bad Request - Missing required parameters |
 | 404 | Not Found - Resource not found |
 | 500 | Internal Server Error |
@@ -790,6 +870,13 @@ Currently no rate limiting for local usage. Future versions may implement limits
 ---
 
 ## Changelog
+
+### v2.2.0
+
+- Added Neural Memory System (`/api/memory/*`) for conversation tracking and generic facts.
+- Added detailed User Analytics (interaction volume, popular commands, language breakdown).
+- Advanced Bilingual Intelligence with Hinglish support mapping (`hi-EN`).
+- Project rebranding to `aryanahirwar.in`.
 
 ### v2.1.1
 

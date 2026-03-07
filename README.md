@@ -1,17 +1,15 @@
-<div align="center">
-
-<img src="docs/assets/jarvis_logo.svg" width="150" height="150" alt="JARVIS Logo">
-
 # 🤖 JARVIS
 
-### **The Ultimate Bilingual AI System Assistant**
+## The Ultimate Bilingual AI System Assistant
+
+![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
 [![Version](https://img.shields.io/badge/Version-2.2.0-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 
-![JARVIS Banner]()
+![JARVIS Banner](docs/assets/banner.png)
 
 **A futuristic, voice-activated system controller for Windows, macOS, and Linux.**  
 *Bilingual (English/Hindi) • 100+ Commands • Full Hardware Control*
@@ -19,53 +17,47 @@
 [Setup Guide](docs/SETUP.md) • [Command List](docs/COMMANDS.md) • [Troubleshooting](docs/TROUBLESHOOTING.md)
 
 ---
-</div>
 
 ---
 
-## 🌟 Modern Capabilities (v2.1)
+## 🌟 Modern Capabilities (v2.2.0)
 
 ### 🚀 **What's New?**
 
+- 🧠 **Neural Memory System** - Remembers user facts, persistent conversation logs, and real-time semantic extraction.
+- 🗣️ **Advanced Bilingual Intelligence** - Perfected Hinglish support with deep NLP parameter extraction.
 - 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
 - 🎯 **Native Devanagari Script Support** - Full web speech API pipeline mapping directly supports native Devanagari Hindi text recognition flawlessly.
 - 🏢 **NVIDIA AI Integration (v2.2)** - Support for high-performance NVIDIA NIM models with automatic failover to OpenRouter.
 - ⚙️ **Dynamic Model Selection** - Easily switch models (e.g., Qwen 2.5, Llama 3.1) via `config.py` or `.env`.
-- 🛠️ **v2.1.1: Dynamic Volume & Brightness** - Control levels using percentages or specified amounts.
-- 🔡 **v2.1.1: Bilingual App Mapping** - Launch common apps using native Hindi names.
+- 🛠️ **Dynamic Volume & Brightness** - Control levels using percentages or specified amounts.
+- 🔡 **Bilingual App Mapping** - Launch common apps using native Hindi names.
 - 🏗️ **Build Optimization** - Optimized PyInstaller bundling for a faster, lighter executable.
 
 ---
 
 ## 🛠️ Core System Pillars
 
-<table align="center">
-  <tr>
-    <td width="33%" align="center"><b>📡 System Monitoring</b></td>
-    <td width="33%" align="center"><b>🪟 Window Control</b></td>
-    <td width="33%" align="center"><b>📄 File & Media</b></td>
-  </tr>
-  <tr>
-    <td valign="top">
-      - Real-time CPU/GPU tracking<br>
-      - Battery & Power diagnostics<br>
-      - Network & Disk health stats<br>
-      - Brightness & Volume control
-    </td>
-    <td valign="top">
-      - Smart App Launching<br>
-      - Window Snapping/Resizing<br>
-      - Active App Management<br>
-      - Taskbar & Shell toggles
-    </td>
-    <td valign="top">
-      - Advanced File Search<br>
-      - Image/PDF OCR Extraction<br>
-      - PDF Merging & Splitting<br>
-      - Batch Image Compression
-    </td>
-  </tr>
-</table>
+### 📡 System Monitoring
+
+- Real-time CPU/GPU tracking
+- Battery & Power diagnostics
+- Network & Disk health stats
+- Brightness & Volume control
+
+### 🪟 Window Control
+
+- Smart App Launching
+- Window Snapping/Resizing
+- Active App Management
+- Taskbar & Shell toggles
+
+### 📄 File & Media
+
+- Advanced File Search
+- Image/PDF OCR Extraction
+- PDF Merging & Splitting
+- Batch Image Compression
 
 ---
 
@@ -459,7 +451,7 @@ pip install -r requirements.txt --force-reinstall
 
 ---
 
-<div align="center">
+---
 
 ### **JARVIS - The Future of System Control**
 
@@ -468,5 +460,3 @@ pip install -r requirements.txt --force-reinstall
 Built with 🤍 by **VIPHACKER100 "Aryan Ahirwar"**
 
 ⭐ **Star this repo if you find it useful!**
-
-</div>

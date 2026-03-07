@@ -1,0 +1,61 @@
+[
+  {
+    "id": "73936a51",
+    "name": "Work Mode",
+    "description": "Open work applications",
+    "commands": [
+      {
+        "command": "open_app",
+        "delay": 2,
+        "parameters": {
+          "app": "chrome"
+        }
+      },
+      {
+        "command": "open_app",
+        "delay": 2,
+        "parameters": {
+          "app": "vscode"
+        }
+      },
+      {
+        "command": "open_app",
+        "delay": 2,
+        "parameters": {
+          "app": "spotify"
+        }
+      }
+    ],
+    "trigger": "voice",
+    "trigger_phrase": "work mode",
+    "hotkey": "",
+    "enabled": true,
+    "created_at": "2026-03-07T18:50:30.119965",
+    "run_count": 0
+  },
+  {
+    "id": "093e76d1",
+    "name": "End Work Day",
+    "description": "Close work applications and show desktop",
+    "commands": [
+      {
+        "command": "close_app",
+        "delay": 1,
+        "parameters": {
+          "app": "vscode"
+        }
+      },
+      {
+        "command": "show_desktop",
+        "delay": 0,
+        "parameters": {}
+      }
+    ],
+    "trigger": "voice",
+    "trigger_phrase": "end work",
+    "hotkey": "",
+    "enabled": true,
+    "created_at": "2026-03-07T18:50:30.120868",
+    "run_count": 0
+  }
+]

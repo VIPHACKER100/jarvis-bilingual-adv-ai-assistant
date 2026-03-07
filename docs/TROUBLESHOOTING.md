@@ -44,6 +44,16 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 
 ---
 
+## 🧠 Memory & Analytics
+
+### Facts are not being saved
+
+- Check if `backend/data/memory.db` is writable.
+- Some vague statements (like "I like food") aren't extracted automatically. Try explicit commands or let the system extract facts naturally over time.
+- Review `backend/logs/jarvis_system.log` for any `[MemoryManager]` errors.
+
+---
+
 ## 📦 Build & Release
 
 ### Launcher (START_JARVIS.bat) fails

@@ -20,7 +20,13 @@ class VoiceService {
 
   public setLanguage(lang: Language) {
     if (this.recognition) {
-      this.recognition.lang = lang;
+      // 'hi-EN' is our internal code, but Web Speech API prefers 'en-IN' to properly 
+      // transcribe Indian English and Latin-script Hindi words (Hinglish)
+      if (lang === 'hi-EN' as unknown || lang === Language.HINGLISH) {
+        this.recognition.lang = 'en-IN';
+      } else {
+        this.recognition.lang = lang;
+      }
     }
   }
 

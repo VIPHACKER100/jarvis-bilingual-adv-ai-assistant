@@ -84,7 +84,8 @@ class BilingualParser:
             'jodo',
             'ghatao',
             'guna',
-            'bhag'}
+            'bhag',
+            'kardo', 'dijiye', 'nikalo', 'banao', 'dikhao', 'zyada', 'kam'}
 
         words = set(text.lower().split())
         if words & hindi_words:
@@ -116,8 +117,10 @@ class BilingualParser:
                 # Clean up Hindi trailing noise words
                 noise_hindi_words = {
                     'karo', 'khol', 'chalao', 'kholiye', 'dikhaiye', 'bataiye', 
-                    'kijiye', 'kar', 'करो', 'खोलें', 'चालू करो', 'चलाओ', 'कीजिए', 
-                    'बताओ', 'दिखाओ', 'में', 'को', 'पर'
+                    'kijiye', 'kar', 'kardo', 'dijiye', 'nikalo', 'banao', 'dikhao',
+                    'dekhoo', 'dekhao', 'mein', 'me', 'se', 'ka', 'ki',
+                    'करो', 'खोलें', 'चालू करो', 'चलाओ', 'कीजिए', 
+                    'बताओ', 'दिखाओ', 'में', 'को', 'पर', 'कर', 'दो', 'करदो', 'निकालो', 'बनाओ'
                 }
                 clean_after = params_after
                 for _ in range(2):
@@ -148,7 +151,7 @@ class BilingualParser:
                 clean_params = params
                 while clean_params != prev_params:
                     prev_params = clean_params
-                    clean_params = re.sub(r'^(?:and|for|ki|ko|search|search\s+for|google|google\s+search|open|start|with)\s+', '', clean_params, flags=re.IGNORECASE).strip()
+                    clean_params = re.sub(r'^(?:and|for|ki|ka|ko|se|mein|me|search|search\s+for|google|google\s+search|open|start|with)\s+', '', clean_params, flags=re.IGNORECASE).strip()
                 
                 # If parameters were cleaned but now look like a search, change command_key
                 if clean_params and command_key in ['open_browser', 'open_app'] and ('search' in text_lower or 'new tab' in text_lower):

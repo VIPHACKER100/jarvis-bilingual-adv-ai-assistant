@@ -294,8 +294,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                       <p className="text-slate-200 text-sm italic">"{fact.value}"</p>
                       <div className="mt-3 w-full h-1 bg-slate-900 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-orange-500/50 transition-all duration-1000 ease-out fact-progress-bar"
-                          style={{ '--width': `${fact.confidence * 100}%` } as any}
+                          className={`h-full bg-orange-500/50 transition-all duration-1000 ease-out fact-width-${idx}`}
                         />
                       </div>
                       <div className="flex justify-between text-[8px] font-mono text-slate-600 mt-1 uppercase">
@@ -346,7 +345,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                       {Object.entries(stats.command_types || {})
                         .sort(([, a], [, b]) => (b as number) - (a as number))
                         .slice(0, 8)
-                        .map(([type, count]) => {
+                        .map(([type, count], idx) => {
                           const percentage = ((count as number) / stats.total_conversations * 100).toFixed(0);
                           return (
                             <div key={type} className="space-y-1">
@@ -356,8 +355,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                               </div>
                               <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-gradient-to-r from-cyan-600 to-purple-600 rounded-full transition-all duration-1000 protocol-progress-bar"
-                                  style={{ '--width': `${percentage}%` } as any}
+                                  className={`h-full bg-gradient-to-r from-cyan-600 to-purple-600 rounded-full transition-all duration-1000 protocol-width-${idx}`}
                                 />
                               </div>
                             </div>
@@ -447,12 +445,12 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
         .delay-2 { animation-delay: 0.2s; }
         .delay-3 { animation-delay: 0.3s; }
         .delay-4 { animation-delay: 0.4s; }
-        .fact-progress-bar { width: var(--width, 0%); }
-        .protocol-progress-bar { width: var(--width, 0%); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.1); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.2); border-radius: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.4); }
+        ${filteredFacts.map((fact, idx) => ".fact-width-" + idx + " { width: " + (fact.confidence * 100) + "%; }").join('\\n')}
+        ${stats && stats.command_types ? Object.entries(stats.command_types).sort(([, a], [, b]) => (b as number) - (a as number)).slice(0, 8).map(([, count], idx) => ".protocol-width-" + idx + " { width: " + (((count as number) / stats.total_conversations) * 100) + "%; }").join('\\n') : ''}
       `}</style>
     </div>
   );

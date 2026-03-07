@@ -1,5 +1,4 @@
-
----
+# Setup Guide
 
 ## 📋 Table of Contents
 
