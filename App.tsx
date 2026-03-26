@@ -12,10 +12,14 @@ import { SettingsModal } from './src/components/SettingsModal';
 import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
 import { useJarvisBridge } from './src/hooks/useJarvisBridge';
+import { useTheme } from './src/hooks/useTheme';
 import { INITIAL_VOLUME } from './constants';
 import { sfx } from './utils/audioUtils';
 
 const App: FC = () => {
+  // Initialize theme system — sets CSS variables from stored preference
+  useTheme();
+
   const [mode, setMode] = useState<AppMode>(AppMode.IDLE);
   const [transcript, setTranscript] = useState<string>("");
   const [history, setHistory] = useState<CommandResult[]>([]);

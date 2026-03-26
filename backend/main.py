@@ -710,11 +710,90 @@ async def api_update_settings(settings_data: Dict[str, Any]):
         "settings": current
     }
 
+@app.post("/api/settings/keys")
+async def api_update_api_keys(keys_data: Dict[str, Any]):
+    """Update API keys by rewriting the backend .env file.
+    
+    Accepted keys: nvidia_api_key, openrouter_api_key
+    Keys are written to the .env file in the backend directory.
+    A backend restart is required for the LLM module to pick up the new values.
+    """
+    env_path = BASE_DIR / ".env"  # type: ignore[name-defined]
+    # Resolve using config's BASE_DIR, fall back to current file parent
+    try:
+        from config import BASE_DIR as _BASE_DIR
+        env_path = _BASE_DIR / ".env"
+    except ImportError:
+        env_path = Path(__file__).parent / ".env"
+
+    allowed = {"nvidia_api_key": "NVIDIA_API_KEY", "openrouter_api_key": "OPENROUTER_API_KEY"}
+    updates: Dict[str, str] = {}
+
+    for field, env_name in allowed.items():
+        val = keys_data.get(field, "").strip()
+        if val:
+            updates[env_name] = val
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="No valid API keys provided")
+
+    # Read existing .env content (create if missing)
+    if env_path.exists():
+        lines = env_path.read_text(encoding="utf-8").splitlines()
+    else:
+        lines = []
+
+    # Replace or append each key
+    for env_name, new_val in updates.items():
+        found = False
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if stripped.startswith(f"{env_name}=") or stripped.startswith(f"# {env_name}="):
+                lines[i] = f"{env_name}={new_val}"
+                found = True
+                break
+        if not found:
+            lines.append(f"{env_name}={new_val}")
+
+    env_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    updated_names = list(updates.keys())
+    logger.info(f"API keys updated via UI: {updated_names} (values masked)")
+
+    # Attempt hot-reload of LLM keys without restart
+    try:
+        import importlib
+        import dotenv  # type: ignore
+        dotenv.load_dotenv(dotenv_path=str(env_path), override=True)
+        if "NVIDIA_API_KEY" in updates:
+            llm_module.nvidia_api_key = updates["NVIDIA_API_KEY"]
+        if "OPENROUTER_API_KEY" in updates:
+            llm_module.openrouter_api_key = updates["OPENROUTER_API_KEY"]
+        logger.info("LLM API keys hot-reloaded successfully")
+        hot_reloaded = True
+    except Exception as hot_err:
+        logger.warning(f"Hot-reload of API keys failed (restart may be needed): {hot_err}")
+        hot_reloaded = False
+
+    return {
+        "success": True,
+        "updated": updated_names,
+        "hot_reloaded": hot_reloaded,
+        "message": (
+            "API keys updated and hot-reloaded successfully."
+            if hot_reloaded
+            else "API keys saved to .env. Restart the backend to apply changes."
+        )
+    }
+
+
+
 @app.post("/api/command")
 async def execute_command(command_data: Dict[str, Any]):
     """REST endpoint for executing commands"""
     command = command_data.get("command", "")
     language = command_data.get("language", "en")
+
     
     if not command:
         raise HTTPException(status_code=400, detail="Command is required")

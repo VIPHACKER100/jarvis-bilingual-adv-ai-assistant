@@ -63,7 +63,10 @@ class ApiClient {
 
   // Confirm dangerous command
   async confirmCommand(confirmationId: string, approved: boolean): Promise<{
-    // ...
+    success: boolean;
+    approved: boolean;
+    result?: any;
+    message?: string;
   }> {
     const response = await fetch(`${this.baseUrl}/api/confirm/${confirmationId}`, {
       method: 'POST',
