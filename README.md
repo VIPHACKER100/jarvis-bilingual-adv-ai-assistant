@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-2.2.0-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-2.2.1-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,19 +20,18 @@
 
 ---
 
-## 🌟 Modern Capabilities (v2.2.0)
+## 🌟 Modern Capabilities (v2.2.1)
 
 ### 🚀 **What's New?**
 
-- 🧠 **Neural Memory System** - Remembers user facts, persistent conversation logs, and real-time semantic extraction.
-- 🗣️ **Advanced Bilingual Intelligence** - Perfected Hinglish support with deep NLP parameter extraction and adaptive Natural Voice TTS.
-- 🌐 **Web Search Integration** - Smarter "new tab" and "search" command parsing for seamless browsing.
-- 🎯 **Native Devanagari Script Support** - Full web speech API pipeline mapping directly supports native Devanagari Hindi text recognition flawlessly.
-- 🏢 **NVIDIA AI Integration (v2.2)** - Support for high-performance NVIDIA NIM models with automatic failover to OpenRouter.
-- ⚙️ **Dynamic Model Selection** - Easily switch models (e.g., Qwen 2.5, Llama 3.1) via `config.py` or `.env`.
-- 🛠️ **Dynamic Volume & Brightness** - Control levels using percentages or specified amounts.
-- 🔡 **Bilingual App Mapping** - Launch common apps using native Hindi names.
-- 🏗️ **Build Optimization** - Optimized PyInstaller bundling for a faster, lighter executable.
+- 🛰️ **System Diagnostics HUD** - High-fidelity real-time monitoring of CPU, RAM, and Disk with holographic visual feedback.
+- 👁️ **JARVIS Vision** - Optical Character Recognition (OCR) with a futuristic HUD overlay for screen analysis and data extraction.
+- 📱 **Intelligent WhatsApp AI** - Smart contact resolution using `contacts.json` (e.g., "Message Mom" or "Call The Boss").
+- 🧠 **Neural Memory System** - Remembers user facts, persistent conversation logs, and real-time semantic extraction with a polished explorer UI.
+- ⚡ **Macro HUD Feedback** - Visual notifications and pulsing blips when automated sequences or macros are triggered.
+- 🗣️ **Advanced Bilingual Intelligence** - Perfected Hinglish support with adaptive Natural Voice TTS parameters.
+- 🏢 **NVIDIA AI Integration** - Support for high-performance NVIDIA NIM models with automatic failover.
+- 🏢 **Autonomous Startup** - Automated creation of workspace folders and initial configuration on first run.
 
 ---
 
@@ -306,6 +305,9 @@ jarvis-bilingual-adv-ai-assistant/
 │   │   ├── ArcReactor.tsx
 │   │   ├── HistoryLog.tsx
 │   │   ├── ConfirmationModal.tsx
+│   │   ├── SystemDiagnostics.tsx
+│   │   ├── MemoryViewer.tsx
+│   │   ├── VisionOverlay.tsx
 │   │   └── PermissionModal.tsx
 │   ├── services/                 # API clients
 │   │   ├── websocketService.ts

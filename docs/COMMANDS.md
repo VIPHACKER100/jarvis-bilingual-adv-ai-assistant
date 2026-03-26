@@ -225,9 +225,10 @@ Complete reference of all voice commands supported by JARVIS.
 
 | English | Hindi | Description |
 | :--- | :--- | :--- |
-| "Screenshot and extract text" | "Screenshot lo aur text nikalo" | Capture & OCR |
-| "Read screen" | "Screen padho" | OCR current screen |
+| "Screenshot and extract text" | "Screenshot lo aur text nikalo" | Capture & OCR HUD |
+| "Read screen" | "Screen padho" | JARVIS Vision HUD |
 | "Copy text from screen" | "Screen se text copy karo" | Extract visible text |
+| "Analyze my screen" | "Screen analyze karo" | Robotic Vision protocol |
 
 ---
 
@@ -318,10 +319,13 @@ Complete reference of all voice commands supported by JARVIS.
 | English | Hindi | Description |
 | :--- | :--- | :--- |
 | "Open WhatsApp" | "WhatsApp kholo" | Open WhatsApp |
-| "Send message to [name]" | "[name] ko message bhejo" | Send WhatsApp message |
-| "Message [name] saying [text]" | "[name] ko bolo [text]" | Send message with text |
-| "Call [name]" | "[name] ko call karo" | Voice call |
+| "Send message to [name]" | "[name] ko message bhejo" | Smart Contact Resolution |
+| "Message [name] saying [text]" | "[name] ko bolo [text]" | Relationship Mapping (Dad/Boss) |
+| "Call [name]" | "[name] ko call karo" | Intelligent Dialing |
 | "Video call [name]" | "[name] se video call karo" | Video call |
+
+> [!TIP]
+> **Smart Contacts**: JARVIS now remembers your relationships. You can say "Message Mom" or "Call The Boss" if these are mapped in your `contacts.json` profile.
 
 ---
 

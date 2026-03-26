@@ -1,7 +1,7 @@
 # Backend-Frontend Sync Verification
 
-**Generated:** 2026-02-18 10:00:00  
-**Status:** ✅ FULLY SYNCED (v2.1)
+**Generated:** 2026-03-27 02:15:00  
+**Status:** ✅ FULLY SYNCED (v2.2.1)
 
 ## Architecture Overview
 
@@ -189,6 +189,7 @@ websocketService.connect() → ws://localhost:8000/ws
 - `POST /api/desktop/recycle-bin/empty` - Empty recycle bin
 - `POST /api/desktop/taskbar/toggle` - Toggle taskbar
 - `POST /api/desktop/zoom` - Zoom screen
+- `POST /api/media/ocr/screen` - JARVIS Vision HUD
 
 ### Memory & Automation
 
@@ -196,6 +197,8 @@ websocketService.connect() → ws://localhost:8000/ws
 - `GET /api/memory/conversations` - Get conversations
 - `GET /api/memory/stats` - Get statistics
 - `POST /api/memory/fact` - Save fact
+- `PUT /api/memory/fact/{id}` - Update fact ID
+- `DELETE /api/memory/fact/{id}` - Delete fact ID
 - `GET /api/memory/facts` - Get facts
 - `POST /api/automation/task` - Create task
 - `GET /api/automation/tasks` - Get tasks

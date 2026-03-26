@@ -178,10 +178,14 @@ Content-Type: application/json
   "result": {
     "success": true,
     "action_type": "SHUTDOWN",
-    "response": "Shutting down the system."
+    "response": "Shutting down the system.",
+    "macro_name": "Emergency Shutdown Sequence"
   }
 }
 ```
+
+> [!NOTE]
+> Response may include `macro_name` if the command was part of an automation sequence.
 
 ---
 
@@ -774,10 +778,48 @@ Content-Type: application/json
 }
 ```
 
+### Update User Fact
+
+```http
+PUT /api/memory/fact/{id}
+Content-Type: application/json
+
+{
+  "value": "Alphabet Inc."
+}
+```
+
+### Delete User Fact
+
+```http
+DELETE /api/memory/fact/{id}
+```
+
+**ID:** The unique integer ID returned in `GET /api/memory/facts`.
+
 ### Get User Facts
 
 ```http
 GET /api/memory/facts?category=job
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "facts": [
+    {
+      "id": 1,
+      "key": "boss_name",
+      "value": "Aryan Ahirwar",
+      "category": "contacts",
+      "confidence": 1.0,
+      "updated_at": "2024-01-01T12:00:00",
+      "source": "manual"
+    }
+  ]
+}
 ```
 
 ---
