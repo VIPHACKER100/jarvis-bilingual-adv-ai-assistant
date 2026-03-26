@@ -267,17 +267,26 @@ RESPONSES = {
 }
 
 def get_config():
-    """Load user config from JSON"""
+    """Load user config from JSON, merging with defaults"""
+    defaults = {
+        "language": "en",
+        "confirmation_timeout": CONFIRMATION_TIMEOUT,
+        "whatsapp_desktop_path": None,
+        "auto_start_backend": False,
+        "llm_provider": LLM_PROVIDER,
+        "nvidia_model": NVIDIA_MODEL,
+        "openrouter_model": OPENROUTER_MODEL,
+        "backend_port": BACKEND_PORT,
+        "log_level": LOG_LEVEL,
+        "enable_dangerous_commands": ENABLE_DANGEROUS_COMMANDS,
+    }
     config_path = DATA_DIR / "config.json"
     if config_path.exists():
         with open(config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {
-        "language": "en",
-        "confirmation_timeout": 30,
-        "whatsapp_desktop_path": None,
-        "auto_start_backend": False
-    }
+            saved = json.load(f)
+        # Merge: saved values override defaults
+        defaults.update(saved)
+    return defaults
 
 def save_config(config):
     """Save user config to JSON"""

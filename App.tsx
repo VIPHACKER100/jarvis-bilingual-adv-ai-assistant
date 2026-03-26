@@ -8,6 +8,7 @@ import { MemoryViewer } from './src/components/MemoryViewer';
 import { AutomationDashboard } from './src/components/AutomationDashboard';
 import { DesktopControls } from './components/DesktopControls';
 import { MediaTools } from './components/MediaTools';
+import { SettingsModal } from './src/components/SettingsModal';
 import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
 import { useJarvisBridge } from './src/hooks/useJarvisBridge';
@@ -26,6 +27,7 @@ const App: FC = () => {
   const [showMemoryViewer, setShowMemoryViewer] = useState(false);
   const [showAutomationDashboard, setShowAutomationDashboard] = useState(false);
   const [showAdvancedHelper, setShowAdvancedHelper] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   // Backend integration
   const {
@@ -355,16 +357,28 @@ const App: FC = () => {
             )}
           </div>
 
-          <button
-            onClick={toggleLanguage}
-            className="flex items-center space-x-3 bg-slate-900/60 border border-slate-700/50 px-5 py-2 md:px-4 md:py-1.5 rounded-sm text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 backdrop-blur-md shadow-lg"
-          >
-            <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold" : "text-slate-600"}>EN</span>
-            <span className="text-slate-800">|</span>
-            <span className={language === Language.HINDI ? "text-orange-400 font-bold" : "text-slate-600"}>हिंदी</span>
-            <span className="text-slate-800">|</span>
-            <span className={language === Language.HINGLISH ? "text-purple-400 font-bold" : "text-slate-600"}>HI-EN</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSettingsModal(true)}
+              className="bg-slate-900/60 border border-slate-700/50 p-2 md:p-1.5 rounded-sm text-slate-400 hover:border-cyan-500 hover:text-cyan-400 transition-all duration-300 backdrop-blur-md shadow-lg group"
+              title="System Configuration"
+            >
+              <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center space-x-3 bg-slate-900/60 border border-slate-700/50 px-5 py-2 md:px-4 md:py-1.5 rounded-sm text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 backdrop-blur-md shadow-lg"
+            >
+              <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold" : "text-slate-600"}>EN</span>
+              <span className="text-slate-800">|</span>
+              <span className={language === Language.HINDI ? "text-orange-400 font-bold" : "text-slate-600"}>हिंदी</span>
+              <span className="text-slate-800">|</span>
+              <span className={language === Language.HINGLISH ? "text-purple-400 font-bold" : "text-slate-600"}>HI-EN</span>
+            </button>
+          </div>
           <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
             Mode: {language === Language.HINGLISH ? 'Hinglish (Latin)' : language === Language.HINDI ? 'Hi-IN (Native)' : 'En-US'}
           </div>
@@ -556,6 +570,18 @@ const App: FC = () => {
       <AutomationDashboard
         isOpen={showAutomationDashboard}
         onClose={() => setShowAutomationDashboard(false)}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        onSettingsUpdated={(updated) => {
+          // If native language changed, update active state
+          if (updated.language === 'en') setLanguage(Language.ENGLISH);
+          else if (updated.language === 'hi') setLanguage(Language.HINDI);
+          else if (updated.language === 'hinglish') setLanguage(Language.HINGLISH);
+        }}
       />
 
       {/* Phase 4 Quick Access Buttons */}

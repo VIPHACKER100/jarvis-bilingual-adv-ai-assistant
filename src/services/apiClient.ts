@@ -145,6 +145,31 @@ class ApiClient {
     }
     return response.json();
   }
+
+  // Get current settings
+  async getSettings(): Promise<{ success: boolean; settings: any }> {
+    const response = await fetch(`${this.baseUrl}/api/settings`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get settings');
+    }
+    return response.json();
+  }
+
+  // Update settings
+  async updateSettings(settings: any): Promise<{ success: boolean; updated: string[]; settings: any }> {
+    const response = await fetch(`${this.baseUrl}/api/settings`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(settings)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to update settings');
+    }
+    return response.json();
+  }
 }
 
 // Export singleton instance

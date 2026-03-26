@@ -659,6 +659,57 @@ async def get_system_status():
     """REST endpoint for system status"""
     return await system_module.get_system_status()
 
+# ==================== SETTINGS ENDPOINTS ====================
+
+@app.get("/api/settings")
+async def api_get_settings():
+    """Get current configuration"""
+    from config import get_config
+    config = get_config()
+    return {"success": True, "settings": config}
+
+@app.post("/api/settings")
+async def api_update_settings(settings_data: Dict[str, Any]):
+    """Update configuration"""
+    from config import get_config, save_config, DATA_DIR
+    
+    current = get_config()
+    
+    # Whitelist of allowed keys to update
+    allowed_keys = {
+        "language", "confirmation_timeout", "whatsapp_desktop_path",
+        "auto_start_backend", "llm_provider", "nvidia_model",
+        "openrouter_model", "log_level", "enable_dangerous_commands"
+    }
+    
+    updated_keys = []
+    for key, value in settings_data.items():
+        if key in allowed_keys:
+            current[key] = value
+            updated_keys.append(key)
+    
+    if not updated_keys:
+        raise HTTPException(status_code=400, detail="No valid settings provided")
+    
+    save_config(current)
+    
+    # Hot-reload certain settings into running modules
+    if "llm_provider" in updated_keys or "nvidia_model" in updated_keys or "openrouter_model" in updated_keys:
+        try:
+            llm_module.provider = current.get("llm_provider", "nvidia")
+            llm_module.nvidia_model = current.get("nvidia_model", llm_module.nvidia_model)
+            if current.get("openrouter_model"):
+                llm_module.openrouter_models[0] = current["openrouter_model"]
+            logger.info(f"LLM config hot-reloaded: provider={llm_module.provider}")
+        except Exception as e:
+            logger.warning(f"Failed to hot-reload LLM config: {e}")
+    
+    return {
+        "success": True,
+        "updated": updated_keys,
+        "settings": current
+    }
+
 @app.post("/api/command")
 async def execute_command(command_data: Dict[str, Any]):
     """REST endpoint for executing commands"""
