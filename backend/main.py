@@ -1411,6 +1411,22 @@ async def api_save_memory_fact(fact_data: Dict[str, Any]):
     success = memory_manager.save_memory(entry)
     return {"success": success}
 
+@app.put("/api/memory/fact/{id}")
+async def api_update_memory_fact(id: int, fact_data: Dict[str, Any]):
+    """Update a user fact/memory"""
+    from modules.memory import memory_manager
+    value = fact_data.get("value", "")
+    
+    success = memory_manager.update_memory_by_id(id, value)
+    return {"success": success}
+
+@app.delete("/api/memory/fact/{id}")
+async def api_delete_memory_fact(id: int):
+    """Delete a user fact/memory"""
+    from modules.memory import memory_manager
+    success = memory_manager.delete_memory_by_id(id)
+    return {"success": success}
+
 @app.get("/api/memory/facts")
 async def api_get_memory_facts(category: Optional[str] = None):
     """Get user facts/memories"""
@@ -1428,11 +1444,14 @@ async def api_get_memory_facts(category: Optional[str] = None):
         "success": True,
         "facts": [
             {
+                "id": e.id,
                 "key": e.key,
                 "value": e.value,
                 "category": e.category,
                 "confidence": e.confidence,
-                "updated_at": e.updated_at
+                "created_at": e.created_at,
+                "updated_at": e.updated_at,
+                "source": e.source
             }
             for e in entries
         ]

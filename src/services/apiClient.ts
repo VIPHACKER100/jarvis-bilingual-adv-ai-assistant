@@ -149,6 +149,20 @@ class ApiClient {
     return response.json();
   }
 
+  // Create a user fact/memory
+  async createMemoryFact(key: string, value: string, category: string = 'personal'): Promise<{ success: boolean; id: number }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/fact`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ key, value, category }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create memory fact');
+    }
+    return response.json();
+  }
+
   // Update a user fact/memory
   async updateMemoryFact(factId: number, value: string): Promise<{ success: boolean }> {
     const response = await fetch(`${this.baseUrl}/api/memory/fact/${factId}`, {

@@ -13,6 +13,7 @@ import { SystemDiagnostics } from './src/components/SystemDiagnostics';
 import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
 import { apiClient } from './src/services/apiClient';
+import { VisionOverlay } from './src/components/VisionOverlay';
 import { useJarvisBridge } from './src/hooks/useJarvisBridge';
 import { useTheme } from './src/hooks/useTheme';
 import { INITIAL_VOLUME } from './constants';
@@ -138,6 +139,12 @@ const AppContent: FC = () => {
     voiceService.setLanguage(language);
   }, [language]);
 
+  // Vision state
+  const [visionData, setVisionData] = useState<{ isOpen: boolean; content: string; metadata?: any }>({
+    isOpen: false,
+    content: ''
+  });
+
   // Handle backend responses
   useEffect(() => {
     if (lastResponse) {
@@ -158,6 +165,18 @@ const AppContent: FC = () => {
           duration: 3000
         });
         sfx.playBlip();
+      }
+
+      // Handle OCR/Vision responses
+      if (lastResponse.command_key.includes('ocr') || lastResponse.command_key === 'get_selected_text') {
+        if (lastResponse.success && lastResponse.response) {
+          setVisionData({
+            isOpen: true,
+            content: lastResponse.response,
+            metadata: lastResponse.data
+          });
+          sfx.playBlip(); // Reverting to playBlip to avoid type error
+        }
       }
 
       // Add to history
@@ -661,6 +680,13 @@ const AppContent: FC = () => {
           <span className="text-slate-500 font-bold border-b border-slate-800">VIPHACKER100 (ARYAN AHIRWAR)</span>
         </div>
       </footer>
+      {/* JARVIS Vision Overlay */}
+      <VisionOverlay 
+        isOpen={visionData.isOpen}
+        content={visionData.content}
+        metadata={visionData.metadata}
+        onClose={() => setVisionData(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };
