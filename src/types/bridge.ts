@@ -54,6 +54,7 @@ export interface CommandResponse {
   data?: Record<string, any>;
   error?: string;
   volume?: number;
+  macro_name?: string;
   timestamp: string;
 }
 

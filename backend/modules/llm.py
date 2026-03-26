@@ -23,6 +23,9 @@ class LLMModule:
         self.nvidia_api_key = os.getenv("NVIDIA_API_KEY")
         self.provider = LLM_PROVIDER
         
+        from config import OLLAMA_URL, OLLAMA_MODEL
+        self.ollama_url = OLLAMA_URL
+        self.ollama_model = OLLAMA_MODEL
         self.openrouter_url = "https://openrouter.ai/api/v1/chat/completions"
         self.nvidia_url = "https://integrate.api.nvidia.com/v1/chat/completions"
         
@@ -70,10 +73,47 @@ class LLMModule:
 
         if self.provider == "nvidia" and self.nvidia_api_key:
             return await self._get_nvidia_response(text, system_prompt)
+        elif self.provider == "ollama":
+            return await self._get_ollama_response(text, system_prompt)
         elif self.openrouter_api_key:
             return await self._get_openrouter_response(text, system_prompt)
         else:
-            logger.warning("No LLM API keys found.")
+            logger.warning("No LLM API keys or local LLM configured.")
+            return None
+
+    async def _get_ollama_response(self, text: str, system_prompt: str) -> Optional[str]:
+        """Get response from local Ollama instance"""
+        payload = {
+            "model": self.ollama_model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": text}
+            ],
+            "stream": False
+        }
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    self.ollama_url,
+                    json=payload,
+                    timeout=60.0)
+
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data:
+                    return data["message"]["content"].strip()
+                return None
+            else:
+                logger.error(f"Ollama Error {response.status_code}: {response.text}")
+                # Fallback to OpenRouter if available
+                if self.openrouter_api_key:
+                    return await self._get_openrouter_response(text, system_prompt)
+                return None
+        except Exception as e:
+            logger.error(f"Exception calling Ollama: {e}")
+            if self.openrouter_api_key:
+                return await self._get_openrouter_response(text, system_prompt)
             return None
 
     async def _get_nvidia_response(self, text: str, system_prompt: str) -> Optional[str]:
@@ -169,6 +209,50 @@ class LLMModule:
                 continue
 
         return None
+
+
+    async def extract_command(self, text: str, available_commands: List[str]) -> Optional[Dict[str, Any]]:
+        """Use LLM to extract structured command and params from natural language"""
+        system_prompt = (
+            "You are the NLU (Natural Language Understanding) core of JARVIS. "
+            "Your task is to map a user's natural language request to a specific system command. "
+            f"AVAILABLE COMMANDS: {', '.join(available_commands)}\n\n"
+            "Rules:\n"
+            "1. Output ONLY a valid JSON object.\n"
+            "2. Fields: 'command_key' (string, from the list above) and 'params' (object or null).\n"
+            "3. If no command matches, set 'command_key' to 'unknown'.\n"
+            "4. Language: The input may be in English, Hindi, or Hinglish. Understand all.\n"
+            "5. Examples:\n"
+            "   Input: 'Aryan folder kholo' -> {'command_key': 'open_app', 'params': 'Aryan'}\n"
+            "   Input: 'Aawaz badhao' -> {'command_key': 'volume_up', 'params': null}\n"
+            "   Input: 'Search for quantum physics' -> {'command_key': 'google_search', 'params': 'quantum physics'}"
+        )
+
+        # Use a faster, lighter model for extraction if available
+        # Otherwise, use the standard get_response logic with strict JSON prompt
+        raw_response = await self.get_response(text, language='en', context=system_prompt)
+        
+        if not raw_response:
+            return None
+
+        try:
+            # Basic cleanup in case LLM adds markdown or chatter
+            json_text = raw_response
+            if '```json' in json_text:
+                json_text = json_text.split('```json')[1].split('```')[0].strip()
+            elif '```' in json_text:
+                json_text = json_text.split('```')[1].split('```')[0].strip()
+            
+            # Find the first { and last }
+            start = json_text.find('{')
+            end = json_text.rfind('}')
+            if start != -1 and end != -1:
+                json_text = json_text[start:end+1]
+                
+            return json.loads(json_text)
+        except Exception as e:
+            logger.error(f"Error parsing LLM command extraction JSON: {e}")
+            return None
 
 
 # Singleton instance

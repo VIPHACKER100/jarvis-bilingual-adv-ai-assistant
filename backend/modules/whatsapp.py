@@ -14,6 +14,35 @@ class WhatsAppManager:
     def __init__(self):
         self.desktop_path = None
         self.recent_contacts = {}  # Cache recent contacts
+        self.contacts_file = os.path.join(os.path.dirname(__file__), '..', 'data', 'contacts.json')
+        self.contacts_map = self._load_contacts()
+
+    def _load_contacts(self) -> Dict[str, str]:
+        """Load contact mapping from JSON"""
+        try:
+            if os.path.exists(self.contacts_file):
+                with open(self.contacts_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading contacts: {e}")
+        return {}
+
+    def _resolve_contact(self, contact: str) -> str:
+        """Resolve contact alias (e.g. 'mom' -> actual name)"""
+        if not contact:
+            return contact
+        
+        # Check direct match
+        contact_lower = contact.lower()
+        if contact_lower in self.contacts_map:
+            return self.contacts_map[contact_lower]
+        
+        # Check for partial matches
+        for alias, actual in self.contacts_map.items():
+            if alias in contact_lower:
+                return actual
+                
+        return contact
 
     def _find_whatsapp_desktop(self) -> Optional[str]:
         """Find WhatsApp Desktop installation"""
@@ -177,6 +206,9 @@ class WhatsAppManager:
         """Send message via WhatsApp Web"""
         try:
             import urllib.parse
+            
+            # Resolve alias (e.g. 'Mom' -> 'Actual Name')
+            contact = self._resolve_contact(contact)
 
             # Format phone number (remove spaces, dashes)
             phone = contact.replace(' ', '').replace('-', '')
@@ -231,6 +263,9 @@ class WhatsAppManager:
             language: str = 'en',
             confirmed: bool = False) -> Dict:
         """Send message via WhatsApp Desktop automation"""
+        # Resolve alias early for correct confirmation message
+        contact = self._resolve_contact(contact)
+        
         if not confirmed:
             return {
                 'success': False,
@@ -307,6 +342,9 @@ class WhatsAppManager:
             language: str = 'en') -> Dict:
         """Make WhatsApp call"""
         try:
+            # Resolve alias 
+            contact = self._resolve_contact(contact)
+            
             # For calls, we need to use desktop automation
             desktop_path = self._find_whatsapp_desktop()
 

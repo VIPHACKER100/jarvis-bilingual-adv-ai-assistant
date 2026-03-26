@@ -149,6 +149,19 @@ class ApiClient {
     return response.json();
   }
 
+  // Update a user fact/memory
+  async updateMemoryFact(factId: number, value: string): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/fact/${factId}`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ value }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update memory fact');
+    }
+    return response.json();
+  }
+
   // Get current settings
   async getSettings(): Promise<{ success: boolean; settings: any }> {
     const response = await fetch(`${this.baseUrl}/api/settings`, {
@@ -171,6 +184,94 @@ class ApiClient {
       const error = await response.json();
       throw new Error(error.detail || 'Failed to update settings');
     }
+    return response.json();
+  }
+  // Get automation status
+  async getAutomationStatus(): Promise<{ success: boolean; status: any }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/status`, {
+      headers: this.getHeaders()
+    });
+    return response.json();
+  }
+
+  // Get all tasks
+  async getTasks(): Promise<{ success: boolean; tasks: any[] }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/tasks`, {
+      headers: this.getHeaders()
+    });
+    return response.json();
+  }
+
+  // Create task
+  async createTask(task: any): Promise<{ success: boolean; task: any }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/task`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(task)
+    });
+    return response.json();
+  }
+
+  // Toggle task
+  async toggleTask(taskId: string): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/task/${taskId}/toggle`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    return response.json();
+  }
+
+  // Delete task
+  async deleteTask(taskId: string): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/task/${taskId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders()
+    });
+    return response.json();
+  }
+
+  // Get all macros
+  async getMacros(): Promise<{ success: boolean; macros: any[] }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/macros`, {
+      headers: this.getHeaders()
+    });
+    return response.json();
+  }
+
+  // Create macro
+  async createMacro(macro: any): Promise<{ success: boolean; macro: any }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/macro`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(macro)
+    });
+    return response.json();
+  }
+
+  // Run macro
+  async runMacro(macroId: string): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/macro/${macroId}/run`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    return response.json();
+  }
+
+  // Toggle macro
+  async toggleMacro(macroId: string): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/macro/${macroId}/toggle`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    return response.json();
+  }
+
+  // Delete macro
+  async deleteMacro(macroId: string): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/automation/macro/${macroId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders()
+    });
     return response.json();
   }
 }

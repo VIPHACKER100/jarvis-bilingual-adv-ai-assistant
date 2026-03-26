@@ -220,11 +220,17 @@ class BilingualParser:
         return 'unknown', lang, None
 
     def get_response(self, response_key: str, lang: str, *args) -> str:
-        """Get response text in the appropriate language"""
+        """Get response text in the appropriate language with random variety support"""
+        import random
         responses = RESPONSES.get(lang, RESPONSES['en'])
         template = responses.get(
             response_key, RESPONSES['en'].get(
                 response_key, 'Unknown response'))
+        
+        # Select randomly if it's a list
+        if isinstance(template, list):
+            template = random.choice(template)
+            
         return template.format(*args) if args else template
 
 

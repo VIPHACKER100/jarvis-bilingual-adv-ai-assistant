@@ -199,29 +199,22 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
       <div
-        className="bg-[#080d14] border border-white/10 rounded-2xl w-full max-w-2xl mx-auto shadow-2xl relative overflow-hidden"
-        style={{ boxShadow: `0 0 60px rgba(var(--neon-rgb), 0.08), 0 25px 50px rgba(0,0,0,0.6)` }}
+        className="bg-[#080d14] border border-white/10 rounded-2xl w-full max-w-2xl mx-auto shadow-2xl relative overflow-hidden hud-panel-shadow"
       >
         {/* Top glow line */}
-        <div
-          className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: `linear-gradient(90deg, transparent, rgba(var(--neon-rgb), 0.8), transparent)` }}
-        />
+        <div className="absolute top-0 left-0 right-0 h-px neon-glow-line" />
 
         {/* Header */}
         <div className="p-5 border-b border-white/5 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div
-              className="p-2 rounded-xl border"
-              style={{ background: `rgba(var(--neon-rgb), 0.08)`, borderColor: `rgba(var(--neon-rgb), 0.3)` }}
-            >
-              <svg className="w-5 h-5" style={{ color: 'var(--neon-blue)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="p-2 rounded-xl border neon-bg-subtle neon-border">
+              <svg className="w-5 h-5 neon-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-wider uppercase" style={{ color: 'var(--neon-blue)' }}>System Settings</h2>
+              <h2 className="text-lg font-bold tracking-wider uppercase neon-text">System Settings</h2>
               <p className="text-[10px] text-gray-600 tracking-widest uppercase">VIPHACKER100 OS Configuration Panel</p>
             </div>
           </div>
@@ -244,10 +237,10 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-3 text-[11px] font-bold tracking-wider uppercase transition-all flex flex-col items-center gap-1 ${
                 activeTab === tab.id
-                  ? 'border-b-2 text-white'
+                  ? 'border-b-2 neon-text'
                   : 'text-gray-600 hover:text-gray-400 border-b-2 border-transparent'
               }`}
-              style={activeTab === tab.id ? { borderColor: 'var(--neon-blue)', color: 'var(--neon-blue)' } : {}}
+              style={activeTab === tab.id ? { borderColor: 'var(--neon-blue)' } : {}}
             >
               <span className="text-base">{tab.icon}</span>
               <span>{tab.label}</span>
@@ -321,43 +314,63 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                 <SectionHeader color="purple">AI Protocol & LLM</SectionHeader>
 
                 <FormRow label="Model Provider">
-                  <div className="grid grid-cols-2 gap-3">
-                    {['nvidia', 'openrouter'].map(p => (
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { id: 'nvidia', label: '🟩 NVIDIA NIM' },
+                      { id: 'openrouter', label: '🔀 OpenRouter' },
+                      { id: 'ollama', label: '🦙 Ollama' }
+                    ].map(p => (
                       <button
-                        key={p}
+                        key={p.id}
                         type="button"
-                        onClick={() => handleChange('llm_provider', p)}
-                        className={`py-3 px-4 rounded-xl border transition-all text-sm font-bold uppercase tracking-widest ${
-                          settings.llm_provider === p
+                        onClick={() => handleChange('llm_provider', p.id)}
+                        className={`py-3 px-2 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${
+                          settings.llm_provider === p.id
                             ? 'text-white border-[var(--neon-blue)] bg-[var(--neon-blue)]/10 shadow-[0_0_20px_rgba(var(--neon-rgb),0.2)]'
                             : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-600'
                         }`}
                       >
-                        {p === 'nvidia' ? '🟩 NVIDIA NIM' : '🔀 OpenRouter'}
+                        {p.label}
                       </button>
                     ))}
                   </div>
                 </FormRow>
 
-                <FormRow label="NVIDIA Model ID" hint="e.g. meta/llama-3.1-405b-instruct, qwen/qwen2.5-7b-instruct">
-                  <input
-                    type="text"
-                    value={settings.nvidia_model || ''}
-                    onChange={(e) => handleChange('nvidia_model', e.target.value)}
-                    placeholder="e.g. meta/llama-3.1-405b-instruct"
-                    className={inputClass + ' font-mono'}
-                  />
-                </FormRow>
-
-                <FormRow label="OpenRouter Model ID" hint="e.g. google/gemini-2.0-flash-exp:free, deepseek/deepseek-chat">
-                  <input
-                    type="text"
-                    value={settings.openrouter_model || ''}
-                    onChange={(e) => handleChange('openrouter_model', e.target.value)}
-                    placeholder="e.g. google/gemini-2.0-flash-001"
-                    className={inputClass + ' font-mono'}
-                  />
-                </FormRow>
+                {settings.llm_provider === 'ollama' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormRow label="Ollama API URL" hint="Default: http://localhost:11434/api/chat">
+                      <input
+                        type="text"
+                        value={settings.ollama_url || ''}
+                        onChange={(e) => handleChange('ollama_url', e.target.value)}
+                        className={inputClass + ' font-mono'}
+                        placeholder="http://localhost:11434/api/chat"
+                        title="Ollama API Endpoint"
+                      />
+                    </FormRow>
+                    <FormRow label="Ollama Model" hint="e.g. llama3, mistral, qwen2">
+                      <input
+                        type="text"
+                        value={settings.ollama_model || ''}
+                        onChange={(e) => handleChange('ollama_model', e.target.value)}
+                        className={inputClass + ' font-mono'}
+                        placeholder="llama3"
+                        title="Ollama Model Name"
+                      />
+                    </FormRow>
+                  </div>
+                ) : (
+                  <FormRow label={settings.llm_provider === 'nvidia' ? "NVIDIA Model ID" : "OpenRouter Model ID"}>
+                    <input
+                      type="text"
+                      value={settings.llm_provider === 'nvidia' ? (settings.nvidia_model || '') : (settings.openrouter_model || '')}
+                      onChange={(e) => handleChange(settings.llm_provider === 'nvidia' ? 'nvidia_model' : 'openrouter_model', e.target.value)}
+                      placeholder={settings.llm_provider === 'nvidia' ? "e.g. meta/llama-3.1-405b-instruct" : "e.g. google/gemini-2.0-flash-001"}
+                      className={inputClass + ' font-mono'}
+                      title={settings.llm_provider === 'nvidia' ? "NVIDIA Model Identifier" : "OpenRouter Model Identifier"}
+                    />
+                  </FormRow>
+                )}
 
                 <div className="pt-2 flex justify-end">
                   <SaveButton saving={saving} />
@@ -480,6 +493,31 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                         ))}
                       </select>
                     </FormRow>
+
+                    <div className="py-2 border-t border-white/5 mt-4">
+                      <SectionHeader color="amber">Passive Activation</SectionHeader>
+                      <div className="space-y-4">
+                        <Toggle
+                          id="wake_word_enabled"
+                          checked={settings?.wake_word_enabled || false}
+                          onChange={(v) => setSettings({ ...settings, wake_word_enabled: v })}
+                          label="Passive Monitoring (Wake Word)"
+                          description="JARVIS will silently listen for the activation phrase."
+                        />
+                        {settings?.wake_word_enabled && (
+                          <FormRow label="Activation Phrase" hint="The word that triggers JARVIS to start listening.">
+                            <input
+                              type="text"
+                              value={settings.wake_word_phrase || 'jarvis'}
+                              onChange={(e) => setSettings({ ...settings, wake_word_phrase: e.target.value.toLowerCase() })}
+                              className={inputClass}
+                              placeholder="e.g. jarvis, hey jarvis"
+                              title="Wake Word Phrase"
+                            />
+                          </FormRow>
+                        )}
+                      </div>
+                    </div>
                     <FormRow label="🔊 Audio Output / Speaker" hint={`${audioOutputs.length} device(s) detected`}>
                       <select
                         value={selectedOutput}

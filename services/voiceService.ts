@@ -101,13 +101,40 @@ class VoiceService {
     }
 
     // Try to find a suitable voice
-    const voices = this.synthesis.getVoices();
-    if (voices.length > 0) {
-      // Try to match the specific language voice
-      const preferredVoice = voices.find(v => v.lang.startsWith(utterance.lang));
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
+    let voices = this.synthesis.getVoices();
+    
+    // Voices might load asynchronously on some browsers (Chrome)
+    if (voices.length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        voices = this.synthesis.getVoices();
+        this._selectAndSpeak(utterance, voices, lang);
+      };
+      // For browser fallback, wait briefly and try once more if event doesn't fire fast enough
+      setTimeout(() => {
+        if (voices.length === 0) {
+          voices = this.synthesis.getVoices();
+          this._selectAndSpeak(utterance, voices, lang);
+        }
+      }, 100);
+      return; 
+    }
+
+    this._selectAndSpeak(utterance, voices, lang);
+  }
+
+  private _selectAndSpeak(utterance: SpeechSynthesisUtterance, voices: SpeechSynthesisVoice[], lang: string) {
+    // Prioritize natural sounding (Google/Premium) voices
+    const preferredVoices = voices.filter(v => 
+      v.lang.startsWith(utterance.lang) && 
+      (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Premium'))
+    );
+
+    const matchVoice = preferredVoices.length > 0 
+      ? preferredVoices[0] 
+      : voices.find(v => v.lang.startsWith(utterance.lang));
+
+    if (matchVoice) {
+      utterance.voice = matchVoice;
     }
 
     // Adjust pitch/rate for a more natural human-like feel

@@ -94,6 +94,20 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleEditFact = async (id: number, currentValue: string) => {
+    const newValue = window.prompt("Edit memory value:", currentValue);
+    if (newValue === null || newValue === currentValue) return;
+
+    try {
+      const data = await apiClient.updateMemoryFact(id, newValue);
+      if (data.success) {
+        setFacts(prev => prev.map(f => f.id === id ? { ...f, value: newValue, updated_at: new Date().toISOString() } : f));
+      }
+    } catch (error) {
+      console.error("Failed to update fact:", error);
+    }
+  };
+
   const exportHistory = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(conversations, null, 2));
     const downloadAnchorNode = document.createElement('a');
@@ -279,13 +293,22 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                           <span className="text-[9px] font-mono text-slate-500">
                             UPDATED: {formatTimestamp(fact.updated_at)}
                           </span>
-                          <button
-                            onClick={() => handleDeleteFact(fact.id)}
-                            className="text-slate-500 hover:text-red-400 transition-colors text-xs"
-                            title="Delete memory"
-                          >
-                            🗑️
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditFact(fact.id, fact.value)}
+                              className="text-slate-500 hover:text-cyan-400 transition-colors text-xs"
+                              title="Edit memory"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              onClick={() => handleDeleteFact(fact.id)}
+                              className="text-slate-500 hover:text-red-400 transition-colors text-xs"
+                              title="Delete memory"
+                            >
+                              🗑️
+                            </button>
+                          </div>
                         </div>
                       </div>
                       <h4 className="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-1 group-hover:text-white transition-colors">

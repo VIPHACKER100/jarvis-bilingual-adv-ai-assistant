@@ -562,6 +562,25 @@ class MemoryManager:
             logger.error(f"Error deleting memory fact {memory_id}: {e}")
             return False
 
+    def update_memory_by_id(self, memory_id: int, value: str) -> bool:
+        """Update specific memory fact by ID"""
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            cursor = conn.cursor()
+            now = datetime.now().isoformat()
+            cursor.execute('''
+                UPDATE memory 
+                SET value = ?, updated_at = ?
+                WHERE id = ?
+            ''', (value, now, memory_id))
+            conn.commit()
+            conn.close()
+            logger.info(f"Updated memory fact ID: {memory_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating memory fact {memory_id}: {e}")
+            return False
+
 
 # Singleton instance
 memory_manager = MemoryManager()

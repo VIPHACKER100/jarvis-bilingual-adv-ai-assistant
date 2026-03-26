@@ -9,14 +9,27 @@ import { AutomationDashboard } from './src/components/AutomationDashboard';
 import { DesktopControls } from './components/DesktopControls';
 import { MediaTools } from './components/MediaTools';
 import { SettingsModal } from './src/components/SettingsModal';
+import { SystemDiagnostics } from './src/components/SystemDiagnostics';
 import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
+import { apiClient } from './src/services/apiClient';
 import { useJarvisBridge } from './src/hooks/useJarvisBridge';
 import { useTheme } from './src/hooks/useTheme';
 import { INITIAL_VOLUME } from './constants';
 import { sfx } from './utils/audioUtils';
 
+import { NotificationProvider, useNotifications } from './src/context/NotificationContext';
+import { NotificationCenter } from './src/components/NotificationCenter';
+
 const App: FC = () => {
+  return (
+    <NotificationProvider>
+      <AppContent />
+    </NotificationProvider>
+  );
+};
+
+const AppContent: FC = () => {
   // Initialize theme system — sets CSS variables from stored preference
   useTheme();
 
@@ -33,6 +46,8 @@ const App: FC = () => {
   const [showAdvancedHelper, setShowAdvancedHelper] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
+  const { addNotification } = useNotifications();
+
   // Backend integration
   const {
     isConnected,
@@ -46,6 +61,25 @@ const App: FC = () => {
     reconnect,
   } = useJarvisBridge();
 
+  // Handle connection changes
+  useEffect(() => {
+    if (isConnected) {
+      addNotification({
+        type: 'success',
+        title: 'System Online',
+        message: 'Neural bridge established with JARVIS backend.',
+        duration: 4000
+      });
+    } else if (connectionStatus === 'disconnected') {
+      addNotification({
+        type: 'error',
+        title: 'System Offline',
+        message: 'Backend connection lost. Retrying...',
+        duration: 0 // Stay until fixed
+      });
+    }
+  }, [isConnected, connectionStatus, addNotification]);
+
   // References to manage state in async callbacks
   const processingRef = useRef(false);
   // Ref to track if the app is effectively "ON" to handle the loop logic
@@ -58,6 +92,12 @@ const App: FC = () => {
         .then((permissionStatus) => {
           if (permissionStatus.state === 'denied') {
             setShowPermissionModal(true);
+            addNotification({
+              type: 'error',
+              title: 'Permission Denied',
+              message: 'Microphone access is restricted. Check browser settings.',
+              duration: 8000
+            });
             addToHistory({
               transcript: "",
               response: "SYSTEM ALERT: Microphone access denied / माइक्रोफ़ोन एक्सेस अस्वीकार।",
@@ -110,6 +150,16 @@ const App: FC = () => {
         sfx.playBlip();
       }
 
+      if (lastResponse.action_type === 'MACRO_STARTED' && lastResponse.success) {
+        addNotification({
+          type: 'system',
+          title: 'Macro Sequence Triggered',
+          message: `Executing [${lastResponse.macro_name}]`,
+          duration: 3000
+        });
+        sfx.playBlip();
+      }
+
       // Add to history
       addToHistory({
         transcript: transcript,
@@ -154,10 +204,60 @@ const App: FC = () => {
     setHistory(prev => [...prev, entry]);
   };
 
+  const [settings, setSettings] = useState<any>(null);
+
+  // Load backend settings on mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await apiClient.getSettings();
+        if (res.success) setSettings(res.settings);
+      } catch (e) {
+        console.error("Failed to load settings in App:", e);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   const handleCommandResult = async (text: string, isFinal: boolean) => {
     setTranscript(text);
 
     if (isFinal && !processingRef.current) {
+      const lowerText = text.toLowerCase().trim();
+      
+      // Wake Word Logic
+      if (settings?.wake_word_enabled) {
+        const phrase = settings.wake_word_phrase?.toLowerCase() || 'jarvis';
+        if (!lowerText.includes(phrase)) {
+          // No wake word, just resume listening silently
+          if (isActiveRef.current) startListening();
+          return;
+        }
+        
+        // Notification for wake word detection
+        if (lowerText === phrase || lowerText === phrase + '.') {
+           addNotification({
+             type: 'system',
+             title: 'Voice Activated',
+             message: 'System is now listening for your command, sir.',
+             duration: 2000
+           });
+           sfx.playBlip();
+        }
+        
+        // Strip wake word for backend processing
+        // But if it was ONLY the wake word, we should probably wait for more
+        const cleanText = lowerText.replace(phrase, '').trim();
+        if (!cleanText) {
+          // Just heard wake word, don't send to backend yet, let the user speak
+          if (isActiveRef.current) startListening();
+          return;
+        }
+        
+        // Full command with wake word, proceed
+        text = cleanText;
+      }
+
       processingRef.current = true;
       setMode(AppMode.PROCESSING);
 
@@ -326,6 +426,7 @@ const App: FC = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center bg-black relative overflow-x-hidden">
+      <NotificationCenter />
 
       {/* Background Grid/Effects */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.05)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
@@ -445,77 +546,7 @@ const App: FC = () => {
 
             {/* Real System Status Panel */}
             {systemStatus && systemStatus.success && (
-              <div className="border border-cyan-500/30 bg-slate-900/60 p-4 w-full md:w-64 text-[10px] font-mono rounded-sm backdrop-blur-sm">
-                <style>{`
-                  .battery-bar-width { width: ${systemStatus.battery?.percent != null ? systemStatus.battery.percent : 0}%; }
-                  .cpu-bar-width { width: ${systemStatus.cpu ? Math.min(systemStatus.cpu.percent, 100) : 0}%; }
-                `}</style>
-                <div className="text-cyan-400 uppercase tracking-wider mb-3 pb-2 border-b border-cyan-500/20">
-                  SYSTEM STATUS
-                </div>
-
-                {/* Battery */}
-                {systemStatus.battery?.percent !== null && (
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-400">BATTERY</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full battery-bar-width ${systemStatus.battery.is_charging
-                            ? 'bg-green-500 animate-pulse'
-                            : systemStatus.battery.percent < 20
-                              ? 'bg-red-500'
-                              : 'bg-cyan-500'
-                            }`}
-                        ></div>
-                      </div>
-                      <span className={systemStatus.battery.percent < 20 ? 'text-red-400' : 'text-cyan-400'}>
-                        {systemStatus.battery.percent}%
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* CPU */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-400">CPU</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full cpu-bar-width ${systemStatus.cpu.percent > 80 ? 'bg-red-500' : 'bg-cyan-500'
-                          }`}
-                      ></div>
-                    </div>
-                    <span className={systemStatus.cpu.percent > 80 ? 'text-red-400' : 'text-cyan-400'}>
-                      {systemStatus.cpu.percent.toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
-
-                {/* Memory */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-400">MEMORY</span>
-                  <span className="text-cyan-400">{formatBytes(systemStatus.memory.used)} / {formatBytes(systemStatus.memory.total)}</span>
-                </div>
-
-                {/* Volume */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-400">VOLUME</span>
-                  <span className="text-cyan-400">{systemStatus.volume}%</span>
-                </div>
-
-                {/* Uptime */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-400">UPTIME</span>
-                  <span className="text-cyan-400">{formatUptime(systemStatus.uptime)}</span>
-                </div>
-
-                {/* Platform */}
-                <div className="flex justify-between items-center pt-2 border-t border-slate-700/50">
-                  <span className="text-slate-500">PLATFORM</span>
-                  <span className="text-green-400 uppercase">{systemStatus.platform}</span>
-                </div>
-              </div>
+              <SystemDiagnostics data={systemStatus} />
             )}
 
             {/* Fallback Stats Panel */}
@@ -581,11 +612,20 @@ const App: FC = () => {
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
         onSettingsUpdated={(updated) => {
+          setSettings(updated); // Sync local settings state
           // If native language changed, update active state
           if (updated.language === 'en') setLanguage(Language.ENGLISH);
           else if (updated.language === 'hi') setLanguage(Language.HINDI);
           else if (updated.language === 'hinglish') setLanguage(Language.HINGLISH);
         }}
+      />
+
+      {/* Security Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!pendingConfirmation}
+        confirmation={pendingConfirmation}
+        onConfirm={() => confirmCommand(true)}
+        onCancel={() => confirmCommand(false)}
       />
 
       {/* Phase 4 Quick Access Buttons */}

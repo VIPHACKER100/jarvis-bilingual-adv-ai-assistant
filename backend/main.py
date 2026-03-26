@@ -16,7 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from config import BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM
+from config import BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM, HINDI_COMMANDS
 from modules.system import system_module
 from modules.security import security
 from modules.bilingual_parser import parser
@@ -142,6 +142,17 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     
     # Parse command
     command_key, detected_lang, params = parser.parse_command(command)
+    
+    # LLM Fallback for Adaptive NLP
+    if command_key == 'unknown' or not command_key:
+        logger.info(f"Rule-based parser failed for: '{command}'. Attempting LLM extraction...")
+        available_keys = list(HINDI_COMMANDS.keys())
+        llm_result = await llm_module.extract_command(command, available_keys)
+        if llm_result and llm_result.get('command_key') != 'unknown':
+            command_key = llm_result['command_key']
+            params = llm_result.get('params')
+            logger.info(f"LLM successfully extracted command: {command_key}")
+
     if detected_lang and language != 'hinglish':
         current_lang = detected_lang
         
@@ -679,7 +690,9 @@ async def api_update_settings(settings_data: Dict[str, Any]):
     allowed_keys = {
         "language", "confirmation_timeout", "whatsapp_desktop_path",
         "auto_start_backend", "llm_provider", "nvidia_model",
-        "openrouter_model", "log_level", "enable_dangerous_commands"
+        "openrouter_model", "ollama_url", "ollama_model",
+        "wake_word_enabled", "wake_word_phrase",
+        "log_level", "enable_dangerous_commands"
     }
     
     updated_keys = []
@@ -863,6 +876,16 @@ async def api_delete_fact(fact_id: int):
     """Delete a specific fact by ID"""
     from modules.memory import memory_manager
     success = memory_manager.delete_memory_by_id(fact_id)
+    return {"success": success}
+
+@app.put("/api/memory/fact/{fact_id}")
+async def api_update_fact(fact_id: int, fact_data: Dict[str, Any]):
+    """Update a specific fact by ID"""
+    from modules.memory import memory_manager
+    new_value = fact_data.get("value")
+    if new_value is None:
+        raise HTTPException(status_code=400, detail="New value is required")
+    success = memory_manager.update_memory_by_id(fact_id, new_value)
     return {"success": success}
 
 # Window management endpoints
@@ -1481,6 +1504,51 @@ async def api_get_automation_status():
     
     status = automation_manager.get_scheduler_status()
     return {"success": True, "status": status}
+
+@app.post("/api/automation/task/{task_id}/toggle")
+async def api_toggle_task(task_id: str):
+    """Toggle a task enabled/disabled"""
+    from modules.automation import automation_manager
+    
+    success = automation_manager.toggle_task(task_id)
+    return {"success": success}
+
+@app.delete("/api/automation/task/{task_id}")
+async def api_delete_task(task_id: str):
+    """Delete a task"""
+    from modules.automation import automation_manager
+    
+    success = automation_manager.delete_task(task_id)
+    return {"success": success}
+
+@app.post("/api/automation/macro/{macro_id}/run")
+async def api_run_macro(macro_id: str):
+    """Run a macro manually"""
+    from modules.automation import automation_manager
+    
+    async def macro_cmd_callback(command: str, parameters: Dict[str, Any]):
+        # This executes every command in the macro through the main command handler
+        # We pass None for websocket since it's a background automation task
+        await handle_command(None, command, 'en', override_params=parameters)
+
+    success = await automation_manager.run_macro(macro_id, macro_cmd_callback)
+    return {"success": success}
+
+@app.post("/api/automation/macro/{macro_id}/toggle")
+async def api_toggle_macro(macro_id: str):
+    """Toggle a macro enabled/disabled"""
+    from modules.automation import automation_manager
+    
+    success = automation_manager.toggle_macro(macro_id)
+    return {"success": success}
+
+@app.delete("/api/automation/macro/{macro_id}")
+async def api_delete_macro(macro_id: str):
+    """Delete a macro"""
+    from modules.automation import automation_manager
+    
+    success = automation_manager.delete_macro(macro_id)
+    return {"success": success}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
