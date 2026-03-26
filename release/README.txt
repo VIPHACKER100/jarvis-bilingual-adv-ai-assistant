@@ -1,4 +1,4 @@
-# JARVIS AI Assistant v2.2.0
+# JARVIS AI Assistant v2.2.1
 
 ## 🚀 Quick Start
 
@@ -18,8 +18,9 @@
 - **Activate**: Click the Arc Reactor
 - **Language**: Toggle EN/हिंदी in top right
 - **Voice Commands**: Speak naturally in English or Hindi
-- **Memory**: Click 🧠 button to view conversation history
-- **Automation**: Click ⚡ button for scheduled tasks
+- **Vision**: Capture text from your screen via "Read screen"
+- **Memory**: Click 🧠 button to view and edit conversation facts
+- **Automation**: Click ⚡ button for scheduled tasks and macros
 
 ## 🗣️ Example Commands
 

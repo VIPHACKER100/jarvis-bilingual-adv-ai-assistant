@@ -113,7 +113,7 @@ title JARVIS AI Assistant
 taskkill /F /IM JARVIS_Backend.exe 2>nul
 echo.
 echo ╔═══════════════════════════════════════╗
-echo ║     JARVIS AI Assistant v2.2.0        ║
+echo ║     JARVIS AI Assistant v2.2.1        ║
 echo ║     Made by VIPHACKER100              ║
 echo ╚═══════════════════════════════════════╝
 echo.
@@ -144,7 +144,7 @@ timeout /t 2 >nul
 
 def create_release_readme():
     """Create release README"""
-    readme_content = '''# JARVIS AI Assistant v2.2.0
+    readme_content = '''# JARVIS AI Assistant v2.2.1
 
 ## 🚀 Quick Start
 
@@ -164,8 +164,9 @@ def create_release_readme():
 - **Activate**: Click the Arc Reactor
 - **Language**: Toggle EN/हिंदी in top right
 - **Voice Commands**: Speak naturally in English or Hindi
-- **Memory**: Click 🧠 button to view conversation history
-- **Automation**: Click ⚡ button for scheduled tasks
+- **Vision**: Capture text from your screen via "Read screen"
+- **Memory**: Click 🧠 button to view and edit conversation facts
+- **Automation**: Click ⚡ button for scheduled tasks and macros
 
 ## 🗣️ Example Commands
 
@@ -232,7 +233,7 @@ AUTO_START_SCHEDULER=true
 
 def zip_release_package():
     """Create a zip archive of the release folder"""
-    zip_filename = f"JARVIS_v2.2.0.zip"
+    zip_filename = f"JARVIS_v2.2.1.zip"
     zip_path = PROJECT_ROOT / zip_filename
     
     print(f"\n🤐 Zipping release package into {zip_filename}...")
@@ -440,7 +441,7 @@ def filter_build_warnings(warning_file):
 def main():
     """Main build process"""
     print("=" * 60)
-    print("JARVIS AI Assistant v2.2.0 - Build Script")
+    print("JARVIS AI Assistant v2.2.1 - Build Script")
     print("Made by VIPHACKER100")
     print("=" * 60)
     
@@ -470,10 +471,10 @@ def main():
     print("\n" + "=" * 60)
     print("✅ Build completed successfully!")
     print(f"📁 Release package: {RELEASE_DIR}")
-    print(f"📦 Distribution Zip: {PROJECT_ROOT / 'JARVIS_v2.2.0.zip'}")
+    print(f"📦 Distribution Zip: {PROJECT_ROOT / 'JARVIS_v2.2.1.zip'}")
     print("=" * 60)
     print("\nTo distribute:")
-    print("1. Share JARVIS_v2.2.0.zip")
+    print("1. Share JARVIS_v2.2.1.zip")
     print("2. Users just unzip and run START_JARVIS.bat")
 
 if __name__ == '__main__':

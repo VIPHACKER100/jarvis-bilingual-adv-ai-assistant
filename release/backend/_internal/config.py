@@ -30,6 +30,12 @@ LOG_RETENTION_DAYS = int(os.getenv("LOG_RETENTION_DAYS", 30))
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "nvidia").lower()
 NVIDIA_MODEL = os.getenv("NVIDIA_MODEL", "qwen/qwen2.5-7b-instruct") # Stable default
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+
+# Wake Word
+WAKE_WORD_ENABLED = os.getenv("WAKE_WORD_ENABLED", "true").lower() == "true"
+WAKE_WORD_PHRASE = os.getenv("WAKE_WORD_PHRASE", "jarvis")
 
 # Platform
 PLATFORM = platform.system().lower()  # 'windows', 'darwin', 'linux'
@@ -184,15 +190,35 @@ RESPONSES = {
         'confirm_whatsapp': 'Send message to {0}?',
         'shutdown_initiated': 'Shutting down the system.',
         'restart_initiated': 'Restarting the system.',
-        'volume_increased': 'Volume increased to {0}%.',
-        'volume_decreased': 'Volume decreased to {0}%.',
+        'volume_increased': [
+            'Volume increased to {0}%.',
+            'Turning it up. Now at {0}%.',
+            'Audio levels raised to {0}%.',
+            'Certainly. Volume is now {0}%.'
+        ],
+        'volume_decreased': [
+            'Volume decreased to {0}%.',
+            'Turning it down. Now at {0}%.',
+            'Audio levels lowered to {0}%.',
+            'Certainly. Volume is now {0}%.'
+        ],
         'brightness_increased': 'Brightness increased to {0}%.',
         'brightness_decreased': 'Brightness decreased to {0}%.',
         'time_is': 'The current time is {0}.',
         'date_is': 'Today is {0}.',
         'battery_status': 'Battery is at {0}%.',
-        'app_opened': 'Opening {0}.',
-        'app_closed': 'Closed {0}.',
+        'app_opened': [
+            'Opening {0}.', 
+            'I\'m launching {0} now.', 
+            'Right away. Opening {0}.',
+            'Certainly. Starting {0}.'
+        ],
+        'app_closed': [
+            'Closed {0}.', 
+            'Terminating {0} as requested.', 
+            '{0} has been shut down.',
+            'Operation complete. {0} is closed.'
+        ],
         'window_minimized': 'Minimized window.',
         'window_maximized': 'Maximized window.',
         'desktop_shown': 'Showing desktop.',
@@ -235,8 +261,17 @@ RESPONSES = {
         'time_is': 'अभी का समय {0} है।',
         'date_is': 'आज {0} है।',
         'battery_status': 'बैटरी {0}% है।',
-        'app_opened': '{0} खोल रहा हूँ।',
-        'app_closed': '{0} बंद कर दिया गया है।',
+        'app_opened': [
+            '{0} खोल रहा हूँ।',
+            'लीजिए, {0} शुरू हो रहा है।',
+            'जी, {0} खोल रहा हूँ।',
+            'अभी खोलता हूँ साहेब।'
+        ],
+        'app_closed': [
+            '{0} बंद कर दिया गया है।',
+            'जी, {0} को बंद कर दिया है।',
+            'काम हो गया। {0} बंद है।'
+        ],
         'window_minimized': 'विंडो छोटी कर दी गई है।',
         'window_maximized': 'विंडो बड़ी कर दी गई है।',
         'desktop_shown': 'डेस्कटॉप दिखा रहा हूँ।',
@@ -267,17 +302,30 @@ RESPONSES = {
 }
 
 def get_config():
-    """Load user config from JSON"""
+    """Load user config from JSON, merging with defaults"""
+    defaults = {
+        "language": "en",
+        "confirmation_timeout": CONFIRMATION_TIMEOUT,
+        "whatsapp_desktop_path": None,
+        "auto_start_backend": False,
+        "llm_provider": LLM_PROVIDER,
+        "nvidia_model": NVIDIA_MODEL,
+        "openrouter_model": OPENROUTER_MODEL,
+        "ollama_url": OLLAMA_URL,
+        "ollama_model": OLLAMA_MODEL,
+        "wake_word_enabled": WAKE_WORD_ENABLED,
+        "wake_word_phrase": WAKE_WORD_PHRASE,
+        "backend_port": BACKEND_PORT,
+        "log_level": LOG_LEVEL,
+        "enable_dangerous_commands": ENABLE_DANGEROUS_COMMANDS,
+    }
     config_path = DATA_DIR / "config.json"
     if config_path.exists():
         with open(config_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {
-        "language": "en",
-        "confirmation_timeout": 30,
-        "whatsapp_desktop_path": None,
-        "auto_start_backend": False
-    }
+            saved = json.load(f)
+        # Merge: saved values override defaults
+        defaults.update(saved)
+    return defaults
 
 def save_config(config):
     """Save user config to JSON"""
