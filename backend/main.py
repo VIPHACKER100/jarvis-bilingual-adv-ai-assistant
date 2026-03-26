@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
     log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "2.1.1"
+        "version": "2.2.1"
     })
     
     # Start background tasks
@@ -73,9 +73,17 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="JARVIS Backend",
     description="Cross-platform AI assistant backend with window management and automation",
-    version="2.1.1",
+    version="2.2.1",
     lifespan=lifespan
 )
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Serve favicon.ico"""
+    favicon_path = Path(__file__).parent / "favicon.ico"
+    if favicon_path.exists():
+        return FileResponse(favicon_path)
+    return Response(status_code=404)
 
 # CORS middleware
 app.add_middleware(
@@ -1699,12 +1707,14 @@ else:
     logger.warning(f"Frontend dist not found. Checked locations: {checked_locations}")
     @app.get("/")
     async def root():
+        """Health check and root info (Frontend fallback)"""
         return {
-            "status": "online", 
-            "message": "Backend server is running (frontend directory not found)",
-            "checked_paths": checked_locations,
-            "cwd": str(Path.cwd()),
-            "frozen": getattr(sys, 'frozen', False)
+            "status": "online",
+            "system": "JARVIS",
+            "version": "2.2.1",
+            "platform": PLATFORM,
+            "developer": "VIPHACKER100",
+            "note": "Frontend directory not found"
         }
 
 if __name__ == "__main__":
