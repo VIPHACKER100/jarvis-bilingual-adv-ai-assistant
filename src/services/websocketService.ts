@@ -3,6 +3,8 @@ import { WebSocketMessage, CommandResponse, SystemStatus, ConnectionStatus } fro
 type MessageHandler = (message: WebSocketMessage) => void;
 type StatusHandler = (status: ConnectionStatus) => void;
 
+const API_TOKEN = import.meta.env.VITE_JARVIS_API_KEY || "";
+
 class WebSocketService {
   private ws: WebSocket | null = null;
   private url: string = 'ws://localhost:8000/ws';
@@ -30,7 +32,11 @@ class WebSocketService {
     this.notifyStatusChange('connecting');
 
     try {
-      this.ws = new WebSocket(this.url);
+      const url = new URL(this.url);
+      if (API_TOKEN) {
+        url.searchParams.append('token', API_TOKEN);
+      }
+      this.ws = new WebSocket(url.toString());
 
       this.ws.onopen = () => {
         console.log('[JARVIS] WebSocket connected');

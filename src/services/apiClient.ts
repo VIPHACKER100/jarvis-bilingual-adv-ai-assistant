@@ -1,12 +1,25 @@
 import { SystemStatus, CommandResponse, CommandRequest } from '../types/bridge';
 
 const API_BASE_URL = 'http://localhost:8000';
+const API_KEY = import.meta.env.VITE_JARVIS_API_KEY || "";
 
 class ApiClient {
   private baseUrl: string;
+  private apiKey: string;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
+    this.apiKey = API_KEY;
+  }
+
+  private getHeaders(contentType: string = 'application/json'): HeadersInit {
+    const headers: HeadersInit = {
+      'X-API-Key': this.apiKey,
+    };
+    if (contentType) {
+      headers['Content-Type'] = contentType;
+    }
+    return headers;
   }
 
   // Health check
@@ -20,7 +33,9 @@ class ApiClient {
 
   // Get system status
   async getSystemStatus(): Promise<SystemStatus> {
-    const response = await fetch(`${this.baseUrl}/api/system/status`);
+    const response = await fetch(`${this.baseUrl}/api/system/status`, {
+      headers: this.getHeaders()
+    });
     if (!response.ok) {
       throw new Error('Failed to get system status');
     }
@@ -31,9 +46,7 @@ class ApiClient {
   async executeCommand(command: string, language: 'en' | 'hi' = 'en'): Promise<CommandResponse> {
     const response = await fetch(`${this.baseUrl}/api/command`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify({
         command,
         language,
@@ -50,16 +63,11 @@ class ApiClient {
 
   // Confirm dangerous command
   async confirmCommand(confirmationId: string, approved: boolean): Promise<{
-    success: boolean;
-    approved: boolean;
-    result?: CommandResponse;
-    message?: string;
+    // ...
   }> {
     const response = await fetch(`${this.baseUrl}/api/confirm/${confirmationId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify({ approved }),
     });
 
@@ -82,7 +90,9 @@ class ApiClient {
       url.searchParams.append('session_id', session_id);
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: this.getHeaders()
+    });
     if (!response.ok) {
       throw new Error('Failed to get conversations');
     }
@@ -94,7 +104,9 @@ class ApiClient {
     success: boolean;
     stats: any;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/stats?days=${days}`);
+    const response = await fetch(`${this.baseUrl}/api/memory/stats?days=${days}`, {
+      headers: this.getHeaders()
+    });
     if (!response.ok) {
       throw new Error('Failed to get memory stats');
     }
@@ -105,9 +117,7 @@ class ApiClient {
   async saveConversation(convData: any): Promise<{ success: boolean; id: number }> {
     const response = await fetch(`${this.baseUrl}/api/memory/conversation`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify(convData),
     });
 
@@ -127,7 +137,9 @@ class ApiClient {
       url.searchParams.append('category', category);
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: this.getHeaders()
+    });
     if (!response.ok) {
       throw new Error('Failed to get memory facts');
     }

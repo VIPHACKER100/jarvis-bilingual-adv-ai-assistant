@@ -1,3 +1,5 @@
+import os
+import re
 import sys
 import json
 import asyncio
@@ -8,9 +10,9 @@ from dataclasses import asdict
 
 # Add current directory to path for imports when run from elsewhere
 sys.path.insert(0, str(Path(__file__).parent))
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Response
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Response, Depends, Header, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -29,6 +31,15 @@ from modules.automation import automation_manager
 from modules.memory import memory_manager
 from modules.context import context_manager
 from utils.logger import logger, log_command, log_system_event
+
+# Security
+BACKEND_API_KEY = os.getenv("BACKEND_API_KEY")
+
+async def verify_api_key(x_api_key: Optional[str] = Header(None)):
+    """Dependency to verify X-API-Key header"""
+    if BACKEND_API_KEY and x_api_key != BACKEND_API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid or missing API Key")
+    return x_api_key
 
 # Track connected clients
 connected_clients: Dict[str, WebSocket] = {}
@@ -74,6 +85,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Authentication Middleware for REST API
+@app.middleware("http")
+async def api_key_middleware(request: Request, call_next):
+    # Only protect /api/ routes, exclude static files and root
+    if request.url.path.startswith("/api/") and BACKEND_API_KEY:
+        api_key = request.headers.get("X-API-Key")
+        if api_key != BACKEND_API_KEY:
+            return JSONResponse(
+                status_code=403, 
+                content={"success": False, "detail": "Invalid or missing API Key"}
+            )
+    return await call_next(request)
 
 async def broadcast_system_status():
     """Broadcast system status to all connected clients every 5 seconds"""
@@ -208,7 +232,6 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         # Extract amount from params if present
         amount = None
         if params:
-            import re
             nums = re.findall(r'\d+', str(params))
             if nums:
                 amount = int(nums[0])
@@ -703,30 +726,7 @@ async def confirm_command(confirmation_id: str, confirmation_data: Dict[str, Any
         "message": "Command cancelled by user"
     }
 
-@app.get("/api/memory/facts")
-async def api_get_memory_facts(category: Optional[str] = None):
-    """Get all user facts/memories"""
-    from modules.memory import memory_manager
-    if category:
-        facts = memory_manager.get_memories_by_category(category)
-    else:
-        # Search all with empty string to get all
-        facts = memory_manager.search_memory("")
-    
-    return {
-        "success": True, 
-        "facts": [
-            {
-                "id": f.id,
-                "key": f.key,
-                "value": f.value,
-                "category": f.category,
-                "confidence": f.confidence,
-                "updated_at": f.updated_at
-            }
-            for f in facts
-        ]
-    }
+# Removed duplicate /api/memory/facts endpoint. Use the more comprehensive one at /api/memory/facts (line 1261).
 
 @app.delete("/api/memory/fact/{fact_id}")
 async def api_delete_fact(fact_id: int):
@@ -1355,6 +1355,12 @@ async def api_get_automation_status():
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket endpoint for real-time communication"""
+    # Check for API Key in query parameters
+    token = websocket.query_params.get("token")
+    if BACKEND_API_KEY and token != BACKEND_API_KEY:
+        await websocket.close(code=4003) # Forbidden
+        return
+
     await websocket.accept()
     client_id = str(id(websocket))
     connected_clients[client_id] = websocket

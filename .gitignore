@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .env
 nul
+
+# AI memory & instructions (personal/private)
+memory/
+CLAUDE.md
