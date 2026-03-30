@@ -2,100 +2,90 @@ export class AudioSystem {
     private audioContext: AudioContext | null = null;
     private masterGain: GainNode | null = null;
 
-    constructor() {
-        this.init();
-    }
+    constructor() {}
 
     private init() {
-        try {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            if (AudioContextClass) {
-                this.audioContext = new AudioContextClass();
-                this.masterGain = this.audioContext.createGain();
-                this.masterGain.gain.value = 0.3; // Low volume for UI sounds
-                this.masterGain.connect(this.audioContext.destination);
+        if (!this.audioContext) {
+            try {
+                const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+                if (AudioContextClass) {
+                    this.audioContext = new AudioContextClass();
+                    this.masterGain = this.audioContext.createGain();
+                    this.masterGain.gain.value = 0.2;
+                    this.masterGain.connect(this.audioContext.destination);
+                }
+            } catch (e) {
+                console.warn("Audio Context failed to init");
             }
-        } catch (e) {
-            console.warn("Audio Context not supported or failed to init");
         }
     }
 
     private ensureContext() {
+        this.init();
         if (this.audioContext?.state === 'suspended') {
             this.audioContext.resume();
         }
     }
 
-    // Sci-fi "Blip" - fast, high pitch
-    public playBlip() {
+    private playNote(freq: number, type: OscillatorType, duration: number, volume: number = 0.5) {
         this.ensureContext();
         if (!this.audioContext || !this.masterGain) return;
 
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
 
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
+        
+        gain.gain.setValueAtTime(volume, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+
         osc.connect(gain);
         gain.connect(this.masterGain);
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, this.audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, this.audioContext.currentTime + 0.1);
-
-        gain.gain.setValueAtTime(0.5, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
 
         osc.start();
-        osc.stop(this.audioContext.currentTime + 0.1);
+        osc.stop(this.audioContext.currentTime + duration);
     }
 
-    // Low "Hum" or "Activate" sound
+    public playBlip() {
+        this.playNote(880, 'sine', 0.05, 0.3);
+    }
+
     public playActivation() {
-        this.ensureContext();
-        if (!this.audioContext || !this.masterGain) return;
-
-        const osc1 = this.audioContext.createOscillator();
-        const osc2 = this.audioContext.createOscillator();
-        const gain = this.audioContext.createGain();
-
-        osc1.connect(gain);
-        osc2.connect(gain);
-        gain.connect(this.masterGain);
-
-        osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(100, this.audioContext.currentTime);
-        osc1.frequency.linearRampToValueAtTime(300, this.audioContext.currentTime + 0.5);
-
-        osc2.type = 'square';
-        osc2.frequency.setValueAtTime(50, this.audioContext.currentTime);
-        osc2.frequency.linearRampToValueAtTime(150, this.audioContext.currentTime + 0.5);
-
-        gain.gain.setValueAtTime(0, this.audioContext.currentTime);
-        gain.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1.0);
-
-        osc1.start();
-        osc2.start();
-        osc1.stop(this.audioContext.currentTime + 1.0);
-        osc2.stop(this.audioContext.currentTime + 1.0);
+        this.playNote(440, 'sine', 0.2, 0.4);
+        setTimeout(() => this.playNote(880, 'sine', 0.2, 0.3), 100);
     }
 
-    // Deactivate - Power down sound
     public playDeactivation() {
+        this.playNote(880, 'sine', 0.2, 0.3);
+        setTimeout(() => this.playNote(440, 'sine', 0.2, 0.4), 100);
+    }
+
+    public playSelect() {
+        this.playNote(1320, 'sine', 0.1, 0.4);
+    }
+
+    public playAlert() {
+        this.playNote(440, 'sawtooth', 0.3, 0.3);
+        setTimeout(() => this.playNote(330, 'sawtooth', 0.3, 0.3), 150);
+    }
+
+    public playScan() {
         this.ensureContext();
         if (!this.audioContext || !this.masterGain) return;
 
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
 
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, this.audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.audioContext.currentTime + 0.5);
+
+        gain.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.5);
+
         osc.connect(gain);
         gain.connect(this.masterGain);
-
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(300, this.audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.5);
-
-        gain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
 
         osc.start();
         osc.stop(this.audioContext.currentTime + 0.5);

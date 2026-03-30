@@ -219,40 +219,52 @@ class LLMModule:
             f"AVAILABLE COMMANDS: {', '.join(available_commands)}\n\n"
             "Rules:\n"
             "1. Output ONLY a valid JSON object.\n"
-            "2. Fields: 'command_key' (string, from the list above) and 'params' (object or null).\n"
+            "2. Fields: 'command_key' (string, from the list above) and 'params' (Any, typically string or object, or null).\n"
             "3. If no command matches, set 'command_key' to 'unknown'.\n"
             "4. Language: The input may be in English, Hindi, or Hinglish. Understand all.\n"
-            "5. Examples:\n"
-            "   Input: 'Aryan folder kholo' -> {'command_key': 'open_app', 'params': 'Aryan'}\n"
-            "   Input: 'Aawaz badhao' -> {'command_key': 'volume_up', 'params': null}\n"
-            "   Input: 'Search for quantum physics' -> {'command_key': 'google_search', 'params': 'quantum physics'}"
         )
 
-        # Use a faster, lighter model for extraction if available
-        # Otherwise, use the standard get_response logic with strict JSON prompt
-        raw_response = await self.get_response(text, language='en', context=system_prompt)
-        
-        if not raw_response:
-            return None
-
         try:
-            # Basic cleanup in case LLM adds markdown or chatter
-            json_text = raw_response
-            if '```json' in json_text:
-                json_text = json_text.split('```json')[1].split('```')[0].strip()
-            elif '```' in json_text:
-                json_text = json_text.split('```')[1].split('```')[0].strip()
+            # Use a more direct prompt for extraction
+            raw_response = await self.get_response(f"Extract command from user input: '{text}'", language='en', context=system_prompt)
             
-            # Find the first { and last }
+            if not raw_response:
+                return None
+
+            # Robust JSON extraction
+            json_text = raw_response.strip()
+            
+            # Handle markdown blocks
+            if '```json' in json_text:
+                json_text = json_text.split('```json', 1)[1].split('```', 1)[0].strip()
+            elif '```' in json_text:
+                json_text = json_text.split('```', 1)[1].split('```', 1)[0].strip()
+            
+            # Find the first { and last } to handle any chatter before/after
             start = json_text.find('{')
             end = json_text.rfind('}')
             if start != -1 and end != -1:
                 json_text = json_text[start:end+1]
+            
+            data = json.loads(json_text)
+            
+            # Basic validation of the extracted command
+            if isinstance(data, dict) and 'command_key' in data:
+                return data
+            return None
                 
-            return json.loads(json_text)
         except Exception as e:
             logger.error(f"Error parsing LLM command extraction JSON: {e}")
+            logger.debug(f"Raw response was: {raw_response}")
             return None
+
+    async def ping_llm(self) -> bool:
+        """Verify LLM connectivity with a tiny request"""
+        try:
+            res = await self.get_response("ping", context="Respond ONLY with 'pong'")
+            return res is not None and "pong" in res.lower()
+        except:
+            return False
 
 
 # Singleton instance

@@ -471,7 +471,8 @@ const AppContent: FC = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setShowSettingsModal(true)}
+              onClick={() => { sfx.playSelect(); setShowSettingsModal(true); }}
+              onMouseEnter={() => sfx.playBlip()}
               className="glass-panel text-slate-300 p-2 rounded-lg hover:border-cyan-500 hover:text-cyan-400 transition-all duration-300 shadow-xl group flex items-center justify-center h-10 w-10 md:h-11 md:w-11"
               title="System Configuration"
             >
@@ -481,7 +482,8 @@ const AppContent: FC = () => {
               </svg>
             </button>
             <button
-              onClick={toggleLanguage}
+              onClick={() => { sfx.playSelect(); toggleLanguage(); }}
+              onMouseEnter={() => sfx.playBlip()}
               className="glass-panel flex items-center space-x-3 px-5 py-2 md:px-5 md:py-2.5 rounded-lg text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 shadow-xl h-10 md:h-11"
             >
               <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" : "text-slate-500/70"}>EN</span>

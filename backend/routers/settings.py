@@ -2,14 +2,17 @@ from fastapi import APIRouter, HTTPException, Query, Body, Request
 from typing import Dict, Any, Optional
 import os
 from config import CONFIG, NVIDIA_MODEL, OPENROUTER_MODEL, BACKEND_PORT, LOG_LEVEL, save_config
+from models import (
+    BaseResponse, SettingsResponse, ApiKeyStatusResponse, 
+    SettingsUpdateRequest, ApiKeyUpdateRequest, KeyTestRequest
+)
 
 router = APIRouter(prefix="/api/settings", tags=["Settings"])
 
-@router.get("")
+@router.get("", response_model=SettingsResponse)
 async def get_settings():
     """Get all current settings"""
-    # Redact sensitive info if needed, but these are general settings
-    settings = {
+    return {
         "AI_ENGINE": CONFIG.get("llm_provider", "nvidia"),
         "NVIDIA_MODEL": NVIDIA_MODEL,
         "OPENROUTER_MODEL": OPENROUTER_MODEL,
@@ -20,9 +23,8 @@ async def get_settings():
         "WAKE_WORD_ENABLED": CONFIG.get("wake_word_enabled", True),
         "WAKE_WORD_PHRASE": CONFIG.get("wake_word_phrase", "jarvis")
     }
-    return settings
 
-@router.get("/keys")
+@router.get("/keys", response_model=ApiKeyStatusResponse)
 async def get_keys():
     """Get status of configured API keys (redacted)"""
     def redact(key):
@@ -36,23 +38,24 @@ async def get_keys():
         "BACKEND_API_KEY": redact(os.getenv("BACKEND_API_KEY"))
     }
 
-@router.post("")
-async def update_settings(settings: Dict[str, Any]):
+@router.post("", response_model=BaseResponse)
+async def update_settings(data: SettingsUpdateRequest):
     """Update system configuration"""
     try:
+        settings_dict = data.dict(exclude_unset=True)
         # Update the in-memory CONFIG
-        for key, value in settings.items():
-            CONFIG[key.lower()] = value
+        for key, value in settings_dict.items():
+            CONFIG[key] = value
         
         # Save to config.json
         save_config(CONFIG)
         
-        return {"success": True, "message": "Settings updated successfully"}
+        return {"success": True, "response": "Settings updated successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
 
-@router.post("/keys")
-async def update_keys(data: Dict[str, str] = Body(...)):
+@router.post("/keys", response_model=BaseResponse)
+async def update_keys(data: ApiKeyUpdateRequest):
     """Update API keys in the .env file"""
     try:
         env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
@@ -65,17 +68,17 @@ async def update_keys(data: Dict[str, str] = Body(...)):
         
         # Map of keys to update
         updates = {
-            "NVIDIA_API_KEY": data.get("nvidia_api_key"),
-            "OPENROUTER_API_KEY": data.get("openrouter_api_key"),
-            "GEMINI_API_KEY": data.get("gemini_api_key"), # Optional
-            "BACKEND_API_KEY": data.get("backend_api_key") # Optional
+            "NVIDIA_API_KEY": data.nvidia_api_key,
+            "OPENROUTER_API_KEY": data.openrouter_api_key,
+            "GEMINI_API_KEY": data.gemini_api_key,
+            "BACKEND_API_KEY": data.backend_api_key
         }
         
         # Filter out None values
         updates = {k: v for k, v in updates.items() if v is not None}
         
         if not updates:
-            return {"success": False, "message": "No valid keys provided"}
+            return {"success": False, "response": "No valid keys provided"}
             
         # Update or add lines
         new_env_lines = []
@@ -102,20 +105,19 @@ async def update_keys(data: Dict[str, str] = Body(...)):
         with open(env_path, 'w', encoding='utf-8') as f:
             f.writelines(new_env_lines)
             
-        return {"success": True, "message": f"Updated {len(updates)} keys in .env"}
+        return {"success": True, "response": f"Updated {len(updates)} keys in .env"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update API keys: {str(e)}")
 
-@router.post("/test-key")
-async def test_key(data: Dict[str, str] = Body(...)):
+@router.post("/test-key", response_model=BaseResponse)
+async def test_key(data: KeyTestRequest):
     """Verify an API key by making a test request"""
-    provider = data.get("provider")
-    api_key = data.get("api_key")
+    provider = data.provider
+    api_key = data.api_key
     
     if not provider or not api_key:
         raise HTTPException(status_code=400, detail="Missing provider or api_key")
         
     from modules.llm import llm_module
-    # We'll need to implement this test method in llm_module or similar
-    # For now, let's assume it exists or return a placeholder
-    return {"success": True, "message": f"Verified {provider} key (simulated)"}
+    # Future: Implement per-provider validation
+    return {"success": True, "response": f"Verified {provider} key (simulated)"}

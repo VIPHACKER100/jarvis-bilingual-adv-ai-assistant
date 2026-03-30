@@ -24,15 +24,15 @@
 
 ### 🚀 **What's New? (v2.2.2)**
 
-- 🛰️ **System Diagnostics HUD 3.0** - High-fidelity real-time monitoring with new SVG ring gauges and neon gradient feedback.
+- 🛰️ **System Diagnostics HUD 3.0** - High-fidelity real-time monitoring with new SVG ring gauges, neon gradient feedback, and **Framer Motion** entrance animations.
 - 🎨 **Premium Design System V3** - All-new glassmorphism interface with dynamic multi-hue gradients (Cyan/Purple/Pink) and fluid micro-animations.
+- 🔊 **Procedural HUD SFX** - High-quality digital blips, sweeps, and alerts generated in real-time using the Web Audio API for a premium tactical feel.
+- 🧪 **Strict Pydantic Type Safety** - Complete backend refactor using Pydantic v2 for robust input validation, "Fail-Fast" reliability, and auto-generated OpenAPI (Swagger) documentation.
 - 👁️ **JARVIS Vision** - Optical Character Recognition (OCR) with a futuristic HUD overlay for screen analysis and data extraction.
 - 📱 **Intelligent WhatsApp AI** - Smart contact resolution using `contacts.json` (e.g., "Message Mom" or "Call The Boss").
 - 🧠 **Neural Memory System** - Remembers user facts, persistent conversation logs, and real-time semantic extraction with a polished explorer UI.
 - ⚡ **Macro HUD Feedback** - Visual notifications and pulsing blips when automated sequences or macros are triggered.
-- 🗣️ **Advanced Bilingual Intelligence** - Perfected Hinglish support with adaptive Natural Voice TTS parameters.
 - 🏗️ **Modular Backend Architecture** - Robust router-based backend for better stability, scalability, and easier command extension.
-- 🏢 **Autonomous Startup** - Automated creation of workspace folders and initial configuration on first run.
 
 ---
 

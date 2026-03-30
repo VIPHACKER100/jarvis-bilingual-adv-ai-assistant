@@ -1,20 +1,26 @@
 from fastapi import APIRouter, HTTPException, Query, Body
 from typing import Dict, Any, Optional, List
 from modules.media import media_processor
+from models import (
+    BaseResponse, ImageConvertRequest, 
+    ImageResizeRequest, ImageCompressRequest
+)
 
 router = APIRouter(prefix="/api/image", tags=["Image Tools"])
 
-@router.post("/convert")
-async def convert_image(input_path: str, output_path: str, format: str = "PNG", language: str = "en"):
+@router.post("/convert", response_model=BaseResponse)
+async def convert_image(data: ImageConvertRequest):
     """Convert image format"""
-    return await media_processor.convert_image(input_path, output_path, format, language)
+    output_path = data.output_path or data.image_path.rsplit('.', 1)[0] + f".{data.target_format.lower()}"
+    return await media_processor.convert_image(data.image_path, output_path, data.target_format, data.language)
 
-@router.post("/resize")
-async def resize_image(input_path: str, output_path: str, width: int, height: int, language: str = "en"):
+@router.post("/resize", response_model=BaseResponse)
+async def resize_image(data: ImageResizeRequest):
     """Resize image"""
-    return await media_processor.resize_image(input_path, output_path, width, height, language)
+    output_path = data.output_path or data.image_path
+    return await media_processor.resize_image(data.image_path, output_path, data.width, data.height, data.language)
 
-@router.post("/compress")
-async def compress_image(input_path: str, output_path: str, quality: int = 85, language: str = "en"):
+@router.post("/compress", response_model=BaseResponse)
+async def compress_image(data: ImageCompressRequest):
     """Compress image file size"""
-    return await media_processor.compress_image(input_path, output_path, quality, language)
+    return await media_processor.compress_image(data.image_path, data.output_path, data.quality, data.language)

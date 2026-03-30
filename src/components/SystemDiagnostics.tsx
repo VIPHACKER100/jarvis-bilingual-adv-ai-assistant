@@ -1,4 +1,6 @@
 import { FC, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Cpu, HardDrive, Battery, Network, Globe } from 'lucide-react';
 
 interface SystemDiagnosticsProps {
   data: {
@@ -26,13 +28,18 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
   const memColor = data.memory.percent > 80 ? '#ec4899' : data.memory.percent > 50 ? '#d946ef' : '#0ea5e9';
 
   // Circular Gauge Component
-  const Gauge = ({ percent, color, label, sublabel }: { percent: number; color: string; label: string; sublabel: string }) => {
+  const Gauge = ({ percent, color, label, sublabel, index }: { percent: number; color: string; label: string; sublabel: string; index: number }) => {
     const radius = 35;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percent / 100) * circumference;
 
     return (
-      <div className="flex flex-col items-center justify-center p-2">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8, rotate: -15 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        transition={{ delay: index * 0.1, duration: 0.8, ease: "easeOut" }}
+        className="flex flex-col items-center justify-center p-2"
+      >
         <div className="relative w-24 h-24 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90">
             {/* Background circle */}
@@ -46,31 +53,44 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
               className="text-slate-800"
             />
             {/* Progress circle */}
-            <circle
+            <motion.circle
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset: offset }}
+              transition={{ delay: index * 0.1 + 0.5, duration: 1.5, ease: "easeInOut" }}
               cx="48"
               cy="48"
               r={radius}
               stroke={color}
               strokeWidth="4"
               strokeDasharray={circumference}
-              strokeDashoffset={offset}
-              strokeLinecap="round"
               fill="transparent"
               className="transition-all duration-1000 ease-out drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]"
+              strokeLinecap="round"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-lg font-bold text-white leading-none">{Math.round(percent)}%</span>
+            <motion.span 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: index * 0.1 + 1 }}
+              className="text-lg font-bold text-white leading-none"
+            >
+              {Math.round(percent)}%
+            </motion.span>
             <span className="text-[8px] text-slate-500 uppercase tracking-tighter mt-1">{label}</span>
           </div>
         </div>
         <span className="text-[10px] text-cyan-500/80 font-mono mt-1">{sublabel}</span>
-      </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="w-full max-w-md glass-panel border border-cyan-500/20 rounded-xl p-6 relative overflow-hidden group hover:border-purple-500/40 transition-all shadow-[inset_0_0_20px_rgba(6,182,212,0.05)]">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full max-w-md glass-panel border border-cyan-500/20 rounded-xl p-6 relative overflow-hidden group hover:border-purple-500/40 transition-all shadow-[inset_0_0_20px_rgba(6,182,212,0.05)]"
+    >
       {/* Decorative corners */}
       <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500/40 rounded-tl-xl transition-colors group-hover:border-cyan-400"></div>
       <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500/40 rounded-tr-xl transition-colors group-hover:border-cyan-400"></div>
@@ -79,7 +99,13 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6 border-b border-gradient-to-r from-cyan-500/30 to-purple-500/30 pb-3">
-        <h3 className="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 tracking-[0.3em] uppercase drop-shadow-sm">System_Diagnostics_v3</h3>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+             <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
+             <div className="absolute inset-0 w-2 h-2 rounded-full bg-cyan-400 animate-ping opacity-75"></div>
+          </div>
+          <h3 className="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 tracking-[0.3em] uppercase drop-shadow-sm">System_Diagnostics_v3</h3>
+        </div>
         <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">{data.platform || 'LOCAL_HOST'} // {new Date().toLocaleTimeString()}</span>
       </div>
 
@@ -90,65 +116,88 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
           color={cpuColor} 
           label="CPU LOAD" 
           sublabel={`${data.cpu.count} CORES`} 
+          index={0}
         />
         <Gauge 
           percent={data.memory.percent} 
           color={memColor} 
           label="RAM USAGE" 
           sublabel={`${formatBytes(data.memory.used)}`} 
+          index={1}
         />
       </div>
 
       {/* Secondary Stats List */}
       <div className="grid grid-cols-2 gap-x-6 gap-y-3">
         {data.battery && (
-          <div className="space-y-1">
+          <motion.div 
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="space-y-1"
+          >
             <div className="flex justify-between text-[9px] font-mono">
-              <span className="text-slate-400 uppercase">Energy Grid</span>
+              <span className="text-slate-400 uppercase flex items-center gap-1"><Battery size={10} /> Energy Grid</span>
               <span className={data.battery.is_charging ? "text-green-400" : "text-cyan-400"}>
                 {data.battery.is_charging ? 'CHARGING' : 'BATTERY'}
               </span>
             </div>
             <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
-               <div 
-                 className={`h-full transition-all duration-1000 ${(data.battery.percent || 0) < 20 ? 'bg-pink-500 shadow-[0_0_10px_#ec4899]' : 'bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_10px_#8b5cf6]'}`} 
-                 style={{ width: `${data.battery.percent || 0}%` }}
-               ></div>
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${data.battery.percent || 0}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut", delay: 1 }}
+                  className={`h-full transition-all duration-1000 ${(data.battery.percent || 0) < 20 ? 'bg-pink-500 shadow-[0_0_10px_#ec4899]' : 'bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_10px_#8b5cf6]'}`} 
+                  style={{ '--progress-width': `${data.battery.percent || 0}%` } as React.CSSProperties}
+                ></motion.div>
             </div>
             <div className="flex justify-end text-[9px] font-mono text-slate-500">
               {data.battery.percent}% CAPACITY
             </div>
-          </div>
+          </motion.div>
         )}
 
         {data.disk && (
-          <div className="space-y-1">
+          <motion.div 
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="space-y-1"
+          >
              <div className="flex justify-between text-[9px] font-mono">
-              <span className="text-slate-400 uppercase">Mass Storage</span>
+              <span className="text-slate-400 uppercase flex items-center gap-1"><HardDrive size={10} /> Mass Storage</span>
               <span className="text-cyan-400">{data.disk.percent.toFixed(0)}%</span>
             </div>
             <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
-               <div 
-                 className="h-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-1000 shadow-[0_0_10px_#38bdf8]" 
-                 style={{ width: `${data.disk.percent}%` }}
-               ></div>
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${data.disk.percent}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut", delay: 1 }}
+                  className="h-full progress-bar-width bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-1000 shadow-[0_0_10px_#38bdf8]" 
+                  style={{ '--progress-width': `${data.disk.percent}%` } as React.CSSProperties}
+                ></motion.div>
             </div>
             <div className="flex justify-end text-[9px] font-mono text-slate-500">
               {formatBytes(data.disk.used)} / {formatBytes(data.disk.total)}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {data.network && (
-          <div className="col-span-2 mt-2 pt-2 border-t border-cyan-500/5">
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="col-span-2 mt-2 pt-2 border-t border-cyan-500/5"
+          >
              <div className="flex justify-between items-center text-[9px] font-mono">
                 <div className="flex items-center gap-4">
                   <div className="flex flex-col">
-                    <span className="text-slate-500 text-[8px]">UPLINK ADDRESS</span>
+                    <span className="text-slate-500 text-[8px] flex items-center gap-1"><Globe size={8} /> UPLINK ADDRESS</span>
                     <span className="text-cyan-400">0.0.0.0</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-slate-500 text-[8px]">DATA PACKETS</span>
+                    <span className="text-slate-500 text-[8px] flex items-center gap-1"><Network size={8} /> DATA PACKETS</span>
                     <span className="text-cyan-400 font-bold">ACTIVE</span>
                   </div>
                 </div>
@@ -163,12 +212,12 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
                   </div>
                 </div>
              </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
       {/* Decorative Scanner Line */}
       <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500/40 to-transparent animate-scan pointer-events-none"></div>
-    </div>
+    </motion.div>
   );
 };

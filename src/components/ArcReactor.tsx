@@ -31,7 +31,11 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language })
   };
 
   return (
-    <div className="relative flex items-center justify-center p-4 md:p-10 cursor-pointer group" onClick={handleClick}>
+    <div 
+      className="relative flex items-center justify-center p-4 md:p-10 cursor-pointer group" 
+      onClick={handleClick}
+      onMouseEnter={() => sfx.playBlip()}
+    >
 
       {/* --- Ambient Glow (Far Field) --- */}
       <div className={`absolute rounded-full transition-all duration-1000 ${isActive
