@@ -140,9 +140,6 @@ body {
 .theme-bg-medium {
     background: rgba(var(--purple-rgb), 0.15);
 }
-.theme-pulse-glow {
-    box-shadow: 0 0 20px rgba(var(--purple-rgb), 0.4), 0 0 60px rgba(var(--neon-rgb), 0.15);
-}
 
 .progress-bar-width {
     width: var(--progress-width, 0%);

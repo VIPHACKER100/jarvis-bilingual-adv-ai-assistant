@@ -1,6 +1,7 @@
 import os
 import sys
 import asyncio
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -76,6 +77,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Request timing middleware for all routes
+@app.middleware("http")
+async def response_time_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+
+    process_time = round(time.time() - start_time, 4)
+    response.headers["X-Response-Time"] = str(process_time)
+
+    # Attach response_time to JSON responses if possible
+    if response.media_type == "application/json":
+        try:
+            # We can only mutate JSONResponse that supports body extraction
+            body = response.body.decode("utf-8") if hasattr(response, "body") else None
+            if body:
+                payload = json.loads(body)
+                if isinstance(payload, dict):
+                    payload["response_time"] = process_time
+                    response = JSONResponse(content=payload, status_code=response.status_code, headers=dict(response.headers))
+        except Exception:
+            pass
+
+    return response
+
+
 # Authentication Middleware for REST API
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
@@ -84,7 +110,7 @@ async def api_key_middleware(request: Request, call_next):
         api_key = request.headers.get("X-API-Key")
         if api_key != BACKEND_API_KEY:
             return JSONResponse(
-                status_code=403, 
+                status_code=403,
                 content={"success": False, "detail": "Invalid or missing API Key"}
             )
     return await call_next(request)

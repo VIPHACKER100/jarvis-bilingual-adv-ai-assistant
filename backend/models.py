@@ -8,6 +8,7 @@ class BaseResponse(BaseModel):
     success: bool = True
     response: str = ""
     error: Optional[str] = None
+    response_time: Optional[float] = None
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 # --- Command Models ---

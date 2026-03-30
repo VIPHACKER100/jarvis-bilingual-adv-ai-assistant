@@ -9,6 +9,11 @@ from utils.platform_utils import (
     is_windows, is_macos, is_linux
 )
 from utils.logger import log_command, logger
+from models import (
+    SystemStatusResponse, BatteryInfo, CPUInfo, MemoryInfo, 
+    DiskInfo, NetworkIOInfo, BatteryResponse, TimeResponse, 
+    DateResponse, VolumeResponse, UptimeResponse, NetworkInfoResponse
+)
 
 
 class SystemModule:
@@ -17,47 +22,51 @@ class SystemModule:
     def __init__(self):
         pass
 
-    async def get_system_status(self, language: str = 'en') -> Dict[str, Any]:
+    async def get_system_status(self, language: str = 'en') -> SystemStatusResponse:
         """Get complete system status"""
+        start = time.time()
         try:
             # Battery
             battery = psutil.sensors_battery()
-            battery_info = {
-                'percent': int(battery.percent) if battery else None,
-                'is_charging': battery.power_plugged if battery else None,
-                'secs_left': battery.secsleft if battery else None
-            }
+            battery_info = BatteryInfo(
+                percent=int(battery.percent) if battery else None,
+                is_charging=battery.power_plugged if battery else None,
+                secs_left=battery.secsleft if battery else None
+            )
 
             # CPU
             cpu_percent = psutil.cpu_percent(interval=0.1)
-            cpu_count = psutil.cpu_count()
+            cpu_info = CPUInfo(
+                percent=cpu_percent,
+                count=psutil.cpu_count()
+            )
 
             # Memory
             memory = psutil.virtual_memory()
-            memory_info = {
-                'total': memory.total,
-                'used': memory.used,
-                'percent': memory.percent,
-                'available': memory.available
-            }
+            memory_info = MemoryInfo(
+                total=memory.total,
+                used=memory.used,
+                percent=memory.percent,
+                available=memory.available
+            )
 
             # Disk
             disk = psutil.disk_usage('/')
-            disk_info = {
-                'total': disk.total,
-                'used': disk.used,
-                'free': disk.free,
-                'percent': (disk.used / disk.total) * 100
-            }
+            disk_info = DiskInfo(
+                total=disk.total,
+                used=disk.used,
+                free=disk.free,
+                percent=(disk.used / disk.total) * 100
+            )
 
             # Network
             net_io = psutil.net_io_counters()
-            network_info = {
-                'bytes_sent': net_io.bytes_sent,
-                'bytes_recv': net_io.bytes_recv,
-                'packets_sent': net_io.packets_sent,
-                'packets_recv': net_io.packets_recv
-            }
+            network_info = NetworkIOInfo(
+                bytes_sent=net_io.bytes_sent,
+                bytes_recv=net_io.bytes_recv,
+                packets_sent=net_io.packets_sent,
+                packets_recv=net_io.packets_recv
+            )
 
             # Uptime
             boot_time = psutil.boot_time()
@@ -66,29 +75,33 @@ class SystemModule:
             # Current volume
             current_volume = get_volume()
 
-            return {
-                'success': True,
-                'battery': battery_info,
-                'cpu': {
-                    'percent': cpu_percent,
-                    'count': cpu_count},
-                'memory': memory_info,
-                'disk': disk_info,
-                'network': network_info,
-                'uptime': uptime_seconds,
-                'volume': current_volume,
-                'platform': 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux',
-                'timestamp': datetime.now().isoformat()}
+            platform_name = 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux'
+
+            return SystemStatusResponse(
+                response=f"System status retrieved successfully in {language}",
+                battery=battery_info,
+                cpu=cpu_info,
+                memory=memory_info,
+                disk=disk_info,
+                network=network_info,
+                uptime=uptime_seconds,
+                volume=current_volume,
+                platform=platform_name,
+                response_time=round(time.time() - start, 4)
+            )
 
         except Exception as e:
             logger.error(f"Error getting system status: {e}")
-            return {
-                'success': False,
-                'error': str(e)
-            }
+            return SystemStatusResponse(
+                success=False,
+                response="Failed to retrieve system status",
+                error=str(e),
+                response_time=round(time.time() - start, 4)
+            )
 
-    async def get_battery_status(self, language: str = 'en') -> Dict[str, Any]:
+    async def get_battery_status(self, language: str = 'en') -> BatteryResponse:
         """Get battery information"""
+        start = time.time()
         try:
             battery = psutil.sensors_battery()
             if battery:
@@ -97,51 +110,59 @@ class SystemModule:
                     language,
                     int(battery.percent)
                 )
-                return {
-                    'success': True,
-                    'percent': int(battery.percent),
-                    'is_charging': battery.power_plugged,
-                    'response': response_text
-                }
+                return BatteryResponse(
+                    response=response_text,
+                    percent=int(battery.percent),
+                    is_charging=battery.power_plugged,
+                    response_time=round(time.time() - start, 4)
+                )
             else:
-                return {
-                    'success': False,
-                    'error': 'No battery found',
-                    'response': parser.get_response(
-                        'battery_status',
-                        language,
-                        'unknown')}
+                return BatteryResponse(
+                    success=False,
+                    response=parser.get_response('battery_status', language, 'unknown'),
+                    error='No battery found',
+                    response_time=round(time.time() - start, 4)
+                )
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e)
-            }
+            duration = round(time.time() - start, 4)
+            return BatteryResponse(
+                success=False,
+                response="Failed to get battery status",
+                error=str(e),
+                response_time=duration
+            )
 
-    async def get_time(self, language: str = 'en') -> Dict[str, Any]:
+    async def get_time(self, language: str = 'en') -> TimeResponse:
         """Get current time"""
+        start = time.time()
         now = datetime.now()
         time_str = now.strftime('%I:%M %p')  # 12-hour format
         response_text = parser.get_response('time_is', language, time_str)
+        duration = round(time.time() - start, 4)
 
-        return {
-            'success': True,
-            'time': now.isoformat(),
-            'formatted': time_str,
-            'response': response_text
-        }
+        return TimeResponse(
+            success=True,
+            time=now.isoformat(),
+            formatted=time_str,
+            response=response_text,
+            response_time=duration
+        )
 
-    async def get_date(self, language: str = 'en') -> Dict[str, Any]:
+    async def get_date(self, language: str = 'en') -> DateResponse:
         """Get current date"""
+        start = time.time()
         now = datetime.now()
         date_str = now.strftime('%A, %B %d, %Y')  # Full format
         response_text = parser.get_response('date_is', language, date_str)
+        duration = round(time.time() - start, 4)
 
-        return {
-            'success': True,
-            'date': now.isoformat(),
-            'formatted': date_str,
-            'response': response_text
-        }
+        return DateResponse(
+            success=True,
+            date=now.isoformat(),
+            formatted=date_str,
+            response=response_text,
+            response_time=duration
+        )
 
     async def shutdown(self, language: str = 'en',
                        confirmed: bool = False) -> Dict[str, Any]:

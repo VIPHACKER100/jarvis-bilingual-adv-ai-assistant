@@ -20,7 +20,7 @@ from modules.automation import automation_manager
 from modules.memory import memory_manager
 from modules.context import context_manager
 from utils.logger import logger, log_command
-from models import CommandResult, ConversationEntry
+from models import CommandResult, ConversationEntryModel
 
 async def handle_command(websocket: Optional[WebSocket], command: str, 
                          language: Optional[str] = None, 
