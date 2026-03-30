@@ -17,7 +17,7 @@ from modules.media import media_processor
 from modules.desktop import desktop_manager
 from modules.llm import llm_module
 from modules.automation import automation_manager
-from modules.memory import memory_manager
+from modules.memory import memory_manager, ConversationEntry
 from modules.context import context_manager
 from utils.logger import logger, log_command
 from models import CommandResult, ConversationEntryModel

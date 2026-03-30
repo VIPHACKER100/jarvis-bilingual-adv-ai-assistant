@@ -196,7 +196,9 @@ class LLMModule:
                     data = response.json()
                     if "choices" in data and len(data["choices"]) > 0:
                         return data["choices"][0]["message"]["content"].strip()
-                
+                elif response.status_code == 401:
+                    logger.error(f"OpenRouter Unauthorized (401) for model {model}: {response.text}. Check OPENROUTER_API_KEY.")
+                    return None
                 elif response.status_code == 429:
                     logger.warning(f"Rate limit hit for model {model}. Trying next...")
                     continue
