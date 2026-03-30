@@ -23,7 +23,8 @@ from utils.logger import logger, log_system_event
 from routers import (
     system, windows, files, media, pdf_tools, 
     image_tools, desktop, memory, automation, 
-    commands, websocket, settings, whatsapp
+    commands, websocket, settings, whatsapp,
+    input_control, notifications
 )
 
 # Security
@@ -101,6 +102,8 @@ app.include_router(automation.router)
 app.include_router(commands.router)
 app.include_router(settings.router)
 app.include_router(whatsapp.router)
+app.include_router(input_control.router)
+app.include_router(notifications.router)
 app.include_router(websocket.router)
 
 @app.get("/favicon.ico", include_in_schema=False)

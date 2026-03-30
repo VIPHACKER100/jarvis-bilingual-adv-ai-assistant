@@ -200,6 +200,25 @@ class ApiClient {
     }
     return response.json();
   }
+
+  // Update API Keys
+  async updateApiKeys(keys: {
+    nvidia_api_key?: string;
+    openrouter_api_key?: string;
+    gemini_api_key?: string;
+    backend_api_key?: string;
+  }): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${this.baseUrl}/api/settings/keys`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(keys)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to update API keys');
+    }
+    return response.json();
+  }
   // Get automation status
   async getAutomationStatus(): Promise<{ success: boolean; status: any }> {
     const response = await fetch(`${this.baseUrl}/api/automation/status`, {

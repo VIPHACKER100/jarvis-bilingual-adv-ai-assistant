@@ -8,6 +8,7 @@ import {
   ConnectionStatus,
   WebSocketMessage
 } from '../types/bridge';
+import { useNotifications } from '../context/NotificationContext';
 
 interface UseJarvisBridgeReturn {
   // Connection
@@ -41,6 +42,7 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
   const [lastResponse, setLastResponse] = useState<CommandResponse | null>(null);
   const [pendingConfirmation, setPendingConfirmation] = useState<ConfirmationRequest | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { addNotification } = useNotifications();
 
   // Refs
   const confirmationTimeoutRef = useRef<number | null>(null);
@@ -112,6 +114,29 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
 
       case 'error':
         setError(message.message || 'Unknown error');
+        break;
+
+      case 'notification':
+        if (message.data) {
+          const { title, message: notifMsg, type, duration } = message.data as any;
+          addNotification({
+            title: title || 'System Alert',
+            message: notifMsg || '',
+            type: type || 'info',
+            duration: duration || 5000
+          });
+        }
+        break;
+
+      case 'macro_update':
+        if (message.data) {
+          addNotification({
+            title: 'Macro Progress',
+            message: `Executed: ${message.data.command || 'Step'}`,
+            type: 'system',
+            duration: 2000
+          });
+        }
         break;
 
       case 'pong':

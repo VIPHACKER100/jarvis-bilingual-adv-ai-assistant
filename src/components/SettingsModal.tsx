@@ -150,22 +150,15 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
       if (nvidiaKey.trim()) body.nvidia_api_key = nvidiaKey.trim();
       if (openrouterKey.trim()) body.openrouter_api_key = openrouterKey.trim();
 
-      const response = await fetch('http://localhost:8000/api/settings/keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      const data = await response.json();
+      const data = await apiClient.updateApiKeys(body);
       if (data.success) {
         setSuccess('API keys updated. Restart backend to apply.');
         setNvidiaKey('');
         setOpenrouterKey('');
         setTimeout(() => setSuccess(null), 5000);
-      } else {
-        setError(data.detail || 'Failed to update API keys');
       }
     } catch (err: any) {
-      setError('Backend unreachable. Keys not saved.');
+      setError(err.message || 'Backend unreachable. Keys not saved.');
     } finally {
       setKeySaving(false);
     }

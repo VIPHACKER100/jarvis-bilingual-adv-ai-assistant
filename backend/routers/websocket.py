@@ -61,6 +61,36 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = No
     except WebSocketDisconnect:
         connected_clients.pop(cid, None)
         logger.info(f"WebSocket client disconnected: {cid}")
-    except Exception as e:
-        logger.error(f"WebSocket error: {e}")
+    finally:
+        if cid in connected_clients:
+            connected_clients.pop(cid, None)
+
+async def broadcast_notification(title: str, message: str, type: str = "info", duration: int = 5000):
+    """Broadcast a UI notification to all connected WebSocket clients"""
+    payload = {
+        "type": "notification",
+        "data": {
+            "title": title,
+            "message": message,
+            "type": type,
+            "duration": duration,
+            "timestamp": datetime.now().isoformat()
+        }
+    }
+    
+    if not connected_clients:
+        return 0
+        
+    disconnected = []
+    count = 0
+    for cid, ws in connected_clients.items():
+        try:
+            await ws.send_json(payload)
+            count += 1
+        except:
+            disconnected.append(cid)
+            
+    for cid in disconnected:
         connected_clients.pop(cid, None)
+        
+    return count

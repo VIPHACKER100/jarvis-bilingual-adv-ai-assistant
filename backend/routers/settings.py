@@ -51,6 +51,61 @@ async def update_settings(settings: Dict[str, Any]):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
 
+@router.post("/keys")
+async def update_keys(data: Dict[str, str] = Body(...)):
+    """Update API keys in the .env file"""
+    try:
+        env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+        
+        # Read current .env
+        env_lines = []
+        if os.path.exists(env_path):
+            with open(env_path, 'r', encoding='utf-8') as f:
+                env_lines = f.readlines()
+        
+        # Map of keys to update
+        updates = {
+            "NVIDIA_API_KEY": data.get("nvidia_api_key"),
+            "OPENROUTER_API_KEY": data.get("openrouter_api_key"),
+            "GEMINI_API_KEY": data.get("gemini_api_key"), # Optional
+            "BACKEND_API_KEY": data.get("backend_api_key") # Optional
+        }
+        
+        # Filter out None values
+        updates = {k: v for k, v in updates.items() if v is not None}
+        
+        if not updates:
+            return {"success": False, "message": "No valid keys provided"}
+            
+        # Update or add lines
+        new_env_lines = []
+        updated_keys = set()
+        
+        for line in env_lines:
+            line_stripped = line.strip()
+            if '=' in line_stripped and not line_stripped.startswith('#'):
+                key = line_stripped.split('=')[0].strip()
+                if key in updates:
+                    new_env_lines.append(f"{key}={updates[key]}\n")
+                    updated_keys.add(key)
+                else:
+                    new_env_lines.append(line)
+            else:
+                new_env_lines.append(line)
+                
+        # Add remaining new keys
+        for key, value in updates.items():
+            if key not in updated_keys:
+                new_env_lines.append(f"{key}={value}\n")
+                
+        # Write back
+        with open(env_path, 'w', encoding='utf-8') as f:
+            f.writelines(new_env_lines)
+            
+        return {"success": True, "message": f"Updated {len(updates)} keys in .env"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update API keys: {str(e)}")
+
 @router.post("/test-key")
 async def test_key(data: Dict[str, str] = Body(...)):
     """Verify an API key by making a test request"""
