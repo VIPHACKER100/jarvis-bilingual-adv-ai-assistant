@@ -226,9 +226,9 @@ Complete reference of all voice commands supported by JARVIS.
 | English | Hindi | Description |
 | :--- | :--- | :--- |
 | "Screenshot and extract text" | "Screenshot lo aur text nikalo" | Capture & OCR HUD |
-| "Read screen" | "Screen padho" | JARVIS Vision HUD |
+| "Read screen" | "Screen padho" | JARVIS Vision V3 HUD |
 | "Copy text from screen" | "Screen se text copy karo" | Extract visible text |
-| "Analyze my screen" | "Screen analyze karo" | Robotic Vision protocol |
+| "Analyze my screen" | "Screen analyze karo" | Premium Robotic Vision protocol |
 
 ---
 

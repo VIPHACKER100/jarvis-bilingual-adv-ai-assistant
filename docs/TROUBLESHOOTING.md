@@ -11,6 +11,12 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 - **Windows**: `netstat -ano | findstr :8000` then `taskkill /PID <PID> /F`
 - **macOS/Linux**: `lsof -ti:8000 | xargs kill -9`
 - **Solution**: Change `BACKEND_PORT` in your `.env` file.
+- **Frontend Sync**: If using `npm run dev`, ensure `FRONTEND_URL` in `.env` is `http://localhost:5173`.
+
+### Modular Router Errors
+
+- Check `backend/logs/jarvis_system.log` for initialization errors.
+- Ensure all routers are correctly included in `backend/main.py`.
 
 ### ModuleNotFoundError
 

@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
     log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "2.2.1"
+        "version": "2.2.2"
     })
     
     # Start background tasks
@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="JARVIS Backend",
     description="Modular AI assistant backend with high-fidelity HUD support",
-    version="2.2.1",
+    version="2.2.2",
     lifespan=lifespan
 )
 
@@ -168,7 +168,7 @@ else:
         return {
             "status": "online",
             "system": "JARVIS",
-            "version": "2.2.1",
+            "version": "2.2.2",
             "platform": PLATFORM,
             "developer": "VIPHACKER100",
             "note": "Frontend directory not found"

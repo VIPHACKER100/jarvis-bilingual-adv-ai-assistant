@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-2.2.1-blue?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-2.2.2-purple?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,17 +20,18 @@
 
 ---
 
-## 🌟 Modern Capabilities (v2.2.1)
+## 🌟 Modern Capabilities (v2.2.2)
 
-### 🚀 **What's New?**
+### 🚀 **What's New? (v2.2.2)**
 
-- 🛰️ **System Diagnostics HUD** - High-fidelity real-time monitoring of CPU, RAM, and Disk with holographic visual feedback.
+- 🛰️ **System Diagnostics HUD 3.0** - High-fidelity real-time monitoring with new SVG ring gauges and neon gradient feedback.
+- 🎨 **Premium Design System V3** - All-new glassmorphism interface with dynamic multi-hue gradients (Cyan/Purple/Pink) and fluid micro-animations.
 - 👁️ **JARVIS Vision** - Optical Character Recognition (OCR) with a futuristic HUD overlay for screen analysis and data extraction.
 - 📱 **Intelligent WhatsApp AI** - Smart contact resolution using `contacts.json` (e.g., "Message Mom" or "Call The Boss").
 - 🧠 **Neural Memory System** - Remembers user facts, persistent conversation logs, and real-time semantic extraction with a polished explorer UI.
 - ⚡ **Macro HUD Feedback** - Visual notifications and pulsing blips when automated sequences or macros are triggered.
 - 🗣️ **Advanced Bilingual Intelligence** - Perfected Hinglish support with adaptive Natural Voice TTS parameters.
-- 🏢 **NVIDIA AI Integration** - Support for high-performance NVIDIA NIM models with automatic failover.
+- 🏗️ **Modular Backend Architecture** - Robust router-based backend for better stability, scalability, and easier command extension.
 - 🏢 **Autonomous Startup** - Automated creation of workspace folders and initial configuration on first run.
 
 ---
@@ -265,19 +266,22 @@ graph TD
     User((User Voice)) --> Voice[Web Speech API]
     Voice --> Frontend[React v19 Dashboard]
     Frontend -- WebSocket --> Backend[FastAPI Controller]
-    Backend --> LogicCore{Bilingual Parser}
-    LogicCore --> System[System Module]
-    LogicCore --> Window[Window Manager]
-    LogicCore --> File[File Engine]
-    LogicCore --> Media[Media Processor]
+    Backend --> Routers[Modular Routers]
+    Routers --> LogicCore{Bilingual Parser}
+    LogicCore --> Handlers[Command Handlers]
+    Handlers --> System[System Module]
+    Handlers --> Window[Window Manager]
+    Handlers --> File[File Engine]
+    Handlers --> Media[Media Processor]
     System --> OS[Windows/Linux/macOS API]
 ```
 
 ### **The Tech Stack**
 
-- **Frontend**: `React 19`, `TypeScript 5.8`, `Tailwind CSS`
+- **Frontend**: `React 19`, `TypeScript 5.8`, `Vite`, `Tailwind CSS`
 - **Backend**: `Python 3.11`, `FastAPI`, `PyAutoGUI`
-- **Intelligence**: `Bilingual Parser`, `NVIDIA NIM` / `OpenRouter LLM`
+- **Architecture**: `Modular Router System`, `Command Handlers`
+- **Intelligence**: `Bilingual Parser`, `Gemini AI` / `NVIDIA NIM` / `OpenRouter LLM`
 - **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`
 
 ---
@@ -286,12 +290,12 @@ graph TD
 
 ## 📊 Technical Specifications
 
-- **Total Code**: ~5,500 lines
-- **Frontend**: React 19, TypeScript 5.8, 3,000+ lines
-- **Backend**: Python 3.11, FastAPI, 2,500+ lines
-- **API Endpoints**: 50+ REST + WebSocket
+- **Total Code**: ~6,800 lines
+- **Frontend**: React 19, TypeScript 5.8, 3,800+ lines
+- **Backend**: Python 3.11, FastAPI, 3,000+ lines
+- **Architecture**: Modular 10+ Routers, 15+ Handlers
+- **API Endpoints**: 65+ REST + WebSocket
 - **Voice Commands**: 100+ bilingual
-- **Modules**: 15 Python modules
 - **Platforms**: Windows, macOS, Linux
 
 ---
@@ -300,48 +304,34 @@ graph TD
 
 ```text
 jarvis-bilingual-adv-ai-assistant/
-├── src/                          # Frontend
-│   ├── components/               # React components
-│   │   ├── ArcReactor.tsx
+├── src/                          # Frontend (Vite + React)
+│   ├── components/               # UI Components (Glassmorphism)
+│   │   ├── ArcReactor.tsx        # Central Core V3
+│   │   ├── SystemDiagnostics.tsx # HUD V3
 │   │   ├── HistoryLog.tsx
-│   │   ├── ConfirmationModal.tsx
-│   │   ├── SystemDiagnostics.tsx
-│   │   ├── MemoryViewer.tsx
-│   │   ├── VisionOverlay.tsx
-│   │   └── PermissionModal.tsx
-│   ├── services/                 # API clients
-│   │   ├── websocketService.ts
-│   │   └── apiClient.ts
-│   ├── hooks/                    # Custom hooks
-│   │   └── useJarvisBridge.ts
-│   ├── types/                    # TypeScript types
-│   │   └── bridge.ts
-│   └── App.tsx                   # Main app
+│   │   └── ...
+│   ├── services/                 # API & WebSocket clients
+│   ├── hooks/                    # Custom React hooks
+│   ├── context/                  # Global State (Notifications, etc.)
+│   ├── styles/                   # Premium Design System CSS
+│   └── App.tsx                   # Main Dashboard
 │
-├── backend/                      # Python backend
-│   ├── modules/                  # Feature modules
+├── backend/                      # Python Backend (FastAPI)
+│   ├── routers/                  # Modular API Routers
 │   │   ├── system.py
-│   │   ├── window_manager.py
-│   │   ├── input_control.py
-│   │   ├── file_manager.py
-│   │   ├── media.py
-│   │   ├── desktop.py
+│   │   ├── commands.py
+│   │   └── ...
+│   ├── handlers/                 # Command Logic Handlers
+│   │   └── command_handler.py
+│   ├── modules/                  # Lower-level feature modules
+│   │   ├── system.py
 │   │   ├── whatsapp.py
-│   │   ├── security.py
-│   │   └── bilingual_parser.py
-│   ├── utils/                    # Utilities
-│   │   ├── platform_utils.py
-│   │   └── logger.py
-│   ├── config.py                 # Configuration
-│   ├── main.py                   # Entry point
-│   └── requirements.txt          # Dependencies
+│   │   └── ...
+│   ├── main.py                   # Server Entry Point
+│   └── requirements.txt
 │
-├── docs/                         # Documentation
-│   ├── SETUP.md
-│   ├── API_DOCUMENTATION.md
-│   └── COMMANDS.md
-│
-└── README.md                     # This file
+├── docs/                         # Extended Documentation
+└── README.md                     # Main Documentation
 ```
 
 ---
