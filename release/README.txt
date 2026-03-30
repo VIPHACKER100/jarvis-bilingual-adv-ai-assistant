@@ -1,4 +1,4 @@
-# JARVIS AI Assistant v2.2.1
+# JARVIS AI Assistant v2.2.2
 
 ## 🚀 Quick Start
 

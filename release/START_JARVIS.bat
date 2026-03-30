@@ -4,7 +4,7 @@ title JARVIS AI Assistant
 taskkill /F /IM JARVIS_Backend.exe 2>nul
 echo.
 echo ╔═══════════════════════════════════════╗
-echo ║     JARVIS AI Assistant v2.2.1        ║
+echo ║     JARVIS AI Assistant v2.2.2        ║
 echo ║     Made by VIPHACKER100              ║
 echo ╚═══════════════════════════════════════╝
 echo.
