@@ -12,9 +12,23 @@ import zipfile
 from pathlib import Path
 from typing import List
 import itertools
+import json
 
 # Configuration
 PROJECT_ROOT = Path(__file__).parent.parent
+
+def get_version():
+    try:
+        pkg_json = PROJECT_ROOT / 'package.json'
+        if pkg_json.exists():
+            with open(pkg_json, 'r', encoding='utf-8') as f:
+                return json.load(f).get('version', '2.2.1')
+    except Exception:
+        pass
+    return '2.2.1'
+
+VERSION = get_version()
+
 BACKEND_DIR = PROJECT_ROOT / 'backend'
 FRONTEND_DIR = PROJECT_ROOT / 'src'
 DIST_DIR = PROJECT_ROOT / 'dist'
@@ -107,13 +121,13 @@ def create_release_package():
 
 def create_launcher_script():
     """Create Windows launcher batch file"""
-    launcher_content = '''@echo off
+    launcher_content = f'''@echo off
 chcp 65001 >nul
 title JARVIS AI Assistant
 taskkill /F /IM JARVIS_Backend.exe 2>nul
 echo.
 echo ╔═══════════════════════════════════════╗
-echo ║     JARVIS AI Assistant v2.2.1        ║
+echo ║     JARVIS AI Assistant v{VERSION:<13}║
 echo ║     Made by VIPHACKER100              ║
 echo ╚═══════════════════════════════════════╝
 echo.
@@ -144,7 +158,7 @@ timeout /t 2 >nul
 
 def create_release_readme():
     """Create release README"""
-    readme_content = '''# JARVIS AI Assistant v2.2.1
+    readme_content = f'''# JARVIS AI Assistant v{VERSION}
 
 ## 🚀 Quick Start
 
@@ -233,7 +247,7 @@ AUTO_START_SCHEDULER=true
 
 def zip_release_package():
     """Create a zip archive of the release folder"""
-    zip_filename = f"JARVIS_v2.2.1.zip"
+    zip_filename = f"JARVIS_v{VERSION}.zip"
     zip_path = PROJECT_ROOT / zip_filename
     
     print(f"\n🤐 Zipping release package into {zip_filename}...")
@@ -441,7 +455,7 @@ def filter_build_warnings(warning_file):
 def main():
     """Main build process"""
     print("=" * 60)
-    print("JARVIS AI Assistant v2.2.1 - Build Script")
+    print(f"JARVIS AI Assistant v{VERSION} - Build Script")
     print("Made by VIPHACKER100")
     print("=" * 60)
     
@@ -471,10 +485,10 @@ def main():
     print("\n" + "=" * 60)
     print("✅ Build completed successfully!")
     print(f"📁 Release package: {RELEASE_DIR}")
-    print(f"📦 Distribution Zip: {PROJECT_ROOT / 'JARVIS_v2.2.1.zip'}")
+    print(f"📦 Distribution Zip: {PROJECT_ROOT / f'JARVIS_v{VERSION}.zip'}")
     print("=" * 60)
     print("\nTo distribute:")
-    print("1. Share JARVIS_v2.2.1.zip")
+    print(f"1. Share JARVIS_v{VERSION}.zip")
     print("2. Users just unzip and run START_JARVIS.bat")
 
 if __name__ == '__main__':

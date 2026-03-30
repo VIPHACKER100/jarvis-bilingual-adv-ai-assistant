@@ -9320,6 +9320,7 @@ imported by:
  &#8226;   <a href="#asyncio.windows_events">asyncio.windows_events</a>
  &#8226;   <a href="#asyncio.windows_utils">asyncio.windows_utils</a>
  &#8226;   <a href="#fastapi.routing">fastapi.routing</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#httpx._transports.asgi">httpx._transports.asgi</a>
  &#8226;   <a href="#httpx._utils">httpx._utils</a>
  &#8226;   <a href="#main">main</a>
@@ -9327,6 +9328,7 @@ imported by:
  &#8226;   <a href="#modules.context">modules.context</a>
  &#8226;   <a href="#modules.media">modules.media</a>
  &#8226;   <a href="#modules.security">modules.security</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
  &#8226;   <a href="#sniffio._impl">sniffio._impl</a>
  &#8226;   <a href="#starlette._utils">starlette._utils</a>
  &#8226;   <a href="#unittest.async_case">unittest.async_case</a>
@@ -13668,12 +13670,14 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#modules.automation">modules.automation</a>
  &#8226;   <a href="#modules.bilingual_parser">modules.bilingual_parser</a>
  &#8226;   <a href="#modules.llm">modules.llm</a>
  &#8226;   <a href="#modules.memory">modules.memory</a>
  &#8226;   <a href="#modules.security">modules.security</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
  &#8226;   <a href="#utils.platform_utils">utils.platform_utils</a>
 
   </div>
@@ -16314,7 +16318,6 @@ imported by:
  &#8226;   <a href="#fastapi.routing">fastapi.routing</a>
  &#8226;   <a href="#fastapi.utils">fastapi.utils</a>
  &#8226;   <a href="#h11._events">h11._events</a>
- &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#modules.automation">modules.automation</a>
  &#8226;   <a href="#modules.context">modules.context</a>
  &#8226;   <a href="#modules.memory">modules.memory</a>
@@ -16391,6 +16394,7 @@ imported by:
  &#8226;   <a href="#cryptography.x509.extensions">cryptography.x509.extensions</a>
  &#8226;   <a href="#email.utils">email.utils</a>
  &#8226;   <a href="#fastapi.encoders">fastapi.encoders</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
  &#8226;   <a href="#http.server">http.server</a>
  &#8226;   <a href="#httpx._client">httpx._client</a>
@@ -16421,6 +16425,7 @@ imported by:
  &#8226;   <a href="#pyscreeze">pyscreeze</a>
  &#8226;   <a href="#requests.models">requests.models</a>
  &#8226;   <a href="#requests.sessions">requests.sessions</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
  &#8226;   <a href="#schedule">schedule</a>
  &#8226;   <a href="#setuptools._vendor.tomli._re">setuptools._vendor.tomli._re</a>
  &#8226;   <a href="#setuptools.warnings">setuptools.warnings</a>
@@ -17443,7 +17448,6 @@ imported by:
  &#8226;   <a href="#dotenv.parser">dotenv.parser</a>
  &#8226;   <a href="#dotenv.variables">dotenv.variables</a>
  &#8226;   <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#modules.llm">modules.llm</a>
  &#8226;   <a href="#pydantic.v1.env_settings">pydantic.v1.env_settings</a>
  &#8226;   <a href="#uvicorn.config">uvicorn.config</a>
@@ -20806,7 +20810,21 @@ imported by:
  &#8226;   <a href="#fastapi.types">fastapi.types</a>
  &#8226;   <a href="#fastapi.utils">fastapi.utils</a>
  &#8226;   <a href="#fastapi.websockets">fastapi.websockets</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#routers.automation">routers.automation</a>
+ &#8226;   <a href="#routers.commands">routers.commands</a>
+ &#8226;   <a href="#routers.desktop">routers.desktop</a>
+ &#8226;   <a href="#routers.files">routers.files</a>
+ &#8226;   <a href="#routers.image_tools">routers.image_tools</a>
+ &#8226;   <a href="#routers.media">routers.media</a>
+ &#8226;   <a href="#routers.memory">routers.memory</a>
+ &#8226;   <a href="#routers.pdf_tools">routers.pdf_tools</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
+ &#8226;   <a href="#routers.system">routers.system</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
+ &#8226;   <a href="#routers.whatsapp">routers.whatsapp</a>
+ &#8226;   <a href="#routers.windows">routers.windows</a>
 
   </div>
 
@@ -22630,6 +22648,55 @@ imported by:
 imported by:
     <a href="#httpcore._sync.http2">httpcore._sync.http2</a>
  &#8226;   <a href="#httpx._client">httpx._client</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="handlers"></a>
+  <a target="code" href="-" type="text/plain"><tt>handlers</tt></a>
+<span class="moduletype">NamespacePackage</span>  <div class="import">
+imported by:
+    <a href="#handlers.command_handler">handlers.command_handler</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="handlers.command_handler"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/handlers/command_handler.py" type="text/plain"><tt>handlers.command_handler</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#asyncio">asyncio</a>
+ &#8226;   <a href="#config">config</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#handlers">handlers</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#modules.automation">modules.automation</a>
+ &#8226;   <a href="#modules.bilingual_parser">modules.bilingual_parser</a>
+ &#8226;   <a href="#modules.context">modules.context</a>
+ &#8226;   <a href="#modules.desktop">modules.desktop</a>
+ &#8226;   <a href="#modules.file_manager">modules.file_manager</a>
+ &#8226;   <a href="#modules.input_control">modules.input_control</a>
+ &#8226;   <a href="#modules.llm">modules.llm</a>
+ &#8226;   <a href="#modules.media">modules.media</a>
+ &#8226;   <a href="#modules.memory">modules.memory</a>
+ &#8226;   <a href="#modules.security">modules.security</a>
+ &#8226;   <a href="#modules.system">modules.system</a>
+ &#8226;   <a href="#modules.whatsapp">modules.whatsapp</a>
+ &#8226;   <a href="#modules.window_manager">modules.window_manager</a>
+ &#8226;   <a href="#re">re</a>
+ &#8226;   <a href="#typing">typing</a>
+ &#8226;   <a href="#utils.logger">utils.logger</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#routers.commands">routers.commands</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
 
   </div>
 
@@ -24861,7 +24928,6 @@ imported by:
  &#8226;   <a href="#importlib.util">importlib.util</a>
  &#8226;   <a href="#importlib_resources._common">importlib_resources._common</a>
  &#8226;   <a href="#inspect">inspect</a>
- &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#pkgutil">pkgutil</a>
  &#8226;   <a href="#pydantic">pydantic</a>
  &#8226;   <a href="#pydantic._internal._validators">pydantic._internal._validators</a>
@@ -26212,6 +26278,7 @@ imported by:
  &#8226;   <a href="#config">config</a>
  &#8226;   <a href="#fastapi.openapi.docs">fastapi.openapi.docs</a>
  &#8226;   <a href="#fastapi.routing">fastapi.routing</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#httpx._content">httpx._content</a>
  &#8226;   <a href="#httpx._main">httpx._main</a>
  &#8226;   <a href="#httpx._models">httpx._models</a>
@@ -26219,7 +26286,6 @@ imported by:
  &#8226;   <a href="#json.encoder">json.encoder</a>
  &#8226;   <a href="#json.scanner">json.scanner</a>
  &#8226;   <a href="#logging.config">logging.config</a>
- &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#modules.automation">modules.automation</a>
  &#8226;   <a href="#modules.context">modules.context</a>
  &#8226;   <a href="#modules.llm">modules.llm</a>
@@ -26233,6 +26299,7 @@ imported by:
  &#8226;   <a href="#pydantic.v1.parse">pydantic.v1.parse</a>
  &#8226;   <a href="#pydantic.v1.tools">pydantic.v1.tools</a>
  &#8226;   <a href="#requests.compat">requests.compat</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
  &#8226;   <a href="#setuptools._vendor.importlib_metadata">setuptools._vendor.importlib_metadata</a>
  &#8226;   <a href="#setuptools.config._validate_pyproject.error_reporting">setuptools.config._validate_pyproject.error_reporting</a>
  &#8226;   <a href="#setuptools.msvc">setuptools.msvc</a>
@@ -26633,36 +26700,33 @@ imports:
     <a href="#asyncio">asyncio</a>
  &#8226;   <a href="#config">config</a>
  &#8226;   <a href="#contextlib">contextlib</a>
- &#8226;   <a href="#dataclasses">dataclasses</a>
  &#8226;   <a href="#datetime">datetime</a>
- &#8226;   <a href="#dotenv">dotenv</a>
  &#8226;   <a href="#fastapi">fastapi</a>
  &#8226;   <a href="#fastapi.middleware.cors">fastapi.middleware.cors</a>
  &#8226;   <a href="#fastapi.responses">fastapi.responses</a>
  &#8226;   <a href="#fastapi.staticfiles">fastapi.staticfiles</a>
- &#8226;   <a href="#importlib">importlib</a>
- &#8226;   <a href="#json">json</a>
  &#8226;   <a href="#modules.automation">modules.automation</a>
- &#8226;   <a href="#modules.bilingual_parser">modules.bilingual_parser</a>
- &#8226;   <a href="#modules.context">modules.context</a>
- &#8226;   <a href="#modules.desktop">modules.desktop</a>
- &#8226;   <a href="#modules.file_manager">modules.file_manager</a>
- &#8226;   <a href="#modules.input_control">modules.input_control</a>
- &#8226;   <a href="#modules.llm">modules.llm</a>
- &#8226;   <a href="#modules.media">modules.media</a>
- &#8226;   <a href="#modules.memory">modules.memory</a>
- &#8226;   <a href="#modules.security">modules.security</a>
  &#8226;   <a href="#modules.system">modules.system</a>
- &#8226;   <a href="#modules.whatsapp">modules.whatsapp</a>
- &#8226;   <a href="#modules.window_manager">modules.window_manager</a>
  &#8226;   <a href="#os">os</a>
  &#8226;   <a href="#pathlib">pathlib</a>
- &#8226;   <a href="#re">re</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#routers.automation">routers.automation</a>
+ &#8226;   <a href="#routers.commands">routers.commands</a>
+ &#8226;   <a href="#routers.desktop">routers.desktop</a>
+ &#8226;   <a href="#routers.files">routers.files</a>
+ &#8226;   <a href="#routers.image_tools">routers.image_tools</a>
+ &#8226;   <a href="#routers.media">routers.media</a>
+ &#8226;   <a href="#routers.memory">routers.memory</a>
+ &#8226;   <a href="#routers.pdf_tools">routers.pdf_tools</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
+ &#8226;   <a href="#routers.system">routers.system</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
+ &#8226;   <a href="#routers.whatsapp">routers.whatsapp</a>
+ &#8226;   <a href="#routers.windows">routers.windows</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#utils.logger">utils.logger</a>
  &#8226;   <a href="#uvicorn">uvicorn</a>
- &#8226;   <a href="#webbrowser">webbrowser</a>
 
   </div>
   <div class="import">
@@ -26896,7 +26960,9 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#routers.automation">routers.automation</a>
 
   </div>
 
@@ -26919,7 +26985,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#modules.context">modules.context</a>
  &#8226;   <a href="#modules.desktop">modules.desktop</a>
  &#8226;   <a href="#modules.file_manager">modules.file_manager</a>
@@ -26954,7 +27020,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
 
   </div>
 
@@ -26989,7 +27055,8 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#routers.desktop">routers.desktop</a>
 
   </div>
 
@@ -27019,7 +27086,8 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#routers.files">routers.files</a>
 
   </div>
 
@@ -27047,7 +27115,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
 
   </div>
 
@@ -27073,7 +27141,8 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
 
   </div>
 
@@ -27110,7 +27179,10 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#routers.image_tools">routers.image_tools</a>
+ &#8226;   <a href="#routers.media">routers.media</a>
+ &#8226;   <a href="#routers.pdf_tools">routers.pdf_tools</a>
 
   </div>
 
@@ -27135,8 +27207,9 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#modules.context">modules.context</a>
+ &#8226;   <a href="#routers.memory">routers.memory</a>
 
   </div>
 
@@ -27159,7 +27232,8 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#routers.commands">routers.commands</a>
 
   </div>
 
@@ -27186,7 +27260,10 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#routers.system">routers.system</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
 
   </div>
 
@@ -27216,7 +27293,8 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#routers.whatsapp">routers.whatsapp</a>
 
   </div>
 
@@ -27253,7 +27331,8 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
- &#8226;   <a href="#main">main</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#routers.windows">routers.windows</a>
 
   </div>
 
@@ -28665,6 +28744,7 @@ imported by:
  &#8226;   <a href="#requests.auth">requests.auth</a>
  &#8226;   <a href="#requests.sessions">requests.sessions</a>
  &#8226;   <a href="#requests.utils">requests.utils</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
  &#8226;   <a href="#runpy">runpy</a>
  &#8226;   <a href="#screen_brightness_control.linux">screen_brightness_control.linux</a>
  &#8226;   <a href="#setuptools">setuptools</a>
@@ -44180,6 +44260,7 @@ imported by:
  &#8226;   <a href="#h11._headers">h11._headers</a>
  &#8226;   <a href="#h11._readers">h11._readers</a>
  &#8226;   <a href="#h11._receivebuffer">h11._receivebuffer</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#html">html</a>
  &#8226;   <a href="#http.client">http.client</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
@@ -44201,7 +44282,6 @@ imported by:
  &#8226;   <a href="#logging">logging</a>
  &#8226;   <a href="#logging.config">logging.config</a>
  &#8226;   <a href="#logging.handlers">logging.handlers</a>
- &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#modules.bilingual_parser">modules.bilingual_parser</a>
  &#8226;   <a href="#modules.context">modules.context</a>
  &#8226;   <a href="#modules.window_manager">modules.window_manager</a>
@@ -45106,6 +45186,317 @@ imports:
   <div class="import">
 imported by:
     <a href="#site">site</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/__init__.py" type="text/plain"><tt>routers</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#routers">routers</a>
+ &#8226;   <a href="#routers.automation">routers.automation</a>
+ &#8226;   <a href="#routers.commands">routers.commands</a>
+ &#8226;   <a href="#routers.desktop">routers.desktop</a>
+ &#8226;   <a href="#routers.files">routers.files</a>
+ &#8226;   <a href="#routers.image_tools">routers.image_tools</a>
+ &#8226;   <a href="#routers.media">routers.media</a>
+ &#8226;   <a href="#routers.memory">routers.memory</a>
+ &#8226;   <a href="#routers.pdf_tools">routers.pdf_tools</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
+ &#8226;   <a href="#routers.system">routers.system</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
+ &#8226;   <a href="#routers.whatsapp">routers.whatsapp</a>
+ &#8226;   <a href="#routers.windows">routers.windows</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#routers.automation">routers.automation</a>
+ &#8226;   <a href="#routers.commands">routers.commands</a>
+ &#8226;   <a href="#routers.desktop">routers.desktop</a>
+ &#8226;   <a href="#routers.files">routers.files</a>
+ &#8226;   <a href="#routers.image_tools">routers.image_tools</a>
+ &#8226;   <a href="#routers.media">routers.media</a>
+ &#8226;   <a href="#routers.memory">routers.memory</a>
+ &#8226;   <a href="#routers.pdf_tools">routers.pdf_tools</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
+ &#8226;   <a href="#routers.system">routers.system</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
+ &#8226;   <a href="#routers.whatsapp">routers.whatsapp</a>
+ &#8226;   <a href="#routers.windows">routers.windows</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.automation"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/automation.py" type="text/plain"><tt>routers.automation</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.automation">modules.automation</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.commands"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/commands.py" type="text/plain"><tt>routers.commands</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#modules.security">modules.security</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.desktop"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/desktop.py" type="text/plain"><tt>routers.desktop</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.desktop">modules.desktop</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.files"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/files.py" type="text/plain"><tt>routers.files</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.file_manager">modules.file_manager</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.image_tools"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/image_tools.py" type="text/plain"><tt>routers.image_tools</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.media">modules.media</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.media"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/media.py" type="text/plain"><tt>routers.media</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.media">modules.media</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.memory"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/memory.py" type="text/plain"><tt>routers.memory</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.memory">modules.memory</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.pdf_tools"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/pdf_tools.py" type="text/plain"><tt>routers.pdf_tools</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.media">modules.media</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.settings"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/settings.py" type="text/plain"><tt>routers.settings</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#config">config</a>
+ &#8226;   <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.llm">modules.llm</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.system"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/system.py" type="text/plain"><tt>routers.system</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.system">modules.system</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.websocket"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/websocket.py" type="text/plain"><tt>routers.websocket</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#asyncio">asyncio</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#modules.system">modules.system</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+ &#8226;   <a href="#utils.logger">utils.logger</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.whatsapp"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/whatsapp.py" type="text/plain"><tt>routers.whatsapp</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.whatsapp">modules.whatsapp</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="routers.windows"></a>
+  <a target="code" href="///C:/Users/vipha/Downloads/jarvis-bilingual-adv-ai-assistant/backend/routers/windows.py" type="text/plain"><tt>routers.windows</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#fastapi">fastapi</a>
+ &#8226;   <a href="#modules.window_manager">modules.window_manager</a>
+ &#8226;   <a href="#routers">routers</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main">main</a>
+ &#8226;   <a href="#routers">routers</a>
 
   </div>
 
@@ -53020,6 +53411,7 @@ imported by:
  &#8226;   <a href="#h11._state">h11._state</a>
  &#8226;   <a href="#h11._util">h11._util</a>
  &#8226;   <a href="#h11._writers">h11._writers</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#httpcore._api">httpcore._api</a>
  &#8226;   <a href="#httpcore._async.connection">httpcore._async.connection</a>
  &#8226;   <a href="#httpcore._async.connection_pool">httpcore._async.connection_pool</a>
@@ -53211,6 +53603,19 @@ imported by:
  &#8226;   <a href="#rapidfuzz._utils">rapidfuzz._utils</a>
  &#8226;   <a href="#rapidfuzz.distance.metrics_py">rapidfuzz.distance.metrics_py</a>
  &#8226;   <a href="#requests.adapters">requests.adapters</a>
+ &#8226;   <a href="#routers.automation">routers.automation</a>
+ &#8226;   <a href="#routers.commands">routers.commands</a>
+ &#8226;   <a href="#routers.desktop">routers.desktop</a>
+ &#8226;   <a href="#routers.files">routers.files</a>
+ &#8226;   <a href="#routers.image_tools">routers.image_tools</a>
+ &#8226;   <a href="#routers.media">routers.media</a>
+ &#8226;   <a href="#routers.memory">routers.memory</a>
+ &#8226;   <a href="#routers.pdf_tools">routers.pdf_tools</a>
+ &#8226;   <a href="#routers.settings">routers.settings</a>
+ &#8226;   <a href="#routers.system">routers.system</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
+ &#8226;   <a href="#routers.whatsapp">routers.whatsapp</a>
+ &#8226;   <a href="#routers.windows">routers.windows</a>
  &#8226;   <a href="#schedule">schedule</a>
  &#8226;   <a href="#screen_brightness_control">screen_brightness_control</a>
  &#8226;   <a href="#screen_brightness_control.config">screen_brightness_control.config</a>
@@ -55771,6 +56176,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#entry_point.py">entry_point.py</a>
+ &#8226;   <a href="#handlers.command_handler">handlers.command_handler</a>
  &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#modules.automation">modules.automation</a>
  &#8226;   <a href="#modules.context">modules.context</a>
@@ -55784,6 +56190,7 @@ imported by:
  &#8226;   <a href="#modules.system">modules.system</a>
  &#8226;   <a href="#modules.whatsapp">modules.whatsapp</a>
  &#8226;   <a href="#modules.window_manager">modules.window_manager</a>
+ &#8226;   <a href="#routers.websocket">routers.websocket</a>
 
   </div>
 
@@ -57443,7 +57850,6 @@ imports:
   <div class="import">
 imported by:
     <a href="#click._termui_impl">click._termui_impl</a>
- &#8226;   <a href="#main">main</a>
  &#8226;   <a href="#modules.system">modules.system</a>
  &#8226;   <a href="#modules.whatsapp">modules.whatsapp</a>
  &#8226;   <a href="#modules.window_manager">modules.window_manager</a>
