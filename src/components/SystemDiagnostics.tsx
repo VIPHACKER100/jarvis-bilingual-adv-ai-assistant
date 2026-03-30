@@ -22,8 +22,8 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const cpuColor = data.cpu.percent > 80 ? '#ef4444' : data.cpu.percent > 50 ? '#f59e0b' : '#22d3ee';
-  const memColor = data.memory.percent > 80 ? '#ef4444' : data.memory.percent > 50 ? '#f59e0b' : '#22d3ee';
+  const cpuColor = data.cpu.percent > 80 ? '#ec4899' : data.cpu.percent > 50 ? '#d946ef' : '#8b5cf6';
+  const memColor = data.memory.percent > 80 ? '#ec4899' : data.memory.percent > 50 ? '#d946ef' : '#0ea5e9';
 
   // Circular Gauge Component
   const Gauge = ({ percent, color, label, sublabel }: { percent: number; color: string; label: string; sublabel: string }) => {
@@ -56,7 +56,7 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
               strokeDashoffset={offset}
               strokeLinecap="round"
               fill="transparent"
-              className="transition-all duration-1000 ease-out drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]"
+              className="transition-all duration-1000 ease-out drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -70,17 +70,17 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
   };
 
   return (
-    <div className="w-full max-w-md bg-slate-900/40 backdrop-blur-md border border-cyan-500/20 rounded-lg p-5 shadow-2xl relative overflow-hidden group">
+    <div className="w-full max-w-md glass-panel border border-cyan-500/20 rounded-xl p-6 relative overflow-hidden group hover:border-purple-500/40 transition-all shadow-[inset_0_0_20px_rgba(6,182,212,0.05)]">
       {/* Decorative corners */}
-      <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500/40 rounded-tl-sm"></div>
-      <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-500/40 rounded-tr-sm"></div>
-      <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-500/40 rounded-bl-sm"></div>
-      <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-500/40 rounded-br-sm"></div>
+      <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500/40 rounded-tl-xl transition-colors group-hover:border-cyan-400"></div>
+      <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500/40 rounded-tr-xl transition-colors group-hover:border-cyan-400"></div>
+      <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-purple-500/40 rounded-bl-xl transition-colors group-hover:border-cyan-400"></div>
+      <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500/40 rounded-br-xl transition-colors group-hover:border-cyan-400"></div>
 
       {/* Header */}
-      <div className="flex justify-between items-center mb-6 border-b border-cyan-500/10 pb-2">
-        <h3 className="text-xs font-bold text-cyan-400 tracking-[0.3em] uppercase">System_Diagnostics_v2</h3>
-        <span className="text-[8px] font-mono text-slate-500 uppercase">{data.platform || 'LOCAL_HOST'} // {new Date().toLocaleTimeString()}</span>
+      <div className="flex justify-between items-center mb-6 border-b border-gradient-to-r from-cyan-500/30 to-purple-500/30 pb-3">
+        <h3 className="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 tracking-[0.3em] uppercase drop-shadow-sm">System_Diagnostics_v3</h3>
+        <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">{data.platform || 'LOCAL_HOST'} // {new Date().toLocaleTimeString()}</span>
       </div>
 
       {/* Primary Gauges */}
@@ -109,9 +109,9 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
                 {data.battery.is_charging ? 'CHARGING' : 'BATTERY'}
               </span>
             </div>
-            <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
                <div 
-                 className={`h-full transition-all duration-1000 ${(data.battery.percent || 0) < 20 ? 'bg-red-500' : 'bg-cyan-500'}`} 
+                 className={`h-full transition-all duration-1000 ${(data.battery.percent || 0) < 20 ? 'bg-pink-500 shadow-[0_0_10px_#ec4899]' : 'bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_10px_#8b5cf6]'}`} 
                  style={{ width: `${data.battery.percent || 0}%` }}
                ></div>
             </div>
@@ -127,9 +127,9 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
               <span className="text-slate-400 uppercase">Mass Storage</span>
               <span className="text-cyan-400">{data.disk.percent.toFixed(0)}%</span>
             </div>
-            <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
                <div 
-                 className="h-full bg-blue-500 transition-all duration-1000" 
+                 className="h-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-1000 shadow-[0_0_10px_#38bdf8]" 
                  style={{ width: `${data.disk.percent}%` }}
                ></div>
             </div>
@@ -168,7 +168,7 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
       </div>
 
       {/* Decorative Scanner Line */}
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent animate-scan pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500/40 to-transparent animate-scan pointer-events-none"></div>
     </div>
   );
 };

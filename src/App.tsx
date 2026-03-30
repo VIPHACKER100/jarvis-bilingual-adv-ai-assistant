@@ -438,12 +438,14 @@ const AppContent: FC = () => {
       <div className="absolute inset-0 bg-radial-gradient from-transparent to-black pointer-events-none"></div>
 
       {/* Header / Language Toggle */}
-      <header className="relative w-full max-w-6xl p-4 md:p-8 flex flex-col md:flex-row justify-between items-center z-20 gap-4">
-        <div className="text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-[0.3em] text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">
+      <header className="relative w-full max-w-6xl p-6 md:p-10 flex flex-col md:flex-row justify-between items-center z-20 gap-6 glass-panel border-t-0 border-x-0 rounded-t-none mb-4 md:mb-8 animate-fade-in-up">
+        <div className="text-center md:text-left flex flex-col items-center md:items-start">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-[0.4em] neon-text uppercase drop-shadow-lg">
             JARVIS
           </h1>
-          <p className="text-[10px] md:text-xs text-slate-500 tracking-[0.4em] uppercase mt-2">Personal AI Assistant // Bilingual Protocol</p>
+          <p className="text-[10px] md:text-xs text-slate-400/80 tracking-[0.5em] font-medium uppercase mt-2">
+            Personal AI Assistant // Bilingual Protocol
+          </p>
         </div>
 
         <div className="flex flex-col items-center md:items-end gap-3">
@@ -467,10 +469,10 @@ const AppContent: FC = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="bg-slate-900/60 border border-slate-700/50 p-2 md:p-1.5 rounded-sm text-slate-400 hover:border-cyan-500 hover:text-cyan-400 transition-all duration-300 backdrop-blur-md shadow-lg group"
+              className="glass-panel text-slate-300 p-2 rounded-lg hover:border-cyan-500 hover:text-cyan-400 transition-all duration-300 shadow-xl group flex items-center justify-center h-10 w-10 md:h-11 md:w-11"
               title="System Configuration"
             >
               <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -480,16 +482,16 @@ const AppContent: FC = () => {
             </button>
             <button
               onClick={toggleLanguage}
-              className="flex items-center space-x-3 bg-slate-900/60 border border-slate-700/50 px-5 py-2 md:px-4 md:py-1.5 rounded-sm text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 backdrop-blur-md shadow-lg"
+              className="glass-panel flex items-center space-x-3 px-5 py-2 md:px-5 md:py-2.5 rounded-lg text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 shadow-xl h-10 md:h-11"
             >
-              <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold" : "text-slate-600"}>EN</span>
-              <span className="text-slate-800">|</span>
-              <span className={language === Language.HINDI ? "text-orange-400 font-bold" : "text-slate-600"}>हिंदी</span>
-              <span className="text-slate-800">|</span>
-              <span className={language === Language.HINGLISH ? "text-purple-400 font-bold" : "text-slate-600"}>HI-EN</span>
+              <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" : "text-slate-500/70"}>EN</span>
+              <span className="text-slate-700/50">|</span>
+              <span className={language === Language.HINDI ? "text-purple-400 font-bold drop-shadow-[0_0_5px_rgba(139,92,246,0.8)]" : "text-slate-500/70"}>हिंदी</span>
+              <span className="text-slate-700/50">|</span>
+              <span className={language === Language.HINGLISH ? "text-pink-400 font-bold drop-shadow-[0_0_5px_rgba(217,70,239,0.8)]" : "text-slate-500/70"}>HI-EN</span>
             </button>
           </div>
-          <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+          <div className="text-[9px] font-mono text-slate-500/80 uppercase tracking-[0.3em]">
             Mode: {language === Language.HINGLISH ? 'Hinglish (Latin)' : language === Language.HINDI ? 'Hi-IN (Native)' : 'En-US'}
           </div>
         </div>
@@ -498,25 +500,25 @@ const AppContent: FC = () => {
       {/* Main UI Container */}
       <main className="relative z-10 flex flex-col items-center w-full max-w-4xl space-y-10 md:space-y-16 px-4 py-6">
 
-        <div className="h-8 flex items-center justify-center">
+        <div className="h-10 flex items-center justify-center animate-fade-in-up relative z-20">
           {mode === AppMode.LISTENING && (
-            <span className="text-cyan-400 tracking-widest animate-pulse font-mono text-sm md:text-base">
+            <span className="text-cyan-400 tracking-[0.3em] animate-pulse font-mono text-sm md:text-base drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]">
               LISTENING / सुन रहा हूँ...
             </span>
           )}
           {mode === AppMode.PROCESSING && (
-            <span className="text-orange-400 tracking-widest animate-pulse font-mono text-sm md:text-base">
-              PROCESSING / कार्य हो रहा है...
+            <span className="text-purple-400 tracking-[0.3em] animate-pulse font-mono text-sm md:text-base drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]">
+              PROCESSING / कार्य-निष्पादन...
             </span>
           )}
           {mode === AppMode.SPEAKING && (
-            <span className="text-cyan-400 tracking-widest font-mono text-sm md:text-base">
+            <span className="text-pink-400 tracking-[0.3em] font-mono text-sm md:text-base drop-shadow-[0_0_8px_rgba(217,70,239,0.8)] animate-breathe">
               RESPONDING...
             </span>
           )}
           {mode === AppMode.IDLE && (
-            <span className="text-slate-600 tracking-widest font-mono text-xs md:text-sm">
-              STANDBY
+            <span className="text-slate-500/70 tracking-[0.3em] font-mono text-xs md:text-sm">
+              SYSTEM STANDBY
             </span>
           )}
         </div>
@@ -529,14 +531,13 @@ const AppContent: FC = () => {
         />
 
         {/* Transcript Display */}
-        <div className="w-full max-w-lg text-center min-h-[60px] px-2 md:px-0">
+        <div className="w-full max-w-2xl text-center min-h-[80px] px-4 md:px-0 z-20">
           {transcript && (
-            <div className="bg-slate-900/50 border-x border-cyan-500/30 p-3 md:p-4 relative backdrop-blur-sm">
-              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyan-500"></div>
-              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-500"></div>
-              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-cyan-500"></div>
-              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyan-500"></div>
-              <p className="text-base md:text-xl text-white font-light tracking-wide font-sans">
+            <div className="glass-panel p-5 md:p-6 w-full relative animate-fade-in-up transition-all duration-300">
+              <div className="absolute top-0 left-4 w-12 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent"></div>
+              <div className="absolute bottom-0 right-4 w-12 h-[2px] bg-gradient-to-l from-purple-400 to-transparent"></div>
+              
+              <p className="text-lg md:text-2xl text-white font-light tracking-wide font-sans leading-relaxed drop-shadow-md">
                 "{transcript}"
               </p>
             </div>
@@ -556,11 +557,11 @@ const AppContent: FC = () => {
 
             {/* Fallback Stats Panel */}
             {!systemStatus && (
-              <div className="border border-slate-800 bg-slate-900/40 p-4 w-full md:w-64 text-[10px] font-mono grid grid-cols-2 gap-x-4 gap-y-2 rounded-sm backdrop-blur-sm">
-                <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>CPU</span><span className="text-cyan-600">--%</span></div>
-                <div className="flex justify-between border-b border-slate-800/50 pb-1"><span>MEM</span><span className="text-cyan-600">--%</span></div>
-                <div className="flex justify-between"><span>NET</span><span className="text-green-600 uppercase">Online</span></div>
-                <div className="flex justify-between"><span>MIC</span><span className={mode !== AppMode.IDLE ? "text-red-500 animate-pulse font-bold" : "text-slate-600"}>{mode !== AppMode.IDLE ? "ACTIVE" : "OFFLINE"}</span></div>
+              <div className="glass-panel p-4 w-full md:w-64 text-[10px] sm:text-xs font-mono grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg backdrop-blur-md hover:border-purple-500/40 transition-all">
+                <div className="flex justify-between border-b border-slate-700/40 pb-1.5"><span className="text-slate-400">CPU</span><span className="text-cyan-400 font-bold">--%</span></div>
+                <div className="flex justify-between border-b border-slate-700/40 pb-1.5"><span className="text-slate-400">MEM</span><span className="text-purple-400 font-bold">--%</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">NET</span><span className="text-green-400 uppercase font-bold drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">Online</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">MIC</span><span className={mode !== AppMode.IDLE ? "text-pink-500 animate-pulse font-bold drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" : "text-slate-600"}>{mode !== AppMode.IDLE ? "ACTIVE" : "OFFLINE"}</span></div>
               </div>
             )}
           </div>
@@ -626,22 +627,22 @@ const AppContent: FC = () => {
       />
 
       {/* Phase 4 Quick Access Buttons */}
-      <div className="fixed bottom-4 right-4 z-30 flex gap-2">
+      <div className="fixed bottom-6 right-6 z-30 flex flex-col sm:flex-row gap-3">
         <button
           onClick={() => setShowMemoryViewer(true)}
-          className="bg-slate-800/80 hover:bg-slate-700 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg backdrop-blur-sm transition-all hover:scale-105 flex items-center gap-2 text-sm"
+          className="glass-panel text-cyan-400 px-4 py-2.5 rounded-xl transition-all hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 text-sm font-medium tracking-wide"
           title="View Memory & History"
         >
-          <span>🧠</span>
-          <span className="hidden md:inline">Memory</span>
+          <span className="text-lg">🧠</span>
+          <span className="hidden md:inline">Neural Core</span>
         </button>
         <button
           onClick={() => setShowAutomationDashboard(true)}
-          className="bg-slate-800/80 hover:bg-slate-700 border border-purple-500/30 text-purple-400 px-3 py-2 rounded-lg backdrop-blur-sm transition-all hover:scale-105 flex items-center gap-2 text-sm"
+          className="glass-panel text-purple-400 px-4 py-2.5 rounded-xl transition-all hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-2 text-sm font-medium tracking-wide"
           title="Automation & Macros"
         >
-          <span>⚡</span>
-          <span className="hidden md:inline">Auto</span>
+          <span className="text-lg">⚡</span>
+          <span className="hidden md:inline">Automations</span>
         </button>
       </div>
 

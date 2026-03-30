@@ -35,7 +35,7 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language })
 
       {/* --- Ambient Glow (Far Field) --- */}
       <div className={`absolute rounded-full transition-all duration-1000 ${isActive
-        ? 'w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-cyan-500/5 blur-3xl animate-pulse-core'
+        ? 'w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-gradient-to-r from-cyan-500/10 to-purple-500/10 blur-3xl animate-pulse-core'
         : 'w-48 h-48 md:w-64 md:h-64 bg-slate-800/20 blur-xl opacity-50'
         }`} />
 
@@ -51,10 +51,11 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language })
       </div>
 
       {/* --- Inner Energy Ring (Pulsing) --- */}
-      <div className={`absolute w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-slate-800 flex items-center justify-center transition-all duration-500 shadow-2xl ${isActive ? 'shadow-[0_0_30px_rgba(6,182,212,0.6)] md:shadow-[0_0_50px_rgba(6,182,212,0.6)] scale-100' : 'scale-95 opacity-80'
+      <div className={`absolute w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-slate-800 flex items-center justify-center transition-all duration-500 shadow-2xl ${isActive ? 'shadow-[0_0_30px_rgba(139,92,246,0.6)] md:shadow-[0_0_50px_rgba(139,92,246,0.6)] scale-100' : 'scale-95 opacity-80'
         }`}>
-        <div className={`absolute inset-0 rounded-full border-2 border-cyan-400/30 ${isActive ? 'animate-spin-fast reactor-ring-1' : ''}`}></div>
-        <div className={`absolute inset-2 rounded-full border-2 border-cyan-300/20 ${isActive ? 'animate-spin-reverse-slow reactor-ring-2' : ''}`}></div>
+        <div className={`absolute inset-0 rounded-full border-2 border-transparent ${isActive ? 'animate-spin-fast reactor-ring-1' : ''}`}></div>
+        <div className={`absolute inset-2 rounded-full border-2 border-transparent ${isActive ? 'animate-spin-reverse-slow reactor-ring-2' : ''}`}></div>
+        <div className={`absolute inset-4 rounded-full border-2 border-transparent ${isActive ? 'animate-spin-fast reactor-ring-3' : ''}`}></div>
       </div>
 
       {/* --- Core Button Interface --- */}
@@ -63,10 +64,10 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language })
           relative z-10 w-36 h-36 md:w-48 md:h-48 rounded-full 
           flex flex-col items-center justify-center
           transition-all duration-300 transform group-hover:scale-105 group-active:scale-95
-          overflow-hidden
+          overflow-hidden backdrop-blur-md
           ${isActive
-            ? 'bg-slate-900 border-4 border-cyan-400 shadow-[inset_0_0_40px_rgba(6,182,212,0.5)] md:shadow-[inset_0_0_60px_rgba(6,182,212,0.5)]'
-            : 'bg-slate-900/90 border-4 border-slate-700 shadow-none'
+            ? 'glass-panel border-4 border-purple-400/80 shadow-[inset_0_0_40px_rgba(139,92,246,0.6)] md:shadow-[inset_0_0_60px_rgba(139,92,246,0.6)]'
+            : 'glass-panel bg-slate-900/40 border-4 border-slate-700/50 shadow-none'
           }
         `}
       >
@@ -77,8 +78,8 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language })
         <svg
           viewBox="0 0 24 24"
           className={`relative z-20 w-14 h-14 md:w-20 md:h-20 mb-1 md:mb-2 transition-all duration-500 ${isActive
-            ? 'text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,1)]'
-            : 'text-slate-600'
+            ? 'text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,1)] drop-shadow-[0_0_30px_rgba(139,92,246,0.8)]'
+            : 'text-slate-500'
             }`}
           fill="currentColor"
         >
@@ -93,11 +94,11 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language })
               : (language === 'hi' ? 'OFF' : 'OFFLINE')
             }
           </span>
-          <div className={`h-0.5 md:h-1 w-12 md:w-16 mt-0.5 md:mt-1 rounded-full transition-all duration-300 ${isActive ? 'bg-cyan-400 shadow-[0_0_10px_cyan]' : 'bg-slate-700'}`}></div>
+          <div className={`h-0.5 md:h-1 w-12 md:w-16 mt-0.5 md:mt-1 rounded-full transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_15px_#8b5cf6]' : 'bg-slate-700'}`}></div>
         </div>
 
         {/* Scanline Effect inside button */}
-        {isActive && <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent w-full h-full animate-[scanline_2s_linear_infinite] opacity-30 pointer-events-none"></div>}
+        {isActive && <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-400/20 to-transparent w-full h-full animate-scanline opacity-40 pointer-events-none"></div>}
       </button>
 
     </div>
