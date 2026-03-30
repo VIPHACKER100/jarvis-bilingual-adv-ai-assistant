@@ -5,7 +5,7 @@ from config import CONFIG, NVIDIA_MODEL, OPENROUTER_MODEL, BACKEND_PORT, LOG_LEV
 
 router = APIRouter(prefix="/api/settings", tags=["Settings"])
 
-@router.get("/")
+@router.get("")
 async def get_settings():
     """Get all current settings"""
     # Redact sensitive info if needed, but these are general settings
@@ -36,7 +36,7 @@ async def get_keys():
         "BACKEND_API_KEY": redact(os.getenv("BACKEND_API_KEY"))
     }
 
-@router.post("/")
+@router.post("")
 async def update_settings(settings: Dict[str, Any]):
     """Update system configuration"""
     try:

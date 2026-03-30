@@ -14,7 +14,7 @@ connected_clients: Dict[str, WebSocket] = {}
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = None):
     """Real-time bidirectional communication"""
-    from main import handle_command
+    from handlers.command_handler import handle_command
     
     await websocket.accept()
     cid = client_id or f"client_{id(websocket)}"
