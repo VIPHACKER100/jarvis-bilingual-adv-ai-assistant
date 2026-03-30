@@ -1,0 +1,286 @@
+/* ═══════════════════════════════════════════════════════════════
+   JARVIS HUD — Premium Design System v2.2.2
+   by VIPHACKER100 (Aryan Ahirwar)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens ──────────────────────────────────────────── */
+:root {
+    --neon-blue: #06b6d4;
+    --neon-glow: rgba(6, 182, 212, 0.6);
+    --neon-rgb: 6, 182, 212;
+    --accent-color: #0ea5e9;
+    --accent-rgb: 14, 165, 233;
+    --dark-bg: #050505;
+    --panel-bg: rgba(15, 23, 42, 0.6);
+    --panel-border: rgba(6, 182, 212, 0.15);
+}
+
+/* ─── Base Reset & Globals ───────────────────────────────────── */
+body {
+    background-color: var(--dark-bg);
+    color: white;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: 'Inter', 'Rajdhani', system-ui, -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Custom Scrollbar ───────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(var(--neon-rgb), 0.2);
+    border-radius: 10px;
+    transition: background 0.3s;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--neon-rgb), 0.5);
+}
+
+/* ─── HUD Utility Classes ────────────────────────────────────── */
+.neon-border {
+    border-color: rgba(var(--neon-rgb), 0.25);
+}
+.neon-bg-subtle {
+    background: rgba(var(--neon-rgb), 0.06);
+}
+.neon-text {
+    color: var(--neon-blue);
+}
+.neon-glow-line {
+    background: linear-gradient(90deg, transparent, rgba(var(--neon-rgb), 0.8), transparent);
+}
+.hud-panel-shadow {
+    box-shadow:
+        0 0 80px rgba(var(--neon-rgb), 0.06),
+        0 25px 60px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* ─── Glass Panel (theme-aware) ──────────────────────────────── */
+.glass-panel {
+    background: var(--panel-bg);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(12px) saturate(1.4);
+    border: 1px solid rgba(var(--neon-rgb), 0.18);
+    box-shadow:
+        0 0 20px rgba(var(--neon-rgb), 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.glass-panel:hover {
+    border-color: rgba(var(--neon-rgb), 0.35);
+    box-shadow:
+        0 0 30px rgba(var(--neon-rgb), 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ─── Theme Utility Classes ──────────────────────────────────── */
+.theme-border {
+    border-color: rgba(var(--neon-rgb), 0.3);
+}
+.theme-border-strong {
+    border-color: rgba(var(--neon-rgb), 0.6);
+}
+.theme-text {
+    color: var(--neon-blue);
+}
+.theme-glow {
+    text-shadow: 0 0 15px rgba(var(--neon-rgb), 0.8);
+    color: var(--neon-blue);
+}
+.theme-bg-subtle {
+    background: rgba(var(--neon-rgb), 0.05);
+}
+.theme-bg-medium {
+    background: rgba(var(--neon-rgb), 0.1);
+}
+.theme-pulse-glow {
+    box-shadow: 0 0 20px rgba(var(--neon-rgb), 0.4), 0 0 60px rgba(var(--neon-rgb), 0.15);
+}
+
+/* ─── Keyframe Animations ────────────────────────────────────── */
+
+@keyframes spin-cw {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes spin-ccw {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px var(--neon-glow); }
+    50% { box-shadow: 0 0 40px var(--neon-glow), 0 0 80px rgba(var(--neon-rgb), 0.3); }
+}
+
+@keyframes holographic-flicker {
+    0%   { opacity: 0.92; }
+    5%   { opacity: 0.82; }
+    10%  { opacity: 0.96; }
+    15%  { opacity: 0.72; }
+    20%  { opacity: 0.92; }
+    50%  { opacity: 0.92; }
+    55%  { opacity: 0.62; }
+    60%  { opacity: 0.92; }
+    100% { opacity: 0.92; }
+}
+
+@keyframes scan {
+    0%   { top: 0;    opacity: 0;   }
+    5%   { opacity: 0.8; }
+    50%  { opacity: 0.3; }
+    95%  { opacity: 0.8; }
+    100% { top: 100%; opacity: 0;   }
+}
+
+@keyframes scanline {
+    0%   { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+@keyframes data-stream {
+    0%   { background-position: 0% 0%;   }
+    100% { background-position: 0% 100%; }
+}
+
+@keyframes breathe {
+    0%, 100% { transform: scale(1);    opacity: 0.6; }
+    50%      { transform: scale(1.05); opacity: 1;   }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0;  }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1);    }
+}
+
+@keyframes borderPulse {
+    0%, 100% { border-color: rgba(var(--neon-rgb), 0.15); }
+    50%      { border-color: rgba(var(--neon-rgb), 0.45); }
+}
+
+/* ─── Animation Utility Classes ──────────────────────────────── */
+.animate-spin-slow         { animation: spin-cw 20s linear infinite; }
+.animate-spin-reverse-slow { animation: spin-ccw 15s linear infinite; }
+.animate-spin-fast         { animation: spin-cw 3s linear infinite; }
+.animate-pulse-core        { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-scan              { animation: scan 4s linear infinite; }
+.holo-effect               { animation: holographic-flicker 4s infinite; }
+.animate-breathe           { animation: breathe 3s ease-in-out infinite; }
+.animate-fade-in-up        { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-fade-in-scale     { animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-border-pulse      { animation: borderPulse 2s ease-in-out infinite; }
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(var(--neon-rgb), 0.08) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ─── Reactor Ring Helpers ───────────────────────────────────── */
+.reactor-ring-1 {
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+}
+.reactor-ring-2 {
+    border-left-color: transparent;
+    border-right-color: transparent;
+}
+
+/* ─── Responsive Utilities ───────────────────────────────────── */
+@media (max-width: 640px) {
+    .mobile-hide {
+        display: none !important;
+    }
+    .mobile-small-text {
+        font-size: 0.75rem;
+    }
+}
+
+.touch-action-none {
+    touch-action: none;
+}
+
+/* ─── Interactive Micro-Animations ───────────────────────────── */
+button, [role="button"] {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+button:active, [role="button"]:active {
+    transform: scale(0.97);
+}
+
+/* ─── Boot Sequence Loader ───────────────────────────────────── */
+.jarvis-boot-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--dark-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    animation: fadeOut 0.6s 2.5s ease-out forwards;
+}
+.jarvis-boot-loader .boot-ring {
+    width: 80px;
+    height: 80px;
+    border: 3px solid rgba(var(--neon-rgb), 0.15);
+    border-top-color: var(--neon-blue);
+    border-radius: 50%;
+    animation: spin-cw 1s linear infinite;
+}
+.jarvis-boot-loader .boot-text {
+    font-family: 'Rajdhani', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--neon-blue);
+    opacity: 0.7;
+    animation: breathe 2s ease-in-out infinite;
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; pointer-events: none; visibility: hidden; }
+}
+
+/* ─── Selection Styling ──────────────────────────────────────── */
+::selection {
+    background: rgba(var(--neon-rgb), 0.3);
+    color: white;
+}
+::-moz-selection {
+    background: rgba(var(--neon-rgb), 0.3);
+    color: white;
+}
+
+/* ─── Scanline Overlay ───────────────────────────────────────── */
+.scanline-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(6, 182, 212, 0.015) 2px,
+        rgba(6, 182, 212, 0.015) 4px
+    );
+}

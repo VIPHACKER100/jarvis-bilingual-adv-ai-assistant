@@ -98,6 +98,28 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleDeleteFact = async (id: number) => {
+    try {
+      const res = await apiClient.deleteMemoryFact(id);
+      if (res.success) {
+        setFacts(prev => prev.filter(f => f.id !== id));
+      }
+    } catch (error) {
+      console.error("Failed to delete fact:", error);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    try {
+      const res = await apiClient.clearConversationHistory();
+      if (res.success) {
+        setConversations([]);
+      }
+    } catch (error) {
+      console.error("Failed to clear history:", error);
+    }
+  };
+
   const [newFact, setNewFact] = useState({ key: '', value: '', category: 'personal' });
   const [isAddingFact, setIsAddingFact] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);

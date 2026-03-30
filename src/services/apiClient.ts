@@ -1,4 +1,4 @@
-import { SystemStatus, CommandResponse, CommandRequest } from '../types/bridge';
+import { SystemStatus, CommandResponse, CommandRequest } from '../types';
 
 const API_BASE_URL = 'http://localhost:8000';
 const API_KEY = import.meta.env.VITE_JARVIS_API_KEY || "";
@@ -172,6 +172,30 @@ class ApiClient {
     });
     if (!response.ok) {
       throw new Error('Failed to update memory fact');
+    }
+    return response.json();
+  }
+
+  // Delete a user fact/memory
+  async deleteMemoryFact(factId: number): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/fact/${factId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete memory fact');
+    }
+    return response.json();
+  }
+
+  // Clear conversation history
+  async clearConversationHistory(): Promise<{ success: boolean }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/conversations`, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to clear conversation history');
     }
     return response.json();
   }

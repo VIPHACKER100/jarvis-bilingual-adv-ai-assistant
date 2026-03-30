@@ -1,3 +1,6 @@
+// Export all from bridge.ts
+export * from './bridge';
+
 // Adding SpeechRecognition types to the global window object
 declare global {
   interface Window {

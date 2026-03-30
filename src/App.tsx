@@ -3,24 +3,24 @@ import { ArcReactor } from './components/ArcReactor';
 import { HistoryLog } from './components/HistoryLog';
 import { VolumeControl } from './components/VolumeControl';
 import { PermissionModal } from './components/PermissionModal';
-import { ConfirmationModal } from './src/components/ConfirmationModal';
-import { MemoryViewer } from './src/components/MemoryViewer';
-import { AutomationDashboard } from './src/components/AutomationDashboard';
+import { ConfirmationModal } from './components/ConfirmationModal';
+import { MemoryViewer } from './components/MemoryViewer';
+import { AutomationDashboard } from './components/AutomationDashboard';
 import { DesktopControls } from './components/DesktopControls';
 import { MediaTools } from './components/MediaTools';
-import { SettingsModal } from './src/components/SettingsModal';
-import { SystemDiagnostics } from './src/components/SystemDiagnostics';
+import { SettingsModal } from './components/SettingsModal';
+import { SystemDiagnostics } from './components/SystemDiagnostics';
 import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
-import { apiClient } from './src/services/apiClient';
-import { VisionOverlay } from './src/components/VisionOverlay';
-import { useJarvisBridge } from './src/hooks/useJarvisBridge';
-import { useTheme } from './src/hooks/useTheme';
+import { apiClient } from './services/apiClient';
+import { VisionOverlay } from './components/VisionOverlay';
+import { useJarvisBridge } from './hooks/useJarvisBridge';
+import { useTheme } from './hooks/useTheme';
 import { INITIAL_VOLUME } from './constants';
 import { sfx } from './utils/audioUtils';
 
-import { NotificationProvider, useNotifications } from './src/context/NotificationContext';
-import { NotificationCenter } from './src/components/NotificationCenter';
+import { NotificationProvider, useNotifications } from './context/NotificationContext';
+import { NotificationCenter } from './components/NotificationCenter';
 
 const App: FC = () => {
   return (
@@ -428,20 +428,6 @@ const AppContent: FC = () => {
     }
   };
 
-  // Format system stats for display
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const formatUptime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours}h ${minutes}m`;
-  };
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center bg-black relative overflow-x-hidden">
@@ -606,12 +592,12 @@ const AppContent: FC = () => {
         language={language === Language.HINDI ? 'hi' : 'en'}
       />
 
-      {/* Confirmation Modal for Dangerous Commands */}
+      {/* Security Confirmation Modal */}
       <ConfirmationModal
         isOpen={!!pendingConfirmation}
         confirmation={pendingConfirmation}
-        onConfirm={handleConfirmAction}
-        onCancel={handleCancelAction}
+        onConfirm={() => confirmCommand(true)}
+        onCancel={() => confirmCommand(false)}
       />
 
       {/* Memory Viewer */}
@@ -637,14 +623,6 @@ const AppContent: FC = () => {
           else if (updated.language === 'hi') setLanguage(Language.HINDI);
           else if (updated.language === 'hinglish') setLanguage(Language.HINGLISH);
         }}
-      />
-
-      {/* Security Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={!!pendingConfirmation}
-        confirmation={pendingConfirmation}
-        onConfirm={() => confirmCommand(true)}
-        onCancel={() => confirmCommand(false)}
       />
 
       {/* Phase 4 Quick Access Buttons */}
@@ -676,7 +654,7 @@ const AppContent: FC = () => {
           <a href="https://instagram.com/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase border-b border-transparent hover:border-cyan-400 pb-1">Instagram</a>
         </div>
         <div className="text-slate-700 text-[8px] md:text-[9px] tracking-[0.4em] font-light uppercase text-center px-4 leading-loose">
-          VIPHACKER100 OS V2.2.0 | DESIGNED & DEVELOPED BY <br className="md:hidden" />
+          VIPHACKER100 OS V2.2.2 | DESIGNED & DEVELOPED BY <br className="md:hidden" />
           <span className="text-slate-500 font-bold border-b border-slate-800">VIPHACKER100 (ARYAN AHIRWAR)</span>
         </div>
       </footer>
