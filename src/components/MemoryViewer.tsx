@@ -437,7 +437,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
             </div>
-          ) : (
+          ) : viewMode === 'analytics' ? (
             <div className="overflow-y-auto flex-1 p-6 space-y-8 custom-scrollbar">
               {loading ? (
                 <div className="h-full flex items-center justify-center">
@@ -616,7 +616,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                 <div>Status: Fully Synchronized</div>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Footer */}

@@ -37,17 +37,17 @@ RELEASE_DIR = PROJECT_ROOT / 'release'
 
 def clean_build_dirs():
     """Clean previous build artifacts"""
-    print("🧹 Cleaning build directories...")
+    print("[CLEAN] Cleaning build directories...")
     
     dirs_to_clean = [BUILD_DIR, DIST_DIR, RELEASE_DIR]
     for dir_path in dirs_to_clean:
         if dir_path.exists():
             shutil.rmtree(dir_path, ignore_errors=True)
-            print(f"  ✓ Removed {dir_path}")
+            print(f"  [OK] Removed {dir_path}")
 
 def build_backend():
     """Build backend executable with PyInstaller"""
-    print("\n🔨 Building JARVIS Backend...")
+    print("\n[BACKEND] Building JARVIS Backend...")
     
     os.chdir(BACKEND_DIR)
     
@@ -63,41 +63,41 @@ def build_backend():
     try:
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
-            print("  ✓ Backend executable built successfully")
+            print(f"  [OK] Backend executable built successfully")
             return True
         else:
-            print(f"  ✗ Backend build failed with return code {result.returncode}")
+            print(f"  [FAIL] Backend build failed with return code {result.returncode}")
             stderr_tail = result.stderr[-1000:] if result.stderr else "No stderr"
             print("STDERR:", stderr_tail)
             return False
     except subprocess.CalledProcessError as e:
-        print(f"  ✗ Backend build failed: {e}")
+        print(f"  [FAIL] Backend build failed: {e}")
         return False
     except Exception as e:
-        print(f"  ✗ Unexpected error during build: {e}")
+        print(f"  [FAIL] Unexpected error during build: {e}")
         return False
 
 def build_frontend():
     """Build frontend with Vite"""
-    print("\n🎨 Building JARVIS Frontend...")
+    print("\n[FRONTEND] Building JARVIS Frontend...")
     
     os.chdir(PROJECT_ROOT)
     
     # Build frontend
     try:
         subprocess.run(['npm', 'run', 'build'], check=True, shell=True)
-        print("  ✓ Frontend built successfully")
+        print("  [OK] Frontend built successfully")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"  ✗ Frontend build failed: {e}")
+        print(f"  [FAIL] Frontend build failed: {e}")
         return False
     except FileNotFoundError:
-        print("  ✗ npm not found. Please install Node.js")
+        print("  [FAIL] npm not found. Please install Node.js")
         return False
 
 def create_release_package():
     """Create final release package"""
-    print("\n📦 Creating release package...")
+    print("\n[RELEASE] Creating release package...")
     
     RELEASE_DIR.mkdir(exist_ok=True)
     
@@ -105,7 +105,7 @@ def create_release_package():
     backend_dist = BACKEND_DIR / 'dist' / 'JARVIS_Backend'
     if backend_dist.exists():
         shutil.copytree(backend_dist, RELEASE_DIR / 'backend', dirs_exist_ok=True)
-        print("  ✓ Copied backend executable")
+        print("  [OK] Copied backend executable")
     
     # Frontend is bundled inside backend executable, no need to copy separately    
     # Create launcher script
@@ -117,7 +117,7 @@ def create_release_package():
     # Create .env template
     create_env_template()
     
-    print(f"\n📁 Release package created in: {RELEASE_DIR}")
+    print(f"\n[DIR] Release package created in: {RELEASE_DIR}")
 
 def create_launcher_script():
     """Create Windows launcher batch file"""
@@ -154,7 +154,7 @@ timeout /t 2 >nul
     with open(launcher_path, 'w', encoding='utf-8') as f:
         f.write(launcher_content)
     
-    print("  ✓ Created launcher script (START_JARVIS.bat)")
+    print("  [OK] Created launcher script (START_JARVIS.bat)")
 
 def create_release_readme():
     """Create release README"""
@@ -216,7 +216,7 @@ Made with ❤️ by VIPHACKER100 (Aryan Ahirwar)
     with open(readme_path, 'w', encoding='utf-8') as f:
         f.write(readme_content)
     
-    print("  ✓ Created README.txt")
+    print("  [OK] Created README.txt")
 
 def create_env_template():
     """Create environment configuration template"""
@@ -243,14 +243,14 @@ AUTO_START_SCHEDULER=true
     with open(env_path, 'w', encoding='utf-8') as f:
         f.write(env_content)
     
-    print("  ✓ Created config.env template")
+    print("  [OK] Created config.env template")
 
 def zip_release_package():
     """Create a zip archive of the release folder"""
     zip_filename = f"JARVIS_v{VERSION}.zip"
     zip_path = PROJECT_ROOT / zip_filename
     
-    print(f"\n🤐 Zipping release package into {zip_filename}...")
+    print(f"\n[ZIP] Zipping release package into {zip_filename}...")
     
     try:
         # Remove old zip if exists
@@ -264,10 +264,10 @@ def zip_release_package():
                     arcname = file_path.relative_to(RELEASE_DIR)
                     zipf.write(file_path, arcname)
         
-        print(f"  ✓ Created {zip_filename}")
+        print(f"  [OK] Created {zip_filename}")
         return True
     except Exception as e:
-        print(f"  ✗ Failed to create zip: {e}")
+        print(f"  [FAIL] Failed to create zip: {e}")
         return False
 
 def filter_build_warnings(warning_file):
@@ -436,7 +436,7 @@ def filter_build_warnings(warning_file):
             filtered_warnings.append(stripped)
         
         if filtered_warnings:
-            print("\n⚠️  Important build warnings:")
+            print("\nWARNING: Important build warnings:")
             top_warnings: List[str] = list(itertools.islice(filtered_warnings, 10))  # Show only first 10
             for warning in top_warnings:
                 print(f"  {warning}")
@@ -444,10 +444,10 @@ def filter_build_warnings(warning_file):
                 print(f"  ... and {len(filtered_warnings) - 10} more warnings")
         elif ignored_count > 0:
             # Only show ignored count if there are no important warnings
-            print(f"\n✅ Build completed with no critical warnings")
-            print(f"ℹ️  Ignored {ignored_count} common platform-specific warnings")
+            print(f"\n[OK] Build completed with no critical warnings")
+            print(f"[INFO] Ignored {ignored_count} common platform-specific warnings")
         else:
-            print("\n✅ Build completed successfully with no warnings")
+            print("\n[OK] Build completed successfully with no warnings")
             
     except Exception as e:
         print(f"  Could not analyze warnings: {e}")
@@ -464,12 +464,12 @@ def main():
     
     # Build frontend first
     if not build_frontend():
-        print("\n✗ Build failed!")
+        print("\n[FAIL] Build failed!")
         sys.exit(1)
     
     # Build backend (which bundles the frontend)
     if not build_backend():
-        print("\n✗ Build failed!")
+        print("\n[FAIL] Build failed!")
         sys.exit(1)
     
     # Analyze build warnings
@@ -483,9 +483,9 @@ def main():
     zip_release_package()
     
     print("\n" + "=" * 60)
-    print("✅ Build completed successfully!")
-    print(f"📁 Release package: {RELEASE_DIR}")
-    print(f"📦 Distribution Zip: {PROJECT_ROOT / f'JARVIS_v{VERSION}.zip'}")
+    print("[OK] Build completed successfully!")
+    print(f"[DIR] Release package: {RELEASE_DIR}")
+    print(f"[ZIP] Distribution Zip: {PROJECT_ROOT / f'JARVIS_v{VERSION}.zip'}")
     print("=" * 60)
     print("\nTo distribute:")
     print(f"1. Share JARVIS_v{VERSION}.zip")
