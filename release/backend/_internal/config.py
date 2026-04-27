@@ -8,6 +8,7 @@ load_dotenv()
 
 # Base paths
 BASE_DIR = Path(__file__).parent
+PROJECT_ROOT = BASE_DIR.parent
 DATA_DIR = BASE_DIR / "data"
 LOGS_DIR = BASE_DIR / "logs"
 
@@ -97,6 +98,7 @@ HINDI_COMMANDS = {
     # WhatsApp
     'whatsapp_message': ['whatsapp', 'message bhejo', 'msg bhejo', 'whatsapp karo', 'whatsapp bhjeo', 'send message', 'sandesh bhejo', 'व्हाट्सएप', 'मैसेज भेजो', 'संदेश भेजो', 'व्हाट्सएप मैसेज'],
     'whatsapp_call': ['call', 'phone karo', 'baat karo', 'call lagao', 'whatsapp call', 'कॉल करो', 'फ़ोन करो', 'फोन करो', 'बात करो', 'व्हाट्सएप कॉल'],
+    'whatsapp_draft_reply': ['draft a reply', 'reply draft', 'draft reply', 'draft answer', 'smart reply', 'uttar likho', 'reply likho', 'jawab likho', 'reply dhoondo', 'उत्तर लिखो', 'जवाब लिखो', 'रिप्लाई ड्राफ्ट', 'स्मार्ट रिप्लाई'],
     
     # Input
     'move_cursor': ['move cursor', 'cursor move', 'mouse move', 'pointer move', 'कर्सर मूव', 'माउस मूव', 'कर्सर घुमाओ'],

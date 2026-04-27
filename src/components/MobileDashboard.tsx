@@ -2,6 +2,7 @@ import { FC, useEffect, useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smartphone, Activity, Zap, Shield, Cpu, Database, Wifi, AlertTriangle } from 'lucide-react';
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
+import { useNotifications } from '../context/NotificationContext';
 
 export const MobileDashboard: FC = () => {
   const { isConnected, systemStatus, connectionStatus } = useJarvisBridge();
@@ -45,7 +46,9 @@ export const MobileDashboard: FC = () => {
       <main className="p-4 space-y-4 max-w-md mx-auto">
         {/* Proactive Alerts Feed */}
         <AnimatePresence>
-          {notifications.filter(n => n.type === 'error' || n.type === 'warning').map((notif, idx) => (
+          {notifications
+            .filter((n: { type: string }) => n.type === 'error' || n.type === 'warning')
+            .map((notif: { id: string; type: string; title: string; message: string }, idx: number) => (
             <motion.div
               key={notif.id}
               initial={{ opacity: 0, x: -20 }}
@@ -71,16 +74,16 @@ export const MobileDashboard: FC = () => {
           <StatCard 
             icon={<Cpu className="w-4 h-4" />} 
             label="Processor" 
-            value={systemStatus?.cpu_percent || 0} 
+            value={systemStatus?.cpu?.percent ?? 0} 
             unit="%" 
-            color={systemStatus?.cpu_percent && systemStatus.cpu_percent > 80 ? "red" : "indigo"} 
+            color={systemStatus?.cpu?.percent && systemStatus.cpu.percent > 80 ? "red" : "indigo"} 
           />
           <StatCard 
             icon={<Database className="w-4 h-4" />} 
             label="Memory" 
-            value={systemStatus?.memory_percent || 0} 
+            value={systemStatus?.memory?.percent ?? 0} 
             unit="%" 
-            color={systemStatus?.memory_percent && systemStatus.memory_percent > 85 ? "red" : "purple"} 
+            color={systemStatus?.memory?.percent && systemStatus.memory.percent > 85 ? "red" : "purple"} 
           />
         </div>
 
@@ -128,14 +131,16 @@ export const MobileDashboard: FC = () => {
           <div className="p-4 bg-black/40 rounded-xl border border-white/5">
             <p className="text-[10px] text-foreground-muted uppercase tracking-tighter mb-1">Foreground_Process</p>
             <p className="text-lg font-bold truncate text-foreground">
-              {systemStatus?.active_window || 'System Standby'}
+              {typeof systemStatus?.active_window === 'object' && systemStatus.active_window
+                ? systemStatus.active_window.title
+                : (systemStatus?.active_window as string) || 'System Standby'}
             </p>
           </div>
         </motion.div>
 
         {/* Proactive Insights */}
         <AnimatePresence>
-          {systemStatus?.context_suggestion && (
+          {systemStatus?.context_suggestion != null && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -179,7 +184,7 @@ export const MobileDashboard: FC = () => {
 
       <footer className="mt-8 text-center px-6">
         <p className="text-[9px] font-mono text-foreground-muted uppercase tracking-[0.2em]">
-          VIPHACKER100 LITE-SYNC v1.0.0
+          VIPHACKER100 LITE-SYNC v3.4.0 — JARVIS Neural Bridge
         </p>
       </footer>
     </div>

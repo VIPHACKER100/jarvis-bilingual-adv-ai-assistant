@@ -248,81 +248,7 @@ class ApiClient {
     return response.json();
   }
 
-  // --- Advanced Security & Diagnostics ---
 
-  // Get deep network scan
-  async getNetworkScan(): Promise<{
-    success: boolean;
-    connections: any[];
-    count: number;
-  }> {
-    const response = await fetch(`${this.baseUrl}/api/system/security/connections`, {
-      headers: this.getHeaders()
-    });
-    if (!response.ok) {
-      throw new Error('Failed to perform network scan');
-    }
-    return response.json();
-  }
-
-  // Quarantine a process
-  async quarantineProcess(pid: number, action: 'suspend' | 'resume' | 'terminate' = 'suspend'): Promise<{
-    success: boolean;
-    response: string;
-  }> {
-    const response = await fetch(`${this.baseUrl}/api/system/security/quarantine?pid=${pid}&action=${action}`, {
-      method: 'POST',
-      headers: this.getHeaders()
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to ${action} process ${pid}`);
-    }
-    return response.json();
-  }
-
-  // Get current settings
-  async getSettings(): Promise<{ success: boolean; settings: any }> {
-    const response = await fetch(`${this.baseUrl}/api/settings`, {
-      headers: this.getHeaders()
-    });
-    if (!response.ok) {
-      throw new Error('Failed to get settings');
-    }
-    return response.json();
-  }
-
-  // Update settings
-  async updateSettings(settings: any): Promise<{ success: boolean; updated: string[]; settings: any }> {
-    const response = await fetch(`${this.baseUrl}/api/settings`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(settings)
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to update settings');
-    }
-    return response.json();
-  }
-
-  // Update API Keys
-  async updateApiKeys(keys: {
-    nvidia_api_key?: string;
-    openrouter_api_key?: string;
-    gemini_api_key?: string;
-    backend_api_key?: string;
-  }): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${this.baseUrl}/api/settings/keys`, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(keys)
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to update API keys');
-    }
-    return response.json();
-  }
   // Get automation status
   async getAutomationStatus(): Promise<{ success: boolean; status: any }> {
     const response = await fetch(`${this.baseUrl}/api/automation/status`, {
@@ -410,6 +336,186 @@ class ApiClient {
       headers: this.getHeaders()
     });
     return response.json();
+  }
+
+  // --- WhatsApp ---
+
+  /** Check WhatsApp Desktop status */
+  async getWhatsAppStatus(): Promise<{
+    success: boolean;
+    desktop_installed: boolean;
+    is_running: boolean;
+    response: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/whatsapp/status`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get WhatsApp status');
+    return response.json();
+  }
+
+  /** Send a WhatsApp message */
+  async sendWhatsAppMessage(contact: string, message: string, language: 'en' | 'hi' = 'en'): Promise<{
+    success: boolean;
+    response: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/whatsapp/send`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ contact, message, language })
+    });
+    if (!response.ok) throw new Error('Failed to send WhatsApp message');
+    return response.json();
+  }
+
+  /** Draft a context-aware reply from the active WhatsApp screen (OCR-powered) */
+  async draftWhatsAppReply(language: 'en' | 'hi' = 'en'): Promise<{
+    success: boolean;
+    draft?: string;
+    copied_to_clipboard: boolean;
+    response: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/whatsapp/draft_reply?language=${language}`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to draft WhatsApp reply');
+    return response.json();
+  }
+
+  /** Get list of known WhatsApp contacts */
+  async getWhatsAppContacts(): Promise<{
+    success: boolean;
+    contacts: Array<{ alias: string; name: string; phone: string }>;
+    count: number;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/whatsapp/contacts`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get WhatsApp contacts');
+    return response.json();
+  }
+
+  // --- Security & Process Guardian ---
+
+  /** Get all running processes */
+  async getRunningProcesses(): Promise<{
+    success: boolean;
+    processes: Array<{
+      pid: number;
+      name: string;
+      cpu_percent: number;
+      memory_mb: number;
+      status: string;
+      threat_level: string;
+    }>;
+    count: number;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/system/security/processes`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get running processes');
+    return response.json();
+  }
+
+  /** Get deep network connection scan */
+  async getNetworkScan(): Promise<{
+    success: boolean;
+    connections: any[];
+    count: number;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/system/security/connections`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to perform network scan');
+    return response.json();
+  }
+
+  /** Quarantine (suspend/resume/terminate) a process by PID */
+  async quarantineProcess(pid: number, action: 'suspend' | 'resume' | 'terminate' = 'suspend'): Promise<{
+    success: boolean;
+    response: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/system/security/quarantine?pid=${pid}&action=${action}`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error(`Failed to ${action} process ${pid}`);
+    return response.json();
+  }
+
+  // --- Notifications ---
+
+  /** Broadcast a notification to all connected WebSocket clients */
+  async broadcastNotification(title: string, message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info', duration = 5000): Promise<{
+    success: boolean;
+    clients_notified: number;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/notifications/broadcast`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ title, message, type, duration })
+    });
+    if (!response.ok) throw new Error('Failed to broadcast notification');
+    return response.json();
+  }
+
+  // --- Settings ---
+
+  /** Get current settings */
+  async getSettings(): Promise<{ success: boolean; settings: any }> {
+    const response = await fetch(`${this.baseUrl}/api/settings`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get settings');
+    return response.json();
+  }
+
+  /** Update settings */
+  async updateSettings(settings: any): Promise<{ success: boolean; updated: string[]; settings: any }> {
+    const response = await fetch(`${this.baseUrl}/api/settings`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(settings)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to update settings');
+    }
+    return response.json();
+  }
+
+  /** Update API keys */
+  async updateApiKeys(keys: {
+    nvidia_api_key?: string;
+    openrouter_api_key?: string;
+    gemini_api_key?: string;
+    backend_api_key?: string;
+  }): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${this.baseUrl}/api/settings/keys`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(keys)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to update API keys');
+    }
+    return response.json();
+  }
+
+  // --- Utility ---
+
+  /**
+   * Safe request wrapper — returns null on failure instead of throwing.
+   * Use for non-critical background calls where errors should be silent.
+   */
+  async safeRequest<T>(fn: () => Promise<T>): Promise<T | null> {
+    try {
+      return await fn();
+    } catch {
+      return null;
+    }
   }
 }
 

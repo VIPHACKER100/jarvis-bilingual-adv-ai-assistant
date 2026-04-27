@@ -3,7 +3,8 @@ from typing import Dict, Any, Optional, List
 from modules.whatsapp import whatsapp_manager
 from models import (
     BaseResponse, WhatsAppMessageRequest, 
-    WhatsAppCallRequest, WhatsAppContactListResponse
+    WhatsAppCallRequest, WhatsAppContactListResponse,
+    WhatsAppDraftResponse
 )
 
 router = APIRouter(prefix="/api/whatsapp", tags=["WhatsApp Automation"])
@@ -33,7 +34,9 @@ async def get_whatsapp_status(language: str = "en"):
     """Check WhatsApp Desktop availability"""
     return await whatsapp_manager.get_status(language)
 
-@router.post("/draft_reply", response_model=BaseResponse)
+@router.post("/draft_reply", response_model=WhatsAppDraftResponse)
 async def draft_whatsapp_reply(language: str = "en"):
     """Draft a reply based on current WhatsApp chat screen using OCR"""
-    return await whatsapp_manager.draft_smart_reply(language)
+    result = await whatsapp_manager.draft_smart_reply(language)
+    result.setdefault("copied_to_clipboard", bool(result.get("draft")))
+    return result

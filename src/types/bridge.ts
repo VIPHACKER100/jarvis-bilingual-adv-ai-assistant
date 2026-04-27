@@ -34,6 +34,12 @@ export interface SystemStatus {
   platform: string;
   timestamp: string;
   error?: string;
+  // v3.4.0 — contextual intelligence fields
+  active_window?: {
+    title: string;
+    process: string;
+  } | string | null;
+  context_suggestion?: string | null;
 }
 
 export interface CommandRequest {

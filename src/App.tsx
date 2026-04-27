@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, FC } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Settings, Globe, Activity, X } from 'lucide-react';
 import { ArcReactor } from './components/ArcReactor';
 import { HistoryLog } from './components/HistoryLog';
 import { VolumeControl } from './components/VolumeControl';
@@ -446,6 +448,7 @@ const AppContent: FC = () => {
   };
 
 
+  return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden select-none">
       <NotificationCenter />
       
@@ -465,7 +468,7 @@ const AppContent: FC = () => {
       >
         <div className="flex flex-col">
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight gradient-text-linear">
-            JARVIS <span className="accent-text-linear text-2xl md:text-4xl ml-2">v3.1.0</span>
+            JARVIS <span className="accent-text-linear text-2xl md:text-4xl ml-2">v3.4.0</span>
           </h1>
           <p className="text-[10px] md:text-xs font-mono text-foreground-muted tracking-widest uppercase mt-2">
             Neural Interface // Active_Status: Online
@@ -727,7 +730,7 @@ const AppContent: FC = () => {
           <a href="https://instagram.com/viphacker100" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors uppercase border-b border-transparent hover:border-cyan-400 pb-1">Instagram</a>
         </div>
         <div className="text-slate-700 text-[8px] md:text-[9px] tracking-[0.4em] font-light uppercase text-center px-4 leading-loose">
-          VIPHACKER100 OS V2.2.2 | DESIGNED & DEVELOPED BY <br className="md:hidden" />
+          VIPHACKER100 OS V3.4.0 | DESIGNED & DEVELOPED BY <br className="md:hidden" />
           <span className="text-slate-500 font-bold border-b border-slate-800">VIPHACKER100 (ARYAN AHIRWAR)</span>
         </div>
       </footer>

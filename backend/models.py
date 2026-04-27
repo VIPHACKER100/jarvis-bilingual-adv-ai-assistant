@@ -10,7 +10,7 @@ class BaseResponse(BaseModel):
     error: Optional[str] = None
     response_time: Optional[float] = None
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
-    version: str = "3.1.0"
+    version: str = "3.4.0"
 
 # --- Command Models ---
 
@@ -330,6 +330,10 @@ class WhatsAppCallRequest(BaseModel):
 class WhatsAppContactListResponse(BaseResponse):
     contacts: List[Dict[str, str]]
     count: int
+
+class WhatsAppDraftResponse(BaseResponse):
+    draft: Optional[str] = None
+    copied_to_clipboard: bool = False
 
 # --- Notification Models ---
 
