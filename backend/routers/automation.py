@@ -5,42 +5,99 @@ from models import BaseResponse, AutomationTaskRequest, MacroRequest
 
 router = APIRouter(prefix="/api/automation", tags=["Automation"])
 
+
 @router.post("/task", response_model=BaseResponse)
 async def create_task(data: AutomationTaskRequest):
     """Schedule a new task"""
-    return await automation_manager.create_task(data.dict())
+    task = automation_manager.create_task(
+        name=data.name,
+        description=data.name,
+        command=data.command,
+        schedule_type=data.schedule_type,
+        schedule_time=str(data.interval_seconds)
+        if data.interval_seconds
+        else data.cron_expression or "",
+        parameters={},
+        enabled=data.enabled,
+    )
+    return {
+        "success": task is not None,
+        "response": f"Task created: {data.name}" if task else "Failed to create task",
+    }
+
 
 @router.get("/tasks")
-async def get_tasks():
+def get_tasks():
     """List all scheduled tasks"""
-    return await automation_manager.get_all_tasks()
+    tasks = automation_manager.get_all_tasks()
+    return [
+        {
+            "id": t.id,
+            "name": t.name,
+            "description": t.description,
+            "command": t.command,
+            "schedule_type": t.schedule_type,
+            "schedule_time": t.schedule_time,
+            "enabled": t.enabled,
+        }
+        for t in tasks
+    ]
+
 
 @router.post("/task/{task_id}/toggle", response_model=BaseResponse)
-async def toggle_task(task_id: str):
+def toggle_task(task_id: str):
     """Enable/Disable a task"""
-    return await automation_manager.toggle_task(task_id)
+    result = automation_manager.toggle_task(task_id)
+    return {"success": result, "response": f"Task {task_id} toggled"}
+
 
 @router.delete("/task/{task_id}", response_model=BaseResponse)
-async def delete_task(task_id: str):
+def delete_task(task_id: str):
     """Remove a task"""
-    return await automation_manager.delete_task(task_id)
+    result = automation_manager.delete_task(task_id)
+    return {"success": result, "response": f"Task {task_id} deleted"}
+
 
 @router.post("/macro", response_model=BaseResponse)
-async def create_macro(data: MacroRequest):
+def create_macro(data: MacroRequest):
     """Create a new command macro"""
-    return await automation_manager.create_macro(data.dict())
+    macro = automation_manager.create_macro(
+        name=data.name,
+        description=data.description or "",
+        commands=[{"command": c, "delay": 0} for c in data.commands],
+        trigger="manual",
+        trigger_phrase=data.trigger_phrase or "",
+    )
+    return {
+        "success": macro is not None,
+        "response": f"Macro created: {data.name}" if macro else "Failed",
+    }
+
 
 @router.get("/macros")
-async def get_macros():
+def get_macros():
     """List all saved macros"""
-    return await automation_manager.get_all_macros()
+    macros = automation_manager.get_all_macros()
+    return [
+        {
+            "id": m.id,
+            "name": m.name,
+            "description": m.description,
+            "trigger": m.trigger,
+            "enabled": m.enabled,
+        }
+        for m in macros
+    ]
+
 
 @router.post("/macro/{macro_id}/run", response_model=BaseResponse)
-async def run_macro(macro_id: str):
+def run_macro(macro_id: str):
     """Run a macro manually"""
-    return await automation_manager.run_macro_manually(macro_id)
+    result = automation_manager.run_macro_manually(macro_id)
+    return {"success": result, "response": f"Macro {macro_id} executed"}
 
-@router.get("/status", response_model=BaseResponse)
-async def get_automation_status():
+
+@router.get("/status")
+def get_automation_status():
     """Get scheduler engine status"""
-    return await automation_manager.get_scheduler_status()
+    return automation_manager.get_scheduler_status()
