@@ -185,8 +185,10 @@ def _find_frontend_dir() -> Optional[Path]:
         Path.cwd() / "frontend"
     ]
     for c in candidates:
+        # print(f"Checking frontend candidate: {c}") # Debug
         if c.exists() and (c / "index.html").exists():
             return c
+    logger.warning(f"Frontend directory not found! Checked: {[str(c) for c in candidates]}")
     return None
 
 frontend_dir = _find_frontend_dir()
