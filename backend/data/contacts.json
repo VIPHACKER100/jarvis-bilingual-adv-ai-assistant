@@ -1,8 +1,9 @@
 {
-    "mom": { "name": "Mom", "phone": "+919876543210" },
-    "maa": { "name": "Mom", "phone": "+919876543210" },
-    "papa": { "name": "Dad", "phone": "+919876543211" },
-    "boss": { "name": "Manager", "phone": "+919876543212" },
-    "brother": { "name": "Brother", "phone": "+919876543213" },
-    "sister": { "name": "Sister", "phone": "+919876543214" }
+    "mom": { "name": "Mom", "phone": "+919876543210", "role": "family", "language_preference": "hi", "aliases": ["maa", "mummy"] },
+    "maa": { "name": "Mom", "phone": "+919876543210", "role": "family", "language_preference": "hi", "aliases": ["mom", "mummy"] },
+    "papa": { "name": "Dad", "phone": "+919876543211", "role": "family", "language_preference": "hi", "aliases": ["dad", "father"] },
+    "boss": { "name": "Manager", "phone": "+919876543212", "role": "work", "language_preference": "en", "aliases": ["manager", "sir"] },
+    "brother": { "name": "Brother", "phone": "+919876543213", "role": "family", "language_preference": "hinglish", "aliases": ["bhai"] },
+    "sister": { "name": "Sister", "phone": "+919876543214", "role": "family", "language_preference": "hinglish", "aliases": ["didi", "sis"] },
+    "client": { "name": "Client A", "phone": "+919876543215", "role": "work", "language_preference": "en", "aliases": ["customer"] }
 }
