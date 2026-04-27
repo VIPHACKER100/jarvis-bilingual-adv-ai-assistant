@@ -3,6 +3,7 @@ from utils.logger import logger
 import os
 import json
 import sys
+from openai import OpenAI
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
@@ -27,7 +28,16 @@ class LLMModule:
         self.ollama_url = OLLAMA_URL
         self.ollama_model = OLLAMA_MODEL
         self.openrouter_url = "https://openrouter.ai/api/v1/chat/completions"
-        self.nvidia_url = "https://integrate.api.nvidia.com/v1/chat/completions"
+        self.nvidia_url = "https://integrate.api.nvidia.com/v1"
+        
+        # Initialize OpenAI client for NVIDIA
+        if self.nvidia_api_key:
+            self.nvidia_client = OpenAI(
+                base_url=self.nvidia_url,
+                api_key=self.nvidia_api_key
+            )
+        else:
+            self.nvidia_client = None
         
         # Use models from config as primary, with fallbacks
         self.nvidia_model = NVIDIA_MODEL
@@ -117,46 +127,69 @@ class LLMModule:
             return None
 
     async def _get_nvidia_response(self, text: str, system_prompt: str) -> Optional[str]:
-        """Get response from NVIDIA API"""
-        headers = {
-            "Authorization": f"Bearer {self.nvidia_api_key}",
-            "Accept": "application/json"
-        }
-        
-        payload = {
-            "model": self.nvidia_model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": text}
-            ],
-            "max_tokens": 1024,
-            "temperature": 0.60,
-            "top_p": 0.95,
-        }
+        """Get response from NVIDIA API using OpenAI client and DeepSeek reasoning"""
+        if not self.nvidia_client:
+            logger.error("NVIDIA client not initialized. Check NVIDIA_API_KEY.")
+            return None
+
+        model = "deepseek-ai/deepseek-v4-flash"
         
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    self.nvidia_url,
-                    headers=headers,
-                    json=payload,
-                    timeout=120.0)
+            # Note: client.chat.completions.create is blocking, 
+            # so we run it in a thread to keep the event loop free
+            import asyncio
+            
+            def call_nvidia():
+                completion = self.nvidia_client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": text}
+                    ],
+                    temperature=1,
+                    top_p=0.95,
+                    max_tokens=16384,
+                    extra_body={
+                        "chat_template_kwargs": {
+                            "thinking": True,
+                            "reasoning_effort": "high"
+                        }
+                    },
+                    stream=True
+                )
+                
+                full_content = ""
+                full_reasoning = ""
+                
+                for chunk in completion:
+                    if not getattr(chunk, "choices", None):
+                        continue
+                    
+                    reasoning = getattr(chunk.choices[0].delta, "reasoning", None) or \
+                                getattr(chunk.choices[0].delta, "reasoning_content", None)
+                    
+                    if reasoning:
+                        full_reasoning += reasoning
+                        # We could log reasoning or print it for debugging
+                        # print(reasoning, end="", flush=True)
+                        
+                    if chunk.choices and chunk.choices[0].delta.content is not None:
+                        content = chunk.choices[0].delta.content
+                        full_content += content
+                        # print(content, end="", flush=True)
+                
+                if full_reasoning:
+                    logger.debug(f"NVIDIA Reasoning: {full_reasoning}")
+                    
+                return full_content.strip()
 
-            if response.status_code == 200:
-                data = response.json()
-                if "choices" in data and len(data["choices"]) > 0:
-                    return data["choices"][0]["message"]["content"].strip()
-                return None
-            else:
-                logger.error(f"NVIDIA API Error {response.status_code}: {response.text}")
-                # Fallback to OpenRouter if NVIDIA fails
-                if self.openrouter_api_key:
-                    logger.info("Falling back to OpenRouter...")
-                    return await self._get_openrouter_response(text, system_prompt)
-                return None
+            response = await asyncio.to_thread(call_nvidia)
+            return response if response else None
+
         except Exception as e:
             logger.error(f"Exception calling NVIDIA API: {type(e).__name__}: {e}")
             if self.openrouter_api_key:
+                logger.info("Falling back to OpenRouter...")
                 return await self._get_openrouter_response(text, system_prompt)
             return None
 

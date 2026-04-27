@@ -57,3 +57,6 @@ auto-py-to-exe>=2.41.0
 # Type Checking & Development
 typing-extensions>=4.9.0
 colorama>=0.4.6
+
+# LLM APIs
+openai>=1.12.0
