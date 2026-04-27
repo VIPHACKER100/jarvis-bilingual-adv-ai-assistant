@@ -220,3 +220,4 @@ RESPONSES = {
         'command_not_understood': 'क्षमा करें, मुझे यह समझ नहीं आया।',
         'confirmation_timeout': 'पुष्टि का समय समाप्त हो गया। कार्य रद्द कर दिया गया है।',
     }
+}

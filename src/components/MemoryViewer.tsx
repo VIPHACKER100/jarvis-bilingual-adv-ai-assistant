@@ -1,4 +1,5 @@
-import { useState, useEffect, FC } from 'react';
+import { useState, useEffect, FC, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { apiClient } from '../services/apiClient';
 
 interface Conversation {
@@ -25,7 +26,7 @@ interface MemoryFact {
   updated_at: string;
 }
 
-type ViewMode = 'history' | 'analytics' | 'memories';
+type ViewMode = 'history' | 'analytics' | 'memories' | 'map';
 
 export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -153,6 +154,28 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
     return date.toLocaleString();
   };
 
+  const mapData = useMemo(() => {
+    const nodes: any[] = [{ id: 'core', label: 'JARVIS CORE', type: 'core', color: '#06b6d4' }];
+    const edges: any[] = [];
+    
+    // Extract unique categories
+    const categories = Array.from(new Set(facts.map(f => f.category)));
+    
+    // Add category nodes
+    categories.forEach((cat, i) => {
+      nodes.push({ id: `cat_${cat}`, label: cat.toUpperCase(), type: 'category', color: '#f97316' });
+      edges.push({ source: 'core', target: `cat_${cat}` });
+    });
+    
+    // Add fact nodes
+    facts.forEach((fact, i) => {
+      nodes.push({ id: `fact_${fact.id}`, label: fact.key.replace(/_/g, ' '), type: 'fact', color: '#64748b' });
+      edges.push({ source: `cat_${fact.category}`, target: `fact_${fact.id}` });
+    });
+    
+    return { nodes, edges, categories };
+  }, [facts]);
+
   if (!isOpen) return null;
 
   return (
@@ -207,10 +230,19 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
           >
             Analytics Dashboard
           </button>
+          <button
+            onClick={() => setViewMode('map')}
+            className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'map'
+              ? 'bg-green-600/20 text-green-400 border border-green-500/30'
+              : 'text-slate-400 hover:text-slate-200'
+              }`}
+          >
+            Memory Map
+          </button>
         </div>
 
         {/* Search (Only in history or memories mode) */}
-        {viewMode !== 'analytics' && (
+        {viewMode !== 'analytics' && viewMode !== 'map' && (
           <div className="p-4 border-b border-slate-700 shrink-0">
             <div className="relative">
               <input
@@ -492,6 +524,97 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                   Analytics unavailable. Gather more data.
                 </div>
               )}
+            </div>
+          ) : viewMode === 'map' ? (
+            <div className="flex-1 relative overflow-hidden bg-slate-950 p-6 flex flex-col items-center justify-center">
+              <h3 className="absolute top-6 left-6 text-sm font-bold text-slate-400 uppercase tracking-widest z-10">Neural Map Visualization</h3>
+              
+              <div className="relative w-full max-w-2xl aspect-square flex items-center justify-center mt-10">
+                {/* Core Node */}
+                <motion.div 
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, type: "spring" }}
+                  className="absolute z-20 w-32 h-32 rounded-full border-2 border-cyan-500 bg-slate-900/80 backdrop-blur-md flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🤖</div>
+                    <div className="text-[10px] font-bold text-cyan-400 tracking-widest">JARVIS</div>
+                    <div className="text-[8px] text-slate-400">CORE</div>
+                  </div>
+                </motion.div>
+
+                {/* Category Nodes */}
+                {mapData.categories.map((cat, i) => {
+                  const angle = (i / mapData.categories.length) * Math.PI * 2;
+                  const radius = 150;
+                  const x = Math.cos(angle) * radius;
+                  const y = Math.sin(angle) * radius;
+                  
+                  return (
+                    <motion.div
+                      key={`cat_${cat}`}
+                      initial={{ opacity: 0, x: 0, y: 0 }}
+                      animate={{ opacity: 1, x, y }}
+                      transition={{ duration: 0.6, delay: 0.2 + (i * 0.1) }}
+                      className="absolute z-10 w-24 h-24 rounded-full border border-orange-500/60 bg-slate-800/90 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+                    >
+                      {/* Connecting Line to Core */}
+                      <svg className="absolute w-0 h-0 overflow-visible z-[-1]">
+                        <line x1={-x} y1={-y} x2={0} y2={0} stroke="rgba(249, 115, 22, 0.3)" strokeWidth="2" strokeDasharray="4 4" />
+                      </svg>
+                      
+                      <div className="text-center px-2">
+                        <div className="text-[10px] font-bold text-orange-400 uppercase tracking-wider break-words">{cat}</div>
+                        <div className="text-[8px] text-slate-500">{facts.filter(f => f.category === cat).length} nodes</div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+
+                {/* Orbiting Fact Nodes */}
+                {facts.map((fact, i) => {
+                  const catIndex = mapData.categories.indexOf(fact.category);
+                  const catAngle = (catIndex / mapData.categories.length) * Math.PI * 2;
+                  
+                  // Position facts orbiting around their category
+                  const factRadius = 60;
+                  // Add some pseudo-randomness based on ID to spread them out
+                  const localAngle = ((i * 137.5) * Math.PI) / 180;
+                  
+                  const catX = Math.cos(catAngle) * 150;
+                  const catY = Math.sin(catAngle) * 150;
+                  
+                  const x = catX + Math.cos(localAngle) * factRadius;
+                  const y = catY + Math.sin(localAngle) * factRadius;
+                  
+                  return (
+                    <motion.div
+                      key={`fact_${fact.id}`}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1, x, y }}
+                      transition={{ duration: 0.4, delay: 0.5 + (i * 0.05) }}
+                      className="absolute z-30 w-auto max-w-[100px] bg-slate-900 border border-slate-600 rounded px-2 py-1 flex items-center justify-center cursor-pointer hover:border-cyan-400 hover:z-40 transition-colors group"
+                      title={fact.value}
+                    >
+                      {/* Connecting Line to Category */}
+                      <svg className="absolute w-0 h-0 overflow-visible z-[-1] pointer-events-none">
+                        <line x1={catX - x} y1={catY - y} x2={0} y2={0} stroke="rgba(100, 116, 139, 0.4)" strokeWidth="1" />
+                      </svg>
+                      
+                      <div className="text-[8px] font-medium text-slate-300 truncate w-full text-center group-hover:text-cyan-300">
+                        {fact.key.replace(/_/g, ' ')}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+              
+              <div className="absolute bottom-6 right-6 text-[10px] text-slate-500 font-mono text-right">
+                <div>Nodes: {mapData.nodes.length}</div>
+                <div>Edges: {mapData.edges.length}</div>
+                <div>Status: Fully Synchronized</div>
+              </div>
             </div>
           )}
         </div>
