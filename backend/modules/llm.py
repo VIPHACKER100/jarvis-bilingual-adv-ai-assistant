@@ -55,7 +55,10 @@ class LLMModule:
             text: str,
             language: str = 'en',
             context: Optional[str] = None) -> Optional[str]:
-        """Get a response from the LLM with automatic fallback"""
+        """Get a response from the LLM with automatic context optimization"""
+        
+        # Trigger contextual pruning if history gets too long
+        memory_manager.prune_conversations(limit=25)
         
         if language == 'hi':
             lang_desc = "Hindi (Devanagari script)"
@@ -338,6 +341,30 @@ class LLMModule:
                 continue
 
         return None
+
+    async def summarize_context(self, conversation_entries: List[Any]) -> str:
+        """Generate a concise semantic summary of past interactions to save tokens"""
+        if not conversation_entries:
+            return ""
+            
+        summary_prompt = (
+            "Summarize the following conversation into a single concise paragraph. "
+            "Focus on the core intent, entities mentioned, and current user needs. "
+            "Ignore system chatter or filler. Keep it under 100 words."
+        )
+        
+        conversation_text = "\n".join([f"User: {e.user_input}\nJARVIS: {e.jarvis_response}" for e in conversation_entries])
+        
+        try:
+            summary = await self.get_response(
+                text=f"Conversation to summarize:\n{conversation_text}",
+                language='en',
+                context=summary_prompt
+            )
+            return summary or ""
+        except Exception as e:
+            logger.error(f"Error generating semantic summary: {e}")
+            return ""
 
 
     async def extract_command(self, text: str, available_commands: List[str]) -> Optional[Dict[str, Any]]:

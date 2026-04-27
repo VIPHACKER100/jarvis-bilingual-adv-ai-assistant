@@ -21,11 +21,18 @@ import { sfx } from './utils/audioUtils';
 
 import { NotificationProvider, useNotifications } from './context/NotificationContext';
 import { NotificationCenter } from './components/NotificationCenter';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { MobileDashboard } from './components/MobileDashboard';
 
 const App: FC = () => {
   return (
     <NotificationProvider>
-      <AppContent />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<AppContent />} />
+          <Route path="/mobile" element={<MobileDashboard />} />
+        </Routes>
+      </BrowserRouter>
     </NotificationProvider>
   );
 };
@@ -439,93 +446,98 @@ const AppContent: FC = () => {
   };
 
 
-  return (
-    <div className="min-h-screen w-full flex flex-col items-center bg-black relative overflow-x-hidden">
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden select-none">
       <NotificationCenter />
+      
+      {/* Linear Modern Background System */}
+      <div className="linear-bg"></div>
+      <div className="grid-overlay"></div>
+      
+      {/* Animated Ambient Blobs */}
+      <div className="ambient-blob w-[800px] h-[800px] bg-accent/20 top-[-200px] left-1/2 -translate-x-1/2 blur-[150px]"></div>
+      <div className="ambient-blob w-[600px] h-[600px] bg-purple-500/10 bottom-[-100px] right-[-100px] blur-[120px]" style={{ animationDelay: '-5s' }}></div>
 
-      {/* Background Grid/Effects */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.05)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
-      <div className="absolute inset-0 bg-radial-gradient from-transparent to-black pointer-events-none"></div>
-
-      {/* Header / Language Toggle */}
-      <header className="relative w-full max-w-6xl p-6 md:p-10 flex flex-col md:flex-row justify-between items-center z-20 gap-6 glass-panel border-t-0 border-x-0 rounded-t-none mb-4 md:mb-8 animate-fade-in-up">
-        <div className="text-center md:text-left flex flex-col items-center md:items-start">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-[0.4em] neon-text uppercase drop-shadow-lg">
-            JARVIS
+      {/* Modern Header */}
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative z-20 w-full max-w-6xl flex justify-between items-center mb-8 px-4"
+      >
+        <div className="flex flex-col">
+          <h1 className="text-3xl md:text-5xl font-bold tracking-tight gradient-text-linear">
+            JARVIS <span className="accent-text-linear text-2xl md:text-4xl ml-2">v3.1.0</span>
           </h1>
-          <p className="text-[10px] md:text-xs text-slate-400/80 tracking-[0.5em] font-medium uppercase mt-2">
-            Personal AI Assistant // Bilingual Protocol
+          <p className="text-[10px] md:text-xs font-mono text-foreground-muted tracking-widest uppercase mt-2">
+            Neural Interface // Active_Status: Online
           </p>
         </div>
 
         <div className="flex flex-col items-center md:items-end gap-3">
-          {/* Connection Status */}
-          <div className={`flex items-center gap-2 text-[10px] font-mono tracking-wider px-3 py-1 rounded border ${isConnected
-            ? 'border-green-500/50 text-green-400 bg-green-500/10'
-            : connectionStatus === 'connecting'
-              ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10'
-              : 'border-red-500/50 text-red-400 bg-red-500/10'
-            }`}>
-            <span className={`w-2 h-2 rounded-full animate-pulse ${isConnected ? 'bg-green-400' : connectionStatus === 'connecting' ? 'bg-yellow-400' : 'bg-red-400'
-              }`}></span>
-            <span>{isConnected ? 'BACKEND ONLINE' : connectionStatus === 'connecting' ? 'CONNECTING...' : 'BACKEND OFFLINE'}</span>
-            {!isConnected && (
-              <button
-                onClick={reconnect}
-                className="ml-2 text-cyan-400 hover:text-cyan-300 underline"
-              >
-                Retry
-              </button>
-            )}
-          </div>
+          <div className="flex items-center gap-4">
+            {/* Connection Status */}
+            <div className={`flex items-center gap-2 text-[10px] font-mono tracking-widest px-3 py-1.5 rounded-full border border-border-default bg-surface ${isConnected ? 'text-green-400' : 'text-red-400 animate-pulse'}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]' : 'bg-red-400'}`}></span>
+              <span>{isConnected ? 'Neural_Link: Active' : 'Neural_Link: Offline'}</span>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => { sfx.playSelect(); setShowSettingsModal(true); }}
-              onMouseEnter={() => sfx.playBlip()}
-              className="glass-panel text-slate-300 p-2 rounded-lg hover:border-cyan-500 hover:text-cyan-400 transition-all duration-300 shadow-xl group flex items-center justify-center h-10 w-10 md:h-11 md:w-11"
-              title="System Configuration"
-            >
-              <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => { sfx.playSelect(); toggleLanguage(); }}
-              onMouseEnter={() => sfx.playBlip()}
-              className="glass-panel flex items-center space-x-3 px-5 py-2 md:px-5 md:py-2.5 rounded-lg text-xs tracking-widest hover:border-cyan-500 transition-all duration-300 shadow-xl h-10 md:h-11"
-            >
-              <span className={language === Language.ENGLISH ? "text-cyan-400 font-bold drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" : "text-slate-500/70"}>EN</span>
-              <span className="text-slate-700/50">|</span>
-              <span className={language === Language.HINDI ? "text-purple-400 font-bold drop-shadow-[0_0_5px_rgba(139,92,246,0.8)]" : "text-slate-500/70"}>हिंदी</span>
-              <span className="text-slate-700/50">|</span>
-              <span className={language === Language.HINGLISH ? "text-pink-400 font-bold drop-shadow-[0_0_5px_rgba(217,70,239,0.8)]" : "text-slate-500/70"}>HI-EN</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { sfx.playSelect(); setShowSettingsModal(true); }}
+                className="p-2 rounded-lg bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover transition-all group"
+                title="System Settings"
+              >
+                <Settings className="w-4 h-4 text-foreground-muted group-hover:text-foreground group-hover:rotate-45 transition-transform" />
+              </button>
+              
+              <button
+                onClick={() => { sfx.playSelect(); toggleLanguage(); }}
+                className="flex items-center gap-3 px-4 py-2 rounded-lg bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover transition-all group"
+              >
+                <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-tighter">
+                  <span className={language === Language.ENGLISH ? "text-accent font-bold" : "text-foreground-muted"}>EN</span>
+                  <span className="text-border-default">/</span>
+                  <span className={language === Language.HINDI ? "text-accent font-bold" : "text-foreground-muted"}>HI</span>
+                  <span className="text-border-default">/</span>
+                  <span className={language === Language.HINGLISH ? "text-accent font-bold" : "text-foreground-muted"}>HE</span>
+                </div>
+                <Globe className="w-3.5 h-3.5 text-foreground-muted group-hover:text-accent transition-colors" />
+              </button>
+            </div>
           </div>
-          <div className="text-[9px] font-mono text-slate-500/80 uppercase tracking-[0.3em]">
-            Mode: {language === Language.HINGLISH ? 'Hinglish (Latin)' : language === Language.HINDI ? 'Hi-IN (Native)' : 'En-US'}
+          <div className="text-[9px] font-mono text-foreground-muted uppercase tracking-[0.2em] opacity-60">
+            Node_Identifier: {language === Language.HINGLISH ? 'HI_EN_PARSER' : language === Language.HINDI ? 'NATIVE_HINDI_v2' : 'UNIVERSAL_ENGLISH'}
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main UI Container */}
       <main className="relative z-10 flex flex-col items-center w-full max-w-4xl space-y-10 md:space-y-16 px-4 py-6">
 
-        <div className="h-10 flex items-center justify-center animate-fade-in-up relative z-20">
+        <div className="flex flex-col items-center gap-1.5 transition-all duration-700">
           {mode === AppMode.LISTENING && (
-            <span className="text-cyan-400 tracking-[0.3em] animate-pulse font-mono text-sm md:text-base drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]">
-              LISTENING / सुन रहा हूँ...
-            </span>
-          )}
-          {mode === AppMode.PROCESSING && (
-            <span className="text-purple-400 tracking-[0.3em] animate-pulse font-mono text-sm md:text-base drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]">
-              PROCESSING / कार्य-निष्पादन...
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
+              <span className="text-accent tracking-[0.4em] font-mono text-[10px] uppercase">Listening</span>
+            </div>
           )}
           {mode === AppMode.SPEAKING && (
-            <span className="text-pink-400 tracking-[0.3em] font-mono text-sm md:text-base drop-shadow-[0_0_8px_rgba(217,70,239,0.8)] animate-breathe">
-              RESPONDING...
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                {[1, 2, 3].map(i => (
+                  <motion.div 
+                    key={i}
+                    animate={{ height: [4, 12, 4] }}
+                    transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.1 }}
+                    className="w-1 bg-accent rounded-full"
+                  />
+                ))}
+              </div>
+              <span className="text-accent tracking-[0.4em] font-mono text-[10px] uppercase">Responding</span>
+            </div>
+          )}
+          {mode === AppMode.PROCESSING && (
+            <span className="text-indigo-400 tracking-[0.4em] font-mono text-[10px] animate-pulse uppercase">
+              Processing_Data...
             </span>
           )}
           {mode === AppMode.IDLE && (
@@ -545,59 +557,63 @@ const AppContent: FC = () => {
         {/* Smart Suggestion HUD */}
         {currentSuggestion && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            className="w-full max-w-xl z-30"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="w-full max-w-xl z-30 px-4"
           >
-            <div className="glass-panel p-4 border border-cyan-500/40 bg-cyan-950/20 backdrop-blur-xl rounded-2xl relative overflow-hidden group shadow-[0_0_30px_rgba(6,182,212,0.15)]">
-              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-500 to-purple-500"></div>
+            <div className="glass-panel p-4 border border-accent/20 bg-accent/5 backdrop-blur-2xl rounded-xl relative overflow-hidden group">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0 animate-pulse border border-cyan-500/30">
-                  <span className="text-xl">💡</span>
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0 border border-accent/20">
+                  <Activity className="w-4 h-4 text-accent" />
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-mono text-cyan-400 tracking-widest uppercase">Neural_Suggestion // Proactive</span>
+                    <span className="text-[9px] font-mono text-accent tracking-[0.2em] uppercase font-bold">Neural_Inference // Suggestion</span>
                     <button 
                       onClick={() => setCurrentSuggestion(null)}
-                      className="text-slate-500 hover:text-white transition-colors"
+                      className="text-foreground-muted hover:text-foreground transition-colors p-1"
                     >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      <X className="w-3 h-3" />
                     </button>
                   </div>
-                  <p className="text-sm text-slate-200 leading-relaxed font-medium">
+                  <p className="text-sm text-foreground/90 leading-relaxed font-medium">
                     {currentSuggestion}
                   </p>
                 </div>
               </div>
-              {/* Progress bar for auto-hide */}
-              <div className="absolute bottom-0 left-0 h-0.5 bg-cyan-500/30 w-full">
+              <div className="absolute bottom-0 left-0 h-0.5 bg-accent/10 w-full">
                 <motion.div 
                   initial={{ width: "100%" }}
                   animate={{ width: "0%" }}
                   transition={{ duration: 8, ease: "linear" }}
-                  className="h-full bg-cyan-500"
-                ></motion.div>
+                  className="h-full bg-accent"
+                />
               </div>
             </div>
           </motion.div>
         )}
 
         {/* Transcript Display */}
-        <div className="w-full max-w-2xl text-center min-h-[80px] px-4 md:px-0 z-20">
-          {transcript && (
-            <div className="glass-panel p-5 md:p-6 w-full relative animate-fade-in-up transition-all duration-300">
-              <div className="absolute top-0 left-4 w-12 h-[2px] bg-gradient-to-r from-cyan-400 to-transparent"></div>
-              <div className="absolute bottom-0 right-4 w-12 h-[2px] bg-gradient-to-l from-purple-400 to-transparent"></div>
-              
-              <p className="text-lg md:text-2xl text-white font-light tracking-wide font-sans leading-relaxed drop-shadow-md">
-                "{transcript}"
-              </p>
-            </div>
-          )}
+        <div className="w-full max-w-2xl text-center min-h-[100px] px-4 md:px-0 z-20 flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            {transcript && (
+              <motion.div 
+                key={transcript}
+                initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 1.02, filter: "blur(4px)" }}
+                className="relative px-8 py-6"
+              >
+                <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-accent/40" />
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-accent/40" />
+                
+                <p className="text-xl md:text-3xl text-foreground font-medium tracking-tight font-sans leading-tight">
+                  {transcript}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Bottom Modules */}
@@ -608,7 +624,7 @@ const AppContent: FC = () => {
 
             {/* Real System Status Panel */}
             {systemStatus && systemStatus.success && (
-              <SystemDiagnostics data={systemStatus} />
+              <SystemDiagnostics systemStatus={systemStatus} />
             )}
 
             {/* Fallback Stats Panel */}

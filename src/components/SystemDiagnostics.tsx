@@ -1,9 +1,9 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import { motion } from 'framer-motion';
-import { Cpu, HardDrive, Battery, Network, Globe } from 'lucide-react';
+import { Cpu, HardDrive, Battery, Network, Globe, Activity } from 'lucide-react';
 
 interface SystemDiagnosticsProps {
-  data: {
+  systemStatus: {
     cpu: { percent: number; count: number };
     memory: { used: number; total: number; percent: number };
     disk?: { used: number; total: number; percent: number };
@@ -12,10 +12,14 @@ interface SystemDiagnosticsProps {
     volume?: number;
     uptime?: number;
     platform?: string;
-  };
+    active_window?: { title: string; process: string } | null;
+    context_suggestion?: string | null;
+  } | null;
 }
 
-export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
+export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) => {
+  if (!systemStatus) return null;
+
   const formatBytes = (bytes: number) => {
     if (!bytes) return '0 B';
     const k = 1024;
@@ -24,200 +28,184 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ data }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const cpuColor = data.cpu.percent > 80 ? '#ec4899' : data.cpu.percent > 50 ? '#d946ef' : '#8b5cf6';
-  const memColor = data.memory.percent > 80 ? '#ec4899' : data.memory.percent > 50 ? '#d946ef' : '#0ea5e9';
-
-  // Circular Gauge Component
-  const Gauge = ({ percent, color, label, sublabel, index }: { percent: number; color: string; label: string; sublabel: string; index: number }) => {
+  const Gauge = ({ percent, label, sublabel, index }: { percent: number; label: string; sublabel: string; index: number }) => {
     const radius = 35;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percent / 100) * circumference;
 
     return (
       <motion.div 
-        initial={{ opacity: 0, scale: 0.8, rotate: -15 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-        transition={{ delay: index * 0.1, duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center justify-center p-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.1, duration: 0.5 }}
+        className="flex flex-col items-center justify-center"
       >
-        <div className="relative w-24 h-24 flex items-center justify-center">
+        <div className="relative w-20 h-20 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90">
-            {/* Background circle */}
             <circle
-              cx="48"
-              cy="48"
+              cx="40"
+              cy="40"
               r={radius}
-              stroke="currentColor"
-              strokeWidth="4"
+              stroke="var(--border-default)"
+              strokeWidth="3"
               fill="transparent"
-              className="text-slate-800"
             />
-            {/* Progress circle */}
             <motion.circle
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset: offset }}
-              transition={{ delay: index * 0.1 + 0.5, duration: 1.5, ease: "easeInOut" }}
-              cx="48"
-              cy="48"
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              cx="40"
+              cy="40"
               r={radius}
-              stroke={color}
-              strokeWidth="4"
+              stroke="var(--accent)"
+              strokeWidth="3"
               strokeDasharray={circumference}
               fill="transparent"
-              className="transition-all duration-1000 ease-out drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]"
               strokeLinecap="round"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <motion.span 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.1 + 1 }}
-              className="text-lg font-bold text-white leading-none"
-            >
-              {Math.round(percent)}%
-            </motion.span>
-            <span className="text-[8px] text-slate-500 uppercase tracking-tighter mt-1">{label}</span>
+            <span className="text-sm font-bold text-foreground">{Math.round(percent)}%</span>
+            <span className="text-[7px] text-foreground-muted uppercase tracking-widest">{label}</span>
           </div>
         </div>
-        <span className="text-[10px] text-cyan-500/80 font-mono mt-1">{sublabel}</span>
+        <span className="text-[9px] text-foreground-muted font-mono mt-1 opacity-60">{sublabel}</span>
       </motion.div>
     );
   };
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-md glass-panel border border-cyan-500/20 rounded-xl p-6 relative overflow-hidden group hover:border-purple-500/40 transition-all shadow-[inset_0_0_20px_rgba(6,182,212,0.05)]"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="w-full flex flex-col gap-6"
     >
-      {/* Decorative corners */}
-      <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500/40 rounded-tl-xl transition-colors group-hover:border-cyan-400"></div>
-      <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500/40 rounded-tr-xl transition-colors group-hover:border-cyan-400"></div>
-      <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-purple-500/40 rounded-bl-xl transition-colors group-hover:border-cyan-400"></div>
-      <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500/40 rounded-br-xl transition-colors group-hover:border-cyan-400"></div>
+      {/* Header Badge */}
+      <div className="flex items-center gap-3">
+        <Activity className="w-4 h-4 text-accent" />
+        <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-foreground">Diagnostics</h3>
+        <div className="h-px flex-1 bg-border-default"></div>
+      </div>
 
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6 border-b border-gradient-to-r from-cyan-500/30 to-purple-500/30 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-             <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
-             <div className="absolute inset-0 w-2 h-2 rounded-full bg-cyan-400 animate-ping opacity-75"></div>
-          </div>
-          <h3 className="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 tracking-[0.3em] uppercase drop-shadow-sm">System_Diagnostics_v3</h3>
+      {/* Main Stats Card */}
+      <div className="glass-panel p-5 space-y-6">
+        <div className="flex justify-around items-center">
+          <Gauge 
+            percent={systemStatus.cpu.percent} 
+            label="CPU" 
+            sublabel={`${systemStatus.cpu.count} Cores`} 
+            index={0}
+          />
+          <Gauge 
+            percent={systemStatus.memory.percent} 
+            label="RAM" 
+            sublabel={formatBytes(systemStatus.memory.used)} 
+            index={1}
+          />
         </div>
-        <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">{data.platform || 'LOCAL_HOST'} // {new Date().toLocaleTimeString()}</span>
+
+        {/* List Stats */}
+        <div className="space-y-4 pt-4 border-t border-border-default">
+          {systemStatus.battery && (
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-[10px] font-mono">
+                <div className="flex items-center gap-2 text-foreground-muted">
+                  <Battery className="w-3 h-3" />
+                  <span>GRID_ENERGY</span>
+                </div>
+                <span className={systemStatus.battery.is_charging ? "text-accent" : "text-foreground"}>
+                  {systemStatus.battery.percent}%
+                </span>
+              </div>
+              <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${systemStatus.battery.percent || 0}%` }}
+                  className="h-full bg-accent shadow-[0_0_8px_var(--accent)]"
+                />
+              </div>
+            </div>
+          )}
+
+          {systemStatus.disk && (
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-[10px] font-mono">
+                <div className="flex items-center gap-2 text-foreground-muted">
+                  <HardDrive className="w-3 h-3" />
+                  <span>MASS_STORAGE</span>
+                </div>
+                <span className="text-foreground">{systemStatus.disk.percent}%</span>
+              </div>
+              <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${systemStatus.disk.percent}%` }}
+                  className="h-full bg-accent/60"
+                />
+              </div>
+            </div>
+          )}
+
+          {systemStatus.network && (
+            <div className="pt-2">
+              <div className="flex justify-between items-center text-[9px] font-mono text-foreground-muted uppercase tracking-tight">
+                <div className="flex items-center gap-4">
+                   <div className="flex flex-col">
+                      <span>Up: {formatBytes(systemStatus.network.bytes_sent)}</span>
+                   </div>
+                   <div className="flex flex-col">
+                      <span>Down: {formatBytes(systemStatus.network.bytes_recv)}</span>
+                   </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></div>
+                  <span>Uplink_Active</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Primary Gauges */}
-      <div className="flex justify-around mb-6">
-        <Gauge 
-          percent={data.cpu.percent} 
-          color={cpuColor} 
-          label="CPU LOAD" 
-          sublabel={`${data.cpu.count} CORES`} 
-          index={0}
-        />
-        <Gauge 
-          percent={data.memory.percent} 
-          color={memColor} 
-          label="RAM USAGE" 
-          sublabel={`${formatBytes(data.memory.used)}`} 
-          index={1}
-        />
-      </div>
-
-      {/* Secondary Stats List */}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-        {data.battery && (
-          <motion.div 
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="space-y-1"
-          >
-            <div className="flex justify-between text-[9px] font-mono">
-              <span className="text-slate-400 uppercase flex items-center gap-1"><Battery size={10} /> Energy Grid</span>
-              <span className={data.battery.is_charging ? "text-green-400" : "text-cyan-400"}>
-                {data.battery.is_charging ? 'CHARGING' : 'BATTERY'}
+      {/* Platform & Context Information */}
+      <div className="space-y-3">
+        {systemStatus.active_window && (
+          <div className="glass-panel p-3 bg-white/[0.02] border-l-2 border-accent/40">
+            <div className="flex flex-col gap-1">
+              <span className="text-[7px] text-accent uppercase tracking-widest font-bold">Active_Context</span>
+              <span className="text-[10px] text-foreground truncate font-mono">
+                {systemStatus.active_window.title}
+              </span>
+              <span className="text-[8px] text-foreground-muted uppercase tracking-tighter">
+                PID: {systemStatus.active_window.process}
               </span>
             </div>
-            <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${data.battery.percent || 0}%` }}
-                  transition={{ duration: 1.5, ease: "easeOut", delay: 1 }}
-                  className={`h-full transition-all duration-1000 ${(data.battery.percent || 0) < 20 ? 'bg-pink-500 shadow-[0_0_10px_#ec4899]' : 'bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_10px_#8b5cf6]'}`} 
-                  style={{ '--progress-width': `${data.battery.percent || 0}%` } as React.CSSProperties}
-                ></motion.div>
-            </div>
-            <div className="flex justify-end text-[9px] font-mono text-slate-500">
-              {data.battery.percent}% CAPACITY
+          </div>
+        )}
+
+        {systemStatus.context_suggestion && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass-panel p-3 bg-accent/5 border border-accent/20"
+          >
+            <div className="flex flex-col gap-1">
+              <span className="text-[7px] text-accent uppercase tracking-widest font-bold animate-pulse">Proactive_Insight</span>
+              <p className="text-[10px] text-foreground leading-relaxed">
+                {systemStatus.context_suggestion}
+              </p>
             </div>
           </motion.div>
         )}
 
-        {data.disk && (
-          <motion.div 
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="space-y-1"
-          >
-             <div className="flex justify-between text-[9px] font-mono">
-              <span className="text-slate-400 uppercase flex items-center gap-1"><HardDrive size={10} /> Mass Storage</span>
-              <span className="text-cyan-400">{data.disk.percent.toFixed(0)}%</span>
-            </div>
-            <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${data.disk.percent}%` }}
-                  transition={{ duration: 1.5, ease: "easeOut", delay: 1 }}
-                  className="h-full progress-bar-width bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-1000 shadow-[0_0_10px_#38bdf8]" 
-                  style={{ '--progress-width': `${data.disk.percent}%` } as React.CSSProperties}
-                ></motion.div>
-            </div>
-            <div className="flex justify-end text-[9px] font-mono text-slate-500">
-              {formatBytes(data.disk.used)} / {formatBytes(data.disk.total)}
-            </div>
-          </motion.div>
-        )}
-
-        {data.network && (
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="col-span-2 mt-2 pt-2 border-t border-cyan-500/5"
-          >
-             <div className="flex justify-between items-center text-[9px] font-mono">
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-slate-500 text-[8px] flex items-center gap-1"><Globe size={8} /> UPLINK ADDRESS</span>
-                    <span className="text-cyan-400">0.0.0.0</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-slate-500 text-[8px] flex items-center gap-1"><Network size={8} /> DATA PACKETS</span>
-                    <span className="text-cyan-400 font-bold">ACTIVE</span>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-end">
-                    <span className="text-slate-500 text-[8px]">SENT</span>
-                    <span className="text-green-400">{formatBytes(data.network.bytes_sent)}</span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-slate-500 text-[8px]">RECV</span>
-                    <span className="text-blue-400">{formatBytes(data.network.bytes_recv)}</span>
-                  </div>
-                </div>
-             </div>
-          </motion.div>
-        )}
+        <div className="glass-panel p-3 flex justify-between items-center bg-white/[0.02]">
+          <div className="flex items-center gap-2">
+            <Globe className="w-3 h-3 text-foreground-muted" />
+            <span className="text-[9px] font-mono text-foreground-muted uppercase tracking-widest">{systemStatus.platform || 'LOCAL_HOST'}</span>
+          </div>
+          <span className="text-[9px] font-mono text-accent">STABLE</span>
+        </div>
       </div>
-
-      {/* Decorative Scanner Line */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500/40 to-transparent animate-scan pointer-events-none"></div>
     </motion.div>
   );
 };

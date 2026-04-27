@@ -189,16 +189,10 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         else:
             result = await whatsapp_manager.open_whatsapp(current_lang)
     
-    elif command_key == 'whatsapp_call':
-        contact = ""
-        is_video = False
-        if params:
-            if isinstance(params, dict):
-                contact = params.get('contact', '')
-                is_video = params.get('video', False)
-            else:
-                contact = str(params)
         result = await whatsapp_manager.call_contact(contact, is_video, current_lang)
+    
+    elif command_key == 'whatsapp_draft_reply':
+        result = await whatsapp_manager.draft_smart_reply(current_lang)
     
     # AI Conversation Fallback
     else:

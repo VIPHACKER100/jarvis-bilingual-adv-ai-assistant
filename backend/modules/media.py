@@ -170,7 +170,7 @@ class MediaProcessor:
             }
 
     async def extract_text_from_screenshot(self, language: str = 'en') -> Dict:
-        """Take screenshot and extract text"""
+        """Take screenshot, extract text, and categorize content"""
         try:
             # Take screenshot
             screenshot = pyautogui.screenshot()
@@ -179,14 +179,19 @@ class MediaProcessor:
             text = pytesseract.image_to_string(screenshot)
             text = text.strip()
 
+            # Categorize the extracted text
+            category_info = self.categorize_ocr_text(text)
+
             log_command('OCR on screenshot', 'ocr_screenshot', True)
 
             return {
                 'success': True,
                 'action_type': 'OCR_SCREENSHOT',
                 'text': text,
+                'category': category_info['category'],
+                'confidence': category_info['confidence'],
                 'text_preview': text[:200] + '...' if len(text) > 200 else text,
-                'response': f'Extracted {len(text)} characters from screen'
+                'response': f'Extracted {len(text)} characters. Detected category: {category_info["category"]}'
             }
 
         except Exception as e:
@@ -197,6 +202,41 @@ class MediaProcessor:
                 'error': str(e),
                 'response': 'Failed to extract text from screen'
             }
+
+    def categorize_ocr_text(self, text: str) -> Dict[str, Any]:
+        """Categorize OCR text into workspace types (Code, Browser, Doc, etc.)"""
+        text_lower = text.lower()
+        
+        # Keywords for categorization
+        indicators = {
+            'code': ['def ', 'import ', 'const ', 'function', 'class ', 'void ', '{', '}', 'public ', 'private '],
+            'browser': ['http://', 'https://', 'www.', '.com', '.org', '.net', 'search', 'github', 'youtube'],
+            'document': ['abstract', 'introduction', 'conclusion', 'section', 'table of contents', 'page ', 'chapter'],
+            'terminal': ['$', '>', 'C:\\', '/home/', 'sudo ', 'apt ', 'npm ', 'git ', 'python ']
+        }
+        
+        scores = {cat: 0 for cat in indicators}
+        for cat, keywords in indicators.items():
+            for kw in keywords:
+                if kw in text_lower:
+                    scores[cat] += 1
+        
+        # Determine the category with highest score
+        best_cat = 'unknown'
+        max_score = 0
+        for cat, score in scores.items():
+            if score > max_score:
+                max_score = score
+                best_cat = cat
+        
+        # Normalize confidence (simple heuristic)
+        confidence = min(max_score / 3.0, 1.0) if max_score > 0 else 0.0
+        
+        return {
+            'category': best_cat,
+            'confidence': confidence,
+            'scores': scores
+        }
 
     async def analyze_screen(self, query: Optional[str] = None, language: str = 'en') -> Dict:
         """Capture screenshot and analyze it using a multimodal LLM"""

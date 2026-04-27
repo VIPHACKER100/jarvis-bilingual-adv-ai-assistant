@@ -248,6 +248,38 @@ class ApiClient {
     return response.json();
   }
 
+  // --- Advanced Security & Diagnostics ---
+
+  // Get deep network scan
+  async getNetworkScan(): Promise<{
+    success: boolean;
+    connections: any[];
+    count: number;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/system/security/connections`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to perform network scan');
+    }
+    return response.json();
+  }
+
+  // Quarantine a process
+  async quarantineProcess(pid: number, action: 'suspend' | 'resume' | 'terminate' = 'suspend'): Promise<{
+    success: boolean;
+    response: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/system/security/quarantine?pid=${pid}&action=${action}`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to ${action} process ${pid}`);
+    }
+    return response.json();
+  }
+
   // Get current settings
   async getSettings(): Promise<{ success: boolean; settings: any }> {
     const response = await fetch(`${this.baseUrl}/api/settings`, {

@@ -615,6 +615,60 @@ class MemoryManager:
             logger.error(f"Error deleting all conversations: {e}")
             return False
 
+    def prune_conversations(self, limit: int = 20, session_id: Optional[str] = None) -> int:
+        """
+        Prune conversation history to a specific limit to optimize LLM context.
+        Returns the number of entries deleted.
+        """
+        try:
+            conn = sqlite3.connect(str(self.db_path))
+            cursor = conn.cursor()
+            
+            # Identify entries to keep
+            if session_id:
+                cursor.execute('''
+                    SELECT id FROM conversations 
+                    WHERE session_id = ? 
+                    ORDER BY timestamp DESC 
+                    LIMIT ?
+                ''', (session_id, limit))
+            else:
+                cursor.execute('''
+                    SELECT id FROM conversations 
+                    ORDER BY timestamp DESC 
+                    LIMIT ?
+                ''', (limit,))
+                
+            keep_ids = [row[0] for row in cursor.fetchall()]
+            
+            if not keep_ids:
+                return 0
+                
+            # Delete everything else
+            placeholders = ','.join(['?'] * len(keep_ids))
+            if session_id:
+                cursor.execute(f'''
+                    DELETE FROM conversations 
+                    WHERE session_id = ? AND id NOT IN ({placeholders})
+                ''', [session_id] + keep_ids)
+            else:
+                cursor.execute(f'''
+                    DELETE FROM conversations 
+                    WHERE id NOT IN ({placeholders})
+                ''', keep_ids)
+                
+            deleted = cursor.rowcount
+            conn.commit()
+            conn.close()
+            
+            if deleted > 0:
+                logger.info(f"Pruned {deleted} conversation entries to maintain performance.")
+            return deleted
+            
+        except Exception as e:
+            logger.error(f"Error pruning conversations: {e}")
+            return 0
+
     def delete_memory_by_id(self, memory_id: int) -> bool:
         """Delete specific memory fact by ID"""
         try:
@@ -629,24 +683,25 @@ class MemoryManager:
             logger.error(f"Error deleting memory fact {memory_id}: {e}")
             return False
 
-    def update_memory_by_id(self, memory_id: int, value: str) -> bool:
-        """Update specific memory fact by ID"""
+    def save_setting(self, key: str, value: Any) -> bool:
+        """Save a system setting to memory"""
+        return self.save_memory(MemoryEntry(
+            key=f"setting_{key}",
+            value=json.dumps(value) if not isinstance(value, str) else value,
+            category="settings",
+            source="system"
+        ))
+
+    def get_setting(self, key: str, default: Any = None) -> Any:
+        """Get a system setting from memory"""
+        entry = self.get_memory(f"setting_{key}")
+        if not entry:
+            return default
+        
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
-            now = datetime.now().isoformat()
-            cursor.execute('''
-                UPDATE memory 
-                SET value = ?, updated_at = ?
-                WHERE id = ?
-            ''', (value, now, memory_id))
-            conn.commit()
-            conn.close()
-            logger.info(f"Updated memory fact ID: {memory_id}")
-            return True
-        except Exception as e:
-            logger.error(f"Error updating memory fact {memory_id}: {e}")
-            return False
+            return json.loads(entry.value)
+        except:
+            return entry.value
 
 
 # Singleton instance

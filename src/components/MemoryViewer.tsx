@@ -1,6 +1,7 @@
 import { useState, useEffect, FC, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { apiClient } from '../services/apiClient';
+import { SecurityDashboard } from './SecurityDashboard';
 
 interface Conversation {
   id: number;
@@ -26,7 +27,7 @@ interface MemoryFact {
   updated_at: string;
 }
 
-type ViewMode = 'history' | 'analytics' | 'memories' | 'map';
+type ViewMode = 'history' | 'analytics' | 'memories' | 'map' | 'security';
 
 export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -281,6 +282,15 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
               }`}
           >
             Memory Map
+          </button>
+          <button
+            onClick={() => setViewMode('security')}
+            className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'security'
+              ? 'bg-red-600/20 text-red-400 border border-red-500/30'
+              : 'text-slate-400 hover:text-slate-200'
+              }`}
+          >
+            Security & Network
           </button>
         </div>
 
@@ -667,6 +677,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                 )}
               </div>
             </div>
+          ) : viewMode === 'security' ? (
+            <SecurityDashboard />
           ) : null}
         </div>
 

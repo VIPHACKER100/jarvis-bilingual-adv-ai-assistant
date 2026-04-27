@@ -20,11 +20,21 @@ class SystemModule:
     """Handle system-related commands"""
 
     def __init__(self):
-        pass
+        self._last_battery_alert = 0
+        self._last_cpu_alert = 0
+        self._last_process_alert = 0
+        self._last_status_cache = None
+        self._last_status_time = 0
+        self._status_cache_ttl = 2.0  # seconds
+        self._quarantined_pids: List[int] = []
 
     async def get_system_status(self, language: str = 'en') -> SystemStatusResponse:
-        """Get complete system status"""
-        start = time.time()
+        """Get complete system status with intelligent caching"""
+        now = time.time()
+        if self._last_status_cache and (now - self._last_status_time < self._status_cache_ttl):
+            return self._last_status_cache
+
+        start = now
         try:
             # Battery
             battery = psutil.sensors_battery()
@@ -77,7 +87,29 @@ class SystemModule:
 
             platform_name = 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux'
 
-            return SystemStatusResponse(
+            # Contextual info
+            active_window = None
+            context_suggestion = None
+            try:
+                from modules.window_manager import window_manager
+                from modules.context import context_manager
+                
+                win = window_manager.get_active_window()
+                if win:
+                    active_window = {
+                        "title": win.get("title", "Unknown"),
+                        "process": win.get("process", "Unknown")
+                    }
+                
+                context_suggestion = await context_manager.suggest_next_action()
+            except Exception as context_err:
+                logger.debug(f"Could not get context for status: {context_err}")
+
+            # Check system health and push notifications if needed
+            await self.check_system_health(battery_info, cpu_percent)
+            await self.monitor_processes()
+
+            status = SystemStatusResponse(
                 response=f"System status retrieved successfully in {language}",
                 battery=battery_info,
                 cpu=cpu_info,
@@ -87,8 +119,16 @@ class SystemModule:
                 uptime=uptime_seconds,
                 volume=current_volume,
                 platform=platform_name,
+                active_window=active_window,
+                context_suggestion=context_suggestion,
                 response_time=round(time.time() - start, 4)
             )
+            
+            # Cache the result
+            self._last_status_cache = status
+            self._last_status_time = time.time()
+            
+            return status
 
         except Exception as e:
             logger.error(f"Error getting system status: {e}")
@@ -473,6 +513,125 @@ class SystemModule:
                 'error': str(e),
                 'response': "Failed to get uptime"}
 
+
+    async def check_system_health(self, battery: BatteryInfo, cpu_percent: float):
+        """Check system health and broadcast notifications for critical events"""
+        try:
+            from routers.websocket import broadcast_notification
+            
+            # Low Battery Alert
+            if battery.percent is not None and battery.percent < 20 and not battery.is_charging:
+                # Use a flag to avoid spamming
+                if not hasattr(self, '_last_battery_alert') or time.time() - self._last_battery_alert > 300:
+                    await broadcast_notification(
+                        title="Critical Battery Level",
+                        message=f"Battery is at {battery.percent}%. Please connect your charger, sir.",
+                        type="warning",
+                        duration=10000
+                    )
+                    self._last_battery_alert = time.time()
+            
+            # High CPU Alert
+            if cpu_percent > 90:
+                if not hasattr(self, '_last_cpu_alert') or time.time() - self._last_cpu_alert > 600:
+                    await broadcast_notification(
+                        title="High System Load",
+                        message=f"CPU usage is at {cpu_percent}%. Performance may be impacted.",
+                        type="error",
+                        duration=8000
+                    )
+                    self._last_cpu_alert = time.time()
+                    
+        except Exception as e:
+            logger.debug(f"Notification broadcast skipped: {e}")
+
+    async def monitor_processes(self):
+        """Scan for suspicious processes based on Neural Security Node and resource usage"""
+        try:
+            from modules.memory import memory_manager
+            from routers.websocket import broadcast_notification
+            
+            # Throttling Process Guardian
+            if hasattr(self, '_last_process_scan') and time.time() - self._last_process_scan < 10:
+                return
+            self._last_process_scan = time.time()
+
+            # Load security node for context
+            security_content = memory_manager.neural.get_node("security.md")
+            # Simple check for blacklist titles in memory (this can be made more robust)
+            blacklist = ["regedit.exe", "remote_desktop.exe"]
+            
+            suspicious = []
+            for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+                try:
+                    pinfo = proc.info
+                    # High Resource Spike Check
+                    if pinfo['cpu_percent'] > 95:
+                        suspicious.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Critical CPU Spike")
+                    
+                    # Blacklist Check
+                    if pinfo['name'] in blacklist:
+                        suspicious.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Blacklisted Process Detected")
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+            
+            if suspicious and (time.time() - self._last_process_alert > 300):
+                await broadcast_notification(
+                    title="Process Guardian Alert",
+                    message=f"Suspicious activity detected: {suspicious[0]}",
+                    type="error",
+                    duration=10000
+                )
+                self._last_process_alert = time.time()
+                logger.warning(f"Process Guardian flagged: {suspicious}")
+                
+        except Exception as e:
+            logger.error(f"Error in Process Guardian: {e}")
+
+    async def quarantine_process(self, pid: int, action: str = "suspend") -> bool:
+        """Proactively isolate or terminate a suspicious process"""
+        try:
+            proc = psutil.Process(pid)
+            if action == "suspend":
+                proc.suspend()
+                self._quarantined_pids.append(pid)
+                logger.info(f"Process {pid} suspended by Guardian.")
+            elif action == "resume":
+                proc.resume()
+                if pid in self._quarantined_pids:
+                    self._quarantined_pids.remove(pid)
+                logger.info(f"Process {pid} resumed.")
+            elif action == "terminate":
+                proc.terminate()
+                logger.warning(f"Process {pid} terminated by Guardian.")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to quarantine process {pid}: {e}")
+            return False
+
+    async def get_network_connections(self) -> List[Dict[str, Any]]:
+        """Retrieve active network connections for Deep Scan analysis"""
+        connections = []
+        try:
+            for conn in psutil.net_connections(kind='inet'):
+                if conn.status == 'ESTABLISHED':
+                    try:
+                        proc = psutil.Process(conn.pid) if conn.pid else None
+                        proc_name = proc.name() if proc else "Unknown"
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        proc_name = "System/Protected"
+                        
+                    connections.append({
+                        "pid": conn.pid,
+                        "process": proc_name,
+                        "local_addr": f"{conn.laddr.ip}:{conn.laddr.port}",
+                        "remote_addr": f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else "N/A",
+                        "status": conn.status
+                    })
+            return connections
+        except Exception as e:
+            logger.error(f"Error in Network Deep Scan: {e}")
+            return []
 
 # Singleton instance
 system_module = SystemModule()

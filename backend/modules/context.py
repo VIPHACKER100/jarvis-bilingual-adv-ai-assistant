@@ -99,6 +99,10 @@ class ContextManager:
     def __init__(self):
         self.current_context = ContextState()
         self.intent_history: List[IntentAnalysis] = []
+        
+        # Load persistent settings
+        pref_lang = memory_manager.get_setting("preferred_language", "en")
+        self.set_context_variable("preferred_language", pref_lang)
 
     def update_context(self, user_input: str, command_type: str,
                        success: bool, session_id: str = "") -> None:
@@ -110,6 +114,13 @@ class ContextManager:
 
         if session_id:
             self.current_context.session_id = session_id
+
+        # Persistent Language Tracking
+        lang = self.get_context_variable("preferred_language")
+        current_lang = parser.detect_language(user_input)
+        if current_lang != lang:
+             self.set_context_variable("preferred_language", current_lang)
+             memory_manager.save_setting("preferred_language", current_lang)
 
         # Update active topic based on command type
         topic_mapping = {
@@ -283,10 +294,87 @@ class ContextManager:
 
         return None
 
+    async def get_visual_context(self) -> str:
+        """Extract text from current screen and perform structural analysis to enrich context"""
+        try:
+            from modules.media import media_processor
+            result = await media_processor.extract_text_from_screenshot()
+            if result.get('success'):
+                text = result.get('text', '')
+                # Clean and limit
+                text_clean = re.sub(r'\s+', ' ', text).strip()
+                
+                # Deep Contextual Enrichment: Identify document type
+                doc_type = "Generic Text"
+                if re.search(r'\b(invoice|bill|amount|total|tax|gst)\b', text_clean, re.I):
+                    doc_type = "Financial Document"
+                elif re.search(r'\b(contract|agreement|legal|terms|conditions|clause)\b', text_clean, re.I):
+                    doc_type = "Legal Document"
+                elif re.search(r'\b(api|code|class|function|npm|import|return)\b', text_clean, re.I):
+                    doc_type = "Technical / Source Code"
+                elif re.search(r'\b(dear|hello|regards|sincerely|subject:)\b', text_clean, re.I):
+                    doc_type = "Correspondence / Email"
+                
+                # Extract potential entities for bridge
+                entities = {
+                    "document_type": doc_type,
+                    "length": len(text_clean),
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+                # Look for specific IDs or amounts if it's financial
+                if doc_type == "Financial Document":
+                    amounts = re.findall(r'(\d+\.\d{2})', text_clean)
+                    if amounts:
+                        entities["total_amount"] = amounts[-1]
+                
+                self.set_context_variable('last_visual_analysis', entities)
+                self.set_context_variable('last_screen_text', text_clean[:500])
+                
+                logger.info(f"Visual analysis complete: Identified as {doc_type}")
+                return f"[Visual Context: {doc_type}] " + text_clean[:1000]
+            return ""
+        except Exception as e:
+            logger.error(f"Error getting visual context: {e}")
+            return ""
+
+    def get_alternative_suggestion(self, command_key: str, params: Any, language: str = 'en') -> Optional[str]:
+        """Suggest an alternative when a command fails"""
+        if command_key == 'open_app':
+            app_name = str(params).lower()
+            # If app opening failed, suggest web version
+            web_mappings = {
+                'spotify': 'https://open.spotify.com',
+                'whatsapp': 'https://web.whatsapp.com',
+                'chrome': 'https://www.google.com',
+                'vscode': 'https://vscode.dev',
+                'word': 'https://www.office.com',
+                'excel': 'https://www.office.com',
+                'powerpoint': 'https://www.office.com',
+            }
+            for key, url in web_mappings.items():
+                if key in app_name:
+                    return f"Sir, I couldn't find {key} on your system. Would you like me to open the web version at {url} instead?" if language == 'en' else f"सर, मुझे आपके सिस्टम पर {key} नहीं मिला। क्या आप चाहेंगे कि मैं इसके बजाय {url} पर वेब वर्शन खोलूँ?"
+            
+            return f"Sir, I couldn't find '{params}'. Should I search for it online?" if language == 'en' else f"सर, मुझे '{params}' नहीं मिला। क्या मुझे इसे ऑनलाइन खोजना चाहिए?"
+
+        if command_key == 'file_management':
+             return "I couldn't find the file. Should I search in a different directory or check the Recycle Bin?" if language == 'en' else "मुझे फ़ाइल नहीं मिली। क्या मुझे किसी दूसरी डायरेक्टरी में खोजना चाहिए?"
+
+        return None
+
     async def suggest_next_action(self) -> Optional[str]:
         """Suggest next action based on context"""
+        # 1. If last command failed, offer alternative
+        if not self.current_context.last_successful and self.current_context.last_command_type:
+            alt = self.get_alternative_suggestion(
+                self.current_context.last_command_type, 
+                self.current_context.last_command
+            )
+            if alt: return alt
+
+        # 2. If no recent command, try proactive suggestion based on active window
         if not self.current_context.last_command_type:
-            # If no recent command, try proactive suggestion based on active window
             return await self.get_proactive_suggestions()
 
         # Topic-based suggestions
@@ -333,30 +421,57 @@ class ContextManager:
             proc_name = active_win['process_name'].lower()
             
             # Application specific proactive suggestions
-            if "chrome" in proc_name or "edge" in proc_name or "browser" in proc_name:
+            if any(b in proc_name for b in ["chrome", "edge", "firefox", "browser"]):
                 if "youtube" in title:
                     return "Sir, I can help you search for other videos or download this audio if you'd like."
                 if "github" in title:
                     return "You're on GitHub. Should I check for any pending pull requests or issues?"
+                if "stackoverflow" in title or "docs." in title:
+                    return "Researching? I can summarize this documentation or help you find specific code snippets."
                 return "I see you're browsing. Need help searching for something specific or summarizing a page?"
                 
-            if "code" in proc_name or "vscode" in proc_name:
+            if any(c in proc_name for c in ["code", "visual studio", "jetbrains", "pycharm", "sublime"]):
+                # Try to detect language from title
+                langs = {
+                    '.py': 'Python', '.js': 'JavaScript', '.ts': 'TypeScript', 
+                    '.rs': 'Rust', '.go': 'Go', '.html': 'HTML', '.css': 'CSS'
+                }
+                detected_lang = None
+                for ext, name in langs.items():
+                    if ext in title:
+                        detected_lang = name
+                        break
+                
+                if detected_lang:
+                    return f"Coding in {detected_lang}. Should I look for relevant documentation or check your syntax?"
                 return "Coding session in progress. Should I look for documentation or help you manage your files?"
                 
-            if "word" in proc_name or "notepad" in proc_name:
-                return "Working on a document? I can help you with spell check or formatting."
+            if any(d in proc_name for d in ["word", "notepad", "text", "edit", "acrobat"]):
+                if ".pdf" in title:
+                    return "Reading a PDF? I can extract key points or summarize the entire document for you."
+                return "Working on a document? I can help you with spell check, formatting, or summarization."
                 
-            if "whatsapp" in proc_name:
+            if "whatsapp" in proc_name or "slack" in proc_name or "discord" in proc_name:
                 return "Checking messages? I can help you send a quick reply to any of your contacts."
                 
+            if "spotify" in proc_name or "vlc" in proc_name:
+                return "Listening to media. Should I find similar tracks or look up the lyrics for you?"
+
             # System state suggestions
             from modules.system import system_module
             status = await system_module.get_system_status()
-            if status.cpu_percent > 80:
-                return f"Sir, CPU usage is very high ({status.cpu_percent}%). Should I check for heavy processes?"
+            if status.cpu_percent > 85:
+                return f"Sir, CPU usage is critical ({status.cpu_percent}%). Should I terminate heavy background processes?"
                 
-            if status.battery_percent < 20 and status.power_plugged is False:
+            if status.battery_percent < 25 and status.power_plugged is False:
                 return f"Your battery is at {status.battery_percent}%. Would you like me to enable power saving or dim the screen?"
+
+            # General productivity
+            hour = datetime.now().hour
+            if 9 <= hour <= 11:
+                return "Good morning, sir. Ready to review today's schedule or start your primary workstation tasks?"
+            if 14 <= hour <= 16:
+                return "Mid-afternoon check. Should I summarize your recent activities or check for any urgent notifications?"
 
             return "I'm monitoring your system. Let me know if you need any assistance with your current task."
             

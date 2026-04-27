@@ -26,7 +26,7 @@ from routers import (
     system, windows, files, media, pdf_tools, 
     image_tools, desktop, memory, automation, 
     commands, websocket, settings, whatsapp,
-    input_control, notifications
+    input_control, notifications, sync
 )
 
 # Security
@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "2.2.2"
+        "version": "3.4.0"
     })
     
     # Start background tasks
@@ -61,7 +61,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="JARVIS Backend",
     description="Modular AI assistant backend with high-fidelity HUD support",
-    version="2.2.2",
+    version="3.4.0",
     lifespan=lifespan
 )
 
@@ -131,6 +131,7 @@ app.include_router(settings.router)
 app.include_router(whatsapp.router)
 app.include_router(input_control.router)
 app.include_router(notifications.router)
+app.include_router(sync.router)
 app.include_router(websocket.router)
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -195,7 +196,7 @@ else:
         return {
             "status": "online",
             "system": "JARVIS",
-            "version": "2.2.2",
+            "version": "3.4.0",
             "platform": PLATFORM,
             "developer": "VIPHACKER100",
             "note": "Frontend directory not found"

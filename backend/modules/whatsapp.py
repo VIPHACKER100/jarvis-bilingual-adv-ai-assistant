@@ -473,6 +473,63 @@ class WhatsAppManager:
             "response": status_text
         }
 
+    async def draft_smart_reply(self, language: str = 'en') -> Dict:
+        """Draft a reply based on the current WhatsApp screen context using OCR"""
+        try:
+            from modules.context import context_manager
+            from modules.llm import llm_module
+            
+            # Get visual context (which should include the active chat if it's focused)
+            visual_context = await context_manager.get_visual_context()
+            
+            if not visual_context or "[Visual Context:" not in visual_context:
+                return {
+                    "success": False,
+                    "response": "I cannot see any active chat, sir. Please ensure WhatsApp is open and focused.",
+                    "error": "No visual context available"
+                }
+            
+            # Draft the reply using LLM
+            prompt = (
+                "Based on the following screen text from a WhatsApp conversation, "
+                "draft a concise, natural, and helpful reply. "
+                f"The reply should be in {language}. "
+                "Output ONLY the reply text, no quotes or explanations."
+            )
+            
+            draft = await llm_module.get_response(
+                text=visual_context,
+                language=language,
+                context=prompt
+            )
+            
+            if draft:
+                # Copy to clipboard for easy pasting
+                pyperclip.copy(draft)
+                
+                response = f"I've drafted a reply based on the conversation: '{draft[:50]}...'. It's been copied to your clipboard, sir."
+                if language == 'hi':
+                    response = f"मैंने बातचीत के आधार पर एक उत्तर तैयार किया है: '{draft[:50]}...'। इसे आपके क्लिपबोर्ड पर कॉपी कर दिया गया है।"
+                
+                return {
+                    "success": True,
+                    "draft": draft,
+                    "response": response
+                }
+            
+            return {
+                "success": False,
+                "response": "I was unable to draft a reply at this time.",
+                "error": "LLM failed to generate draft"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error drafting smart reply: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
 
 # Singleton instance
 whatsapp_manager = WhatsAppManager()

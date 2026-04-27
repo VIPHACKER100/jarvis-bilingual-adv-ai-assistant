@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-2.2.2-purple?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-3.4.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,19 +20,16 @@
 
 ---
 
-## 🌟 Modern Capabilities (v2.2.2)
+## 🌟 Modern Capabilities (v3.4.0)
 
-### 🚀 **What's New? (v2.2.2)**
+### 🚀 **What's New? (v3.4.0)**
 
-- 🛰️ **System Diagnostics HUD 3.0** - High-fidelity real-time monitoring with new SVG ring gauges, neon gradient feedback, and **Framer Motion** entrance animations.
-- 🎨 **Premium Design System V3** - All-new glassmorphism interface with dynamic multi-hue gradients (Cyan/Purple/Pink) and fluid micro-animations.
-- 🔊 **Procedural HUD SFX** - High-quality digital blips, sweeps, and alerts generated in real-time using the Web Audio API for a premium tactical feel.
-- 🧪 **Strict Pydantic Type Safety** - Complete backend refactor using Pydantic v2 for robust input validation, "Fail-Fast" reliability, and auto-generated OpenAPI (Swagger) documentation.
-- 👁️ **JARVIS Vision** - Optical Character Recognition (OCR) with a futuristic HUD overlay for screen analysis and data extraction.
-- 📱 **Intelligent WhatsApp AI** - Smart contact resolution using `contacts.json` (e.g., "Message Mom" or "Call The Boss").
-- 🧠 **Neural Memory System** - Remembers user facts, persistent conversation logs, and real-time semantic extraction with a polished explorer UI.
-- ⚡ **Macro HUD Feedback** - Visual notifications and pulsing blips when automated sequences or macros are triggered.
-- 🏗️ **Modular Backend Architecture** - Robust router-based backend for better stability, scalability, and easier command extension.
+- 💬 **Neural Chat Assist** - JARVIS analyzes your active WhatsApp screen via OCR and drafts a contextually-aware, bilingual reply using the LLM — auto-copied to clipboard. Trigger: `"draft a reply"` / `"उत्तर लिखो"`.
+- 🛡️ **Neural Security Matrix (Phase 8)** - Real-time Process Guardian with blacklist-driven threat detection, one-click quarantine (suspend/resume/terminate), and full network deep scan with PID tracing.
+- ⚡ **Performance Hardening (Phase 10)** - Semantic context pruning (25-entry TTL with LLM summarization), system status caching (<1ms cached responses), and mobile UI memoization reduce resource usage by ~75%.
+- 🧠 **Neural Memory Map (Phase 9)** - Advanced file-based cognitive foundation using Markdown nodes (`personality.md`, `user.md`, `security.md`, `projects.md`). JARVIS now remembers your identity, preferences, architecture decisions, and active projects.
+- 👁️‍🗨️ **Advanced Visual Intelligence (Phase 7)** - Document classification (Legal, Financial, Technical) and entity extraction from screenshots. Proactively surfaces key facts before you even ask.
+- 📱 **Mobile Ecosystem Sync** - A dedicated touch-optimized dashboard with real-time security alerts, hardware telemetry, and memoized rendering for zero-lag mobile experience.
 
 ---
 

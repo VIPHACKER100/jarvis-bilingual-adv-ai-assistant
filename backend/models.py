@@ -10,6 +10,7 @@ class BaseResponse(BaseModel):
     error: Optional[str] = None
     response_time: Optional[float] = None
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+    version: str = "3.1.0"
 
 # --- Command Models ---
 
@@ -71,6 +72,8 @@ class SystemStatusResponse(BaseResponse):
     uptime: float
     volume: int
     platform: str
+    active_window: Optional[Dict[str, Any]] = None
+    context_suggestion: Optional[str] = None
 
 class BatteryResponse(BaseResponse):
     percent: Optional[int] = None
@@ -95,6 +98,10 @@ class NetworkInfoResponse(BaseResponse):
     hostname: str
     ip: str
     interfaces: List[Dict[str, str]]
+
+class NetworkScanResponse(BaseResponse):
+    connections: List[Dict[str, Any]]
+    count: int
 
 # --- Window & App Models ---
 

@@ -1,6 +1,7 @@
 import { FC, useState, useEffect, useRef } from 'react';
 import { apiClient } from '../services/apiClient';
 import { THEMES, ThemeName, useTheme } from '../hooks/useTheme';
+import { MobileSync } from './MobileSync';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -8,7 +9,7 @@ interface SettingsModalProps {
   onSettingsUpdated?: (settings: any) => void;
 }
 
-type SettingsTab = 'general' | 'ai' | 'security' | 'appearance' | 'audio';
+type SettingsTab = 'general' | 'ai' | 'security' | 'appearance' | 'audio' | 'mobile';
 
 const SectionHeader: FC<{ children: React.ReactNode; color?: string }> = ({ children, color = 'cyan' }) => (
   <h3 className={`text-xs font-bold uppercase tracking-[0.3em] border-b pb-2 mb-4 text-${color}-500/60 border-${color}-500/10`}>
@@ -38,7 +39,7 @@ const Toggle: FC<{ id: string; checked: boolean; onChange: (v: boolean) => void;
       />
       <div
         onClick={() => onChange(!checked)}
-        className={`w-10 h-5 rounded-full cursor-pointer transition-all duration-300 ${checked ? 'bg-[var(--neon-blue)]' : 'bg-slate-700'}`}
+        className={`w-10 h-5 rounded-full cursor-pointer transition-all duration-300 ${checked ? 'bg-accent' : 'bg-slate-700'}`}
       >
         <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all duration-300 shadow ${checked ? 'left-5' : 'left-0.5'}`} />
       </div>
@@ -185,6 +186,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
     { id: 'security', label: 'Security', icon: '🔐' },
     { id: 'audio', label: 'Audio', icon: '🎙️' },
     { id: 'appearance', label: 'Theme', icon: '🎨' },
+    { id: 'mobile', label: 'Sync', icon: '📱' },
   ];
 
   if (!isOpen) return null;
@@ -207,8 +209,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-wider uppercase neon-text">System Settings</h2>
-              <p className="text-[10px] text-gray-600 tracking-widest uppercase">VIPHACKER100 OS Configuration Panel</p>
+              <h2 className="text-lg font-bold tracking-wider uppercase text-foreground">System Settings</h2>
+              <p className="text-[10px] text-foreground-muted tracking-widest uppercase">VIPHACKER100 OS Configuration Panel</p>
             </div>
           </div>
           <button
@@ -598,6 +600,11 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                   })}
                 </div>
               </div>
+            )}
+
+            {/* ── MOBILE SYNC TAB ── */}
+            {activeTab === 'mobile' && (
+              <MobileSync />
             )}
           </div>
         ) : null}
