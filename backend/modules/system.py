@@ -94,7 +94,7 @@ class SystemModule:
                 from modules.window_manager import window_manager
                 from modules.context import context_manager
                 
-                win = window_manager.get_active_window()
+                win = await window_manager.get_active_window()
                 if win:
                     active_window = {
                         "title": win.get("title", "Unknown"),
@@ -439,19 +439,24 @@ class SystemModule:
                 'response': "Failed to get network info"}
 
     async def google_search(
-            self, query: str, language: str = 'en') -> Dict[str, Any]:
-        """Open web browser for Google search"""
+            self, query: Optional[str] = None, language: str = 'en') -> Dict[str, Any]:
+        """Open web browser for Google search or home page"""
         try:
             import webbrowser
-            url = f"https://www.google.com/search?q={query}"
+            if not query or query.lower() in ['none', 'null', '']:
+                url = "https://www.google.com"
+                msg = "Opening Google" if language == 'en' else "गूगल खोल रहा हूँ"
+            else:
+                url = f"https://www.google.com/search?q={query}"
+                msg = f"Searching for '{query}' on Google" if language == 'en' else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
+            
             webbrowser.open(url)
-
-            log_command(f"search {query}", "google_search", True)
+            log_command(f"search {query}" if query else "open browser", "google_search", True)
 
             return {
                 'success': True,
                 'query': query,
-                'response': f"Searching for '{query}' on Google" if language == 'en' else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
+                'response': msg
             }
         except Exception as e:
             return {
@@ -565,6 +570,10 @@ class SystemModule:
             for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
                 try:
                     pinfo = proc.info
+                    # Skip System Idle Process (PID 0) and System process
+                    if pinfo['pid'] == 0 or pinfo['name'] == 'System Idle Process':
+                        continue
+                        
                     # High Resource Spike Check
                     if pinfo['cpu_percent'] > 95:
                         suspicious.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Critical CPU Spike")

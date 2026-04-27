@@ -3,6 +3,7 @@ from utils.logger import logger
 import os
 import json
 import sys
+import time
 from openai import OpenAI
 from pathlib import Path
 from typing import Dict, Any, Optional, List
@@ -49,6 +50,11 @@ class LLMModule:
             "openrouter/auto"
         ]
         self.current_model_index = 0
+        self.provider_status = {
+            "nvidia": {"healthy": True, "last_failure": 0},
+            "openrouter": {"healthy": True, "last_failure": 0},
+            "ollama": {"healthy": True, "last_failure": 0}
+        }
 
     async def get_response(
             self,
@@ -91,6 +97,10 @@ class LLMModule:
             system_prompt += f"\n\nNEURAL MEMORY MAP (Core Identity & Behavioral Matrix):\n{neural_context}"
 
         if self.provider == "nvidia" and self.nvidia_api_key:
+            # Check if nvidia is locked out
+            if not self.provider_status["nvidia"]["healthy"] and time.time() - self.provider_status["nvidia"]["last_failure"] < 600:
+                logger.warning("NVIDIA is currently in lockout due to recent failures. Using OpenRouter instead.")
+                return await self._get_openrouter_response(text, system_prompt)
             return await self._get_nvidia_response(text, system_prompt)
         elif self.provider == "ollama":
             return await self._get_ollama_response(text, system_prompt)
@@ -135,14 +145,16 @@ class LLMModule:
                 return await self._get_openrouter_response(text, system_prompt)
             return None
 
-    async def _get_nvidia_response(self, text: str, system_prompt: str) -> Optional[str]:
+    async def _get_nvidia_response(self, text: str, system_prompt: str, timeout: float = 45.0) -> Optional[str]:
         """Get response from NVIDIA API using OpenAI client and DeepSeek reasoning"""
         if not self.nvidia_client:
             logger.error("NVIDIA client not initialized. Check NVIDIA_API_KEY.")
             return None
 
-        model = "deepseek-ai/deepseek-v4-flash"
+        model = "deepseek-ai/deepseek-v4-pro"
         
+        start_time = time.time()
+        logger.info(f"NVIDIA API Call: Model={model}, Input='{text[:50]}...'")
         try:
             # Note: client.chat.completions.create is blocking, 
             # so we run it in a thread to keep the event loop free
@@ -160,8 +172,7 @@ class LLMModule:
                     max_tokens=16384,
                     extra_body={
                         "chat_template_kwargs": {
-                            "thinking": True,
-                            "reasoning_effort": "high"
+                            "thinking": False
                         }
                     },
                     stream=True
@@ -192,8 +203,24 @@ class LLMModule:
                     
                 return full_content.strip()
 
-            response = await asyncio.to_thread(call_nvidia)
+            response = await asyncio.wait_for(asyncio.to_thread(call_nvidia), timeout=timeout)
+            elapsed = time.time() - start_time
+            logger.info(f"NVIDIA API Response received in {elapsed:.2f}s")
+            
+            # Reset health on success
+            self.provider_status["nvidia"]["healthy"] = True
+            
             return response if response else None
+        except asyncio.TimeoutError:
+            logger.error(f"NVIDIA API Call timed out after {timeout}s")
+            # Mark as unhealthy
+            self.provider_status["nvidia"]["healthy"] = False
+            self.provider_status["nvidia"]["last_failure"] = time.time()
+            
+            if self.openrouter_api_key:
+                logger.info("Falling back to OpenRouter due to timeout...")
+                return await self._get_openrouter_response(text, system_prompt)
+            return None
 
         except Exception as e:
             logger.error(f"Exception calling NVIDIA API: {type(e).__name__}: {e}")
@@ -303,6 +330,8 @@ class LLMModule:
         for i in range(len(self.openrouter_models)):
             model = self.openrouter_models[(self.current_model_index + i) % len(self.openrouter_models)]
             
+            start_time = time.time()
+            logger.info(f"OpenRouter API Call: Model={model}, Input='{text[:50]}...'")
             try:
                 payload = {
                     "model": model,
@@ -319,7 +348,9 @@ class LLMModule:
                         json=payload,
                         timeout=15.0)
 
+                elapsed = time.time() - start_time
                 if response.status_code == 200:
+                    logger.info(f"OpenRouter API Response received in {elapsed:.2f}s (Model: {model})")
                     # Update current model index
                     self.current_model_index = (self.current_model_index + i) % len(self.openrouter_models)
                     
@@ -381,8 +412,11 @@ class LLMModule:
         )
 
         try:
-            # Use a more direct prompt for extraction
-            raw_response = await self.get_response(f"Extract command from user input: '{text}'", language='en', context=system_prompt)
+            # Use a more direct prompt for extraction with shorter timeout
+            if self.provider == "nvidia" and self.nvidia_api_key:
+                 raw_response = await self._get_nvidia_response(f"Extract command from user input: '{text}'", system_prompt, timeout=15.0)
+            else:
+                 raw_response = await self.get_response(f"Extract command from user input: '{text}'", language='en', context=system_prompt)
             
             if not raw_response:
                 return None

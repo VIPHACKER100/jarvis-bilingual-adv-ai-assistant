@@ -460,11 +460,11 @@ class ContextManager:
             # System state suggestions
             from modules.system import system_module
             status = await system_module.get_system_status()
-            if status.cpu_percent > 85:
-                return f"Sir, CPU usage is critical ({status.cpu_percent}%). Should I terminate heavy background processes?"
+            if status.cpu.percent > 85:
+                return f"Sir, CPU usage is critical ({status.cpu.percent}%). Should I terminate heavy background processes?"
                 
-            if status.battery_percent < 25 and status.power_plugged is False:
-                return f"Your battery is at {status.battery_percent}%. Would you like me to enable power saving or dim the screen?"
+            if status.battery.percent and status.battery.percent < 25 and status.battery.is_charging is False:
+                return f"Your battery is at {status.battery.percent}%. Would you like me to enable power saving or dim the screen?"
 
             # General productivity
             hour = datetime.now().hour

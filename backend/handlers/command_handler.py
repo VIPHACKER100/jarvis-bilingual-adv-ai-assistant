@@ -140,6 +140,11 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         result = await system_module.brightness_up(current_lang)
     elif command_key == 'brightness_down':
         result = await system_module.brightness_down(current_lang)
+    elif command_key == 'google_search':
+        query = params.get('query', str(params)) if isinstance(params, dict) else (params if params != command else None)
+        result = await system_module.google_search(query, current_lang)
+    elif command_key == 'open_browser':
+        result = await system_module.google_search(None, current_lang)
     
     # Window/App commands
     elif command_key == 'open_app':
@@ -188,7 +193,10 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
                     result = await whatsapp_manager.send_message(parts[0], "", current_lang)
         else:
             result = await whatsapp_manager.open_whatsapp(current_lang)
-    
+            
+    elif command_key == 'whatsapp_call':
+        contact = params.get('contact', str(params)) if isinstance(params, dict) else str(params)
+        is_video = 'video' in str(params).lower() or 'video' in command.lower()
         result = await whatsapp_manager.call_contact(contact, is_video, current_lang)
     
     elif command_key == 'whatsapp_draft_reply':

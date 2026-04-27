@@ -41,7 +41,7 @@ LOG_RETENTION_DAYS = int(os.getenv("LOG_RETENTION_DAYS", 30))
 
 # LLM Config
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "nvidia").lower()
-NVIDIA_MODEL = os.getenv("NVIDIA_MODEL", "qwen/qwen2.5-7b-instruct") # Stable default
+NVIDIA_MODEL = os.getenv("NVIDIA_MODEL", "deepseek-ai/deepseek-v4-pro") # Updated to pro version
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
@@ -191,7 +191,7 @@ HINDI_COMMANDS = {
     
     # Search & Browser
     'google_search': ['search', 'google search', 'dhoondo', 'dhundo', 'pata karo', 'khojo', 'search karo', 'baar mein batao', 'सर्च', 'गूगल सर्च', 'ढूंढो', 'पता करो', 'खोजो', 'सर्च करो'],
-    'open_browser': ['open browser', 'browser kholo', 'new tab', 'naya tab', 'internet kholo', 'chrome kholo', 'edge kholo', 'ब्राउज़र खोलो', 'ब्राउज़र खोलो', 'नया टैब', 'नया टैब खोलो', 'इंटरनेट खोलो'],
+    'open_browser': ['open browser', 'browser kholo', 'open new', 'new tab', 'naya tab', 'internet kholo', 'chrome kholo', 'edge kholo', 'ब्राउज़र खोलो', 'ब्राउज़र खोलो', 'नया टैब', 'नया टैब खोलो', 'इंटरनेट खोलो'],
 }
 
 # Response templates

@@ -30,7 +30,7 @@ from routers import (
 )
 
 # Security
-BACKEND_API_KEY = os.getenv("BACKEND_API_KEY")
+BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -208,4 +208,4 @@ else:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=BACKEND_PORT)
+    uvicorn.run(app, host="127.0.0.1", port=BACKEND_PORT)

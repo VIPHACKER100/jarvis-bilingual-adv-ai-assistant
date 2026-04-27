@@ -41,20 +41,32 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = No
             msg_type = message.type
             
             if msg_type == "command":
-                # Execute command
-                result = await handle_command(
-                    websocket, 
-                    message.command, 
-                    message.language, 
-                    message.params, 
-                    message.session_id or cid
-                )
-                
-                # Send result back
-                await websocket.send_json(WebSocketResponse(
-                    type="command_result",
-                    data=result
-                ).dict())
+                # Execute command in background to allow concurrent processing
+                async def execute_task(msg, cid):
+                    try:
+                        result = await handle_command(
+                            websocket, 
+                            msg.command, 
+                            msg.language, 
+                            msg.params, 
+                            msg.session_id or cid
+                        )
+                        
+                        # Send result back
+                        await websocket.send_json(WebSocketResponse(
+                            type="command_result",
+                            data=result
+                        ).dict())
+                    except Exception as e:
+                        logger.error(f"Error executing background command: {e}")
+                        try:
+                            await websocket.send_json(WebSocketResponse(
+                                type="error",
+                                data=f"Command execution failed: {str(e)}"
+                            ).dict())
+                        except: pass
+
+                asyncio.create_task(execute_task(message, cid))
             
             elif msg_type == "ping":
                 await websocket.send_json(WebSocketResponse(
