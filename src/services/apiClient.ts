@@ -1,6 +1,6 @@
 import { SystemStatus, CommandResponse, CommandRequest } from '../types';
+import { API_BASE_URL } from '../config';
 
-const API_BASE_URL = 'http://localhost:8000';
 const API_KEY = import.meta.env.VITE_JARVIS_API_KEY || "";
 
 class ApiClient {
@@ -516,6 +516,39 @@ class ApiClient {
     } catch {
       return null;
     }
+  }
+
+  // --- Sync Methods ---
+
+  async getSyncStatus(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/api/sync/status`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get sync status');
+    }
+    return response.json();
+  }
+
+  async getPairedDevices(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/api/sync/devices`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get paired devices');
+    }
+    return response.json();
+  }
+
+  async unpairDevice(deviceId: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/api/sync/devices/${deviceId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to unpair device');
+    }
+    return response.json();
   }
 }
 

@@ -22,9 +22,17 @@ class UTF8ConsoleHandler(logging.StreamHandler):
                 pass  # Fallback if reconfigure fails
 
 # Setup paths
-BASE_DIR = Path(__file__).parent.parent
-LOGS_DIR = BASE_DIR / "logs"
-LOGS_DIR.mkdir(exist_ok=True)
+if getattr(sys, 'frozen', False):
+    # Running in a PyInstaller bundle
+    # sys.executable is at release/backend/JARVIS_Backend.exe
+    PROJECT_ROOT = Path(sys.executable).parent.parent
+    LOGS_DIR = PROJECT_ROOT / "logs"
+else:
+    # Running in development
+    BASE_DIR = Path(__file__).parent.parent
+    LOGS_DIR = BASE_DIR / "logs"
+
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 LOG_LEVEL = "INFO"
 LOG_RETENTION_DAYS = 30

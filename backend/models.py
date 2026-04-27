@@ -10,7 +10,7 @@ class BaseResponse(BaseModel):
     error: Optional[str] = None
     response_time: Optional[float] = None
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
-    version: str = "3.4.0"
+    version: str = "3.4.1"
 
 # --- Command Models ---
 
@@ -368,3 +368,29 @@ class WebSocketResponse(BaseModel):
     type: str  # "command_result", "system_status", "notification", "pong", "error"
     data: Optional[Any] = None
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
+# --- Mobile Sync Models ---
+
+class DevicePairingRequest(BaseModel):
+    pairing_code: str
+    device_name: str
+    device_type: Optional[str] = "mobile"
+    app_version: Optional[str] = None
+
+class DevicePairingResponse(BaseResponse):
+    device_id: str
+    access_token: str
+    message: str
+
+class PairedDevice(BaseModel):
+    id: str
+    name: str
+    type: str
+    paired_at: str
+    last_seen: str
+
+class SyncStatusResponse(BaseResponse):
+    device_name: str
+    paired_devices_count: int
+    system_status: Dict[str, Any]
+    last_updated: str

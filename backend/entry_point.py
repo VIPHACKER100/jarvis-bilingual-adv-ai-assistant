@@ -22,23 +22,41 @@ if sys.platform == 'win32':
 if getattr(sys, 'frozen', False):
     # Running in PyInstaller bundle
     bundle_dir = Path(sys._MEIPASS)
+    # When frozen, we don't want to chdir to the bundle dir as it's volatile
+    # but we need it in the path for imports
 else:
     # Running in normal Python environment
     bundle_dir = Path(__file__).parent
 
-# Set up paths
-os.chdir(bundle_dir)
 sys.path.insert(0, str(bundle_dir))
 
-# Ensure data directories exist
-data_dir = bundle_dir / 'data'
-logs_dir = bundle_dir / 'logs'
-data_dir.mkdir(exist_ok=True)
-logs_dir.mkdir(exist_ok=True)
-
-# Import and run main
-from main import app
-import uvicorn
+# Import and run main (Import after path adjustment)
+try:
+    from config import BACKEND_PORT, LOGS_DIR, DATA_DIR
+    from main import app
+    import uvicorn
+    import traceback
+    from datetime import datetime
+except Exception as e:
+    # Emergency fallback for import errors
+    import os
+    import sys
+    from pathlib import Path
+    from datetime import datetime
+    
+    # Path resolution for emergency logging
+    if getattr(sys, 'frozen', False):
+        p_root = Path(sys.executable).parent.parent
+    else:
+        p_root = Path(__file__).parent.parent
+        
+    l_dir = p_root / "logs"
+    l_dir.mkdir(parents=True, exist_ok=True)
+    with open(l_dir / "crash.log", "a", encoding="utf-8") as f:
+        f.write(f"\n[{datetime.now()}] CRITICAL IMPORT ERROR:\n{str(e)}\n")
+        import traceback
+        f.write(traceback.format_exc())
+    sys.exit(1)
 
 if __name__ == "__main__":
     # Safe print with UTF-8 handling
@@ -46,20 +64,29 @@ if __name__ == "__main__":
         try:
             print(text)
         except UnicodeEncodeError:
-            # Fallback to ASCII with replacements
             print(text.encode('ascii', 'replace').decode('ascii'))
     
-    safe_print("=" * 60)
-    safe_print("JARVIS AI Assistant v2.0")
-    safe_print("Made by VIPHACKER100")
-    safe_print("=" * 60)
-    safe_print("\nStarting JARVIS Backend Server...")
-    safe_print("Server will be available at: http://localhost:8000")
-    safe_print("\nPress Ctrl+C to stop\n")
-    
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info"
-    )
+    try:
+        safe_print("=" * 60)
+        safe_print("JARVIS AI Assistant v3.4.1")
+        safe_print("Production Hardened Backend")
+        safe_print("Made by VIPHACKER100")
+        safe_print("=" * 60)
+        safe_print(f"\nStarting JARVIS Backend Server...")
+        safe_print(f"Data Directory: {DATA_DIR}")
+        safe_print(f"Log Directory: {LOGS_DIR}")
+        safe_print(f"Server available at: http://localhost:{BACKEND_PORT}")
+        safe_print("\nPress Ctrl+C to stop in this window\n")
+        
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=BACKEND_PORT,
+            log_level="info"
+        )
+    except Exception as e:
+        with open(LOGS_DIR / "crash.log", "a", encoding="utf-8") as f:
+            f.write(f"\n[{datetime.now()}] UNHANDLED RUNTIME CRASH:\n{str(e)}\n")
+            f.write(traceback.format_exc())
+        safe_print(f"\n[CRITICAL ERROR] JARVIS has crashed. See logs/crash.log for details.")
+        sys.exit(1)

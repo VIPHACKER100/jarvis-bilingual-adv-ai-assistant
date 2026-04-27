@@ -4,6 +4,7 @@ import json
 import webbrowser
 import pyperclip
 from typing import Dict, Optional
+from config import DATA_DIR, BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM
 from modules.bilingual_parser import parser
 from utils.platform_utils import get_whatsapp_desktop_path, is_windows, is_macos, is_linux, run_command
 from utils.logger import logger, log_command
@@ -15,7 +16,7 @@ class WhatsAppManager:
     def __init__(self):
         self.desktop_path = None
         self.recent_contacts = {}  # Cache recent contacts
-        self.contacts_file = os.path.join(os.path.dirname(__file__), '..', 'data', 'contacts.json')
+        self.contacts_file = DATA_DIR / 'contacts.json'
         self.contacts_map = self._load_contacts()
 
     def _load_contacts(self) -> Dict[str, str]:

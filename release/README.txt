@@ -1,4 +1,4 @@
-# JARVIS AI Assistant v3.4.0
+# JARVIS AI Assistant v3.4.1
 > By VIPHACKER100 (Aryan Ahirwar)
 
 ## 🚀 Quick Start
@@ -22,8 +22,9 @@
 - **Vision**: Capture text / analyze screen via "Read screen" or "Analyze screen"
 - **Memory**: Click 🧠 button to view facts and conversation history
 - **Automation**: Click ⚡ button for scheduled tasks and macros
-- **Mobile**: Visit `/mobile` for the JARVIS Lite dashboard
+- **Mobile Sync**: Visit settings to Pair Device via QR Code
 - **Security**: Neural Security Matrix auto-monitors processes & network
+- **Persistence**: All settings, memories, and logs are saved in the `data/` and `logs/` folders.
 
 ## 🗣️ Example Commands
 
@@ -52,7 +53,8 @@
 ## 📁 Files
 
 - `backend/` - JARVIS backend server
-- `memory/` - Neural memory nodes (.md files)
+- `data/` - Persistent database and memory storage
+- `logs/` - System logs and crash reports
 - `START_JARVIS.bat` - Launch JARVIS
 - `config.env` - Configuration settings
 
@@ -63,4 +65,4 @@
 - Email: viphacker.100.org@gmail.com
 
 ---
-Made with ❤️ by VIPHACKER100 (Aryan Ahirwar) — JARVIS v3.4.0
+Made with ❤️ by VIPHACKER100 (Aryan Ahirwar) — JARVIS v3.4.1

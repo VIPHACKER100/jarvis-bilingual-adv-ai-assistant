@@ -182,8 +182,9 @@ def create_release_readme():
 - **Vision**: Capture text / analyze screen via "Read screen" or "Analyze screen"
 - **Memory**: Click 🧠 button to view facts and conversation history
 - **Automation**: Click ⚡ button for scheduled tasks and macros
-- **Mobile**: Visit `/mobile` for the JARVIS Lite dashboard
+- **Mobile Sync**: Visit settings to Pair Device via QR Code
 - **Security**: Neural Security Matrix auto-monitors processes & network
+- **Persistence**: All settings, memories, and logs are saved in the `data/` and `logs/` folders.
 
 ## 🗣️ Example Commands
 
@@ -212,7 +213,8 @@ def create_release_readme():
 ## 📁 Files
 
 - `backend/` - JARVIS backend server
-- `memory/` - Neural memory nodes (.md files)
+- `data/` - Persistent database and memory storage
+- `logs/` - System logs and crash reports
 - `START_JARVIS.bat` - Launch JARVIS
 - `config.env` - Configuration settings
 

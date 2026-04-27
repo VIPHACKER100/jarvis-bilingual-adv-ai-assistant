@@ -1,4 +1,5 @@
 import { WebSocketMessage, CommandResponse, SystemStatus, ConnectionStatus } from '../types/bridge';
+import { WS_BASE_URL, API_BASE_URL } from '../config';
 
 type MessageHandler = (message: WebSocketMessage) => void;
 type StatusHandler = (status: ConnectionStatus) => void;
@@ -7,7 +8,7 @@ const API_TOKEN = import.meta.env.VITE_JARVIS_API_KEY || "";
 
 class WebSocketService {
   private ws: WebSocket | null = null;
-  private url: string = 'ws://localhost:8000/ws';
+  private url: string = WS_BASE_URL;
   private reconnectInterval: number = 3000;
   private maxReconnectAttempts: number = 10;
   private reconnectAttempts: number = 0;
@@ -164,7 +165,7 @@ class WebSocketService {
 
   sendConfirmation(confirmationId: string, approved: boolean): void {
     // Use REST API for confirmations
-    fetch(`http://localhost:8000/api/confirm/${confirmationId}`, {
+    fetch(`${API_BASE_URL}/api/confirm/${confirmationId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

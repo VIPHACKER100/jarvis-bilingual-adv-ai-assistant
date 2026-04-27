@@ -7,13 +7,25 @@ from dotenv import load_dotenv  # type: ignore
 load_dotenv()
 
 # Base paths
-BASE_DIR = Path(__file__).parent
-PROJECT_ROOT = BASE_DIR.parent
-DATA_DIR = BASE_DIR / "data"
-LOGS_DIR = BASE_DIR / "logs"
+import sys
+if getattr(sys, 'frozen', False):
+    # Running in a PyInstaller bundle
+    # sys.executable is usually at release/backend/JARVIS_Backend.exe
+    # We want PROJECT_ROOT to be release/
+    PROJECT_ROOT = Path(sys.executable).parent.parent
+    BASE_DIR = PROJECT_ROOT / "backend"
+else:
+    # Running in development
+    BASE_DIR = Path(__file__).parent
+    PROJECT_ROOT = BASE_DIR.parent
 
-DATA_DIR.mkdir(exist_ok=True)
-LOGS_DIR.mkdir(exist_ok=True)
+# Data and logs directories (ensure they are outside the bundle when frozen)
+DATA_DIR = PROJECT_ROOT / "data"
+LOGS_DIR = PROJECT_ROOT / "logs"
+
+# Ensure directories exist
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Server config
 BACKEND_PORT = int(os.getenv("BACKEND_PORT", 8000))

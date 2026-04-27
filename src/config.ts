@@ -1,0 +1,23 @@
+/**
+ * JARVIS Frontend Configuration
+ * Centralized settings for backend connectivity and environment detection
+ */
+
+// Port for the backend API
+// Priority: 1. Environment Variable, 2. Current Port, 3. Default (8000)
+export const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "8000";
+
+// Base URLs for API and WebSocket
+export const API_BASE_URL = `http://localhost:${BACKEND_PORT}`;
+export const WS_BASE_URL = `ws://localhost:${BACKEND_PORT}/ws`;
+
+// Version Info
+export const APP_VERSION = "v3.4.1";
+export const DEVELOPER = "VIPHACKER100";
+
+// Feature Flags
+export const FEATURES = {
+  MOBILE_SYNC: true,
+  VOICE_CONTROL: true,
+  ADVANCED_SECURITY: true
+};
