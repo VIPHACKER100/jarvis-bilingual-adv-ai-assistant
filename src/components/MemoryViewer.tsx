@@ -35,6 +35,13 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState<any>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('history');
+  
+  // Neural Memory Map State
+  const [memoryNodes, setMemoryNodes] = useState<any[]>([]);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [nodeContent, setNodeContent] = useState<string>('');
+  const [isEditingNode, setIsEditingNode] = useState(false);
+  const [isSavingNode, setIsSavingNode] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -59,6 +66,12 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
       }
       if (factsRes.success) {
         setFacts(factsRes.facts);
+      }
+      
+      // Load Neural Memory Nodes
+      const nodesRes = await apiClient.getMemoryNodes();
+      if (nodesRes.success) {
+        setMemoryNodes(nodesRes.nodes);
       }
     } catch (error) {
       console.error('Error loading memory data:', error);
@@ -134,6 +147,36 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
+  };
+
+  const handleSelectNode = async (nodeName: string) => {
+    setSelectedNode(nodeName);
+    setIsEditingNode(true);
+    setLoading(true);
+    try {
+      const res = await apiClient.getMemoryNodeContent(nodeName);
+      if (res.success) {
+        setNodeContent(res.content);
+      }
+    } catch (error) {
+      console.error(`Error loading node ${nodeName}:`, error);
+    }
+    setLoading(false);
+  };
+
+  const handleSaveNode = async () => {
+    if (!selectedNode) return;
+    setIsSavingNode(true);
+    try {
+      const res = await apiClient.updateMemoryNode(selectedNode, nodeContent);
+      if (res.success) {
+        setIsEditingNode(false);
+        loadData();
+      }
+    } catch (error) {
+      console.error(`Error saving node ${selectedNode}:`, error);
+    }
+    setIsSavingNode(false);
   };
 
   const filteredConversations = conversations.filter(conv =>
@@ -526,94 +569,102 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
               )}
             </div>
           ) : viewMode === 'map' ? (
-            <div className="flex-1 relative overflow-hidden bg-slate-950 p-6 flex flex-col items-center justify-center">
-              <h3 className="absolute top-6 left-6 text-sm font-bold text-slate-400 uppercase tracking-widest z-10">Neural Map Visualization</h3>
-              
-              <div className="relative w-full max-w-2xl aspect-square flex items-center justify-center mt-10">
-                {/* Core Node */}
-                <motion.div 
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5, type: "spring" }}
-                  className="absolute z-20 w-32 h-32 rounded-full border-2 border-cyan-500 bg-slate-900/80 backdrop-blur-md flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)]"
-                >
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🤖</div>
-                    <div className="text-[10px] font-bold text-cyan-400 tracking-widest">JARVIS</div>
-                    <div className="text-[8px] text-slate-400">CORE</div>
-                  </div>
-                </motion.div>
-
-                {/* Category Nodes */}
-                {mapData.categories.map((cat, i) => {
-                  const angle = (i / mapData.categories.length) * Math.PI * 2;
-                  const radius = 150;
-                  const x = Math.cos(angle) * radius;
-                  const y = Math.sin(angle) * radius;
-                  
-                  return (
-                    <motion.div
-                      key={`cat_${cat}`}
-                      initial={{ opacity: 0, x: 0, y: 0 }}
-                      animate={{ opacity: 1, x, y }}
-                      transition={{ duration: 0.6, delay: 0.2 + (i * 0.1) }}
-                      className="absolute z-10 w-24 h-24 rounded-full border border-orange-500/60 bg-slate-800/90 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.2)]"
+            <div className="flex-1 flex bg-slate-950 overflow-hidden relative">
+              {/* Left Panel: Node List */}
+              <div className="w-64 border-r border-slate-800 flex flex-col shrink-0">
+                <div className="p-4 border-b border-slate-800 bg-slate-900/40">
+                  <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Neural Nodes</h3>
+                </div>
+                <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                  {memoryNodes.map(node => (
+                    <button
+                      key={node.name}
+                      onClick={() => handleSelectNode(node.name)}
+                      className={`w-full text-left p-3 rounded-lg text-xs transition-all border flex flex-col gap-1 ${
+                        selectedNode === node.name
+                          ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-100 shadow-[0_0_10px_rgba(6,182,212,0.1)]'
+                          : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:bg-slate-800 hover:border-slate-700'
+                      }`}
                     >
-                      {/* Connecting Line to Core */}
-                      <svg className="absolute w-0 h-0 overflow-visible z-[-1]">
-                        <line x1={-x} y1={-y} x2={0} y2={0} stroke="rgba(249, 115, 22, 0.3)" strokeWidth="2" strokeDasharray="4 4" />
-                      </svg>
-                      
-                      <div className="text-center px-2">
-                        <div className="text-[10px] font-bold text-orange-400 uppercase tracking-wider break-words">{cat}</div>
-                        <div className="text-[8px] text-slate-500">{facts.filter(f => f.category === cat).length} nodes</div>
+                      <div className="flex items-center gap-2">
+                        <span className={node.is_core ? 'text-cyan-400' : 'text-slate-500'}>
+                          {node.is_core ? '🧠' : '📄'}
+                        </span>
+                        <span className="font-mono">{node.name}</span>
                       </div>
-                    </motion.div>
-                  );
-                })}
-
-                {/* Orbiting Fact Nodes */}
-                {facts.map((fact, i) => {
-                  const catIndex = mapData.categories.indexOf(fact.category);
-                  const catAngle = (catIndex / mapData.categories.length) * Math.PI * 2;
-                  
-                  // Position facts orbiting around their category
-                  const factRadius = 60;
-                  // Add some pseudo-randomness based on ID to spread them out
-                  const localAngle = ((i * 137.5) * Math.PI) / 180;
-                  
-                  const catX = Math.cos(catAngle) * 150;
-                  const catY = Math.sin(catAngle) * 150;
-                  
-                  const x = catX + Math.cos(localAngle) * factRadius;
-                  const y = catY + Math.sin(localAngle) * factRadius;
-                  
-                  return (
-                    <motion.div
-                      key={`fact_${fact.id}`}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1, x, y }}
-                      transition={{ duration: 0.4, delay: 0.5 + (i * 0.05) }}
-                      className="absolute z-30 w-auto max-w-[100px] bg-slate-900 border border-slate-600 rounded px-2 py-1 flex items-center justify-center cursor-pointer hover:border-cyan-400 hover:z-40 transition-colors group"
-                      title={fact.value}
-                    >
-                      {/* Connecting Line to Category */}
-                      <svg className="absolute w-0 h-0 overflow-visible z-[-1] pointer-events-none">
-                        <line x1={catX - x} y1={catY - y} x2={0} y2={0} stroke="rgba(100, 116, 139, 0.4)" strokeWidth="1" />
-                      </svg>
-                      
-                      <div className="text-[8px] font-medium text-slate-300 truncate w-full text-center group-hover:text-cyan-300">
-                        {fact.key.replace(/_/g, ' ')}
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                      <span className="text-[9px] text-slate-500 uppercase tracking-tighter">
+                        Last sync: {new Date(node.updated_at).toLocaleDateString()}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-              
-              <div className="absolute bottom-6 right-6 text-[10px] text-slate-500 font-mono text-right">
-                <div>Nodes: {mapData.nodes.length}</div>
-                <div>Edges: {mapData.edges.length}</div>
-                <div>Status: Fully Synchronized</div>
+
+              {/* Main Content: Node Editor or Visualization */}
+              <div className="flex-1 relative flex flex-col overflow-hidden">
+                {isEditingNode ? (
+                  <div className="flex-1 flex flex-col animate-in">
+                    <div className="p-4 border-b border-slate-800 bg-slate-900/40 flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => setIsEditingNode(false)}
+                          className="p-1 hover:bg-slate-800 rounded text-slate-400 transition-colors"
+                        >
+                          ←
+                        </button>
+                        <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest">{selectedNode}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleSaveNode}
+                          disabled={isSavingNode}
+                          className="px-4 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-[10px] transition-all font-bold uppercase tracking-widest disabled:opacity-50"
+                        >
+                          {isSavingNode ? 'SYNCING...' : 'SYNC CHANGES'}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex-1 p-0 relative">
+                      <textarea
+                        value={nodeContent}
+                        onChange={(e) => setNodeContent(e.target.value)}
+                        className="w-full h-full bg-slate-950 text-slate-300 p-6 font-mono text-xs focus:outline-none resize-none custom-scrollbar leading-relaxed"
+                        spellCheck="false"
+                      />
+                      <div className="absolute bottom-4 right-6 text-[10px] text-slate-600 font-mono italic">
+                        * Markdown context is injected into LLM system prompt.
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                    <div className="w-24 h-24 rounded-full border-2 border-cyan-900/30 flex items-center justify-center mb-6 relative">
+                      <motion.div 
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 border-t-2 border-cyan-500 rounded-full"
+                      />
+                      <span className="text-4xl">🧠</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-300 uppercase tracking-[0.2em] mb-2">Neural Memory Core</h4>
+                    <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
+                      Select a memory node from the library to inspect or modify JARVIS's cognitive foundation and personality matrix.
+                    </p>
+                    
+                    <div className="grid grid-cols-2 gap-4 mt-12 w-full max-w-md">
+                      {memoryNodes.filter(n => n.is_core).map(node => (
+                        <button
+                          key={node.name}
+                          onClick={() => handleSelectNode(node.name)}
+                          className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-cyan-500/50 hover:bg-slate-800/50 transition-all text-left group"
+                        >
+                          <div className="text-xs font-bold text-slate-400 mb-1 group-hover:text-cyan-400 transition-colors uppercase tracking-widest">{node.name.replace('.md', '')}</div>
+                          <div className="text-[10px] text-slate-600 line-clamp-1">View/Edit Core Logic</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ) : null}

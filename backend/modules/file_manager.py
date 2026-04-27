@@ -124,15 +124,23 @@ class FileManager:
             files = []
             folders = []
 
+            def get_size_human(size: int) -> str:
+                for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+                    if size < 1024:
+                        return f"{size:.1f} {unit}"
+                    size /= 1024
+                return f"{size:.1f} PB"
+
             for item in folder_path.iterdir():
                 try:
                     stat = item.stat()
                     info = {
                         'name': item.name,
                         'path': str(item),
-                        'size': stat.st_size if item.is_file() else None,
-                        'modified': datetime.fromtimestamp(
-                            stat.st_mtime).isoformat(),
+                        'size': stat.st_size if item.is_file() else 0,
+                        'size_human': get_size_human(stat.st_size) if item.is_file() else "",
+                        'created': datetime.fromtimestamp(stat.st_ctime).isoformat(),
+                        'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
                         'is_file': item.is_file(),
                         'is_dir': item.is_dir()}
 

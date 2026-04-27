@@ -43,14 +43,14 @@ async def press_key(key: str = Body(..., embed=True)):
 @router.post("/scroll", response_model=BaseResponse)
 async def scroll(amount: int = Body(..., embed=True)):
     """Scroll mouse wheel"""
-    return await input_controller.scroll(amount)
+    return await input_controller.scroll(amount, direction="vertical")
 
 @router.post("/drag", response_model=BaseResponse)
-async def drag_to(x: int, y: int):
-    """Drag mouse to position"""
-    return await input_controller.drag_to(x, y)
+async def drag(start_x: int = Body(...), start_y: int = Body(...), end_x: int = Body(...), end_y: int = Body(...)):
+    """Drag mouse from start to end position"""
+    return await input_controller.drag(start_x, start_y, end_x, end_y)
 
 @router.post("/shortcut", response_model=BaseResponse)
 async def hotkey(data: ShortcutRequest):
     """Run keyboard shortcut (hotkey combo)"""
-    return await input_controller.hotkey(data.keys)
+    return await input_controller.press_hotkey(data.keys)

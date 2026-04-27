@@ -200,6 +200,54 @@ class ApiClient {
     return response.json();
   }
 
+  // --- Neural Memory (Markdown Nodes) ---
+
+  // Get all memory nodes
+  async getMemoryNodes(): Promise<{
+    success: boolean;
+    nodes: any[];
+    count: number;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/nodes`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get memory nodes');
+    }
+    return response.json();
+  }
+
+  // Get content of a specific node
+  async getMemoryNodeContent(name: string): Promise<{
+    success: boolean;
+    name: string;
+    content: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/nodes/${name}`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to get memory node content for ${name}`);
+    }
+    return response.json();
+  }
+
+  // Update content of a specific node
+  async updateMemoryNode(name: string, content: string): Promise<{
+    success: boolean;
+    response: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/api/memory/nodes/${name}`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ content }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update memory node ${name}`);
+    }
+    return response.json();
+  }
+
   // Get current settings
   async getSettings(): Promise<{ success: boolean; settings: any }> {
     const response = await fetch(`${this.baseUrl}/api/settings`, {

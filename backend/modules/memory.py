@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 
-from config import DATA_DIR
+from config import DATA_DIR, PROJECT_ROOT
 from utils.logger import logger
 
 
@@ -36,12 +36,79 @@ class MemoryEntry:
     source: str = ""  # How this was learned
 
 
+class NeuralMemoryManager:
+    """Manage file-based Markdown memory nodes"""
+
+    def __init__(self):
+        self.memory_dir = PROJECT_ROOT / "memory"
+        self.memory_dir.mkdir(exist_ok=True)
+        self.core_nodes = ["user.md", "personality.md", "preferences.md", "decisions.md", "people.md"]
+
+    def get_node(self, name: str) -> Optional[str]:
+        """Read content of a specific memory node"""
+        if not name.endswith(".md"):
+            name += ".md"
+        
+        file_path = self.memory_dir / name
+        if not file_path.exists():
+            return None
+        
+        try:
+            return file_path.read_text(encoding="utf-8")
+        except Exception as e:
+            logger.error(f"Error reading memory node {name}: {e}")
+            return None
+
+    def update_node(self, name: str, content: str) -> bool:
+        """Update content of a specific memory node"""
+        if not name.endswith(".md"):
+            name += ".md"
+        
+        file_path = self.memory_dir / name
+        try:
+            file_path.write_text(content, encoding="utf-8")
+            logger.info(f"Updated memory node: {name}")
+            return True
+        except Exception as e:
+            logger.error(f"Error updating memory node {name}: {e}")
+            return False
+
+    def list_nodes(self) -> List[Dict[str, Any]]:
+        """List all available memory nodes with metadata"""
+        nodes = []
+        for file_path in self.memory_dir.glob("*.md"):
+            try:
+                stats = file_path.stat()
+                nodes.append({
+                    "name": file_path.name,
+                    "path": str(file_path),
+                    "size": stats.st_size,
+                    "updated_at": datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                    "is_core": file_path.name in self.core_nodes
+                })
+            except Exception as e:
+                logger.error(f"Error listing node {file_path.name}: {e}")
+        return nodes
+
+    def get_neural_context(self) -> str:
+        """Collect core memory nodes for LLM context injection"""
+        context_parts = []
+        # Prioritize personality and user info
+        for node_name in ["personality.md", "user.md", "preferences.md"]:
+            content = self.get_node(node_name)
+            if content:
+                context_parts.append(f"### NODE: {node_name.upper()}\n{content}")
+        
+        return "\n\n".join(context_parts)
+
+
 class MemoryManager:
     """Manage conversation history and user memory"""
 
     def __init__(self):
         self.db_path = DATA_DIR / "memory.db"
         self._init_database()
+        self.neural = NeuralMemoryManager()
 
     def _init_database(self):
         """Initialize SQLite database with tables"""

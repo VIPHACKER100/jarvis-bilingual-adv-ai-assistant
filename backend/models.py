@@ -178,6 +178,24 @@ class FactListResponse(BaseResponse):
 class StatsResponse(BaseResponse):
     stats: Dict[str, Any]
 
+class MemoryNodeInfo(BaseModel):
+    name: str
+    path: str
+    size: int
+    updated_at: str
+    is_core: bool
+
+class MemoryNodeListResponse(BaseResponse):
+    nodes: List[MemoryNodeInfo]
+    count: int
+
+class MemoryNodeResponse(BaseResponse):
+    name: str
+    content: str
+
+class MemoryNodeUpdateRequest(BaseModel):
+    content: str
+
 # --- Input Models ---
 
 class CursorPositionResponse(BaseResponse):

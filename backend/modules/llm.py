@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config import BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM, LLM_PROVIDER, NVIDIA_MODEL, OPENROUTER_MODEL
+from modules.memory import memory_manager
 
 load_dotenv()
 
@@ -80,6 +81,11 @@ class LLMModule:
             system_prompt += f"\n\nUSER CONTEXT:\n{context}\n\nUse this information to provide more personalized and relevant responses."
         
         system_prompt += "\nIf the user asks for a command you can't perform, explain it politely."
+
+        # Inject Neural Memory context
+        neural_context = memory_manager.neural.get_neural_context()
+        if neural_context:
+            system_prompt += f"\n\nNEURAL MEMORY MAP (Core Identity & Behavioral Matrix):\n{neural_context}"
 
         if self.provider == "nvidia" and self.nvidia_api_key:
             return await self._get_nvidia_response(text, system_prompt)

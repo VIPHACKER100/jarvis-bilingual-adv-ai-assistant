@@ -33,22 +33,22 @@ async def clear_clipboard(language: str = "en"):
 @router.post("/media/play", response_model=BaseResponse)
 async def play_pause(language: str = "en"):
     """Media Play/Pause"""
-    return await desktop_manager.media_play_pause(language)
+    return await desktop_manager.play_pause_media(language)
 
 @router.post("/media/next", response_model=BaseResponse)
 async def next_track(language: str = "en"):
     """Media Next"""
-    return await desktop_manager.media_next_track(language)
+    return await desktop_manager.next_track(language)
 
 @router.post("/media/previous", response_model=BaseResponse)
 async def previous_track(language: str = "en"):
     """Media Previous"""
-    return await desktop_manager.media_previous_track(language)
+    return await desktop_manager.previous_track(language)
 
 @router.post("/media/stop", response_model=BaseResponse)
 async def stop_music(language: str = "en"):
     """Media Stop"""
-    return await desktop_manager.media_stop(language)
+    return await desktop_manager.stop_media(language)
 
 @router.post("/wallpaper", response_model=BaseResponse)
 async def change_wallpaper(image_path: str = Body(..., embed=True), language: str = "en"):

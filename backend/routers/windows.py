@@ -8,12 +8,12 @@ router = APIRouter(prefix="/api", tags=["Windows & Applications"])
 @router.get("/windows/list", response_model=WindowListResponse)
 async def list_windows():
     """List open windows"""
-    return await window_manager.list_windows()
+    return await window_manager.get_window_list()
 
 @router.get("/apps/list", tags=["Applications"], response_model=AppListResponse)
 async def list_apps():
     """List running apps"""
-    return await window_manager.list_apps()
+    return await window_manager.list_running_apps()
 
 @router.post("/apps/open", tags=["Applications"], response_model=BaseResponse)
 async def open_app(app_name: str, language: str = "en"):
