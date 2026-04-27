@@ -25,6 +25,7 @@ class CommandResult(BaseResponse):
     macro_name: Optional[str] = None
     requires_confirmation: bool = False
     confirmation_id: Optional[str] = None
+    suggestion: Optional[str] = None
     details: Optional[Dict[str, Any]] = None
     data: Optional[Dict[str, Any]] = None
 

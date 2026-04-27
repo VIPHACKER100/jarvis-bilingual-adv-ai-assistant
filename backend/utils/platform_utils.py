@@ -91,16 +91,13 @@ def set_volume(percent):
     """Set system volume (0-100)"""
     if is_windows():
         try:
-            from ctypes import cast, POINTER
-            from comtypes import CLSCTX_ALL
-            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            from pycaw.pycaw import AudioUtilities
             devices = AudioUtilities.GetSpeakers()
-            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-            volume = cast(interface, POINTER(IAudioEndpointVolume))
+            volume = devices.EndpointVolume
             volume.SetMasterVolumeLevelScalar(percent / 100.0, None)
             return True
-        except ImportError:
-            # Fallback to nircmd or similar
+        except Exception as e:
+            logger.error(f"Error setting volume on Windows: {e}")
             return False
     elif is_macos():
         return run_command(f"osascript -e 'set volume output volume {percent}'")
@@ -112,14 +109,12 @@ def get_volume():
     """Get current system volume"""
     if is_windows():
         try:
-            from ctypes import cast, POINTER
-            from comtypes import CLSCTX_ALL
-            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            from pycaw.pycaw import AudioUtilities
             devices = AudioUtilities.GetSpeakers()
-            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-            volume = cast(interface, POINTER(IAudioEndpointVolume))
+            volume = devices.EndpointVolume
             return int(volume.GetMasterVolumeLevelScalar() * 100)
-        except:
+        except Exception as e:
+            logger.error(f"Error getting volume on Windows: {e}")
             return 50
     elif is_macos():
         success, output, _ = run_command("osascript -e 'output volume of (get volume settings)'")
@@ -133,15 +128,13 @@ def set_mute(mute_state):
     """Set system mute state (True/False)"""
     if is_windows():
         try:
-            from ctypes import cast, POINTER
-            from comtypes import CLSCTX_ALL
-            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            from pycaw.pycaw import AudioUtilities
             devices = AudioUtilities.GetSpeakers()
-            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-            volume = cast(interface, POINTER(IAudioEndpointVolume))
+            volume = devices.EndpointVolume
             volume.SetMute(1 if mute_state else 0, None)
             return True
-        except:
+        except Exception as e:
+            logger.error(f"Error setting mute on Windows: {e}")
             return False
     elif is_macos():
         state = 'true' if mute_state else 'false'
@@ -155,14 +148,12 @@ def is_muted():
     """Check if system is muted"""
     if is_windows():
         try:
-            from ctypes import cast, POINTER
-            from comtypes import CLSCTX_ALL
-            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            from pycaw.pycaw import AudioUtilities
             devices = AudioUtilities.GetSpeakers()
-            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-            volume = cast(interface, POINTER(IAudioEndpointVolume))
+            volume = devices.EndpointVolume
             return volume.GetMute() == 1
-        except:
+        except Exception as e:
+            logger.error(f"Error checking mute on Windows: {e}")
             return False
     elif is_macos():
         success, output, _ = run_command("osascript -e 'output muted of (get volume settings)'")

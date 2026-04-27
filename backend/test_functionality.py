@@ -45,6 +45,18 @@ async def test_file_manager():
     from modules.file_manager import file_manager
     return file_manager is not None
 
+async def test_whatsapp():
+    """Test WhatsApp module"""
+    from modules.whatsapp import whatsapp_manager
+    result = await whatsapp_manager.get_status()
+    return result.get('success', False)
+
+async def test_vision():
+    """Test Vision capability (Visual Analysis)"""
+    from modules.llm import llm_module
+    # Check if get_visual_response exists
+    return hasattr(llm_module, 'get_visual_response')
+
 async def main():
     """Run all tests"""
     print("=" * 60)
@@ -58,6 +70,8 @@ async def main():
         ('Desktop Manager', test_desktop),
         ('Automation', test_automation),
         ('File Manager', test_file_manager),
+        ('WhatsApp', test_whatsapp),
+        ('Vision Capability', test_vision),
     ]
     
     results = {}

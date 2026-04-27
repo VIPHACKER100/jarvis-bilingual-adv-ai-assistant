@@ -198,6 +198,54 @@ class MediaProcessor:
                 'response': 'Failed to extract text from screen'
             }
 
+    async def analyze_screen(self, query: Optional[str] = None, language: str = 'en') -> Dict:
+        """Capture screenshot and analyze it using a multimodal LLM"""
+        try:
+            from modules.llm import llm_module
+            from modules.desktop import desktop_manager
+            
+            # 1. Take a screenshot (saving to file for multimodal processing)
+            screenshot_res = await desktop_manager.take_screenshot(save=True, language=language)
+            if not screenshot_res.get('success'):
+                return screenshot_res
+            
+            image_path = screenshot_res.get('file_path')
+            
+            # 2. Prepare prompt
+            prompt = query or "Describe what is on my screen right now. Be specific about open windows, text, and any visible UI elements."
+            if language == 'hi':
+                prompt = query or "बताएं कि अभी मेरी स्क्रीन पर क्या है। खुले हुए विंडोज़, टेक्स्ट और यूआई एलिमेंट्स के बारे में विस्तार से बताएं।"
+            
+            # 3. Analyze with Vision LLM
+            analysis = await llm_module.get_visual_response(image_path, prompt, language)
+            
+            if not analysis:
+                return {
+                    'success': False,
+                    'action_type': 'VISION_ANALYSIS',
+                    'error': 'Visual analysis failed or model returned empty response',
+                    'response': 'I tried to look at your screen but couldn\'t process the image.'
+                }
+            
+            log_command('Screen analysis', 'vision_analysis', True)
+            
+            return {
+                'success': True,
+                'action_type': 'VISION_ANALYSIS',
+                'query': query,
+                'response': analysis,
+                'image_path': image_path
+            }
+
+        except Exception as e:
+            logger.error(f'Error in screen analysis: {e}')
+            return {
+                'success': False,
+                'action_type': 'VISION_ANALYSIS',
+                'error': str(e),
+                'response': 'An error occurred while analyzing your screen.'
+            }
+
     # ==================== PDF TOOLS ====================
 
     async def merge_pdfs(

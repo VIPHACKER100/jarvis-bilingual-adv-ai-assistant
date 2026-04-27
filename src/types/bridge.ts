@@ -55,6 +55,7 @@ export interface CommandResponse {
   error?: string;
   volume?: number;
   macro_name?: string;
+  suggestion?: string;
   timestamp: string;
 }
 

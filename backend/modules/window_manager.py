@@ -722,6 +722,35 @@ class WindowManager:
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
+    async def get_active_window(self) -> Optional[Dict]:
+        """Get information about the currently active/foreground window"""
+        try:
+            if is_windows() and self.win32gui:
+                hwnd = self.win32gui.GetForegroundWindow()
+                title = self.win32gui.GetWindowText(hwnd)
+                if not title:
+                    return None
+                
+                # Get PID
+                try:
+                    import win32process
+                    _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                    proc = psutil.Process(pid)
+                    name = proc.name()
+                except:
+                    pid = 0
+                    name = "Unknown"
+                
+                return {
+                    'title': title,
+                    'pid': pid,
+                    'process_name': name,
+                    'hwnd': hwnd
+                }
+            return None
+        except Exception as e:
+            logger.error(f"Error getting active window: {e}")
+            return None
 
 # Singleton instance
 window_manager = WindowManager()

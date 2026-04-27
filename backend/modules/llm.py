@@ -199,6 +199,94 @@ class LLMModule:
                 return await self._get_openrouter_response(text, system_prompt)
             return None
 
+    async def get_visual_response(
+            self,
+            image_path: str,
+            prompt: str = "Analyze this image and describe what you see.",
+            language: str = 'en') -> Optional[str]:
+        """Get a response from a vision-capable LLM based on an image"""
+        try:
+            import base64
+            
+            path = Path(image_path).expanduser().resolve()
+            if not path.exists():
+                logger.error(f"Image not found for vision analysis: {path}")
+                return None
+
+            # Read and encode image
+            with open(path, "rb") as image_file:
+                base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+
+            if self.provider == "nvidia" and self.nvidia_api_key:
+                # Use a vision-capable model
+                model = "nvidia/llama-3.2-11b-vision-instruct" 
+                
+                def call_nvidia_vision():
+                    completion = self.nvidia_client.chat.completions.create(
+                        model=model,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": prompt},
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": f"data:image/png;base64,{base64_image}"},
+                                    },
+                                ],
+                            }
+                        ],
+                        max_tokens=1024,
+                        stream=False
+                    )
+                    return completion.choices[0].message.content.strip()
+
+                return await asyncio.to_thread(call_nvidia_vision)
+            
+            elif self.openrouter_api_key:
+                # Fallback to OpenRouter with a vision model
+                model = "google/gemini-2.0-flash-001"
+                headers = {
+                    "Authorization": f"Bearer {self.openrouter_api_key}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "https://aryanahirwar.in",
+                    "X-Title": "JARVIS AI Assistant"
+                }
+                
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {"url": f"data:image/png;base64,{base64_image}"}
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        self.openrouter_url,
+                        headers=headers,
+                        json=payload,
+                        timeout=30.0)
+
+                if response.status_code == 200:
+                    data = response.json()
+                    if "choices" in data and len(data["choices"]) > 0:
+                        return data["choices"][0]["message"]["content"].strip()
+                
+            return None
+
+        except Exception as e:
+            logger.error(f"Error in visual analysis: {e}")
+            return None
+
     async def _get_openrouter_response(self, text: str, system_prompt: str) -> Optional[str]:
         """Get response from OpenRouter API"""
         headers = {

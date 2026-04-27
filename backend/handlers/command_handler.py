@@ -170,6 +170,10 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         else:
             result = await media_processor.ocr_screenshot(current_lang)
     
+    elif command_key in ['analyze_screen', 'what_is_on_my_screen']:
+        query = params.get('query', str(params)) if isinstance(params, dict) else (params if params != command else None)
+        result = await media_processor.analyze_screen(query, current_lang)
+    
     # WhatsApp
     elif command_key == 'whatsapp_message':
         if params:
@@ -184,6 +188,17 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
                     result = await whatsapp_manager.send_message(parts[0], "", current_lang)
         else:
             result = await whatsapp_manager.open_whatsapp(current_lang)
+    
+    elif command_key == 'whatsapp_call':
+        contact = ""
+        is_video = False
+        if params:
+            if isinstance(params, dict):
+                contact = params.get('contact', '')
+                is_video = params.get('video', False)
+            else:
+                contact = str(params)
+        result = await whatsapp_manager.call_contact(contact, is_video, current_lang)
     
     # AI Conversation Fallback
     else:
@@ -207,7 +222,14 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             log_command(command, 'unknown', False)
 
     # Post-process with Pydantic model
+    # Convert Pydantic object to dict if needed
+    if hasattr(result, 'dict'):
+        result = result.dict()
+    
     details = result.get('details') or (params if isinstance(params, dict) else None)
+    
+    # Get proactive suggestion
+    suggestion = await context_manager.suggest_next_action()
     
     res_obj = CommandResult(
         success=result.get('success', True),
@@ -215,6 +237,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         action_type=result.get('action_type', 'COMMAND_EXECUTION'),
         command_key=command_key or 'unknown',
         language=current_lang,
+        suggestion=suggestion,
         details=details,
         data=result.get('data')
     )

@@ -34,6 +34,7 @@ export const VisionOverlay: FC<VisionOverlayProps> = ({ isOpen, content, onClose
   return (
     <div className="fixed inset-0 z-[120] pointer-events-none flex items-center justify-center p-8 bg-cyan-950/20 backdrop-blur-[2px]">
       <div className="absolute inset-0 border-[20px] border-cyan-500/10 animate-pulse pointer-events-none" />
+      <div className="scanline-overlay" />
       
       {/* Corner Brackets */}
       <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-cyan-400" />

@@ -46,6 +46,7 @@ const AppContent: FC = () => {
   const [showAutomationDashboard, setShowAutomationDashboard] = useState(false);
   const [showAdvancedHelper, setShowAdvancedHelper] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [currentSuggestion, setCurrentSuggestion] = useState<string | null>(null);
 
   const { addNotification } = useNotifications();
 
@@ -177,6 +178,15 @@ const AppContent: FC = () => {
           });
           sfx.playBlip(); // Reverting to playBlip to avoid type error
         }
+      }
+
+      // Handle proactive suggestions
+      if (lastResponse.suggestion) {
+        setCurrentSuggestion(lastResponse.suggestion);
+        // Clear suggestion after 8 seconds if not replaced
+        setTimeout(() => {
+          setCurrentSuggestion(prev => prev === lastResponse.suggestion ? null : prev);
+        }, 8000);
       }
 
       // Add to history
@@ -531,6 +541,50 @@ const AppContent: FC = () => {
           onClick={toggleActivation}
           language={language === Language.HINDI ? 'hi' : 'en'}
         />
+
+        {/* Smart Suggestion HUD */}
+        {currentSuggestion && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            className="w-full max-w-xl z-30"
+          >
+            <div className="glass-panel p-4 border border-cyan-500/40 bg-cyan-950/20 backdrop-blur-xl rounded-2xl relative overflow-hidden group shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-500 to-purple-500"></div>
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0 animate-pulse border border-cyan-500/30">
+                  <span className="text-xl">💡</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] font-mono text-cyan-400 tracking-widest uppercase">Neural_Suggestion // Proactive</span>
+                    <button 
+                      onClick={() => setCurrentSuggestion(null)}
+                      className="text-slate-500 hover:text-white transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p className="text-sm text-slate-200 leading-relaxed font-medium">
+                    {currentSuggestion}
+                  </p>
+                </div>
+              </div>
+              {/* Progress bar for auto-hide */}
+              <div className="absolute bottom-0 left-0 h-0.5 bg-cyan-500/30 w-full">
+                <motion.div 
+                  initial={{ width: "100%" }}
+                  animate={{ width: "0%" }}
+                  transition={{ duration: 8, ease: "linear" }}
+                  className="h-full bg-cyan-500"
+                ></motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Transcript Display */}
         <div className="w-full max-w-2xl text-center min-h-[80px] px-4 md:px-0 z-20">

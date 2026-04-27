@@ -283,10 +283,11 @@ class ContextManager:
 
         return None
 
-    def suggest_next_action(self) -> Optional[str]:
+    async def suggest_next_action(self) -> Optional[str]:
         """Suggest next action based on context"""
         if not self.current_context.last_command_type:
-            return None
+            # If no recent command, try proactive suggestion based on active window
+            return await self.get_proactive_suggestions()
 
         # Topic-based suggestions
         suggestions = {
@@ -317,7 +318,51 @@ class ContextManager:
             import random
             return random.choice(suggestions[topic])
 
-        return None
+        return await self.get_proactive_suggestions()
+
+    async def get_proactive_suggestions(self) -> Optional[str]:
+        """Generate proactive suggestions based on active window and system state"""
+        try:
+            from modules.window_manager import window_manager
+            active_win = await window_manager.get_active_window()
+            
+            if not active_win:
+                return None
+                
+            title = active_win['title'].lower()
+            proc_name = active_win['process_name'].lower()
+            
+            # Application specific proactive suggestions
+            if "chrome" in proc_name or "edge" in proc_name or "browser" in proc_name:
+                if "youtube" in title:
+                    return "Sir, I can help you search for other videos or download this audio if you'd like."
+                if "github" in title:
+                    return "You're on GitHub. Should I check for any pending pull requests or issues?"
+                return "I see you're browsing. Need help searching for something specific or summarizing a page?"
+                
+            if "code" in proc_name or "vscode" in proc_name:
+                return "Coding session in progress. Should I look for documentation or help you manage your files?"
+                
+            if "word" in proc_name or "notepad" in proc_name:
+                return "Working on a document? I can help you with spell check or formatting."
+                
+            if "whatsapp" in proc_name:
+                return "Checking messages? I can help you send a quick reply to any of your contacts."
+                
+            # System state suggestions
+            from modules.system import system_module
+            status = await system_module.get_system_status()
+            if status.cpu_percent > 80:
+                return f"Sir, CPU usage is very high ({status.cpu_percent}%). Should I check for heavy processes?"
+                
+            if status.battery_percent < 20 and status.power_plugged is False:
+                return f"Your battery is at {status.battery_percent}%. Would you like me to enable power saving or dim the screen?"
+
+            return "I'm monitoring your system. Let me know if you need any assistance with your current task."
+            
+        except Exception as e:
+            logger.error(f"Error in proactive suggestions: {e}")
+            return None
 
     def is_follow_up_command(self, user_input: str) -> bool:
         """Check if this is a follow-up to previous command"""

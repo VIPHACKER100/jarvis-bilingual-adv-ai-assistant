@@ -1,11 +1,8 @@
 {
-    "mom": "Mom",
-    "maa": "Mom",
-    "mummy": "Mom",
-    "papa": "Dad",
-    "father": "Dad",
-    "boss": "Manager Name",
-    "office": "Office Group",
-    "brother": "Brother Name",
-    "sister": "Sister Name"
+    "mom": { "name": "Mom", "phone": "+919876543210" },
+    "maa": { "name": "Mom", "phone": "+919876543210" },
+    "papa": { "name": "Dad", "phone": "+919876543211" },
+    "boss": { "name": "Manager", "phone": "+919876543212" },
+    "brother": { "name": "Brother", "phone": "+919876543213" },
+    "sister": { "name": "Sister", "phone": "+919876543214" }
 }

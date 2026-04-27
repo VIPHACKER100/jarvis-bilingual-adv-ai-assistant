@@ -33,17 +33,35 @@ class WhatsAppManager:
         if not contact:
             return contact
         
-        # Check direct match
-        contact_lower = contact.lower()
-        if contact_lower in self.contacts_map:
-            return self.contacts_map[contact_lower]
-        
-        # Check for partial matches
-        for alias, actual in self.contacts_map.items():
-            if alias in contact_lower:
-                return actual
-                
+        info = self._get_contact_info(contact)
+        if info:
+            return info.get('name', contact)
+            
         return contact
+
+    def _get_contact_info(self, contact: str) -> Optional[Dict[str, str]]:
+        """Get full contact info (name, phone) for an alias or name"""
+        if not contact:
+            return None
+            
+        contact_lower = contact.lower()
+        
+        # Check direct match in map
+        if contact_lower in self.contacts_map:
+            val = self.contacts_map[contact_lower]
+            if isinstance(val, dict):
+                return val
+            return {"name": val, "phone": ""}
+            
+        # Check partial alias matches
+        for alias, info in self.contacts_map.items():
+            if alias in contact_lower:
+                if isinstance(info, dict):
+                    return info
+                return {"name": info, "phone": ""}
+                
+        # If no alias match, return as-is
+        return {"name": contact, "phone": ""}
 
     def _find_whatsapp_desktop(self) -> Optional[str]:
         """Find WhatsApp Desktop installation"""
@@ -159,6 +177,9 @@ class WhatsAppManager:
                 'action_type': 'WHATSAPP_WEB',
                 'error': str(e)
             }
+    async def open_whatsapp(self, language: str = 'en') -> Dict:
+        """Open WhatsApp (prefers desktop)"""
+        return await self.open_whatsapp_desktop(language)
 
     async def open_whatsapp_desktop(self, language: str = 'en') -> Dict:
         """Open WhatsApp Desktop application"""
@@ -198,6 +219,11 @@ class WhatsAppManager:
             logger.error(f"Error opening WhatsApp Desktop: {e}")
             # Fall back to web
             return await self.open_whatsapp_web(language)
+    async def send_message(self, contact: str, message: str, language: str = 'en') -> Dict:
+        """Send message (prefers desktop if running, else web)"""
+        if self._is_whatsapp_running():
+            return await self.send_message_desktop(contact, message, language)
+        return await self.send_message_web(contact, message, language)
 
     async def send_message_web(
             self,
@@ -208,26 +234,31 @@ class WhatsAppManager:
         try:
             import urllib.parse
             
-            # Resolve alias (e.g. 'Mom' -> 'Actual Name')
-            contact = self._resolve_contact(contact)
+            # Get contact info (resolves aliases)
+            info = self._get_contact_info(contact)
+            contact_name = info.get('name', contact)
+            phone = info.get('phone', '').replace(' ', '').replace('-', '')
 
-            # Format phone number (remove spaces, dashes)
-            phone = contact.replace(' ', '').replace('-', '')
+            # If no phone number available, try to treat contact as a number if it looks like one
+            if not phone:
+                potential_phone = contact.replace(' ', '').replace('-', '')
+                if potential_phone.isdigit() or (potential_phone.startswith('+') and potential_phone[1:].isdigit()):
+                    phone = potential_phone
 
-            # If contact has letters, use name search (requires saved contact)
-            if any(c.isalpha() for c in phone):
+            # If we still don't have a phone number, use name search
+            if not phone:
                 # Open WhatsApp Web and let user select
                 webbrowser.open('https://web.whatsapp.com')
 
-                response = f"Opening WhatsApp Web. Please search for {contact} and send your message."
+                response = f"Opening WhatsApp Web. Please search for {contact_name} and send your message."
                 if language == 'hi':
-                    response = f"WhatsApp Web खोल रहा हूँ। कृपया {contact} को खोजें और अपना संदेश भेजें।"
+                    response = f"WhatsApp Web खोल रहा हूँ। कृपया {contact_name} को खोजें और अपना संदेश भेजें।"
 
                 return {
                     'success': True,
                     'action_type': 'WHATSAPP_MESSAGE',
                     'method': 'web',
-                    'contact': contact,
+                    'contact': contact_name,
                     'response': response
                 }
             else:
@@ -236,15 +267,16 @@ class WhatsAppManager:
                 url = f"https://wa.me/{phone}?text={encoded_message}"
                 webbrowser.open(url)
 
-                response = f"Opening WhatsApp chat with {contact}. Click send to deliver message."
+                response = f"Opening WhatsApp chat with {contact_name}. Click send to deliver message."
                 if language == 'hi':
-                    response = f"{contact} के साथ WhatsApp चैट खोल रहा हूँ। संदेश भेजने के लिए सेंड पर क्लिक करें।"
+                    response = f"{contact_name} के साथ WhatsApp चैट खोल रहा हूँ। संदेश भेजने के लिए सेंड पर क्लिक करें।"
 
                 return {
                     'success': True,
                     'action_type': 'WHATSAPP_MESSAGE',
                     'method': 'web',
-                    'contact': contact,
+                    'contact': contact_name,
+                    'phone': phone,
                     'message': message,
                     'response': response
                 }
@@ -336,12 +368,13 @@ class WhatsAppManager:
             # Fall back to web
             return await self.send_message_web(contact, message, language)
 
-    async def make_call(
+    async def call_contact(
             self,
             contact: str,
-            call_type: str = 'voice',
+            video: bool = False,
             language: str = 'en') -> Dict:
-        """Make WhatsApp call"""
+        """Make WhatsApp call (voice or video)"""
+        call_type = 'video' if video else 'voice'
         try:
             # Resolve alias 
             contact = self._resolve_contact(contact)
@@ -350,8 +383,6 @@ class WhatsAppManager:
             desktop_path = self._find_whatsapp_desktop()
 
             if desktop_path and self._is_whatsapp_running():
-                import pyautogui
-
                 # Open/focus WhatsApp
                 await self.open_whatsapp_desktop(language)
                 time.sleep(2)
@@ -400,6 +431,47 @@ class WhatsAppManager:
                 'action_type': 'WHATSAPP_CALL',
                 'error': str(e)
             }
+
+    async def get_known_contacts(self, language: str = 'en') -> Dict:
+        """Get list of known contacts and aliases"""
+        contacts = []
+        for alias, info in self.contacts_map.items():
+            if isinstance(info, dict):
+                contacts.append({
+                    "alias": alias,
+                    "name": info.get("name", ""),
+                    "phone": info.get("phone", "")
+                })
+            else:
+                contacts.append({
+                    "alias": alias,
+                    "name": info,
+                    "phone": ""
+                })
+        
+        return {
+            "success": True,
+            "contacts": contacts,
+            "count": len(contacts)
+        }
+
+    async def get_status(self, language: str = 'en') -> Dict:
+        """Check WhatsApp status and availability"""
+        desktop_available = self._find_whatsapp_desktop() is not None
+        is_running = self._is_whatsapp_running()
+        
+        status_text = "WhatsApp Desktop is available" if desktop_available else "WhatsApp Desktop is not installed (using Web fallback)"
+        if is_running:
+            status_text += " and currently running."
+        else:
+            status_text += " but not currently running."
+            
+        return {
+            "success": True,
+            "desktop_installed": desktop_available,
+            "is_running": is_running,
+            "response": status_text
+        }
 
 
 # Singleton instance
