@@ -1,4 +1,5 @@
 import sqlite3
+import aiosqlite
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -182,16 +183,16 @@ class MemoryManager:
         except Exception as e:
             logger.error(f"Error initializing memory database: {e}")
 
-    def save_conversation(self, entry: ConversationEntry) -> bool:
+    async def save_conversation(self, entry: ConversationEntry) -> bool:
         """Save a conversation entry"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             if not entry.timestamp:
                 entry.timestamp = datetime.now().isoformat()
 
-            cursor.execute('''
+            await cursor.execute('''
                 INSERT INTO conversations
                 (timestamp, user_input, jarvis_response, command_type, success, context, language, session_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -206,9 +207,9 @@ class MemoryManager:
                 entry.session_id
             ))
 
-            conn.commit()
+            await db.commit()
             entry.id = cursor.lastrowid
-            conn.close()
+            await db.close()
 
             logger.info(f"Saved conversation entry: {entry.id}")
             return True
@@ -217,31 +218,31 @@ class MemoryManager:
             logger.error(f"Error saving conversation: {e}")
             return False
 
-    def get_recent_conversations(
+    async def get_recent_conversations(
             self,
             limit: int = 10,
             session_id: Optional[str] = None) -> List[ConversationEntry]:
         """Get recent conversation history"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             if session_id:
-                cursor.execute('''
+                await cursor.execute('''
                     SELECT * FROM conversations
                     WHERE session_id = ?
                     ORDER BY timestamp DESC
                     LIMIT ?
                 ''', (session_id, limit))
             else:
-                cursor.execute('''
+                await cursor.execute('''
                     SELECT * FROM conversations
                     ORDER BY timestamp DESC
                     LIMIT ?
                 ''', (limit,))
 
-            rows = cursor.fetchall()
-            conn.close()
+            rows = await cursor.fetchall()
+            await db.close()
 
             entries = []
             for row in rows:
@@ -264,25 +265,25 @@ class MemoryManager:
             logger.error(f"Error getting conversations: {e}")
             return []
 
-    def search_conversations(
+    async def search_conversations(
             self,
             query: str,
             limit: int = 10) -> List[ConversationEntry]:
         """Search conversation history"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             search_term = f"%{query}%"
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT * FROM conversations
                 WHERE user_input LIKE ? OR jarvis_response LIKE ?
                 ORDER BY timestamp DESC
                 LIMIT ?
             ''', (search_term, search_term, limit))
 
-            rows = cursor.fetchall()
-            conn.close()
+            rows = await cursor.fetchall()
+            await db.close()
 
             entries = []
             for row in rows:
@@ -305,51 +306,51 @@ class MemoryManager:
             logger.error(f"Error searching conversations: {e}")
             return []
 
-    def get_conversation_stats(self, days: int = 7) -> Dict:
+    async def get_conversation_stats(self, days: int = 7) -> Dict:
         """Get conversation statistics"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             since = (datetime.now() - timedelta(days=days)).isoformat()
 
             # Total conversations
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT COUNT(*) FROM conversations
                 WHERE timestamp > ?
             ''', (since,))
-            total = cursor.fetchone()[0]
+            total = await cursor.fetchone()[0]
 
             # Successful commands
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT COUNT(*) FROM conversations
                 WHERE timestamp > ? AND success = 1
             ''', (since,))
-            successful = cursor.fetchone()[0]
+            successful = await cursor.fetchone()[0]
 
             # Command types breakdown
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT command_type, COUNT(*) as count
                 FROM conversations
                 WHERE timestamp > ?
                 GROUP BY command_type
                 ORDER BY count DESC
             ''', (since,))
-            command_types = {row[0]: row[1] for row in cursor.fetchall()}
+            command_types = {row[0]: row[1] for row in await cursor.fetchall()}
 
             # Language distribution
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT language, COUNT(*) as count
                 FROM conversations
                 WHERE timestamp > ?
                 GROUP BY language
             ''', (since,))
-            languages = {row[0]: row[1] for row in cursor.fetchall()}
+            languages = {row[0]: row[1] for row in await cursor.fetchall()}
             
             # Map 'hi-EN' or 'hinglish' to a consistent key if needed
             # In our case, the frontend uses 'hi-EN' and backend might see 'hinglish'
             
-            conn.close()
+            await db.close()
 
             return {
                 "total_conversations": total,
@@ -364,21 +365,21 @@ class MemoryManager:
             logger.error(f"Error getting conversation stats: {e}")
             return {}
 
-    def save_memory(self, entry: MemoryEntry) -> bool:
+    async def save_memory(self, entry: MemoryEntry) -> bool:
         """Save a memory/fact about the user"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             now = datetime.now().isoformat()
 
             # Check if key already exists
-            cursor.execute('SELECT id FROM memory WHERE key = ?', (entry.key,))
-            existing = cursor.fetchone()
+            await cursor.execute('SELECT id FROM memory WHERE key = ?', (entry.key,))
+            existing = await cursor.fetchone()
 
             if existing:
                 # Update existing
-                cursor.execute('''
+                await cursor.execute('''
                     UPDATE memory
                     SET value = ?, updated_at = ?, confidence = ?, source = ?
                     WHERE key = ?
@@ -390,7 +391,7 @@ class MemoryManager:
                 if not entry.updated_at:
                     entry.updated_at = now
 
-                cursor.execute('''
+                await cursor.execute('''
                     INSERT INTO memory
                     (key, value, category, created_at, updated_at, confidence, source)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -404,8 +405,8 @@ class MemoryManager:
                     entry.source
                 ))
 
-            conn.commit()
-            conn.close()
+            await db.commit()
+            await db.close()
 
             logger.info(f"Saved memory: {entry.key} = {entry.value}")
             return True
@@ -414,15 +415,15 @@ class MemoryManager:
             logger.error(f"Error saving memory: {e}")
             return False
 
-    def get_memory(self, key: str) -> Optional[MemoryEntry]:
+    async def get_memory(self, key: str) -> Optional[MemoryEntry]:
         """Get a specific memory entry"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
-            cursor.execute('SELECT * FROM memory WHERE key = ?', (key,))
-            row = cursor.fetchone()
-            conn.close()
+            await cursor.execute('SELECT * FROM memory WHERE key = ?', (key,))
+            row = await cursor.fetchone()
+            await db.close()
 
             if row:
                 return MemoryEntry(
@@ -441,20 +442,20 @@ class MemoryManager:
             logger.error(f"Error getting memory: {e}")
             return None
 
-    def get_memories_by_category(self, category: str) -> List[MemoryEntry]:
+    async def get_memories_by_category(self, category: str) -> List[MemoryEntry]:
         """Get all memories in a category"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT * FROM memory
                 WHERE category = ?
                 ORDER BY updated_at DESC
             ''', (category,))
 
-            rows = cursor.fetchall()
-            conn.close()
+            rows = await cursor.fetchall()
+            await db.close()
 
             entries = []
             for row in rows:
@@ -476,21 +477,21 @@ class MemoryManager:
             logger.error(f"Error getting memories by category: {e}")
             return []
 
-    def search_memory(self, query: str) -> List[MemoryEntry]:
+    async def search_memory(self, query: str) -> List[MemoryEntry]:
         """Search memory entries"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             search_term = f"%{query}%"
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT * FROM memory
                 WHERE key LIKE ? OR value LIKE ?
                 ORDER BY confidence DESC, updated_at DESC
             ''', (search_term, search_term))
 
-            rows = cursor.fetchall()
-            conn.close()
+            rows = await cursor.fetchall()
+            await db.close()
 
             entries = []
             for row in rows:
@@ -512,15 +513,15 @@ class MemoryManager:
             logger.error(f"Error searching memory: {e}")
             return []
 
-    def delete_memory(self, key: str) -> bool:
+    async def delete_memory(self, key: str) -> bool:
         """Delete a memory entry"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
-            cursor.execute('DELETE FROM memory WHERE key = ?', (key,))
-            conn.commit()
-            conn.close()
+            await cursor.execute('DELETE FROM memory WHERE key = ?', (key,))
+            await db.commit()
+            await db.close()
 
             logger.info(f"Deleted memory: {key}")
             return True
@@ -529,19 +530,19 @@ class MemoryManager:
             logger.error(f"Error deleting memory: {e}")
             return False
 
-    def start_session(self, session_id: str) -> bool:
+    async def start_session(self, session_id: str) -> bool:
         """Start a new conversation session"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
-            cursor.execute('''
+            await cursor.execute('''
                 INSERT INTO sessions (session_id, started_at, command_count)
                 VALUES (?, ?, 0)
             ''', (session_id, datetime.now().isoformat()))
 
-            conn.commit()
-            conn.close()
+            await db.commit()
+            await db.close()
 
             logger.info(f"Started session: {session_id}")
             return True
@@ -550,26 +551,26 @@ class MemoryManager:
             logger.error(f"Error starting session: {e}")
             return False
 
-    def end_session(self, session_id: str) -> bool:
+    async def end_session(self, session_id: str) -> bool:
         """End a conversation session"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             # Count commands in session
-            cursor.execute('''
+            await cursor.execute('''
                 SELECT COUNT(*) FROM conversations WHERE session_id = ?
             ''', (session_id,))
-            count = cursor.fetchone()[0]
+            count = await cursor.fetchone()[0]
 
-            cursor.execute('''
+            await cursor.execute('''
                 UPDATE sessions
                 SET ended_at = ?, command_count = ?
                 WHERE session_id = ?
             ''', (datetime.now().isoformat(), count, session_id))
 
-            conn.commit()
-            conn.close()
+            await db.commit()
+            await db.close()
 
             logger.info(f"Ended session: {session_id} with {count} commands")
             return True
@@ -578,21 +579,21 @@ class MemoryManager:
             logger.error(f"Error ending session: {e}")
             return False
 
-    def cleanup_old_data(self, days: int = 30) -> int:
+    async def cleanup_old_data(self, days: int = 30) -> int:
         """Remove old conversation data"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
 
             cutoff = (datetime.now() - timedelta(days=days)).isoformat()
 
-            cursor.execute('''
+            await cursor.execute('''
                 DELETE FROM conversations WHERE timestamp < ?
             ''', (cutoff,))
 
             deleted = cursor.rowcount
-            conn.commit()
-            conn.close()
+            await db.commit()
+            await db.close()
 
             logger.info(f"Cleaned up {deleted} old conversation entries")
             return deleted
@@ -601,45 +602,45 @@ class MemoryManager:
             logger.error(f"Error cleaning up old data: {e}")
             return 0
 
-    def delete_all_conversations(self) -> bool:
+    async def delete_all_conversations(self) -> bool:
         """Wipe all conversion history"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM conversations')
-            conn.commit()
-            conn.close()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
+            await cursor.execute('DELETE FROM conversations')
+            await db.commit()
+            await db.close()
             logger.info("All conversation history deleted")
             return True
         except Exception as e:
             logger.error(f"Error deleting all conversations: {e}")
             return False
 
-    def prune_conversations(self, limit: int = 20, session_id: Optional[str] = None) -> int:
+    async def prune_conversations(self, limit: int = 20, session_id: Optional[str] = None) -> int:
         """
         Prune conversation history to a specific limit to optimize LLM context.
         Returns the number of entries deleted.
         """
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
             
             # Identify entries to keep
             if session_id:
-                cursor.execute('''
+                await cursor.execute('''
                     SELECT id FROM conversations 
                     WHERE session_id = ? 
                     ORDER BY timestamp DESC 
                     LIMIT ?
                 ''', (session_id, limit))
             else:
-                cursor.execute('''
+                await cursor.execute('''
                     SELECT id FROM conversations 
                     ORDER BY timestamp DESC 
                     LIMIT ?
                 ''', (limit,))
                 
-            keep_ids = [row[0] for row in cursor.fetchall()]
+            keep_ids = [row[0] for row in await cursor.fetchall()]
             
             if not keep_ids:
                 return 0
@@ -647,19 +648,19 @@ class MemoryManager:
             # Delete everything else
             placeholders = ','.join(['?'] * len(keep_ids))
             if session_id:
-                cursor.execute(f'''
+                await cursor.execute(f'''
                     DELETE FROM conversations 
                     WHERE session_id = ? AND id NOT IN ({placeholders})
                 ''', [session_id] + keep_ids)
             else:
-                cursor.execute(f'''
+                await cursor.execute(f'''
                     DELETE FROM conversations 
                     WHERE id NOT IN ({placeholders})
                 ''', keep_ids)
                 
             deleted = cursor.rowcount
-            conn.commit()
-            conn.close()
+            await db.commit()
+            await db.close()
             
             if deleted > 0:
                 logger.info(f"Pruned {deleted} conversation entries to maintain performance.")
@@ -669,21 +670,21 @@ class MemoryManager:
             logger.error(f"Error pruning conversations: {e}")
             return 0
 
-    def delete_memory_by_id(self, memory_id: int) -> bool:
+    async def delete_memory_by_id(self, memory_id: int) -> bool:
         """Delete specific memory fact by ID"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM memory WHERE id = ?', (memory_id,))
-            conn.commit()
-            conn.close()
+            db = await aiosqlite.connect(str(self.db_path))
+            cursor = await db.cursor()
+            await cursor.execute('DELETE FROM memory WHERE id = ?', (memory_id,))
+            await db.commit()
+            await db.close()
             logger.info(f"Deleted memory fact ID: {memory_id}")
             return True
         except Exception as e:
             logger.error(f"Error deleting memory fact {memory_id}: {e}")
             return False
 
-    def save_setting(self, key: str, value: Any) -> bool:
+    async def save_setting(self, key: str, value: Any) -> bool:
         """Save a system setting to memory"""
         return self.save_memory(MemoryEntry(
             key=f"setting_{key}",
@@ -692,7 +693,7 @@ class MemoryManager:
             source="system"
         ))
 
-    def get_setting(self, key: str, default: Any = None) -> Any:
+    async def get_setting(self, key: str, default: Any = None) -> Any:
         """Get a system setting from memory"""
         entry = self.get_memory(f"setting_{key}")
         if not entry:

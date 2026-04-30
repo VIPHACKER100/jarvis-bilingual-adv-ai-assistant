@@ -101,7 +101,7 @@ class ContextManager:
         self.intent_history: List[IntentAnalysis] = []
         
         # Load persistent settings
-        pref_lang = memory_manager.get_setting("preferred_language", "en")
+        pref_lang = await memory_manager.get_setting("preferred_language", "en")
         self.set_context_variable("preferred_language", pref_lang)
 
     def update_context(self, user_input: str, command_type: str,
@@ -120,7 +120,7 @@ class ContextManager:
         current_lang = parser.detect_language(user_input)
         if current_lang != lang:
              self.set_context_variable("preferred_language", current_lang)
-             memory_manager.save_setting("preferred_language", current_lang)
+             await memory_manager.save_setting("preferred_language", current_lang)
 
         # Update active topic based on command type
         topic_mapping = {
@@ -282,7 +282,7 @@ class ContextManager:
 
         # Check for remembered facts
         if self.current_context.conversation_count > 5:
-            memories = memory_manager.get_memories_by_category('preferences')
+            memories = await memory_manager.get_memories_by_category('preferences')
             if memories and len(memories) > 0:
                 memory = memories[0]
                 return responses['remembered_fact'].format(
@@ -507,7 +507,7 @@ class ContextManager:
     def get_conversation_context(self, limit: int = 5) -> List[Dict]:
         """Get recent conversation context for AI processing"""
         session_id = self.current_context.session_id
-        entries = memory_manager.get_recent_conversations(limit, session_id)
+        entries = await memory_manager.get_recent_conversations(limit, session_id)
 
         context = []
         for entry in entries:
@@ -574,12 +574,12 @@ class ContextManager:
                     if pref_match:
                         key = f"favorite_{pref_match.group(1).strip().replace(' ', '_')}"
                         val = pref_match.group(2).strip()
-                        memory_manager.save_memory(MemoryEntry(
+                        await memory_manager.save_memory(MemoryEntry(
                             key=key, value=val, category="preferences", source="conversation"
                         ))
                         continue
 
-                memory_manager.save_memory(MemoryEntry(
+                await memory_manager.save_memory(MemoryEntry(
                     key=base_key,
                     value=value,
                     category=category,

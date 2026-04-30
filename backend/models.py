@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
 
@@ -15,9 +15,14 @@ class BaseResponse(BaseModel):
 # --- Command Models ---
 
 class CommandRequest(BaseModel):
-    command: str
-    language: Optional[str] = "en"
-    session_id: Optional[str] = None
+    command: str = Field(..., min_length=1, max_length=500)
+    language: str = Field(default="en", pattern="^(en|hi|hinglish)$")
+    session_id: Optional[str] = Field(None, max_length=100)
+    
+    @field_validator('command')
+    @classmethod
+    def validate_command(cls, v: str) -> str:
+        return v.strip()
 
 class CommandResult(BaseResponse):
     action_type: str = "UNKNOWN"

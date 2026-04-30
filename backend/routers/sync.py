@@ -20,7 +20,7 @@ router = APIRouter(prefix="/api/sync", tags=["sync"])
 async def get_sync_status():
     """Get system status for mobile dashboard"""
     status = await system_module.get_system_status()
-    devices = memory_manager.get_setting("paired_devices", [])
+    devices = await memory_manager.get_setting("paired_devices", [])
     
     return SyncStatusResponse(
         success=True,
@@ -49,9 +49,9 @@ async def pair_device(request: DevicePairingRequest):
         }
         
         # Save to persistent settings
-        devices = memory_manager.get_setting("paired_devices", [])
+        devices = await memory_manager.get_setting("paired_devices", [])
         devices.append(new_device)
-        memory_manager.save_setting("paired_devices", devices)
+        await memory_manager.save_setting("paired_devices", devices)
         
         logger.info(f"New mobile device paired: {request.device_name} ({device_id})")
         
@@ -67,7 +67,7 @@ async def pair_device(request: DevicePairingRequest):
 @router.get("/devices", response_model=Dict[str, List[Dict]])
 async def get_paired_devices():
     """List all paired mobile devices (sanitized)"""
-    devices = memory_manager.get_setting("paired_devices", [])
+    devices = await memory_manager.get_setting("paired_devices", [])
     # Don't return tokens
     sanitized = [
         {k: v for k, v in d.items() if k != "token"}
@@ -78,11 +78,11 @@ async def get_paired_devices():
 @router.delete("/devices/{device_id}")
 async def unpair_device(device_id: str):
     """Unpair a device"""
-    devices = memory_manager.get_setting("paired_devices", [])
+    devices = await memory_manager.get_setting("paired_devices", [])
     filtered = [d for d in devices if d["id"] != device_id]
     
     if len(filtered) == len(devices):
         raise HTTPException(status_code=404, detail="Device not found")
         
-    memory_manager.save_setting("paired_devices", filtered)
+    await memory_manager.save_setting("paired_devices", filtered)
     return {"success": True, "message": "Device unpaired"}

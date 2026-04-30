@@ -64,7 +64,7 @@ class LLMModule:
         """Get a response from the LLM with automatic context optimization"""
         
         # Trigger contextual pruning if history gets too long
-        memory_manager.prune_conversations(limit=25)
+        await memory_manager.prune_conversations(limit=25)
         
         if language == 'hi':
             lang_desc = "Hindi (Devanagari script)"

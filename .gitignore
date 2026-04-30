@@ -1,30 +1,51 @@
-# Logs
-logs
+# Virtual Environments
+backend/venv/
+backend/.venv/
+env/
+.env
+.env.local
+
+# Node & Build
+node_modules/
+dist/
+dist-ssr/
+build/
+*.egg-info/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+nul
+
+# Logs & Cache
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+.pytest_cache/
+__pycache__/
+.cache/
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.env
-nul
+# Large files
+*.zip
+*.tar.gz
+backend/JARVIS_*.zip
 
 # AI memory & instructions (personal/private)
 memory/
 CLAUDE.md
+*.local

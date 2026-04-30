@@ -98,7 +98,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
                 language=current_lang,
                 session_id=session_id or ""
             )
-            memory_manager.save_conversation(entry)
+            await memory_manager.save_conversation(entry)
             context_manager.update_context(command, 'macro', True, session_id or "default")
         except Exception as e:
             logger.error(f"Error persisting macro to memory: {e}")
@@ -207,7 +207,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         logger.info(f"No direct handler for '{command_key}', using AI fallback...")
         context_str = ""
         try:
-            facts = memory_manager.search_memory("")
+            facts = await memory_manager.search_memory("")
             if facts:
                 context_str += "Known facts:\n" + "\n".join([f"- {f.key}: {f.value}" for f in facts[:5]])
             history = context_manager.get_conversation_context(limit=3)
@@ -266,7 +266,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             language=current_lang,
             session_id=session_id or ""
         )
-        memory_manager.save_conversation(entry)
+        await memory_manager.save_conversation(entry)
         context_manager.update_context(command, command_key or "conversation", res['success'], session_id or "default")
     except Exception as e:
         logger.error(f"Error saving to memory in command_handler: {e}")
