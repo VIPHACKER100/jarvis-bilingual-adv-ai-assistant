@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
 import { AppMode } from '../types';
 import { useJarvisStore } from '../store/jarvisStore';
-import HistoryLog from './HistoryLog';
-import VolumeControl from './VolumeControl';
-import SystemDiagnostics from './SystemDiagnostics';
+import { HistoryLog } from './HistoryLog';
+import { VolumeControl } from './VolumeControl';
+import { SystemDiagnostics } from './SystemDiagnostics';
 
 export const StatusPanels: FC = () => {
   const { mode, history, volume, systemStatus } = useJarvisStore();

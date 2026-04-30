@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, X } from 'lucide-react';
 import { AppMode, Language } from '../types';
 import { useJarvisStore } from '../store/jarvisStore';
-import ArcReactor from './ArcReactor';
+import { ArcReactor } from './ArcReactor';
 
 interface MainHUDProps {
   onToggleActivation: () => void;

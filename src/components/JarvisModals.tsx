@@ -1,12 +1,12 @@
 import React, { FC } from 'react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
-import PermissionModal from './modals/PermissionModal';
-import ConfirmationModal from './modals/ConfirmationModal';
-import MemoryViewer from './modals/MemoryViewer';
-import AutomationDashboard from './modals/AutomationDashboard';
-import SettingsModal from './modals/SettingsModal';
-import VisionOverlay from './VisionOverlay';
+import { PermissionModal } from './PermissionModal';
+import { ConfirmationModal } from './ConfirmationModal';
+import { MemoryViewer } from './MemoryViewer';
+import { AutomationDashboard } from './AutomationDashboard';
+import { SettingsModal } from './SettingsModal';
+import { VisionOverlay } from './VisionOverlay';
 import { Language } from '../types';
 
 export const JarvisModals: FC = () => {

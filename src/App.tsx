@@ -15,7 +15,7 @@ import { StatusPanels } from './components/StatusPanels';
 import { AdvancedTools } from './components/AdvancedTools';
 import { QuickAccess } from './components/QuickAccess';
 import { JarvisModals } from './components/JarvisModals';
-import NotificationCenter from './components/NotificationCenter';
+import { NotificationCenter } from './components/NotificationCenter';
 
 const App: FC = () => {
   useTheme();

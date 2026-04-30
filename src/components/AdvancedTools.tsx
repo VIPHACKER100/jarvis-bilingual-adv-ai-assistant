@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import { Language } from '../types';
 import { useJarvisStore } from '../store/jarvisStore';
-import DesktopControls from './DesktopControls';
-import MediaTools from './MediaTools';
+import { DesktopControls } from './DesktopControls';
+import { MediaTools } from './MediaTools';
 
 export const AdvancedTools: FC = () => {
   const { language, showAdvanced, setShowAdvanced } = useJarvisStore();
