@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, Body, Request
 from typing import Dict, Any, Optional
 import os
+import asyncio
 from config import CONFIG, NVIDIA_MODEL, OPENROUTER_MODEL, BACKEND_PORT, LOG_LEVEL, save_config
 from models import (
     BaseResponse, SettingsResponse, ApiKeyStatusResponse, 
@@ -48,7 +49,7 @@ async def update_settings(data: SettingsUpdateRequest):
             CONFIG[key] = value
         
         # Save to config.json
-        save_config(CONFIG)
+        await asyncio.to_thread(save_config, CONFIG)
         
         return {"success": True, "response": "Settings updated successfully"}
     except Exception as e:
@@ -61,10 +62,14 @@ async def update_keys(data: ApiKeyUpdateRequest):
         env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
         
         # Read current .env
-        env_lines = []
-        if os.path.exists(env_path):
-            with open(env_path, 'r', encoding='utf-8') as f:
-                env_lines = f.readlines()
+        def read_env():
+            lines = []
+            if os.path.exists(env_path):
+                with open(env_path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+            return lines
+
+        env_lines = await asyncio.to_thread(read_env)
         
         # Map of keys to update
         updates = {
@@ -102,8 +107,11 @@ async def update_keys(data: ApiKeyUpdateRequest):
                 new_env_lines.append(f"{key}={value}\n")
                 
         # Write back
-        with open(env_path, 'w', encoding='utf-8') as f:
-            f.writelines(new_env_lines)
+        def write_env(lines):
+            with open(env_path, 'w', encoding='utf-8') as f:
+                f.writelines(lines)
+        
+        await asyncio.to_thread(write_env, new_env_lines)
             
         return {"success": True, "response": f"Updated {len(updates)} keys in .env"}
     except Exception as e:

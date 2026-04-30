@@ -8,7 +8,7 @@
 export const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "8000";
 
 // Base URLs for API and WebSocket
-export const API_BASE_URL = `http://localhost:${BACKEND_PORT}`;
+export const API_BASE_URL = `http://localhost:${BACKEND_PORT}/api/v1`;
 export const WS_BASE_URL = `ws://localhost:${BACKEND_PORT}/ws`;
 
 // Version Info

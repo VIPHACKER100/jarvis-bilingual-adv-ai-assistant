@@ -29,8 +29,10 @@ from routers import (
     system, windows, files, media, pdf_tools, 
     image_tools, desktop, memory, automation, 
     commands, websocket, settings, whatsapp,
-    input_control, notifications, sync
+    input_control, notifications, sync, health
 )
+from modules.memory import memory_manager
+from modules.whatsapp import whatsapp_manager
 
 # Security
 BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
@@ -42,22 +44,24 @@ async def lifespan(app: FastAPI):
     log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "3.4.0"
+        "version": "3.4.1"
     })
+    
+    # Initialize managers
+    await memory_manager.initialize()
+    await whatsapp_manager.initialize()
+    await automation_manager.initialize()
     
     # Start background tasks
     status_broadcast_task = asyncio.create_task(broadcast_system_status())
-    
-    # Start automation scheduler
-    automation_manager.start_scheduler()
-    automation_manager.create_preset_tasks()
-    automation_manager.create_preset_macros()
+    lag_monitor_task = asyncio.create_task(monitor_event_loop_lag())
     
     yield
     
     # Cleanup
     status_broadcast_task.cancel()
-    automation_manager.stop_scheduler()
+    lag_monitor_task.cancel()
+    await automation_manager.stop_scheduler()
     logger.info("JARVIS Backend shutting down...")
     log_system_event("SHUTDOWN", {})
 
@@ -117,6 +121,16 @@ async def response_time_middleware(request: Request, call_next):
     return response
 
 
+# Request ID Middleware
+@app.middleware("http")
+async def add_request_id(request: Request, call_next):
+    import uuid
+    request_id = str(uuid.uuid4())
+    request.state.request_id = request_id
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
 # Authentication Middleware for REST API
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
@@ -130,7 +144,47 @@ async def api_key_middleware(request: Request, call_next):
             )
     return await call_next(request)
 
+# Global Exception Handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    request_id = getattr(request.state, "request_id", "unknown")
+    logger.error(f"Unhandled error [ID: {request_id}]: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "error": "An internal server error occurred",
+            "request_id": request_id,
+            "timestamp": datetime.now().isoformat()
+        }
+    )
+
 # Register Routers
+from fastapi import APIRouter
+
+api_v1 = APIRouter(prefix="/api/v1")
+
+# Include routers in V1
+api_v1.include_router(system.router)
+api_v1.include_router(windows.router)
+api_v1.include_router(files.router)
+api_v1.include_router(media.router)
+api_v1.include_router(pdf_tools.router)
+api_v1.include_router(image_tools.router)
+api_v1.include_router(desktop.router)
+api_v1.include_router(memory.router)
+api_v1.include_router(automation.router)
+api_v1.include_router(commands.router)
+api_v1.include_router(settings.router)
+api_v1.include_router(whatsapp.router)
+api_v1.include_router(input_control.router)
+api_v1.include_router(notifications.router)
+api_v1.include_router(sync.router)
+api_v1.include_router(health.router)
+
+app.include_router(api_v1)
+
+# Maintain legacy root routes for backward compatibility
 app.include_router(system.router)
 app.include_router(windows.router)
 app.include_router(files.router)
@@ -146,6 +200,9 @@ app.include_router(whatsapp.router)
 app.include_router(input_control.router)
 app.include_router(notifications.router)
 app.include_router(sync.router)
+app.include_router(health.router)
+
+# WebSocket does not need prefix as it is typically handled separately
 app.include_router(websocket.router)
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -155,6 +212,29 @@ async def favicon():
     if favicon_path.exists():
         return FileResponse(favicon_path)
     return Response(status_code=404)
+
+async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 100.0):
+    """Monitor event loop latency to detect blocking calls"""
+    logger.info(f"Event loop monitor started (threshold={threshold_ms}ms)")
+    while True:
+        try:
+            start = time.perf_counter()
+            await asyncio.sleep(interval)
+            end = time.perf_counter()
+            
+            # The lag is the difference between intended sleep and actual sleep
+            actual_delay = (end - start)
+            lag_ms = (actual_delay - interval) * 1000
+            
+            if lag_ms > threshold_ms:
+                logger.warning(f"CRITICAL: Event loop lag detected! {lag_ms:.2f}ms. Some code is blocking the loop.")
+                log_system_event("EVENT_LOOP_LAG", {"lag_ms": round(lag_ms, 2)})
+            
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.error(f"Error in event loop monitor: {e}")
+            await asyncio.sleep(interval)
 
 async def broadcast_system_status():
     """Broadcast system status to all connected clients every 5 seconds"""

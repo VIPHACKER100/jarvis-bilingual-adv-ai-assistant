@@ -1,5 +1,6 @@
 import psutil
 import time
+import asyncio
 from datetime import datetime
 from typing import Dict, Any, List, Optional, cast
 from modules.bilingual_parser import parser
@@ -37,7 +38,7 @@ class SystemModule:
         start = now
         try:
             # Battery
-            battery = psutil.sensors_battery()
+            battery = await asyncio.to_thread(psutil.sensors_battery)
             battery_info = BatteryInfo(
                 percent=int(battery.percent) if battery else None,
                 is_charging=battery.power_plugged if battery else None,
@@ -45,14 +46,14 @@ class SystemModule:
             )
 
             # CPU
-            cpu_percent = psutil.cpu_percent(interval=0.1)
+            cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=0.1)
             cpu_info = CPUInfo(
                 percent=cpu_percent,
-                count=psutil.cpu_count()
+                count=await asyncio.to_thread(psutil.cpu_count)
             )
 
             # Memory
-            memory = psutil.virtual_memory()
+            memory = await asyncio.to_thread(psutil.virtual_memory)
             memory_info = MemoryInfo(
                 total=memory.total,
                 used=memory.used,
@@ -61,7 +62,7 @@ class SystemModule:
             )
 
             # Disk
-            disk = psutil.disk_usage('/')
+            disk = await asyncio.to_thread(psutil.disk_usage, '/')
             disk_info = DiskInfo(
                 total=disk.total,
                 used=disk.used,
@@ -70,7 +71,7 @@ class SystemModule:
             )
 
             # Network
-            net_io = psutil.net_io_counters()
+            net_io = await asyncio.to_thread(psutil.net_io_counters)
             network_info = NetworkIOInfo(
                 bytes_sent=net_io.bytes_sent,
                 bytes_recv=net_io.bytes_recv,
@@ -79,11 +80,11 @@ class SystemModule:
             )
 
             # Uptime
-            boot_time = psutil.boot_time()
+            boot_time = await asyncio.to_thread(psutil.boot_time)
             uptime_seconds = time.time() - boot_time
 
             # Current volume
-            current_volume = get_volume()
+            current_volume = await get_volume()
 
             platform_name = 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux'
 
@@ -143,7 +144,7 @@ class SystemModule:
         """Get battery information"""
         start = time.time()
         try:
-            battery = psutil.sensors_battery()
+            battery = await asyncio.to_thread(psutil.sensors_battery)
             if battery:
                 response_text = parser.get_response(
                     'battery_status',
@@ -216,7 +217,7 @@ class SystemModule:
             }
 
         log_command('shutdown', 'shutdown', True)
-        success, stdout, stderr = shutdown_system()
+        success, stdout, stderr = await shutdown_system()
 
         return {
             'success': success,
@@ -236,7 +237,7 @@ class SystemModule:
             }
 
         log_command('restart', 'restart', True)
-        success, stdout, stderr = restart_system()
+        success, stdout, stderr = await restart_system()
 
         return {
             'success': success,
@@ -257,7 +258,7 @@ class SystemModule:
             }
 
         log_command('sleep', 'sleep', True)
-        success, stdout, stderr = sleep_system()
+        success, stdout, stderr = await sleep_system()
 
         return {
             'success': success,
@@ -268,10 +269,10 @@ class SystemModule:
     async def volume_up(self, amount: Optional[int] = None, language: str = 'en') -> Dict[str, Any]:
         """Increase volume"""
         try:
-            current = get_volume()
+            current = await get_volume()
             increment = amount if amount is not None else 10
             new_volume = min(current + increment, 100)
-            success = set_volume(new_volume)
+            success = await set_volume(new_volume)
 
             log_command(
                 'volume_up', 'volume_up', success, {
@@ -293,10 +294,10 @@ class SystemModule:
     async def volume_down(self, amount: Optional[int] = None, language: str = 'en') -> Dict[str, Any]:
         """Decrease volume"""
         try:
-            current = get_volume()
+            current = await get_volume()
             decrement = amount if amount is not None else 10
             new_volume = max(current - decrement, 0)
-            success = set_volume(new_volume)
+            success = await set_volume(new_volume)
 
             log_command(
                 'volume_down', 'volume_down', success, {
@@ -318,9 +319,9 @@ class SystemModule:
     async def toggle_mute(self, language: str = 'en') -> Dict[str, Any]:
         """Toggle system mute state"""
         try:
-            muted = is_muted()
+            muted = await is_muted()
             new_state = not muted
-            success = set_mute(new_state)
+            success = await set_mute(new_state)
 
             log_command('mute', 'mute', success, {'state': 'muted' if new_state else 'unmuted'})
 
@@ -346,7 +347,7 @@ class SystemModule:
         """Get current screen brightness"""
         try:
             import screen_brightness_control as sbc
-            return sbc.get_brightness()[0]
+            return (await asyncio.to_thread(sbc.get_brightness))[0]
         except BaseException:
             return 50
 
@@ -354,7 +355,7 @@ class SystemModule:
         """Set screen brightness (0-100)"""
         try:
             import screen_brightness_control as sbc
-            sbc.set_brightness(level)
+            await asyncio.to_thread(sbc.set_brightness, level)
             return True
         except BaseException:
             return False
@@ -407,16 +408,20 @@ class SystemModule:
         """Get network connection information"""
         try:
             import socket
-            hostname = socket.gethostname()
-            ip_address = socket.gethostbyname(hostname)
+            hostname = await asyncio.to_thread(socket.gethostname)
+            ip_address = await asyncio.to_thread(socket.gethostbyname, hostname)
 
             # Use psutil for interface details
-            addrs = psutil.net_if_addrs()
-            stats = psutil.net_if_stats()
+            addrs = await asyncio.to_thread(psutil.net_if_addrs)
+            stats = await asyncio.to_thread(psutil.net_if_stats)
 
             interfaces = []
             for name, addr_list in addrs.items():
-                is_up = stats.get(name).isup if name in stats else False
+                if name in stats:
+                    is_up = stats.get(name).isup
+                else:
+                    is_up = False
+                
                 if is_up:
                     for addr in addr_list:
                         if addr.family == socket.AF_INET:  # IPv4
@@ -450,7 +455,7 @@ class SystemModule:
                 url = f"https://www.google.com/search?q={query}"
                 msg = f"Searching for '{query}' on Google" if language == 'en' else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
             
-            webbrowser.open(url)
+            await asyncio.to_thread(webbrowser.open, url)
             log_command(f"search {query}" if query else "open browser", "google_search", True)
 
             return {
@@ -476,7 +481,7 @@ class SystemModule:
             import webbrowser
             query = f"weather in {city}" if city else "weather today"
             url = f"https://www.google.com/search?q={query}"
-            webbrowser.open(url)
+            await asyncio.to_thread(webbrowser.open, url)
 
             weather_target = city or ('current location' if language == 'en' else 'वर्तमान स्थान')
             response_text = f"Checking weather for {weather_target}" if language == 'en' else f"{weather_target} के लिए मौसम की जानकारी देख रहा हूँ"
@@ -495,7 +500,7 @@ class SystemModule:
     async def get_uptime(self, language: str = 'en') -> Dict[str, Any]:
         """Get system uptime"""
         try:
-            boot_time = psutil.boot_time()
+            boot_time = await asyncio.to_thread(psutil.boot_time)
             uptime_seconds = time.time() - boot_time
 
             # Format uptime
@@ -562,27 +567,33 @@ class SystemModule:
             self._last_process_scan = time.time()
 
             # Load security node for context
-            security_content = memory_manager.neural.get_node("security.md")
+            security_content = await memory_manager.neural.get_node("security.md")
             # Simple check for blacklist titles in memory (this can be made more robust)
             blacklist = ["regedit.exe", "remote_desktop.exe"]
             
             suspicious = []
-            for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
-                try:
-                    pinfo = proc.info
-                    # Skip System Idle Process (PID 0) and System process
-                    if pinfo['pid'] == 0 or pinfo['name'] == 'System Idle Process':
-                        continue
+            
+            def scan_processes():
+                res = []
+                for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+                    try:
+                        pinfo = proc.info
+                        # Skip System Idle Process (PID 0) and System process
+                        if pinfo['pid'] == 0 or pinfo['name'] == 'System Idle Process':
+                            continue
+                            
+                        # High Resource Spike Check
+                        if pinfo['cpu_percent'] > 95:
+                            res.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Critical CPU Spike")
                         
-                    # High Resource Spike Check
-                    if pinfo['cpu_percent'] > 95:
-                        suspicious.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Critical CPU Spike")
-                    
-                    # Blacklist Check
-                    if pinfo['name'] in blacklist:
-                        suspicious.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Blacklisted Process Detected")
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    continue
+                        # Blacklist Check
+                        if pinfo['name'] in blacklist:
+                            res.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Blacklisted Process Detected")
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        continue
+                return res
+
+            suspicious = await asyncio.to_thread(scan_processes)
             
             if suspicious and (time.time() - self._last_process_alert > 300):
                 await broadcast_notification(
@@ -600,18 +611,18 @@ class SystemModule:
     async def quarantine_process(self, pid: int, action: str = "suspend") -> bool:
         """Proactively isolate or terminate a suspicious process"""
         try:
-            proc = psutil.Process(pid)
+            proc = await asyncio.to_thread(psutil.Process, pid)
             if action == "suspend":
-                proc.suspend()
+                await asyncio.to_thread(proc.suspend)
                 self._quarantined_pids.append(pid)
                 logger.info(f"Process {pid} suspended by Guardian.")
             elif action == "resume":
-                proc.resume()
+                await asyncio.to_thread(proc.resume)
                 if pid in self._quarantined_pids:
                     self._quarantined_pids.remove(pid)
                 logger.info(f"Process {pid} resumed.")
             elif action == "terminate":
-                proc.terminate()
+                await asyncio.to_thread(proc.terminate)
                 logger.warning(f"Process {pid} terminated by Guardian.")
             return True
         except Exception as e:
@@ -622,21 +633,26 @@ class SystemModule:
         """Retrieve active network connections for Deep Scan analysis"""
         connections = []
         try:
-            for conn in psutil.net_connections(kind='inet'):
-                if conn.status == 'ESTABLISHED':
-                    try:
-                        proc = psutil.Process(conn.pid) if conn.pid else None
-                        proc_name = proc.name() if proc else "Unknown"
-                    except (psutil.NoSuchProcess, psutil.AccessDenied):
-                        proc_name = "System/Protected"
-                        
-                    connections.append({
-                        "pid": conn.pid,
-                        "process": proc_name,
-                        "local_addr": f"{conn.laddr.ip}:{conn.laddr.port}",
-                        "remote_addr": f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else "N/A",
-                        "status": conn.status
-                    })
+            def scan_net():
+                res = []
+                for conn in psutil.net_connections(kind='inet'):
+                    if conn.status == 'ESTABLISHED':
+                        try:
+                            proc = psutil.Process(conn.pid) if conn.pid else None
+                            proc_name = proc.name() if proc else "Unknown"
+                        except (psutil.NoSuchProcess, psutil.AccessDenied):
+                            proc_name = "System/Protected"
+                            
+                        res.append({
+                            "pid": conn.pid,
+                            "process": proc_name,
+                            "local_addr": f"{conn.laddr.ip}:{conn.laddr.port}",
+                            "remote_addr": f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else "N/A",
+                            "status": conn.status
+                        })
+                return res
+
+            connections = await asyncio.to_thread(scan_net)
             return connections
         except Exception as e:
             logger.error(f"Error in Network Deep Scan: {e}")

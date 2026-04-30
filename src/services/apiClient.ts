@@ -24,7 +24,7 @@ class ApiClient {
 
   // Health check
   async healthCheck(): Promise<{ status: string; name: string; version: string }> {
-    const response = await fetch(`${this.baseUrl}/`);
+    const response = await fetch(`${this.baseUrl}/health`);
     if (!response.ok) {
       throw new Error('Backend not available');
     }
@@ -33,7 +33,7 @@ class ApiClient {
 
   // Get system status
   async getSystemStatus(): Promise<SystemStatus> {
-    const response = await fetch(`${this.baseUrl}/api/system/status`, {
+    const response = await fetch(`${this.baseUrl}/system/status`, {
       headers: this.getHeaders()
     });
     if (!response.ok) {
@@ -44,7 +44,7 @@ class ApiClient {
 
   // Execute command
   async executeCommand(command: string, language: 'en' | 'hi' = 'en'): Promise<CommandResponse> {
-    const response = await fetch(`${this.baseUrl}/api/command`, {
+    const response = await fetch(`${this.baseUrl}/command`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify({
@@ -68,7 +68,7 @@ class ApiClient {
     result?: any;
     message?: string;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/confirm/${confirmationId}`, {
+    const response = await fetch(`${this.baseUrl}/confirm/${confirmationId}`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify({ approved }),
@@ -87,7 +87,7 @@ class ApiClient {
     success: boolean;
     conversations: any[];
   }> {
-    const url = new URL(`${this.baseUrl}/api/memory/conversations`);
+    const url = new URL(`${this.baseUrl}/memory/conversations`);
     url.searchParams.append('limit', limit.toString());
     if (session_id) {
       url.searchParams.append('session_id', session_id);
@@ -107,7 +107,7 @@ class ApiClient {
     success: boolean;
     stats: any;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/stats?days=${days}`, {
+    const response = await fetch(`${this.baseUrl}/memory/stats?days=${days}`, {
       headers: this.getHeaders()
     });
     if (!response.ok) {
@@ -118,7 +118,7 @@ class ApiClient {
 
   // Save conversation (optional, usually done by backend, but useful for manual additions)
   async saveConversation(convData: any): Promise<{ success: boolean; id: number }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/conversation`, {
+    const response = await fetch(`${this.baseUrl}/memory/conversation`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(convData),
@@ -135,7 +135,7 @@ class ApiClient {
     success: boolean;
     facts: any[];
   }> {
-    const url = new URL(`${this.baseUrl}/api/memory/facts`);
+    const url = new URL(`${this.baseUrl}/memory/facts`);
     if (category) {
       url.searchParams.append('category', category);
     }
@@ -151,7 +151,7 @@ class ApiClient {
 
   // Create a user fact/memory
   async createMemoryFact(key: string, value: string, category: string = 'personal'): Promise<{ success: boolean; id: number }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/fact`, {
+    const response = await fetch(`${this.baseUrl}/memory/fact`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify({ key, value, category }),
@@ -165,7 +165,7 @@ class ApiClient {
 
   // Update a user fact/memory
   async updateMemoryFact(factId: number, value: string): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/fact/${factId}`, {
+    const response = await fetch(`${this.baseUrl}/memory/fact/${factId}`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify({ value }),
@@ -178,7 +178,7 @@ class ApiClient {
 
   // Delete a user fact/memory
   async deleteMemoryFact(factId: number): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/fact/${factId}`, {
+    const response = await fetch(`${this.baseUrl}/memory/fact/${factId}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
     });
@@ -190,7 +190,7 @@ class ApiClient {
 
   // Clear conversation history
   async clearConversationHistory(): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/conversations`, {
+    const response = await fetch(`${this.baseUrl}/memory/conversations`, {
       method: 'DELETE',
       headers: this.getHeaders(),
     });
@@ -208,7 +208,7 @@ class ApiClient {
     nodes: any[];
     count: number;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/nodes`, {
+    const response = await fetch(`${this.baseUrl}/memory/nodes`, {
       headers: this.getHeaders()
     });
     if (!response.ok) {
@@ -223,7 +223,7 @@ class ApiClient {
     name: string;
     content: string;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/nodes/${name}`, {
+    const response = await fetch(`${this.baseUrl}/memory/nodes/${name}`, {
       headers: this.getHeaders()
     });
     if (!response.ok) {
@@ -237,7 +237,7 @@ class ApiClient {
     success: boolean;
     response: string;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/memory/nodes/${name}`, {
+    const response = await fetch(`${this.baseUrl}/memory/nodes/${name}`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify({ content }),
@@ -251,7 +251,7 @@ class ApiClient {
 
   // Get automation status
   async getAutomationStatus(): Promise<{ success: boolean; status: any }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/status`, {
+    const response = await fetch(`${this.baseUrl}/automation/status`, {
       headers: this.getHeaders()
     });
     return response.json();
@@ -259,7 +259,7 @@ class ApiClient {
 
   // Get all tasks
   async getTasks(): Promise<{ success: boolean; tasks: any[] }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/tasks`, {
+    const response = await fetch(`${this.baseUrl}/automation/tasks`, {
       headers: this.getHeaders()
     });
     return response.json();
@@ -267,7 +267,7 @@ class ApiClient {
 
   // Create task
   async createTask(task: any): Promise<{ success: boolean; task: any }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/task`, {
+    const response = await fetch(`${this.baseUrl}/automation/task`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(task)
@@ -277,7 +277,7 @@ class ApiClient {
 
   // Toggle task
   async toggleTask(taskId: string): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/task/${taskId}/toggle`, {
+    const response = await fetch(`${this.baseUrl}/automation/task/${taskId}/toggle`, {
       method: 'POST',
       headers: this.getHeaders()
     });
@@ -286,7 +286,7 @@ class ApiClient {
 
   // Delete task
   async deleteTask(taskId: string): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/task/${taskId}`, {
+    const response = await fetch(`${this.baseUrl}/automation/task/${taskId}`, {
       method: 'DELETE',
       headers: this.getHeaders()
     });
@@ -295,7 +295,7 @@ class ApiClient {
 
   // Get all macros
   async getMacros(): Promise<{ success: boolean; macros: any[] }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/macros`, {
+    const response = await fetch(`${this.baseUrl}/automation/macros`, {
       headers: this.getHeaders()
     });
     return response.json();
@@ -303,7 +303,7 @@ class ApiClient {
 
   // Create macro
   async createMacro(macro: any): Promise<{ success: boolean; macro: any }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/macro`, {
+    const response = await fetch(`${this.baseUrl}/automation/macro`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(macro)
@@ -313,7 +313,7 @@ class ApiClient {
 
   // Run macro
   async runMacro(macroId: string): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/macro/${macroId}/run`, {
+    const response = await fetch(`${this.baseUrl}/automation/macro/${macroId}/run`, {
       method: 'POST',
       headers: this.getHeaders()
     });
@@ -322,7 +322,7 @@ class ApiClient {
 
   // Toggle macro
   async toggleMacro(macroId: string): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/macro/${macroId}/toggle`, {
+    const response = await fetch(`${this.baseUrl}/automation/macro/${macroId}/toggle`, {
       method: 'POST',
       headers: this.getHeaders()
     });
@@ -331,7 +331,7 @@ class ApiClient {
 
   // Delete macro
   async deleteMacro(macroId: string): Promise<{ success: boolean }> {
-    const response = await fetch(`${this.baseUrl}/api/automation/macro/${macroId}`, {
+    const response = await fetch(`${this.baseUrl}/automation/macro/${macroId}`, {
       method: 'DELETE',
       headers: this.getHeaders()
     });
@@ -347,7 +347,7 @@ class ApiClient {
     is_running: boolean;
     response: string;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/whatsapp/status`, {
+    const response = await fetch(`${this.baseUrl}/whatsapp/status`, {
       headers: this.getHeaders()
     });
     if (!response.ok) throw new Error('Failed to get WhatsApp status');
@@ -359,7 +359,7 @@ class ApiClient {
     success: boolean;
     response: string;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/whatsapp/send`, {
+    const response = await fetch(`${this.baseUrl}/whatsapp/send`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify({ contact, message, language })
@@ -375,7 +375,7 @@ class ApiClient {
     copied_to_clipboard: boolean;
     response: string;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/whatsapp/draft_reply?language=${language}`, {
+    const response = await fetch(`${this.baseUrl}/whatsapp/draft_reply?language=${language}`, {
       method: 'POST',
       headers: this.getHeaders()
     });
@@ -389,7 +389,7 @@ class ApiClient {
     contacts: Array<{ alias: string; name: string; phone: string }>;
     count: number;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/whatsapp/contacts`, {
+    const response = await fetch(`${this.baseUrl}/whatsapp/contacts`, {
       headers: this.getHeaders()
     });
     if (!response.ok) throw new Error('Failed to get WhatsApp contacts');
@@ -411,7 +411,7 @@ class ApiClient {
     }>;
     count: number;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/system/security/processes`, {
+    const response = await fetch(`${this.baseUrl}/system/security/processes`, {
       headers: this.getHeaders()
     });
     if (!response.ok) throw new Error('Failed to get running processes');
@@ -424,7 +424,7 @@ class ApiClient {
     connections: any[];
     count: number;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/system/security/connections`, {
+    const response = await fetch(`${this.baseUrl}/system/security/connections`, {
       headers: this.getHeaders()
     });
     if (!response.ok) throw new Error('Failed to perform network scan');
@@ -436,7 +436,7 @@ class ApiClient {
     success: boolean;
     response: string;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/system/security/quarantine?pid=${pid}&action=${action}`, {
+    const response = await fetch(`${this.baseUrl}/system/security/quarantine?pid=${pid}&action=${action}`, {
       method: 'POST',
       headers: this.getHeaders()
     });
@@ -451,7 +451,7 @@ class ApiClient {
     success: boolean;
     clients_notified: number;
   }> {
-    const response = await fetch(`${this.baseUrl}/api/notifications/broadcast`, {
+    const response = await fetch(`${this.baseUrl}/notifications/broadcast`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify({ title, message, type, duration })
@@ -464,7 +464,7 @@ class ApiClient {
 
   /** Get current settings */
   async getSettings(): Promise<{ success: boolean; settings: any }> {
-    const response = await fetch(`${this.baseUrl}/api/settings`, {
+    const response = await fetch(`${this.baseUrl}/settings`, {
       headers: this.getHeaders()
     });
     if (!response.ok) throw new Error('Failed to get settings');
@@ -473,7 +473,7 @@ class ApiClient {
 
   /** Update settings */
   async updateSettings(settings: any): Promise<{ success: boolean; updated: string[]; settings: any }> {
-    const response = await fetch(`${this.baseUrl}/api/settings`, {
+    const response = await fetch(`${this.baseUrl}/settings`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(settings)
@@ -492,7 +492,7 @@ class ApiClient {
     gemini_api_key?: string;
     backend_api_key?: string;
   }): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${this.baseUrl}/api/settings/keys`, {
+    const response = await fetch(`${this.baseUrl}/settings/keys`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(keys)
@@ -521,7 +521,7 @@ class ApiClient {
   // --- Sync Methods ---
 
   async getSyncStatus(): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/api/sync/status`, {
+    const response = await fetch(`${this.baseUrl}/sync/status`, {
       headers: this.getHeaders()
     });
     if (!response.ok) {
@@ -531,7 +531,7 @@ class ApiClient {
   }
 
   async getPairedDevices(): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/api/sync/devices`, {
+    const response = await fetch(`${this.baseUrl}/sync/devices`, {
       headers: this.getHeaders()
     });
     if (!response.ok) {
@@ -541,7 +541,7 @@ class ApiClient {
   }
 
   async unpairDevice(deviceId: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/api/sync/devices/${deviceId}`, {
+    const response = await fetch(`${this.baseUrl}/sync/devices/${deviceId}`, {
       method: 'DELETE',
       headers: this.getHeaders()
     });

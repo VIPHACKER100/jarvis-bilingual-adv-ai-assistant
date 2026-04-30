@@ -1,6 +1,7 @@
 import os
 import io
 import base64
+import asyncio
 import pyautogui
 import pyperclip
 import ctypes
@@ -13,6 +14,7 @@ from PIL import Image
 from modules.bilingual_parser import parser
 from utils.platform_utils import is_windows, is_macos, is_linux
 from utils.logger import logger, log_command
+from utils.automation_utils import safe_automation
 
 
 class DesktopManager:
@@ -30,7 +32,7 @@ class DesktopManager:
             language: str = 'en') -> Dict:
         """Take full screenshot"""
         try:
-            screenshot = pyautogui.screenshot()
+            screenshot = await safe_automation.run_gui_action(pyautogui.screenshot)
 
             # Convert to base64 for sending to frontend
             buffered = io.BytesIO()
@@ -42,7 +44,7 @@ class DesktopManager:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 file_path = self.screenshots_dir / \
                     f"screenshot_{timestamp}.png"
-                screenshot.save(str(file_path))
+                await asyncio.to_thread(screenshot.save, str(file_path))
 
             log_command('take screenshot', 'screenshot', True)
 
@@ -74,7 +76,7 @@ class DesktopManager:
             language: str = 'en') -> Dict:
         """Take screenshot of specific region"""
         try:
-            screenshot = pyautogui.screenshot(region=(x, y, width, height))
+            screenshot = await safe_automation.run_gui_action(pyautogui.screenshot, region=(x, y, width, height))
 
             # Convert to base64
             buffered = io.BytesIO()
@@ -86,7 +88,7 @@ class DesktopManager:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 file_path = self.screenshots_dir / \
                     f"screenshot_region_{timestamp}.png"
-                screenshot.save(str(file_path))
+                await asyncio.to_thread(screenshot.save, str(file_path))
 
             log_command(
                 f'take region screenshot {x},{y},{width},{height}', 'screenshot_region', True)
@@ -116,24 +118,29 @@ class DesktopManager:
             language: str = 'en') -> Dict:
         """Save base64 screenshot to file"""
         try:
-            # Decode base64
-            image_bytes = base64.b64decode(image_data.split(
-                ',')[1] if ',' in image_data else image_data)
-            image = Image.open(io.BytesIO(image_bytes))
+            # Decode base64 - this is CPU bound, fine for async if not huge, but safer in thread
+            def _save_task():
+                image_bytes = base64.b64decode(image_data.split(
+                    ',')[1] if ',' in image_data else image_data)
+                image = Image.open(io.BytesIO(image_bytes))
 
-            # Generate filename
-            if not filename:
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"screenshot_{timestamp}.png"
+                # Generate filename
+                nonlocal filename
+                if not filename:
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    filename = f"screenshot_{timestamp}.png"
 
-            file_path = self.screenshots_dir / filename
-            image.save(str(file_path))
+                file_path = self.screenshots_dir / filename
+                image.save(str(file_path))
+                return str(file_path)
+
+            file_path_str = await asyncio.to_thread(_save_task)
 
             return {
                 'success': True,
                 'action_type': 'SAVE_SCREENSHOT',
-                'file_path': str(file_path),
-                'response': f'Screenshot saved to {file_path.name}'
+                'file_path': file_path_str,
+                'response': f'Screenshot saved to {Path(file_path_str).name}'
             }
 
         except Exception as e:
@@ -150,7 +157,7 @@ class DesktopManager:
     async def get_clipboard_text(self, language: str = 'en') -> Dict:
         """Get text from clipboard"""
         try:
-            text = pyperclip.paste()
+            text = await asyncio.to_thread(pyperclip.paste)
 
             return {
                 'success': True,
@@ -176,7 +183,7 @@ class DesktopManager:
             language: str = 'en') -> Dict:
         """Set text to clipboard"""
         try:
-            pyperclip.copy(text)
+            await asyncio.to_thread(pyperclip.copy, text)
 
             log_command(f'copy text to clipboard ({len(text)} chars)', 'clipboard_set_text', True)
 
@@ -200,7 +207,7 @@ class DesktopManager:
     async def clear_clipboard(self, language: str = 'en') -> Dict:
         """Clear clipboard"""
         try:
-            pyperclip.copy('')
+            await asyncio.to_thread(pyperclip.copy, '')
 
             return {
                 'success': True,
@@ -222,7 +229,7 @@ class DesktopManager:
     async def play_pause_media(self, language: str = 'en') -> Dict:
         """Play/pause media playback"""
         try:
-            pyautogui.press('playpause')
+            await safe_automation.run_gui_action(pyautogui.press, 'playpause')
 
             log_command('play/pause media', 'media_play_pause', True)
 
@@ -244,7 +251,7 @@ class DesktopManager:
     async def next_track(self, language: str = 'en') -> Dict:
         """Next track/song"""
         try:
-            pyautogui.press('nexttrack')
+            await safe_automation.run_gui_action(pyautogui.press, 'nexttrack')
 
             log_command('next track', 'media_next', True)
 
@@ -266,7 +273,7 @@ class DesktopManager:
     async def previous_track(self, language: str = 'en') -> Dict:
         """Previous track/song"""
         try:
-            pyautogui.press('prevtrack')
+            await safe_automation.run_gui_action(pyautogui.press, 'prevtrack')
 
             log_command('previous track', 'media_previous', True)
 
@@ -288,7 +295,7 @@ class DesktopManager:
     async def stop_media(self, language: str = 'en') -> Dict:
         """Stop media playback"""
         try:
-            pyautogui.press('stop')
+            await safe_automation.run_gui_action(pyautogui.press, 'stop')
 
             log_command('stop media', 'media_stop', True)
 
@@ -310,7 +317,7 @@ class DesktopManager:
     async def volume_mute(self, language: str = 'en') -> Dict:
         """Mute/unmute system volume"""
         try:
-            pyautogui.press('volumemute')
+            await safe_automation.run_gui_action(pyautogui.press, 'volumemute')
 
             log_command('mute volume', 'volume_mute', True)
 
@@ -332,7 +339,7 @@ class DesktopManager:
     async def volume_up(self, language: str = 'en') -> Dict:
         """Increase system volume"""
         try:
-            pyautogui.press('volumeup')
+            await safe_automation.run_gui_action(pyautogui.press, 'volumeup')
 
             log_command('volume up', 'media_volume_up', True)
 
@@ -354,7 +361,7 @@ class DesktopManager:
     async def volume_down(self, language: str = 'en') -> Dict:
         """Decrease system volume"""
         try:
-            pyautogui.press('volumedown')
+            await safe_automation.run_gui_action(pyautogui.press, 'volumedown')
 
             log_command('volume down', 'media_volume_down', True)
 
@@ -378,7 +385,7 @@ class DesktopManager:
     async def get_screen_resolution(self, language: str = 'en') -> Dict:
         """Get screen resolution"""
         try:
-            width, height = pyautogui.size()
+            width, height = await safe_automation.run_gui_action(pyautogui.size)
 
             return {
                 'success': True,
@@ -406,15 +413,18 @@ class DesktopManager:
         """Show system notification"""
         try:
             if is_windows():
-                from win10toast import ToastNotifier
-                toaster = ToastNotifier()
-                toaster.show_toast(title, message, duration=5)
+                def _notify_task():
+                    from win10toast import ToastNotifier
+                    toaster = ToastNotifier()
+                    toaster.show_toast(title, message, duration=5)
+                
+                await asyncio.to_thread(_notify_task)
             elif is_macos():
                 script = f'display notification "{message}" with title "{title}"'
-                os.system(f'osascript -e \'{script}\'')
+                await safe_automation.run_command(f'osascript -e \'{script}\'', shell=True)
             else:
                 # Linux
-                os.system(f'notify-send "{title}" "{message}"')
+                await safe_automation.run_command(f'notify-send "{title}" "{message}"', shell=True)
 
             return {
                 'success': True,
@@ -442,26 +452,34 @@ class DesktopManager:
         """Change desktop wallpaper"""
         try:
             path = Path(image_path).expanduser().resolve()
-            if not path.exists():
+            
+            # Use to_thread for file path validation and ctypes calls
+            def _validate_path():
+                return path.exists()
+            
+            if not await asyncio.to_thread(_validate_path):
                 return {
                     'success': False,
                     'error': 'Image not found',
                     'response': 'Wallpaper image not found'}
 
             if is_windows():
-                SPI_SETDESKWALLPAPER = 20
-                ctypes.windll.user32.SystemParametersInfoW(
-                    SPI_SETDESKWALLPAPER, 0, str(path), 3)  # type: ignore
+                def _set_wallpaper_task():
+                    SPI_SETDESKWALLPAPER = 20
+                    ctypes.windll.user32.SystemParametersInfoW(
+                        SPI_SETDESKWALLPAPER, 0, str(path), 3)  # type: ignore
+                
+                await asyncio.to_thread(_set_wallpaper_task)
             elif is_macos():
                 script = f'tell application "System Events" to set picture of every desktop to POSIX file "{path}"'
-                subprocess.run(['osascript', '-e', script])
+                await safe_automation.run_command(['osascript', '-e', script])
             else:
                 # GNOME example
-                subprocess.run(['gsettings',
-                                'set',
-                                'org.gnome.desktop.background',
-                                'picture-uri',
-                                f'file://{path}'])
+                await safe_automation.run_command(['gsettings',
+                                                'set',
+                                                'org.gnome.desktop.background',
+                                                'picture-uri',
+                                                f'file://{path}'])
 
             log_command(f'change wallpaper to {path.name}', 'change_wallpaper', True)
             return {
@@ -492,13 +510,16 @@ class DesktopManager:
 
         try:
             if is_windows():
-                import winshell
-                winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=True)
+                def _empty_task():
+                    import winshell
+                    winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=True)
+                
+                await asyncio.to_thread(_empty_task)
             elif is_macos():
-                subprocess.run(
+                await safe_automation.run_command(
                     ['osascript', '-e', 'tell application "Finder" to empty trash'])
             else:
-                os.system('rm -rf ~/.local/share/Trash/*')
+                await safe_automation.run_command('rm -rf ~/.local/share/Trash/*', shell=True)
 
             log_command('empty recycle bin', 'empty_recycle_bin', True)
             return {
@@ -523,28 +544,27 @@ class DesktopManager:
                 'error': 'Not supported on this platform'}
 
         try:
-            # Find the taskbar window
-            hwnd = ctypes.windll.user32.FindWindowW(
-                "Shell_TrayWnd", None)  # type: ignore
+            def _toggle_taskbar_task():
+                # Find the taskbar window
+                hwnd = ctypes.windll.user32.FindWindowW(
+                    "Shell_TrayWnd", None)  # type: ignore
 
-            SW_HIDE = 0
-            SW_SHOW = 5
+                SW_HIDE = 0
+                SW_SHOW = 5
 
-            current_state = ctypes.windll.user32.IsWindowVisible(
-                hwnd)  # type: ignore
+                current_state = ctypes.windll.user32.IsWindowVisible(
+                    hwnd)  # type: ignore
 
-            if show is None:
-                # Toggle based on current state
-                should_show = not current_state
-            else:
-                should_show = show
+                should_show = not current_state if show is None else show
 
-            if should_show:
-                ctypes.windll.user32.ShowWindow(hwnd, SW_SHOW)  # type: ignore
-                status = 'shown'
-            else:
-                ctypes.windll.user32.ShowWindow(hwnd, SW_HIDE)  # type: ignore
-                status = 'hidden'
+                if should_show:
+                    ctypes.windll.user32.ShowWindow(hwnd, SW_SHOW)  # type: ignore
+                    return 'shown'
+                else:
+                    ctypes.windll.user32.ShowWindow(hwnd, SW_HIDE)  # type: ignore
+                    return 'hidden'
+
+            status = await asyncio.to_thread(_toggle_taskbar_task)
 
             return {
                 'success': True,
@@ -565,36 +585,38 @@ class DesktopManager:
                 'error': 'Not supported on this platform'}
 
         try:
-            import winreg
-            key_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-            key = winreg.OpenKey(
-                winreg.HKEY_CURRENT_USER,
-                key_path,
-                0,
-                winreg.KEY_ALL_ACCESS)
+            def _toggle_icons_task():
+                import winreg
+                key_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+                key = winreg.OpenKey(
+                    winreg.HKEY_CURRENT_USER,
+                    key_path,
+                    0,
+                    winreg.KEY_ALL_ACCESS)
 
-            if show is None:
-                # Get current value
-                current_value, _ = winreg.QueryValueEx(key, "HideIcons")
-                should_hide = 0 if current_value == 1 else 1
-            else:
-                should_hide = 0 if show else 1
+                if show is None:
+                    # Get current value
+                    current_value, _ = winreg.QueryValueEx(key, "HideIcons")
+                    should_hide = 0 if current_value == 1 else 1
+                else:
+                    should_hide = 0 if show else 1
 
-            winreg.SetValueEx(
-                key,
-                "HideIcons",
-                0,
-                winreg.REG_DWORD,
-                should_hide)
-            winreg.CloseKey(key)
+                winreg.SetValueEx(
+                    key,
+                    "HideIcons",
+                    0,
+                    winreg.REG_DWORD,
+                    should_hide)
+                winreg.CloseKey(key)
 
-            # Refresh desktop to apply changes
-            # This is tricky without restart/logout, but sending a message
-            # usually works
-            ctypes.windll.user32.SendMessageW(
-                0xffff, 0x0111, 0x1a221, 0)  # type: ignore (WM_COMMAND, refresh)
+                # Refresh desktop to apply changes
+                ctypes.windll.user32.SendMessageW(
+                    0xffff, 0x0111, 0x1a221, 0)  # type: ignore (WM_COMMAND, refresh)
+                
+                return 'hidden' if should_hide else 'shown'
 
-            status = 'hidden' if should_hide else 'shown'
+            status = await asyncio.to_thread(_toggle_icons_task)
+
             return {
                 'success': True,
                 'action_type': 'TOGGLE_ICONS',
@@ -615,28 +637,31 @@ class DesktopManager:
                 'error': 'Not supported on this platform'}
 
         try:
-            import winreg
-            key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-            key = winreg.OpenKey(
-                winreg.HKEY_CURRENT_USER,
-                key_path,
-                0,
-                winreg.KEY_ALL_ACCESS)
+            def _set_theme_task():
+                import winreg
+                key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+                key = winreg.OpenKey(
+                    winreg.HKEY_CURRENT_USER,
+                    key_path,
+                    0,
+                    winreg.KEY_ALL_ACCESS)
 
-            value = 0 if theme.lower() == 'dark' else 1
+                value = 0 if theme.lower() == 'dark' else 1
 
-            # Apps use light/dark mode
-            winreg.SetValueEx(
-                key,
-                "AppsUseLightTheme",
-                0,
-                winreg.REG_DWORD,
-                value)
-            # System uses light/dark mode
-            winreg.SetValueEx(key, "SystemUsesLightTheme",
-                              0, winreg.REG_DWORD, value)
+                # Apps use light/dark mode
+                winreg.SetValueEx(
+                    key,
+                    "AppsUseLightTheme",
+                    0,
+                    winreg.REG_DWORD,
+                    value)
+                # System uses light/dark mode
+                winreg.SetValueEx(key, "SystemUsesLightTheme",
+                                0, winreg.REG_DWORD, value)
 
-            winreg.CloseKey(key)
+                winreg.CloseKey(key)
+
+            await asyncio.to_thread(_set_theme_task)
 
             return {
                 'success': True,
@@ -655,14 +680,14 @@ class DesktopManager:
         try:
             if is_windows():
                 if level == 'in':
-                    pyautogui.hotkey('win', '+')
+                    await safe_automation.run_gui_action(pyautogui.hotkey, 'win', '+')
                 else:
-                    pyautogui.hotkey('win', '-')
+                    await safe_automation.run_gui_action(pyautogui.hotkey, 'win', '-')
             elif is_macos():
                 if level == 'in':
-                    pyautogui.hotkey('command', 'option', '=')
+                    await safe_automation.run_gui_action(pyautogui.hotkey, 'command', 'option', '=')
                 else:
-                    pyautogui.hotkey('command', 'option', '-')
+                    await safe_automation.run_gui_action(pyautogui.hotkey, 'command', 'option', '-')
 
             return {
                 'success': True,

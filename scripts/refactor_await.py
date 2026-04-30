@@ -29,6 +29,11 @@ methods_to_await = [
     "save_setting",
     "get_setting",
     "update_memory_by_id",
+    "get_node",
+    "update_node",
+    "list_nodes",
+    "get_neural_context",
+    "extract_and_save_facts",
 ]
 
 for file_path in files_to_update:

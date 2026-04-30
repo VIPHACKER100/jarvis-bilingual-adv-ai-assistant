@@ -18,16 +18,13 @@ def is_macos():
 def is_linux():
     return PLATFORM == 'linux'
 
-def run_command(command, shell=True):
-    """Run system command safely"""
-    try:
-        if is_windows():
-            result = subprocess.run(command, shell=shell, capture_output=True, text=True)
-        else:
-            result = subprocess.run(command, shell=shell, capture_output=True, text=True)
-        return result.returncode == 0, result.stdout, result.stderr
-    except Exception as e:
-        return False, "", str(e)
+from utils.automation_utils import safe_automation
+import asyncio
+
+async def run_command(command, shell=True):
+    """Run system command safely (async wrapper)"""
+    result = await safe_automation.run_command(command, shell=shell)
+    return result.get("success", False), result.get("stdout", ""), result.get("stderr", "")
 
 def get_whatsapp_desktop_path():
     """Auto-detect WhatsApp Desktop installation"""
@@ -58,108 +55,124 @@ def get_whatsapp_desktop_path():
     
     return None
 
-def shutdown_system():
+async def shutdown_system():
     """Shutdown computer"""
     if is_windows():
-        return run_command("shutdown /s /t 0")
+        return await run_command("shutdown /s /t 0")
     elif is_macos():
-        return run_command("osascript -e 'tell app \"System Events\" to shut down'")
+        return await run_command("osascript -e 'tell app \"System Events\" to shut down'")
     elif is_linux():
-        return run_command("systemctl poweroff")
+        return await run_command("systemctl poweroff")
     return False, "", "Unsupported platform"
 
-def restart_system():
+async def restart_system():
     """Restart computer"""
     if is_windows():
-        return run_command("shutdown /r /t 0")
+        return await run_command("shutdown /r /t 0")
     elif is_macos():
-        return run_command("osascript -e 'tell app \"System Events\" to restart'")
+        return await run_command("osascript -e 'tell app \"System Events\" to restart'")
     elif is_linux():
-        return run_command("systemctl reboot")
+        return await run_command("systemctl reboot")
     return False, "", "Unsupported platform"
 
-def sleep_system():
+async def sleep_system():
     """Sleep computer"""
     if is_windows():
-        return run_command("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+        return await run_command("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
     elif is_macos():
-        return run_command("osascript -e 'tell app \"System Events\" to sleep'")
+        return await run_command("osascript -e 'tell app \"System Events\" to sleep'")
     elif is_linux():
-        return run_command("systemctl suspend")
+        return await run_command("systemctl suspend")
     return False, "", "Unsupported platform"
 
-def set_volume(percent):
+def _set_volume_windows(percent):
+    try:
+        from pycaw.pycaw import AudioUtilities
+        devices = AudioUtilities.GetSpeakers()
+        volume = devices.EndpointVolume
+        volume.SetMasterVolumeLevelScalar(percent / 100.0, None)
+        return True
+    except Exception as e:
+        logger.error(f"Error setting volume on Windows: {e}")
+        return False
+
+async def set_volume(percent):
     """Set system volume (0-100)"""
     if is_windows():
-        try:
-            from pycaw.pycaw import AudioUtilities
-            devices = AudioUtilities.GetSpeakers()
-            volume = devices.EndpointVolume
-            volume.SetMasterVolumeLevelScalar(percent / 100.0, None)
-            return True
-        except Exception as e:
-            logger.error(f"Error setting volume on Windows: {e}")
-            return False
+        return await asyncio.to_thread(_set_volume_windows, percent)
     elif is_macos():
-        return run_command(f"osascript -e 'set volume output volume {percent}'")
+        success, stdout, stderr = await run_command(f"osascript -e 'set volume output volume {percent}'")
+        return success
     elif is_linux():
-        return run_command(f"amixer set Master {percent}%")
+        success, stdout, stderr = await run_command(f"amixer set Master {percent}%")
+        return success
     return False
 
-def get_volume():
+def _get_volume_windows():
+    try:
+        from pycaw.pycaw import AudioUtilities
+        devices = AudioUtilities.GetSpeakers()
+        volume = devices.EndpointVolume
+        return int(volume.GetMasterVolumeLevelScalar() * 100)
+    except Exception as e:
+        logger.error(f"Error getting volume on Windows: {e}")
+        return 50
+
+async def get_volume():
     """Get current system volume"""
     if is_windows():
-        try:
-            from pycaw.pycaw import AudioUtilities
-            devices = AudioUtilities.GetSpeakers()
-            volume = devices.EndpointVolume
-            return int(volume.GetMasterVolumeLevelScalar() * 100)
-        except Exception as e:
-            logger.error(f"Error getting volume on Windows: {e}")
-            return 50
+        return await asyncio.to_thread(_get_volume_windows)
     elif is_macos():
-        success, output, _ = run_command("osascript -e 'output volume of (get volume settings)'")
+        success, output, _ = await run_command("osascript -e 'output volume of (get volume settings)'")
         return int(output.strip()) if success else 50
     elif is_linux():
-        success, output, _ = run_command("amixer get Master | grep -oP '\\[\\K[0-9]+(?=%\\])'")
-        return int(output.strip()) if success else 50
+        success, output, _ = await run_command("amixer get Master | grep -oP '\\[\\K[0-9]+(?=%\\])'")
+        return int(output.strip()) if success and output.strip() else 50
     return 50
 
-def set_mute(mute_state):
+def _set_mute_windows(mute_state):
+    try:
+        from pycaw.pycaw import AudioUtilities
+        devices = AudioUtilities.GetSpeakers()
+        volume = devices.EndpointVolume
+        volume.SetMute(1 if mute_state else 0, None)
+        return True
+    except Exception as e:
+        logger.error(f"Error setting mute on Windows: {e}")
+        return False
+
+async def set_mute(mute_state):
     """Set system mute state (True/False)"""
     if is_windows():
-        try:
-            from pycaw.pycaw import AudioUtilities
-            devices = AudioUtilities.GetSpeakers()
-            volume = devices.EndpointVolume
-            volume.SetMute(1 if mute_state else 0, None)
-            return True
-        except Exception as e:
-            logger.error(f"Error setting mute on Windows: {e}")
-            return False
+        return await asyncio.to_thread(_set_mute_windows, mute_state)
     elif is_macos():
         state = 'true' if mute_state else 'false'
-        return run_command(f"osascript -e 'set volume output muted {state}'")
+        success, stdout, stderr = await run_command(f"osascript -e 'set volume output muted {state}'")
+        return success
     elif is_linux():
         action = 'mute' if mute_state else 'unmute'
-        return run_command(f"amixer set Master {action}")
+        success, stdout, stderr = await run_command(f"amixer set Master {action}")
+        return success
     return False
 
-def is_muted():
+def _is_muted_windows():
+    try:
+        from pycaw.pycaw import AudioUtilities
+        devices = AudioUtilities.GetSpeakers()
+        volume = devices.EndpointVolume
+        return volume.GetMute() == 1
+    except Exception as e:
+        logger.error(f"Error checking mute on Windows: {e}")
+        return False
+
+async def is_muted():
     """Check if system is muted"""
     if is_windows():
-        try:
-            from pycaw.pycaw import AudioUtilities
-            devices = AudioUtilities.GetSpeakers()
-            volume = devices.EndpointVolume
-            return volume.GetMute() == 1
-        except Exception as e:
-            logger.error(f"Error checking mute on Windows: {e}")
-            return False
+        return await asyncio.to_thread(_is_muted_windows)
     elif is_macos():
-        success, output, _ = run_command("osascript -e 'output muted of (get volume settings)'")
+        success, output, _ = await run_command("osascript -e 'output muted of (get volume settings)'")
         return output.strip().lower() == 'true' if success else False
     elif is_linux():
-        success, output, _ = run_command("amixer get Master")
+        success, output, _ = await run_command("amixer get Master")
         return '[off]' in output if success else False
     return False

@@ -92,7 +92,7 @@ class LLMModule:
         system_prompt += "\nIf the user asks for a command you can't perform, explain it politely."
 
         # Inject Neural Memory context
-        neural_context = memory_manager.neural.get_neural_context()
+        neural_context = await memory_manager.neural.get_neural_context()
         if neural_context:
             system_prompt += f"\n\nNEURAL MEMORY MAP (Core Identity & Behavioral Matrix):\n{neural_context}"
 
@@ -243,9 +243,12 @@ class LLMModule:
                 logger.error(f"Image not found for vision analysis: {path}")
                 return None
 
-            # Read and encode image
-            with open(path, "rb") as image_file:
-                base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+            # Read and encode image asynchronously
+            def read_image():
+                with open(path, "rb") as image_file:
+                    return base64.b64encode(image_file.read()).decode('utf-8')
+            
+            base64_image = await asyncio.to_thread(read_image)
 
             if self.provider == "nvidia" and self.nvidia_api_key:
                 # Use a vision-capable model

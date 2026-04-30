@@ -73,13 +73,16 @@ class FileManager:
                     'response': f'Folder {folder_name} not found'
                 }
 
-            # Open folder based on platform
-            if is_windows():
-                os.startfile(folder_path)
-            elif is_macos():
-                subprocess.run(['open', str(folder_path)])
-            else:
-                subprocess.run(['xdg-open', str(folder_path)])
+            # Open folder based on platform asynchronously
+            def do_open():
+                if is_windows():
+                    os.startfile(folder_path)
+                elif is_macos():
+                    subprocess.run(['open', str(folder_path)])
+                else:
+                    subprocess.run(['xdg-open', str(folder_path)])
+            
+            await asyncio.to_thread(do_open)
 
             log_command(f'open folder {folder_name}', 'open_folder', True)
 
@@ -121,37 +124,42 @@ class FileManager:
                     'response': 'Folder not found'
                 }
 
-            files = []
-            folders = []
+            def get_items_info():
+                files = []
+                folders = []
+                
+                def get_size_human(size: int) -> str:
+                    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+                        if size < 1024:
+                            return f"{size:.1f} {unit}"
+                        size /= 1024
+                    return f"{size:.1f} PB"
 
-            def get_size_human(size: int) -> str:
-                for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-                    if size < 1024:
-                        return f"{size:.1f} {unit}"
-                    size /= 1024
-                return f"{size:.1f} PB"
+                for item in folder_path.iterdir():
+                    try:
+                        stat = item.stat()
+                        info = {
+                            'name': item.name,
+                            'path': str(item),
+                            'size': stat.st_size if item.is_file() else 0,
+                            'size_human': get_size_human(stat.st_size) if item.is_file() else "",
+                            'created': datetime.fromtimestamp(stat.st_ctime).isoformat(),
+                            'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                            'is_file': item.is_file(),
+                            'is_dir': item.is_dir()}
 
-            for item in folder_path.iterdir():
-                try:
-                    stat = item.stat()
-                    info = {
-                        'name': item.name,
-                        'path': str(item),
-                        'size': stat.st_size if item.is_file() else 0,
-                        'size_human': get_size_human(stat.st_size) if item.is_file() else "",
-                        'created': datetime.fromtimestamp(stat.st_ctime).isoformat(),
-                        'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                        'is_file': item.is_file(),
-                        'is_dir': item.is_dir()}
+                        if item.is_dir():
+                            folders.append(info)
+                        elif pattern == '*' or item.match(pattern):
+                            files.append(info)
 
-                    if item.is_dir():
-                        folders.append(info)
-                    elif pattern == '*' or item.match(pattern):
-                        files.append(info)
+                    except (PermissionError, OSError):
+                        continue
+                
+                return folders, files
 
-                except (PermissionError, OSError):
-                    continue
-
+            folders, files = await asyncio.to_thread(get_items_info)
+            
             # Sort: folders first, then files
             all_items = folders + files
 
@@ -193,36 +201,39 @@ class FileManager:
                     'response': 'Folder not found'
                 }
 
-            matches = []
-            search_lower = search_name.lower()
+            def do_search():
+                matches = []
+                search_lower = search_name.lower()
+                # Search recursively (limit depth)
+                for root, dirs, files_in_dir in os.walk(folder_path):
+                    # Limit recursion depth
+                    depth = root.count(os.sep) - str(folder_path).count(os.sep)
+                    if depth > 3:
+                        del dirs[:]
+                        continue
 
-            # Search recursively (limit depth)
-            for root, dirs, files in os.walk(folder_path):
-                # Limit recursion depth
-                depth = root.count(os.sep) - str(folder_path).count(os.sep)
-                if depth > 3:
-                    del dirs[:]
-                    continue
+                    for item in files_in_dir + dirs:
+                        item_lower = item.lower()
+                        if search_lower in item_lower or fuzz.partial_ratio(
+                                search_lower, item_lower) >= 70:
+                            full_path = Path(root) / item
+                            try:
+                                stat = full_path.stat()
+                                matches.append({
+                                    'name': item,
+                                    'path': str(full_path),
+                                    'size': stat.st_size if full_path.is_file() else None,
+                                    'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                                    'is_file': full_path.is_file()
+                                })
+                            except BaseException:
+                                continue
 
-                for item in files + dirs:
-                    item_lower = item.lower()
-                    if search_lower in item_lower or fuzz.partial_ratio(
-                            search_lower, item_lower) >= 70:
-                        full_path = Path(root) / item
-                        try:
-                            stat = full_path.stat()
-                            matches.append({
-                                'name': item,
-                                'path': str(full_path),
-                                'size': stat.st_size if full_path.is_file() else None,
-                                'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                                'is_file': full_path.is_file()
-                            })
-                        except BaseException:
-                            continue
+                    if len(matches) >= 20:
+                        break
+                return matches
 
-                if len(matches) >= 20:
-                    break
+            matches = await asyncio.to_thread(do_search)
 
             return {
                 'success': True,
@@ -260,8 +271,8 @@ class FileManager:
 
             new_folder = parent / folder_name
 
-            # Create folder
-            new_folder.mkdir(parents=True, exist_ok=True)
+            # Create folder asynchronously
+            await asyncio.to_thread(new_folder.mkdir, parents=True, exist_ok=True)
 
             log_command(f'create folder {folder_name}', 'create_folder', True)
 
@@ -309,19 +320,22 @@ class FileManager:
                     'response': 'File not found'
                 }
 
-            # Move to trash instead of permanent delete
-            if is_windows():
-                # Use Windows Recycle Bin
-                import winshell
-                winshell.delete_file(str(path), allow_undo=True)
-            elif is_macos():
-                # Move to Trash
-                trash_path = Path.home() / '.Trash' / path.name
-                shutil.move(str(path), str(trash_path))
-            else:
-                # Linux - move to ~/.local/share/Trash/files
-                trash_path = Path.home() / '.local/share/Trash/files' / path.name
-                shutil.move(str(path), str(trash_path))
+            # Move to trash instead of permanent delete asynchronously
+            def move_to_trash():
+                if is_windows():
+                    # Use Windows Recycle Bin
+                    import winshell
+                    winshell.delete_file(str(path), allow_undo=True)
+                elif is_macos():
+                    # Move to Trash
+                    trash_path = Path.home() / '.Trash' / path.name
+                    shutil.move(str(path), str(trash_path))
+                else:
+                    # Linux - move to ~/.local/share/Trash/files
+                    trash_path = Path.home() / '.local/share/Trash/files' / path.name
+                    shutil.move(str(path), str(trash_path))
+            
+            await asyncio.to_thread(move_to_trash)
 
             log_command(f'delete file {file_path}', 'delete_file', True)
 
@@ -359,13 +373,16 @@ class FileManager:
                     'response': 'Source file not found'
                 }
 
-            if src_path.is_dir():
-                shutil.copytree(
-                    src_path,
-                    dst_path / src_path.name,
-                    dirs_exist_ok=True)
-            else:
-                shutil.copy2(src_path, dst_path)
+            def do_copy():
+                if src_path.is_dir():
+                    shutil.copytree(
+                        src_path,
+                        dst_path / src_path.name,
+                        dirs_exist_ok=True)
+                else:
+                    shutil.copy2(src_path, dst_path)
+            
+            await asyncio.to_thread(do_copy)
 
             log_command(f'copy {source} to {destination}', 'copy_file', True)
 
@@ -404,7 +421,7 @@ class FileManager:
                     'response': 'Source file not found'
                 }
 
-            shutil.move(str(src_path), str(dst_path))
+            await asyncio.to_thread(shutil.move, str(src_path), str(dst_path))
 
             log_command(f'move {source} to {destination}', 'move_file', True)
 
@@ -443,7 +460,7 @@ class FileManager:
                 }
 
             new_path = src_path.parent / new_name
-            src_path.rename(new_path)
+            await asyncio.to_thread(src_path.rename, new_path)
 
             log_command(
                 f'rename {old_path} to {new_name}',
@@ -483,7 +500,7 @@ class FileManager:
                     'response': 'File not found'
                 }
 
-            stat = path.stat()
+            stat = await asyncio.to_thread(path.stat)
 
             info = {
                 'name': path.name,

@@ -1,13 +1,15 @@
-import time
+import asyncio
 import os
 import json
 import webbrowser
 import pyperclip
 from typing import Dict, Optional
+import aiofiles
 from config import DATA_DIR, BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM
 from modules.bilingual_parser import parser
 from utils.platform_utils import get_whatsapp_desktop_path, is_windows, is_macos, is_linux, run_command
 from utils.logger import logger, log_command
+from utils.automation_utils import safe_automation
 
 
 class WhatsAppManager:
@@ -17,14 +19,19 @@ class WhatsAppManager:
         self.desktop_path = None
         self.recent_contacts = {}  # Cache recent contacts
         self.contacts_file = DATA_DIR / 'contacts.json'
-        self.contacts_map = self._load_contacts()
+        self.contacts_map = {} # Initialized in load_contacts
 
-    def _load_contacts(self) -> Dict[str, str]:
-        """Load contact mapping from JSON"""
+    async def initialize(self):
+        """Initialize the manager async"""
+        self.contacts_map = await self._load_contacts()
+
+    async def _load_contacts(self) -> Dict[str, str]:
+        """Load contact mapping from JSON (async)"""
         try:
             if os.path.exists(self.contacts_file):
-                with open(self.contacts_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                async with aiofiles.open(self.contacts_file, 'r', encoding='utf-8') as f:
+                    content = await f.read()
+                    return json.loads(content)
         except Exception as e:
             logger.error(f"Error loading contacts: {e}")
         return {}
@@ -74,80 +81,76 @@ class WhatsAppManager:
             self.desktop_path = path
         return path
 
-    def _is_whatsapp_running(self) -> bool:
-        """Check if WhatsApp Desktop is running"""
-        import psutil
-        for proc in psutil.process_iter(['name']):
-            try:
-                if 'whatsapp' in proc.info['name'].lower():
-                    return True
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-        return False
+    async def _is_whatsapp_running(self) -> bool:
+        """Check if WhatsApp Desktop is running (async)"""
+        def check():
+            import psutil
+            for proc in psutil.process_iter(['name']):
+                try:
+                    if 'whatsapp' in proc.info['name'].lower():
+                        return True
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+            return False
+        
+        return await asyncio.to_thread(check)
 
-    def _focus_whatsapp_window(self) -> bool:
-        """Focus WhatsApp Desktop window"""
+    async def _focus_whatsapp_window(self) -> bool:
+        """Focus WhatsApp Desktop window (async)"""
         try:
             if is_windows():
-                import win32gui
-                import win32con
+                def focus_win():
+                    import win32gui
+                    import win32con
+                    found = False
 
-                def callback(hwnd, extra):
-                    if win32gui.IsWindowVisible(hwnd):
-                        title = win32gui.GetWindowText(hwnd)
-                        if 'whatsapp' in title.lower():
-                            # Restore if minimized
-                            if win32gui.IsIconic(hwnd):
-                                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-                            # Bring to front
-                            win32gui.SetForegroundWindow(hwnd)
-                            return True
-                    return False
+                    def callback(hwnd, extra):
+                        nonlocal found
+                        if win32gui.IsWindowVisible(hwnd):
+                            title = win32gui.GetWindowText(hwnd)
+                            if 'whatsapp' in title.lower():
+                                if win32gui.IsIconic(hwnd):
+                                    win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+                                win32gui.SetForegroundWindow(hwnd)
+                                found = True
+                                return False # Stop enumeration
+                        return True
 
-                win32gui.EnumWindows(callback, None)
-                return True
+                    win32gui.EnumWindows(callback, None)
+                    return found
+
+                return await asyncio.to_thread(focus_win)
 
             elif is_macos():
-                # Use AppleScript to focus
-                run_command(
-                    'osascript -e "tell application \"WhatsApp\" to activate"')
+                await run_command('osascript -e "tell application \"WhatsApp\" to activate"')
                 return True
 
             else:
-                # Linux
-                run_command('xdotool search --name "WhatsApp" windowactivate')
+                await run_command('xdotool search --name "WhatsApp" windowactivate')
                 return True
 
         except Exception as e:
             logger.error(f"Error focusing WhatsApp: {e}")
             return False
 
-    def _search_contact_desktop(self, contact_name: str) -> bool:
-        """Search for contact in WhatsApp Desktop"""
+    async def _search_contact_desktop(self, contact_name: str) -> bool:
+        """Search for contact in WhatsApp Desktop (async)"""
         try:
-            import pyautogui
-
-            # Press Ctrl+K to open search (WhatsApp Desktop shortcut)
+            # Press Ctrl+K to open search
             if is_macos():
-                pyautogui.keyDown('command')
-                pyautogui.keyDown('k')
-                pyautogui.keyUp('k')
-                pyautogui.keyUp('command')
+                await safe_automation.hotkey('command', 'k')
             else:
-                pyautogui.keyDown('ctrl')
-                pyautogui.keyDown('k')
-                pyautogui.keyUp('k')
-                pyautogui.keyUp('ctrl')
+                await safe_automation.hotkey('ctrl', 'k')
 
-            time.sleep(0.5)
+            await asyncio.sleep(0.5)
 
             # Type contact name
-            pyautogui.typewrite(contact_name, interval=0.05)
-            time.sleep(1)  # Wait for search results
+            await safe_automation.typewrite(contact_name, interval=0.05)
+            await asyncio.sleep(1)
 
             # Press Enter to select first result
-            pyautogui.press('enter')
-            time.sleep(0.5)
+            await safe_automation.press('enter')
+            await asyncio.sleep(0.5)
 
             return True
 
@@ -158,7 +161,8 @@ class WhatsAppManager:
     async def open_whatsapp_web(self, language: str = 'en') -> Dict:
         """Open WhatsApp Web in browser"""
         try:
-            webbrowser.open('https://web.whatsapp.com')
+            # webbrowser.open is usually non-blocking but we can thread it if it's slow
+            await asyncio.to_thread(webbrowser.open, 'https://web.whatsapp.com')
 
             response = "Opening WhatsApp Web. Please scan the QR code if not already logged in."
             if language == 'hi':
@@ -178,6 +182,7 @@ class WhatsAppManager:
                 'action_type': 'WHATSAPP_WEB',
                 'error': str(e)
             }
+
     async def open_whatsapp(self, language: str = 'en') -> Dict:
         """Open WhatsApp (prefers desktop)"""
         return await self.open_whatsapp_desktop(language)
@@ -188,22 +193,19 @@ class WhatsAppManager:
             desktop_path = self._find_whatsapp_desktop()
 
             if not desktop_path:
-                # Fall back to web
                 return await self.open_whatsapp_web(language)
 
-            if not self._is_whatsapp_running():
-                # Launch WhatsApp
+            if not await self._is_whatsapp_running():
                 if is_windows():
-                    os.startfile(desktop_path)
+                    await asyncio.to_thread(os.startfile, desktop_path)
                 elif is_macos():
-                    run_command(f'open "{desktop_path}"')
+                    await run_command(f'open "{desktop_path}"')
                 else:
-                    run_command(desktop_path)
+                    await run_command(desktop_path)
 
-                time.sleep(3)  # Wait for app to open
+                await asyncio.sleep(3)
             else:
-                # Just focus it
-                self._focus_whatsapp_window()
+                await self._focus_whatsapp_window()
 
             response = "Opening WhatsApp Desktop."
             if language == 'hi':
@@ -218,11 +220,11 @@ class WhatsAppManager:
 
         except Exception as e:
             logger.error(f"Error opening WhatsApp Desktop: {e}")
-            # Fall back to web
             return await self.open_whatsapp_web(language)
+
     async def send_message(self, contact: str, message: str, language: str = 'en') -> Dict:
         """Send message (prefers desktop if running, else web)"""
-        if self._is_whatsapp_running():
+        if await self._is_whatsapp_running():
             return await self.send_message_desktop(contact, message, language)
         return await self.send_message_web(contact, message, language)
 
@@ -235,21 +237,17 @@ class WhatsAppManager:
         try:
             import urllib.parse
             
-            # Get contact info (resolves aliases)
             info = self._get_contact_info(contact)
             contact_name = info.get('name', contact)
             phone = info.get('phone', '').replace(' ', '').replace('-', '')
 
-            # If no phone number available, try to treat contact as a number if it looks like one
             if not phone:
                 potential_phone = contact.replace(' ', '').replace('-', '')
                 if potential_phone.isdigit() or (potential_phone.startswith('+') and potential_phone[1:].isdigit()):
                     phone = potential_phone
 
-            # If we still don't have a phone number, use name search
             if not phone:
-                # Open WhatsApp Web and let user select
-                webbrowser.open('https://web.whatsapp.com')
+                await asyncio.to_thread(webbrowser.open, 'https://web.whatsapp.com')
 
                 response = f"Opening WhatsApp Web. Please search for {contact_name} and send your message."
                 if language == 'hi':
@@ -263,10 +261,9 @@ class WhatsAppManager:
                     'response': response
                 }
             else:
-                # Direct link with phone number
                 encoded_message = urllib.parse.quote(message)
                 url = f"https://wa.me/{phone}?text={encoded_message}"
-                webbrowser.open(url)
+                await asyncio.to_thread(webbrowser.open, url)
 
                 response = f"Opening WhatsApp chat with {contact_name}. Click send to deliver message."
                 if language == 'hi':
@@ -297,7 +294,6 @@ class WhatsAppManager:
             language: str = 'en',
             confirmed: bool = False) -> Dict:
         """Send message via WhatsApp Desktop automation"""
-        # Resolve alias early for correct confirmation message
         contact = self._resolve_contact(contact)
         
         if not confirmed:
@@ -317,34 +313,28 @@ class WhatsAppManager:
             }
 
         try:
-            import pyautogui
-
-            # Check if WhatsApp Desktop is available
             desktop_path = self._find_whatsapp_desktop()
             if not desktop_path:
-                # Fall back to web
                 return await self.send_message_web(contact, message, language)
 
-            # Open/focus WhatsApp
             await self.open_whatsapp_desktop(language)
-            time.sleep(2)
+            await asyncio.sleep(2)
 
-            # Search for contact
-            if not self._search_contact_desktop(contact):
+            if not await self._search_contact_desktop(contact):
                 return {
                     'success': False,
                     'action_type': 'WHATSAPP_MESSAGE',
                     'error': f"Could not find contact: {contact}"
                 }
 
-            time.sleep(1)
+            await asyncio.sleep(1)
 
             # Type message
-            pyautogui.typewrite(message, interval=0.03)
-            time.sleep(0.5)
+            await safe_automation.typewrite(message, interval=0.03)
+            await asyncio.sleep(0.5)
 
             # Press Enter to send
-            pyautogui.press('enter')
+            await safe_automation.press('enter')
 
             log_command(
                 f"WhatsApp message to {contact}",
@@ -366,7 +356,6 @@ class WhatsAppManager:
 
         except Exception as e:
             logger.error(f"Error sending WhatsApp message (desktop): {e}")
-            # Fall back to web
             return await self.send_message_web(contact, message, language)
 
     async def call_contact(
@@ -377,29 +366,22 @@ class WhatsAppManager:
         """Make WhatsApp call (voice or video)"""
         call_type = 'video' if video else 'voice'
         try:
-            # Resolve alias 
             contact = self._resolve_contact(contact)
-            
-            # For calls, we need to use desktop automation
             desktop_path = self._find_whatsapp_desktop()
 
-            if desktop_path and self._is_whatsapp_running():
-                # Open/focus WhatsApp
+            if desktop_path and await self._is_whatsapp_running():
                 await self.open_whatsapp_desktop(language)
-                time.sleep(2)
+                await asyncio.sleep(2)
 
-                # Search for contact
-                if not self._search_contact_desktop(contact):
+                if not await self._search_contact_desktop(contact):
                     return {
                         'success': False,
                         'action_type': 'WHATSAPP_CALL',
                         'error': f"Could not find contact: {contact}"
                     }
 
-                time.sleep(1)
+                await asyncio.sleep(1)
 
-                # Click call button (requires screen coordinates - simplified)
-                # In real implementation, would use image recognition
                 response = f"WhatsApp {call_type} call started with {contact}"
                 if language == 'hi':
                     response = f"{contact} के साथ WhatsApp {call_type} कॉल शुरू हो गई है"
@@ -412,7 +394,6 @@ class WhatsAppManager:
                     'response': response
                 }
             else:
-                # Guide user to make call manually
                 response = f"Please open WhatsApp and call {contact} manually. Desktop automation requires WhatsApp Desktop to be installed."
                 if language == 'hi':
                     response = f"कृपया {contact} को कॉल करने के लिए WhatsApp खोलें। Desktop automation के लिए WhatsApp Desktop इंस्टॉल होना चाहिए।"
@@ -459,7 +440,7 @@ class WhatsAppManager:
     async def get_status(self, language: str = 'en') -> Dict:
         """Check WhatsApp status and availability"""
         desktop_available = self._find_whatsapp_desktop() is not None
-        is_running = self._is_whatsapp_running()
+        is_running = await self._is_whatsapp_running()
         
         status_text = "WhatsApp Desktop is available" if desktop_available else "WhatsApp Desktop is not installed (using Web fallback)"
         if is_running:
@@ -480,7 +461,6 @@ class WhatsAppManager:
             from modules.context import context_manager
             from modules.llm import llm_module
             
-            # Get visual context (which should include the active chat if it's focused)
             visual_context = await context_manager.get_visual_context()
             
             if not visual_context or "[Visual Context:" not in visual_context:
@@ -490,7 +470,6 @@ class WhatsAppManager:
                     "error": "No visual context available"
                 }
             
-            # Draft the reply using LLM
             prompt = (
                 "Based on the following screen text from a WhatsApp conversation, "
                 "draft a concise, natural, and helpful reply. "
@@ -505,8 +484,7 @@ class WhatsAppManager:
             )
             
             if draft:
-                # Copy to clipboard for easy pasting
-                pyperclip.copy(draft)
+                await asyncio.to_thread(pyperclip.copy, draft)
                 
                 response = f"I've drafted a reply based on the conversation: '{draft[:50]}...'. It's been copied to your clipboard, sir."
                 if language == 'hi':
@@ -534,3 +512,4 @@ class WhatsAppManager:
 
 # Singleton instance
 whatsapp_manager = WhatsAppManager()
+# Note: Should be initialized via await whatsapp_manager.initialize() in main startup

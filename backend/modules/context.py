@@ -99,13 +99,21 @@ class ContextManager:
     def __init__(self):
         self.current_context = ContextState()
         self.intent_history: List[IntentAnalysis] = []
-        
-        # Load persistent settings
-        pref_lang = await memory_manager.get_setting("preferred_language", "en")
-        self.set_context_variable("preferred_language", pref_lang)
+        # Persistent language will be fetched on first update or when needed
+        self.initialized = False
 
-    def update_context(self, user_input: str, command_type: str,
+    async def _ensure_initialized(self):
+        if not self.initialized:
+            try:
+                pref_lang = await memory_manager.get_setting("preferred_language", "en")
+                self.set_context_variable("preferred_language", pref_lang)
+                self.initialized = True
+            except Exception as e:
+                logger.error(f"Error initializing ContextManager: {e}")
+
+    async def update_context(self, user_input: str, command_type: str,
                        success: bool, session_id: str = "") -> None:
+        await self._ensure_initialized()
         """Update current context with new interaction"""
         self.current_context.last_command = user_input
         self.current_context.last_command_type = command_type
@@ -266,7 +274,8 @@ class ContextManager:
 
         return entities
 
-    def get_contextual_response(self, language: str = 'en') -> Optional[str]:
+    async def get_contextual_response(self, language: str = 'en') -> Optional[str]:
+        await self._ensure_initialized()
         """Generate a context-aware response"""
         responses = self.CONTEXT_RESPONSES[language]
 
@@ -504,7 +513,7 @@ class ContextManager:
 
         return False
 
-    def get_conversation_context(self, limit: int = 5) -> List[Dict]:
+    async def get_conversation_context(self, limit: int = 5) -> List[Dict]:
         """Get recent conversation context for AI processing"""
         session_id = self.current_context.session_id
         entries = await memory_manager.get_recent_conversations(limit, session_id)

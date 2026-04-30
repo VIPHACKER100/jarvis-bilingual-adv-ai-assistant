@@ -1,5 +1,7 @@
 import sqlite3
 import aiosqlite
+import aiofiles
+import asyncio
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -45,7 +47,7 @@ class NeuralMemoryManager:
         self.memory_dir.mkdir(exist_ok=True)
         self.core_nodes = ["user.md", "personality.md", "preferences.md", "decisions.md", "people.md"]
 
-    def get_node(self, name: str) -> Optional[str]:
+    async def get_node(self, name: str) -> Optional[str]:
         """Read content of a specific memory node"""
         if not name.endswith(".md"):
             name += ".md"
@@ -55,50 +57,75 @@ class NeuralMemoryManager:
             return None
         
         try:
-            return file_path.read_text(encoding="utf-8")
+            async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
+                return await f.read()
         except Exception as e:
             logger.error(f"Error reading memory node {name}: {e}")
             return None
 
-    def update_node(self, name: str, content: str) -> bool:
+    async def update_node(self, name: str, content: str) -> bool:
         """Update content of a specific memory node"""
         if not name.endswith(".md"):
             name += ".md"
         
         file_path = self.memory_dir / name
         try:
-            file_path.write_text(content, encoding="utf-8")
+            async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
+                await f.write(content)
             logger.info(f"Updated memory node: {name}")
             return True
         except Exception as e:
             logger.error(f"Error updating memory node {name}: {e}")
             return False
 
-    def list_nodes(self) -> List[Dict[str, Any]]:
+    async def list_nodes(self) -> List[Dict[str, Any]]:
         """List all available memory nodes with metadata"""
-        nodes = []
-        for file_path in self.memory_dir.glob("*.md"):
-            try:
-                stats = file_path.stat()
-                nodes.append({
-                    "name": file_path.name,
-                    "path": str(file_path),
-                    "size": stats.st_size,
-                    "updated_at": datetime.fromtimestamp(stats.st_mtime).isoformat(),
-                    "is_core": file_path.name in self.core_nodes
-                })
-            except Exception as e:
-                logger.error(f"Error listing node {file_path.name}: {e}")
-        return nodes
+        def _list_task():
+            nodes = []
+            for file_path in self.memory_dir.glob("*.md"):
+                try:
+                    stats = file_path.stat()
+                    nodes.append({
+                        "name": file_path.name,
+                        "path": str(file_path),
+                        "size": stats.st_size,
+                        "updated_at": datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                        "is_core": file_path.name in self.core_nodes
+                    })
+                except Exception as e:
+                    logger.error(f"Error listing node {file_path.name}: {e}")
+            return nodes
+        
+        return await asyncio.to_thread(_list_task)
 
-    def get_neural_context(self) -> str:
+    async def get_node_with_metadata(self, name: str) -> Dict[str, Any]:
+        """Read content and parse metadata of a memory node"""
+        content = await self.get_node(name)
+        if not content:
+            return {"content": "", "metadata": {}}
+        
+        metadata = {}
+        if content.startswith("---"):
+            try:
+                parts = content.split("---", 2)
+                if len(parts) >= 3:
+                    import yaml
+                    metadata = yaml.safe_load(parts[1]) or {}
+                    content = parts[2].strip()
+            except Exception as e:
+                logger.error(f"Error parsing metadata for {name}: {e}")
+        
+        return {"content": content, "metadata": metadata}
+
+    async def get_neural_context(self) -> str:
         """Collect core memory nodes for LLM context injection"""
         context_parts = []
         # Prioritize personality and user info
         for node_name in ["personality.md", "user.md", "preferences.md"]:
-            content = self.get_node(node_name)
+            node_data = await self.get_node_with_metadata(node_name)
+            content = node_data["content"]
             if content:
-                context_parts.append(f"### NODE: {node_name.upper()}\n{content}")
+                context_parts.append(f"### {node_name.replace('.md', '').upper()} ###\n{content}")
         
         return "\n\n".join(context_parts)
 
@@ -108,76 +135,78 @@ class MemoryManager:
 
     def __init__(self):
         self.db_path = DATA_DIR / "memory.db"
-        self._init_database()
         self.neural = NeuralMemoryManager()
 
-    def _init_database(self):
-        """Initialize SQLite database with tables"""
+    async def initialize(self):
+        """Initialize memory system asynchronously"""
+        await self._init_database()
+        logger.info("Memory system initialized")
+
+    async def _init_database(self):
+        """Initialize SQLite database with tables using aiosqlite"""
         try:
-            conn = sqlite3.connect(str(self.db_path))
-            cursor = conn.cursor()
+            async with aiosqlite.connect(str(self.db_path)) as db:
+                # Conversations table
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS conversations (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT NOT NULL,
+                        user_input TEXT NOT NULL,
+                        jarvis_response TEXT NOT NULL,
+                        command_type TEXT,
+                        success BOOLEAN DEFAULT 1,
+                        context TEXT,
+                        language TEXT DEFAULT 'en',
+                        session_id TEXT
+                    )
+                ''')
 
-            # Conversations table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS conversations (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT NOT NULL,
-                    user_input TEXT NOT NULL,
-                    jarvis_response TEXT NOT NULL,
-                    command_type TEXT,
-                    success BOOLEAN DEFAULT 1,
-                    context TEXT,
-                    language TEXT DEFAULT 'en',
-                    session_id TEXT
-                )
-            ''')
+                # Memory/facts table
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS memory (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        key TEXT UNIQUE NOT NULL,
+                        value TEXT NOT NULL,
+                        category TEXT DEFAULT 'general',
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL,
+                        confidence REAL DEFAULT 1.0,
+                        source TEXT
+                    )
+                ''')
 
-            # Memory/facts table
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS memory (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    key TEXT UNIQUE NOT NULL,
-                    value TEXT NOT NULL,
-                    category TEXT DEFAULT 'general',
-                    created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL,
-                    confidence REAL DEFAULT 1.0,
-                    source TEXT
-                )
-            ''')
+                # Sessions table for tracking conversation sessions
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS sessions (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        session_id TEXT UNIQUE NOT NULL,
+                        started_at TEXT NOT NULL,
+                        ended_at TEXT,
+                        command_count INTEGER DEFAULT 0,
+                        metadata TEXT
+                    )
+                ''')
 
-            # Sessions table for tracking conversation sessions
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS sessions (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    session_id TEXT UNIQUE NOT NULL,
-                    started_at TEXT NOT NULL,
-                    ended_at TEXT,
-                    command_count INTEGER DEFAULT 0,
-                    metadata TEXT
-                )
-            ''')
+                # Create indexes for faster queries
+                await db.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_conversations_timestamp
+                    ON conversations(timestamp)
+                ''')
+                await db.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_conversations_session
+                    ON conversations(session_id)
+                ''')
+                await db.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_memory_category
+                    ON memory(category)
+                ''')
+                await db.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_memory_key
+                    ON memory(key)
+                ''')
 
-            # Create indexes for faster queries
-            cursor.execute('''
-                CREATE INDEX IF NOT EXISTS idx_conversations_timestamp
-                ON conversations(timestamp)
-            ''')
-            cursor.execute('''
-                CREATE INDEX IF NOT EXISTS idx_conversations_session
-                ON conversations(session_id)
-            ''')
-            cursor.execute('''
-                CREATE INDEX IF NOT EXISTS idx_memory_category
-                ON memory(category)
-            ''')
-            cursor.execute('''
-                CREATE INDEX IF NOT EXISTS idx_memory_key
-                ON memory(key)
-            ''')
-
-            conn.commit()
-            conn.close()
+                await db.commit()
+            
             logger.info("Memory database initialized successfully")
 
         except Exception as e:
@@ -686,7 +715,7 @@ class MemoryManager:
 
     async def save_setting(self, key: str, value: Any) -> bool:
         """Save a system setting to memory"""
-        return self.save_memory(MemoryEntry(
+        return await self.save_memory(MemoryEntry(
             key=f"setting_{key}",
             value=json.dumps(value) if not isinstance(value, str) else value,
             category="settings",
@@ -695,7 +724,7 @@ class MemoryManager:
 
     async def get_setting(self, key: str, default: Any = None) -> Any:
         """Get a system setting from memory"""
-        entry = self.get_memory(f"setting_{key}")
+        entry = await self.get_memory(f"setting_{key}")
         if not entry:
             return default
         

@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy and install Python dependencies
-COPY backend/requirements.txt ./
+COPY backend/requirements-prod.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code
@@ -41,4 +41,4 @@ ENV PYTHONPATH=/app
 EXPOSE 8000
 
 # Run the application
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.1", "--port", "8000"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

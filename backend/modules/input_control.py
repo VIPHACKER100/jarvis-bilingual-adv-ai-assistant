@@ -1,36 +1,34 @@
 import random
-import time
+import asyncio
 from typing import Dict, Tuple, Optional, List
 import pyautogui
 from modules.bilingual_parser import parser
 from utils.platform_utils import is_windows, is_macos
 from utils.logger import logger, log_command
+from utils.automation_utils import safe_automation
 
 
 class InputController:
     """Cross-platform mouse and keyboard controller with human-like delays"""
 
     def __init__(self):
-        # Configure pyautogui
-        pyautogui.FAILSAFE = True  # Move mouse to corner to abort
-        pyautogui.PAUSE = 0.1  # Default pause between actions
-
-        # Get screen size
+        # Configure screen size
         self.screen_width, self.screen_height = pyautogui.size()
 
-    def _human_delay(self, min_ms: int = 50, max_ms: int = 150):
-        """Add random human-like delay"""
+    async def _human_delay(self, min_ms: int = 50, max_ms: int = 150):
+        """Add random human-like delay (async)"""
         delay = random.randint(min_ms, max_ms) / 1000.0
-        time.sleep(delay)
+        await asyncio.sleep(delay)
 
-    def _typing_delay(self):
-        """Delay between keystrokes (typing speed)"""
+    async def _typing_delay(self):
+        """Delay between keystrokes (typing speed) (async)"""
         delay = random.randint(30, 80) / 1000.0  # 30-80ms between keys
-        time.sleep(delay)
+        await asyncio.sleep(delay)
 
     async def get_cursor_position(self) -> Dict:
         """Get current cursor position"""
         try:
+            # position() is non-blocking IO call usually, but we can wrap it if needed
             x, y = pyautogui.position()
             return {
                 'success': True, 'action_type': 'GET_CURSOR', 'position': {
@@ -54,10 +52,9 @@ class InputController:
                     'action_type': 'MOVE_CURSOR',
                     'error': f'Coordinates out of bounds. Screen size: {self.screen_width}x{self.screen_height}'}
 
-            # Add human-like movement
-            pyautogui.moveTo(x, y, duration=duration,
-                             tween=pyautogui.easeInOutQuad)
-            self._human_delay()
+            # Add human-like movement via SafeAutomation
+            await safe_automation.moveTo(x, y, duration=duration)
+            await self._human_delay()
 
             log_command(f"move cursor to {x},{y}", "move_cursor", True)
 
@@ -90,8 +87,8 @@ class InputController:
                     'error': 'Movement would go off screen'
                 }
 
-            pyautogui.moveRel(dx, dy, duration=0.3)
-            self._human_delay()
+            await safe_automation.run_gui_action(pyautogui.moveRel, dx, dy, duration=0.3)
+            await self._human_delay()
 
             return {
                 'success': True,
@@ -119,9 +116,9 @@ class InputController:
                     'error': f'Invalid button. Use: {valid_buttons}'
                 }
 
-            self._human_delay(80, 120)  # Slight delay before click
-            pyautogui.click(button=button, clicks=clicks)
-            self._human_delay(50, 100)
+            await self._human_delay(80, 120)  # Slight delay before click
+            await safe_automation.click(button=button, clicks=clicks)
+            await self._human_delay(50, 100)
 
             log_command(f"{button} click", "mouse_click", True)
 
@@ -143,9 +140,9 @@ class InputController:
     async def double_click(self) -> Dict:
         """Double click"""
         try:
-            self._human_delay(80, 120)
-            pyautogui.doubleClick()
-            self._human_delay(50, 100)
+            await self._human_delay(80, 120)
+            await safe_automation.doubleClick()
+            await self._human_delay(50, 100)
 
             return {
                 'success': True,
@@ -167,14 +164,14 @@ class InputController:
     async def scroll(self, amount: int, direction: str = 'vertical') -> Dict:
         """Scroll mouse wheel"""
         try:
-            self._human_delay(50, 100)
+            await self._human_delay(50, 100)
 
             if direction == 'horizontal':
-                pyautogui.hscroll(amount)
+                await safe_automation.run_gui_action(pyautogui.hscroll, amount)
             else:
-                pyautogui.scroll(amount)
+                await safe_automation.scroll(amount)
 
-            self._human_delay(50, 100)
+            await self._human_delay(50, 100)
 
             return {
                 'success': True,
@@ -201,12 +198,12 @@ class InputController:
         """Drag from start to end position"""
         try:
             # Move to start position
-            pyautogui.moveTo(start_x, start_y, duration=0.2)
-            self._human_delay(100, 200)
+            await safe_automation.moveTo(start_x, start_y, duration=0.2)
+            await self._human_delay(100, 200)
 
             # Drag to end position
-            pyautogui.dragTo(end_x, end_y, duration=duration)
-            self._human_delay(50, 100)
+            await safe_automation.dragTo(end_x, end_y, duration=duration)
+            await self._human_delay(50, 100)
 
             return {
                 'success': True,
@@ -233,9 +230,9 @@ class InputController:
                 interval = random.uniform(
                     0.03, 0.08)  # 30-80ms between characters
 
-            self._human_delay(200, 300)  # Delay before typing
-            pyautogui.typewrite(text, interval=interval)
-            self._human_delay(100, 200)
+            await self._human_delay(200, 300)  # Delay before typing
+            await safe_automation.typewrite(text, interval=interval)
+            await self._human_delay(100, 200)
 
             preview = text[:20] if len(text) > 20 else text
             log_command(f"type text: {preview}...", "type_text", True)
@@ -258,45 +255,12 @@ class InputController:
         """Press a single key"""
         try:
             valid_keys = [
-                'enter',
-                'return',
-                'tab',
-                'escape',
-                'esc',
-                'backspace',
-                'delete',
-                'del',
-                'insert',
-                'ins',
-                'home',
-                'end',
-                'pageup',
-                'pagedown',
-                'pgup',
-                'pgdn',
-                'up',
-                'down',
-                'left',
-                'right',
-                'f1',
-                'f2',
-                'f3',
-                'f4',
-                'f5',
-                'f6',
-                'f7',
-                'f8',
-                'f9',
-                'f10',
-                'f11',
-                'f12',
-                'space',
-                'shift',
-                'ctrl',
-                'alt',
-                'win',
-                'command',
-                'option']
+                'enter', 'return', 'tab', 'escape', 'esc', 'backspace', 'delete',
+                'del', 'insert', 'ins', 'home', 'end', 'pageup', 'pagedown',
+                'pgup', 'pgdn', 'up', 'down', 'left', 'right', 'f1', 'f2', 'f3',
+                'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'space',
+                'shift', 'ctrl', 'alt', 'win', 'command', 'option'
+            ]
 
             # Normalize key name
             key_lower = key.lower()
@@ -316,9 +280,9 @@ class InputController:
                 }
                 key_lower = key_map.get(key_lower, key_lower)
 
-            self._typing_delay()
-            pyautogui.press(key_lower)
-            self._typing_delay()
+            await self._typing_delay()
+            await safe_automation.press(key_lower)
+            await self._typing_delay()
 
             return {
                 'success': True,
@@ -344,7 +308,7 @@ class InputController:
                     'error': 'Hotkey requires at least 2 keys'
                 }
 
-            self._human_delay(100, 200)
+            await self._human_delay(100, 200)
 
             # Normalize keys
             normalized_keys = []
@@ -358,17 +322,8 @@ class InputController:
                     key_lower = 'ctrl'
                 normalized_keys.append(key_lower)
 
-            # Press all keys
-            for key in normalized_keys:
-                pyautogui.keyDown(key)
-                self._typing_delay()
-
-            # Release in reverse order
-            for key in reversed(normalized_keys):
-                pyautogui.keyUp(key)
-                self._typing_delay()
-
-            self._human_delay(100, 200)
+            await safe_automation.hotkey(*normalized_keys)
+            await self._human_delay(100, 200)
 
             log_command(f"hotkey: {'+'.join(keys)}", "press_hotkey", True)
 
@@ -457,12 +412,15 @@ class InputController:
             height: int) -> Dict:
         """Take screenshot of specific region"""
         try:
-            import pyautogui
             from PIL import Image
             import io
             import base64
 
-            screenshot = pyautogui.screenshot(region=(x, y, width, height))
+            result = await safe_automation.screenshot(region=(x, y, width, height))
+            if not result.get("success"):
+                return result
+            
+            screenshot = result["result"]
 
             # Convert to base64 for sending to frontend
             buffered = io.BytesIO()

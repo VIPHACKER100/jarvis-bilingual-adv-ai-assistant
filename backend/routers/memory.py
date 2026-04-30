@@ -80,7 +80,7 @@ async def delete_fact(fact_id: int):
 @router.get("/nodes", response_model=MemoryNodeListResponse)
 async def list_memory_nodes():
     """List all Markdown memory nodes"""
-    nodes = memory_manager.neural.list_nodes()
+    nodes = await memory_manager.neural.list_nodes()
     return {
         "success": True,
         "nodes": nodes,
@@ -91,7 +91,7 @@ async def list_memory_nodes():
 @router.get("/nodes/{name}", response_model=MemoryNodeResponse)
 async def get_memory_node(name: str):
     """Get content of a Markdown memory node"""
-    content = memory_manager.neural.get_node(name)
+    content = await memory_manager.neural.get_node(name)
     if content is None:
         raise HTTPException(status_code=404, detail=f"Memory node {name} not found")
     
@@ -105,7 +105,7 @@ async def get_memory_node(name: str):
 @router.put("/nodes/{name}", response_model=BaseResponse)
 async def update_memory_node(name: str, update: MemoryNodeUpdateRequest):
     """Update a Markdown memory node"""
-    success = memory_manager.neural.update_node(name, update.content)
+    success = await memory_manager.neural.update_node(name, update.content)
     if not success:
         raise HTTPException(status_code=500, detail=f"Failed to update memory node {name}")
     

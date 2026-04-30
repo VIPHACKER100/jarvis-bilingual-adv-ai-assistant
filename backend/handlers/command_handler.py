@@ -99,7 +99,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
                 session_id=session_id or ""
             )
             await memory_manager.save_conversation(entry)
-            context_manager.update_context(command, 'macro', True, session_id or "default")
+            await context_manager.update_context(command, 'macro', True, session_id or "default")
         except Exception as e:
             logger.error(f"Error persisting macro to memory: {e}")
 
@@ -210,9 +210,9 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             facts = await memory_manager.search_memory("")
             if facts:
                 context_str += "Known facts:\n" + "\n".join([f"- {f.key}: {f.value}" for f in facts[:5]])
-            history = context_manager.get_conversation_context(limit=3)
+            history = await context_manager.get_conversation_context(limit=3)
             if history:
-                context_str += "\nHistory:\n" + "\n".join([f"User: {h.user_input}\nJARVIS: {h.jarvis_response}" for h in history])
+                context_str += "\nHistory:\n" + "\n".join([f"User: {h['user']}\nJARVIS: {h['jarvis']}" for h in history])
         except: pass
 
         llm_response = await llm_module.get_response(command, current_lang, context=context_str)
@@ -267,7 +267,7 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             session_id=session_id or ""
         )
         await memory_manager.save_conversation(entry)
-        context_manager.update_context(command, command_key or "conversation", res['success'], session_id or "default")
+        await context_manager.update_context(command, command_key or "conversation", res['success'], session_id or "default")
     except Exception as e:
         logger.error(f"Error saving to memory in command_handler: {e}")
         

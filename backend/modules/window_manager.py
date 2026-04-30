@@ -10,6 +10,8 @@ from fuzzywuzzy import fuzz, process
 from modules.bilingual_parser import parser
 from utils.platform_utils import is_windows, is_macos, is_linux, run_command
 from utils.logger import logger, log_command
+from utils.automation_utils import safe_automation
+import pyautogui
 
 
 @dataclass
@@ -44,27 +46,30 @@ class WindowManager:
                 self.win32gui = None
                 self.win32con = None
 
-    def _get_running_processes(self) -> List[Dict]:
-        """Get list of running processes"""
-        processes = []
-        for proc in psutil.process_iter(['pid', 'name', 'exe', 'status']):
-            try:
-                pinfo = proc.info
-                if pinfo['exe'] and pinfo['status'] == psutil.STATUS_RUNNING:
-                    processes.append({
-                        'pid': pinfo['pid'],
-                        'name': pinfo['name'],
-                        'exe': pinfo['exe']
-                    })
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-        return processes
+    async def _get_running_processes(self) -> List[Dict]:
+        """Get list of running processes asynchronously"""
+        def scan_procs():
+            processes = []
+            for proc in psutil.process_iter(['pid', 'name', 'exe', 'status']):
+                try:
+                    pinfo = proc.info
+                    if pinfo['exe'] and pinfo['status'] == psutil.STATUS_RUNNING:
+                        processes.append({
+                            'pid': pinfo['pid'],
+                            'name': pinfo['name'],
+                            'exe': pinfo['exe']
+                        })
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+            return processes
+        
+        return await asyncio.to_thread(scan_procs)
 
-    def _fuzzy_match_app(
+    async def _fuzzy_match_app(
             self,
             app_name: str,
             processes: List[Dict]) -> Optional[Dict]:
-        """Fuzzy match app name against running processes"""
+        """Fuzzy match app name against running processes asynchronously"""
         app_name_lower = app_name.lower()
 
         # Extract process names for fuzzy matching
@@ -76,19 +81,22 @@ class WindowManager:
             ) or proc['name'].lower() in app_name_lower:
                 return proc
 
-        # Fuzzy match
-        best_match = process.extractOne(
-            app_name_lower,
-            process_names,
-            scorer=fuzz.partial_ratio)
+        # Fuzzy match in thread pool
+        def do_fuzzy():
+            return process.extractOne(
+                app_name_lower,
+                process_names,
+                scorer=fuzz.partial_ratio)
+
+        best_match = await asyncio.to_thread(do_fuzzy)
         if best_match and best_match[1] >= 70:  # 70% similarity threshold
             idx = process_names.index(best_match[0])
             return processes[idx]
 
         return None
 
-    def find_app_executable(self, app_name: str) -> Optional[str]:
-        """Find executable path for an application"""
+    async def find_app_executable(self, app_name: str) -> Optional[str]:
+        """Find executable path for an application asynchronously"""
         # Common app mappings
         common_apps = {
             'chrome': ['chrome.exe', 'google chrome.app', 'google-chrome', 'chromium'],
@@ -129,43 +137,45 @@ class WindowManager:
 
         app_name_lower = app_name.lower()
 
-        # Check common mappings
-        for key, executables in common_apps.items():
-            if key in app_name_lower or app_name_lower in key:
-                for exe in executables:
-                    # Check PATH first (very reliable for things like 'code')
-                    import shutil
-                    which_name = exe if exe.endswith('.exe') else exe.replace('.exe', '')
-                    resolved = shutil.which(which_name)
-                    if resolved:
-                        return resolved
+        def do_find():
+            # Check common mappings
+            for key, executables in common_apps.items():
+                if key in app_name_lower or app_name_lower in key:
+                    for exe in executables:
+                        # Check PATH first (very reliable for things like 'code')
+                        import shutil
+                        which_name = exe if exe.endswith('.exe') else exe.replace('.exe', '')
+                        resolved = shutil.which(which_name)
+                        if resolved:
+                            return resolved
 
-                    if is_windows():
-                        import os
-                        program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
-                        program_files_x86 = os.environ.get('PROGRAMFILES(X86)', 'C:\\Program Files (x86)')
-                        localappdata = os.environ.get('LOCALAPPDATA', '')
+                        if is_windows():
+                            import os
+                            program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
+                            program_files_x86 = os.environ.get('PROGRAMFILES(X86)', 'C:\\Program Files (x86)')
+                            localappdata = os.environ.get('LOCALAPPDATA', '')
 
-                        # Common paths + specific VS Code paths
-                        paths = [
-                            os.path.join(program_files, exe.replace('.exe', ''), exe),
-                            os.path.join(program_files_x86, exe.replace('.exe', ''), exe),
-                            os.path.join(localappdata, exe.replace('.exe', ''), exe),
-                            # VS Code specific (User install)
-                            os.path.join(localappdata, "Programs", "Microsoft VS Code", "bin", "code.cmd"),
-                            os.path.join(localappdata, "Programs", "Microsoft VS Code", "Code.exe"),
-                        ]
-                        for path in paths:
-                            if os.path.exists(path):
-                                return path
-                    else:
-                        # macOS/Linux handled by shutil.which above, but keeping logic for .app
-                        if exe.endswith('.app') and is_macos():
-                            app_path = f"/Applications/{exe}"
-                            if os.path.exists(app_path):
-                                return app_path
+                            # Common paths + specific VS Code paths
+                            paths = [
+                                os.path.join(program_files, exe.replace('.exe', ''), exe),
+                                os.path.join(program_files_x86, exe.replace('.exe', ''), exe),
+                                os.path.join(localappdata, exe.replace('.exe', ''), exe),
+                                # VS Code specific (User install)
+                                os.path.join(localappdata, "Programs", "Microsoft VS Code", "bin", "code.cmd"),
+                                os.path.join(localappdata, "Programs", "Microsoft VS Code", "Code.exe"),
+                            ]
+                            for path in paths:
+                                if os.path.exists(path):
+                                    return path
+                        else:
+                            # macOS/Linux handled by shutil.which above, but keeping logic for .app
+                            if exe.endswith('.app') and is_macos():
+                                app_path = f"/Applications/{exe}"
+                                if os.path.exists(app_path):
+                                    return app_path
+            return None
 
-        return None
+        return await asyncio.to_thread(do_find)
 
     async def open_app(self, app_name: str, language: str = 'en') -> Dict:
         """Open an application"""
@@ -212,7 +222,7 @@ class WindowManager:
                 app_name_lower = app_name.lower()
                 for key, url in web_mappings.items():
                     if key in app_name_lower:
-                        webbrowser.open(url)
+                        await asyncio.to_thread(webbrowser.open, url)
                         log_command(f"open website {app_name}", "open_app", True)
                         return {
                             'success': True,
@@ -225,7 +235,7 @@ class WindowManager:
                 url_pattern = r'^(https?://)?([a-z0-9-]+\.)+[a-z]{2,}(/.*)?$'
                 if re.match(url_pattern, app_name_lower):
                     url = app_name if app_name_lower.startswith('http') else f"https://{app_name}"
-                    webbrowser.open(url)
+                    await asyncio.to_thread(webbrowser.open, url)
                     log_command(f"open web address {app_name}", "open_app", True)
                     return {
                         'success': True,
@@ -288,18 +298,18 @@ class WindowManager:
                     'app_name': app_name}}
 
         try:
-            processes = self._get_running_processes()
-            matched_proc = self._fuzzy_match_app(app_name, processes)
+            processes = await self._get_running_processes()
+            matched_proc = await self._fuzzy_match_app(app_name, processes)
 
             if matched_proc:
                 pid = matched_proc['pid']
-                proc = psutil.Process(pid)
-                proc.terminate()
+                proc = await asyncio.to_thread(psutil.Process, pid)
+                await asyncio.to_thread(proc.terminate)
 
                 # Wait a bit and force kill if still running
-                time.sleep(1)
-                if proc.is_running():
-                    proc.kill()
+                await asyncio.sleep(1)
+                if await asyncio.to_thread(proc.is_running):
+                    await asyncio.to_thread(proc.kill)
 
                 log_command(f"close {app_name}", "close_app", True)
 
@@ -331,7 +341,7 @@ class WindowManager:
     async def list_running_apps(self) -> Dict:
         """List all running applications"""
         try:
-            processes = self._get_running_processes()
+            processes = await self._get_running_processes()
             apps = [{'pid': p['pid'], 'name': p['name'], 'exe': p['exe']}
                     for p in processes[:20]]  # Limit to 20
 
@@ -349,50 +359,53 @@ class WindowManager:
                 'error': str(e)
             }
 
-    def _get_window_list_windows(self) -> List[WindowInfo]:
-        """Get list of windows on Windows"""
-        windows = []
+    async def _get_window_list_windows(self) -> List[WindowInfo]:
+        """Get list of windows on Windows asynchronously"""
+        def scan_windows():
+            windows = []
 
-        if not self.win32gui:
+            if not self.win32gui:
+                return windows
+
+            def callback(hwnd, extra):
+                if self.win32gui.IsWindowVisible(hwnd):
+                    title = self.win32gui.GetWindowText(hwnd)
+                    if title:
+                        rect = self.win32gui.GetWindowPlacement(hwnd)
+                        is_minimized = rect[1] == self.win32con.SW_SHOWMINIMIZED
+                        is_maximized = rect[1] == self.win32con.SW_SHOWMAXIMIZED
+
+                        # Get window position and size
+                        try:
+                            left, top, right, bottom = self.win32gui.GetWindowRect(
+                                hwnd)
+                            position = (left, top)
+                            size = (right - left, bottom - top)
+                        except BaseException:
+                            position = (0, 0)
+                            size = (0, 0)
+
+                        # Try to get PID
+                        try:
+                            import win32process
+                            _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                        except BaseException:
+                            pid = 0
+
+                        windows.append(WindowInfo(
+                            title=title,
+                            pid=pid,
+                            hwnd=hwnd,
+                            is_minimized=is_minimized,
+                            is_maximized=is_maximized,
+                            position=position,
+                            size=size
+                        ))
+
+            self.win32gui.EnumWindows(callback, None)
             return windows
-
-        def callback(hwnd, extra):
-            if self.win32gui.IsWindowVisible(hwnd):
-                title = self.win32gui.GetWindowText(hwnd)
-                if title:
-                    rect = self.win32gui.GetWindowPlacement(hwnd)
-                    is_minimized = rect[1] == self.win32con.SW_SHOWMINIMIZED
-                    is_maximized = rect[1] == self.win32con.SW_SHOWMAXIMIZED
-
-                    # Get window position and size
-                    try:
-                        left, top, right, bottom = self.win32gui.GetWindowRect(
-                            hwnd)
-                        position = (left, top)
-                        size = (right - left, bottom - top)
-                    except BaseException:
-                        position = (0, 0)
-                        size = (0, 0)
-
-                    # Try to get PID
-                    try:
-                        import win32process
-                        _, pid = win32process.GetWindowThreadProcessId(hwnd)
-                    except BaseException:
-                        pid = 0
-
-                    windows.append(WindowInfo(
-                        title=title,
-                        pid=pid,
-                        hwnd=hwnd,
-                        is_minimized=is_minimized,
-                        is_maximized=is_maximized,
-                        position=position,
-                        size=size
-                    ))
-
-        self.win32gui.EnumWindows(callback, None)
-        return windows
+        
+        return await asyncio.to_thread(scan_windows)
 
     async def get_window_list(self) -> Dict:
         """Get list of open windows"""
@@ -439,7 +452,7 @@ class WindowManager:
             if is_windows() and self.win32gui:
                 if window_title:
                     # Find window by title
-                    windows = self._get_window_list_windows()
+                    windows = await self._get_window_list_windows()
                     titles = [w.title for w in windows]
                     best_match = process.extractOne(
                         window_title.lower(), [
@@ -448,7 +461,7 @@ class WindowManager:
                     if best_match and best_match[1] >= 60:
                         idx = [t.lower() for t in titles].index(best_match[0])
                         hwnd = windows[idx].hwnd
-                        self.win32gui.ShowWindow(
+                        await asyncio.to_thread(self.win32gui.ShowWindow,
                             hwnd, self.win32con.SW_MINIMIZE)
 
                         return {
@@ -459,8 +472,8 @@ class WindowManager:
                         }
                 else:
                     # Minimize active window
-                    hwnd = self.win32gui.GetForegroundWindow()
-                    self.win32gui.ShowWindow(hwnd, self.win32con.SW_MINIMIZE)
+                    hwnd = await asyncio.to_thread(self.win32gui.GetForegroundWindow)
+                    await asyncio.to_thread(self.win32gui.ShowWindow, hwnd, self.win32con.SW_MINIMIZE)
 
                     return {
                         'success': True,
@@ -489,7 +502,7 @@ class WindowManager:
         try:
             if is_windows() and self.win32gui:
                 if window_title:
-                    windows = self._get_window_list_windows()
+                    windows = await self._get_window_list_windows()
                     titles = [w.title for w in windows]
                     best_match = process.extractOne(
                         window_title.lower(), [
@@ -498,7 +511,7 @@ class WindowManager:
                     if best_match and best_match[1] >= 60:
                         idx = [t.lower() for t in titles].index(best_match[0])
                         hwnd = windows[idx].hwnd
-                        self.win32gui.ShowWindow(
+                        await asyncio.to_thread(self.win32gui.ShowWindow,
                             hwnd, self.win32con.SW_MAXIMIZE)
 
                         return {
@@ -508,8 +521,8 @@ class WindowManager:
                             'response': f"Maximized {windows[idx].title}"
                         }
                 else:
-                    hwnd = self.win32gui.GetForegroundWindow()
-                    self.win32gui.ShowWindow(hwnd, self.win32con.SW_MAXIMIZE)
+                    hwnd = await asyncio.to_thread(self.win32gui.GetForegroundWindow)
+                    await asyncio.to_thread(self.win32gui.ShowWindow, hwnd, self.win32con.SW_MAXIMIZE)
 
                     return {
                         'success': True,
@@ -536,11 +549,10 @@ class WindowManager:
         try:
             if is_windows():
                 # Windows+D hotkey
-                import pyautogui
-                pyautogui.keyDown('win')
-                pyautogui.keyDown('d')
-                pyautogui.keyUp('d')
-                pyautogui.keyUp('win')
+                await safe_automation.run_gui_action(pyautogui.keyDown, 'win')
+                await safe_automation.run_gui_action(pyautogui.keyDown, 'd')
+                await safe_automation.run_gui_action(pyautogui.keyUp, 'd')
+                await safe_automation.run_gui_action(pyautogui.keyUp, 'win')
 
                 return {
                     'success': True,
@@ -549,11 +561,10 @@ class WindowManager:
                 }
             elif is_macos():
                 # F11 or Command+F3
-                import pyautogui
-                pyautogui.keyDown('command')
-                pyautogui.keyDown('f3')
-                pyautogui.keyUp('f3')
-                pyautogui.keyUp('command')
+                await safe_automation.run_gui_action(pyautogui.keyDown, 'command')
+                await safe_automation.run_gui_action(pyautogui.keyDown, 'f3')
+                await safe_automation.run_gui_action(pyautogui.keyUp, 'f3')
+                await safe_automation.run_gui_action(pyautogui.keyUp, 'command')
 
                 return {
                     'success': True,
@@ -562,7 +573,7 @@ class WindowManager:
                 }
             else:
                 # Linux - try xdotool
-                run_command('xdotool key ctrl+alt+d')
+                await safe_automation.run_command('xdotool key ctrl+alt+d', shell=True)
 
                 return {
                     'success': True,
@@ -606,10 +617,10 @@ class WindowManager:
                 }
 
                 if snap_dir in key_map:
-                    pyautogui.keyDown('win')
-                    pyautogui.keyDown(key_map[snap_dir])
-                    pyautogui.keyUp(key_map[snap_dir])
-                    pyautogui.keyUp('win')
+                    await safe_automation.run_gui_action(pyautogui.keyDown, 'win')
+                    await safe_automation.run_gui_action(pyautogui.keyDown, key_map[snap_dir])
+                    await safe_automation.run_gui_action(pyautogui.keyUp, key_map[snap_dir])
+                    await safe_automation.run_gui_action(pyautogui.keyUp, 'win')
 
                     return {
                         'success': True,
@@ -639,7 +650,7 @@ class WindowManager:
         """Bring a window to front and focus it"""
         try:
             if is_windows() and self.win32gui:
-                windows = self._get_window_list_windows()
+                windows = await self._get_window_list_windows()
                 titles = [w.title for w in windows]
                 best_match = process.extractOne(
                     window_title.lower(), [
@@ -650,10 +661,10 @@ class WindowManager:
                     hwnd = windows[idx].hwnd
 
                     # Force bringing to foreground
-                    if self.win32gui.IsIconic(hwnd):
-                        self.win32gui.ShowWindow(
+                    if await asyncio.to_thread(self.win32gui.IsIconic, hwnd):
+                        await asyncio.to_thread(self.win32gui.ShowWindow,
                             hwnd, self.win32con.SW_RESTORE)
-                    self.win32gui.SetForegroundWindow(hwnd)
+                    await asyncio.to_thread(self.win32gui.SetForegroundWindow, hwnd)
 
                     return {
                         'success': True,
@@ -673,7 +684,7 @@ class WindowManager:
         """Close a window by matching its title"""
         try:
             if is_windows() and self.win32gui:
-                windows = self._get_window_list_windows()
+                windows = await self._get_window_list_windows()
                 titles = [w.title for w in windows]
                 best_match = process.extractOne(
                     window_title.lower(), [
@@ -682,7 +693,7 @@ class WindowManager:
                 if best_match and best_match[1] >= 60:
                     idx = [t.lower() for t in titles].index(best_match[0])
                     hwnd = windows[idx].hwnd
-                    self.win32gui.PostMessage(
+                    await asyncio.to_thread(self.win32gui.PostMessage,
                         hwnd, self.win32con.WM_CLOSE, 0, 0)
 
                     return {
@@ -700,16 +711,16 @@ class WindowManager:
         try:
             if is_windows() and self.win32gui:
                 import pyautogui
-                sw, sh = pyautogui.size()
-                hwnd = self.win32gui.GetForegroundWindow()
-                left, top, right, bottom = self.win32gui.GetWindowRect(hwnd)
+                sw, sh = await asyncio.to_thread(pyautogui.size)
+                hwnd = await asyncio.to_thread(self.win32gui.GetForegroundWindow)
+                left, top, right, bottom = await asyncio.to_thread(self.win32gui.GetWindowRect, hwnd)
                 w = right - left
                 h = bottom - top
 
                 x = (sw - w) // 2
                 y = (sh - h) // 2
 
-                self.win32gui.MoveWindow(hwnd, x, y, w, h, True)
+                await asyncio.to_thread(self.win32gui.MoveWindow, hwnd, x, y, w, h, True)
 
                 return {
                     'success': True,
@@ -726,20 +737,22 @@ class WindowManager:
         """Get information about the currently active/foreground window"""
         try:
             if is_windows() and self.win32gui:
-                hwnd = self.win32gui.GetForegroundWindow()
-                title = self.win32gui.GetWindowText(hwnd)
+                hwnd = await asyncio.to_thread(self.win32gui.GetForegroundWindow)
+                title = await asyncio.to_thread(self.win32gui.GetWindowText, hwnd)
                 if not title:
                     return None
                 
                 # Get PID
-                try:
-                    import win32process
-                    _, pid = win32process.GetWindowThreadProcessId(hwnd)
-                    proc = psutil.Process(pid)
-                    name = proc.name()
-                except:
-                    pid = 0
-                    name = "Unknown"
+                def get_proc_info():
+                    try:
+                        import win32process
+                        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                        proc = psutil.Process(pid)
+                        return pid, proc.name()
+                    except:
+                        return 0, "Unknown"
+                
+                pid, name = await asyncio.to_thread(get_proc_info)
                 
                 return {
                     'title': title,

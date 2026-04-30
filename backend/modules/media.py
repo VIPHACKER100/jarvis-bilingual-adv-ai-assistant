@@ -50,13 +50,11 @@ class MediaProcessor:
                     'response': 'Image file not found'
                 }
 
-            # Open image
-            image = Image.open(path)
+            # Open image asynchronously
+            image = await asyncio.to_thread(Image.open, path)
 
-            # Extract text
-            text = pytesseract.image_to_string(image)
-
-            # Clean up
+            # Extract text (offload to thread pool as it's CPU intensive)
+            text = await asyncio.to_thread(pytesseract.image_to_string, image)
             text = text.strip()
 
             log_command(f'OCR on {path.name}', 'ocr_image', True)
@@ -104,7 +102,7 @@ class MediaProcessor:
                 if page_number is not None:
                     # Extract specific page
                     if 0 <= page_number < len(reader.pages):
-                        text = reader.pages[page_number].extract_text()
+                        text = await asyncio.to_thread(reader.pages[page_number].extract_text)
                     else:
                         return {
                             'success': False,
@@ -115,7 +113,8 @@ class MediaProcessor:
                 else:
                     # Extract all pages
                     for page in reader.pages:
-                        text += page.extract_text() + "\n"
+                        page_text = await asyncio.to_thread(page.extract_text)
+                        text += (page_text or "") + "\n"
 
                 if text.strip():
                     log_command(f'PDF text extract from {path.name}', 'ocr_pdf', True)
@@ -131,11 +130,14 @@ class MediaProcessor:
             except BaseException:
                 pass  # Fall through to OCR
 
-            # Use OCR for scanned PDFs
-            images = convert_from_path(
-                str(path),
-                first_page=page_number,
-                last_page=page_number)
+            # Use OCR for scanned PDFs asynchronously
+            def convert_pdf():
+                return convert_from_path(
+                    str(path),
+                    first_page=page_number,
+                    last_page=page_number)
+            
+            images = await asyncio.to_thread(convert_pdf)
 
             if not images:
                 return {
@@ -147,7 +149,8 @@ class MediaProcessor:
 
             text = ""
             for image in images:
-                text += pytesseract.image_to_string(image) + "\n"
+                page_text = await asyncio.to_thread(pytesseract.image_to_string, image)
+                text += page_text + "\n"
 
             log_command(f'OCR on PDF {path.name}', 'ocr_pdf', True)
 
@@ -172,11 +175,11 @@ class MediaProcessor:
     async def extract_text_from_screenshot(self, language: str = 'en') -> Dict:
         """Take screenshot, extract text, and categorize content"""
         try:
-            # Take screenshot
-            screenshot = pyautogui.screenshot()
+            # Take screenshot asynchronously
+            screenshot = await asyncio.to_thread(pyautogui.screenshot)
 
             # Extract text
-            text = pytesseract.image_to_string(screenshot)
+            text = await asyncio.to_thread(pytesseract.image_to_string, screenshot)
             text = text.strip()
 
             # Categorize the extracted text
@@ -303,8 +306,8 @@ class MediaProcessor:
                     merger.append(str(path))
 
             output = Path(output_path).expanduser().resolve()
-            merger.write(str(output))
-            merger.close()
+            await asyncio.to_thread(merger.write, str(output))
+            await asyncio.to_thread(merger.close)
 
             log_command(f'merge {len(pdf_files)} PDFs', 'pdf_merge', True)
 
@@ -351,8 +354,11 @@ class MediaProcessor:
                     writer.add_page(reader.pages[page_num])
 
             output = Path(output_path).expanduser().resolve()
-            with open(output, 'wb') as output_file:
-                writer.write(output_file)
+            def write_pdf():
+                with open(output, 'wb') as output_file:
+                    writer.write(output_file)
+            
+            await asyncio.to_thread(write_pdf)
 
             log_command(f'split PDF {path.name}', 'pdf_split', True)
 
@@ -399,14 +405,18 @@ class MediaProcessor:
 
             output_dir.mkdir(exist_ok=True)
 
-            # Convert PDF to images
-            images = convert_from_path(str(path), dpi=dpi)
+            # Convert PDF to images asynchronously
+            images = await asyncio.to_thread(convert_from_path, str(path), dpi=dpi)
 
-            saved_files = []
-            for i, image in enumerate(images):
-                image_path = output_dir / f'page_{i + 1:03d}.png'
-                image.save(str(image_path), 'PNG')
-                saved_files.append(str(image_path))
+            def save_images():
+                saved_files = []
+                for i, image in enumerate(images):
+                    image_path = output_dir / f'page_{i + 1:03d}.png'
+                    image.save(str(image_path), 'PNG')
+                    saved_files.append(str(image_path))
+                return saved_files
+            
+            saved_files = await asyncio.to_thread(save_images)
 
             log_command(f'PDF to images: {path.name}', 'pdf_to_images', True)
 
@@ -456,19 +466,22 @@ class MediaProcessor:
 
             output = Path(output_path).expanduser().resolve()
 
-            # Save as PDF
-            if len(images) > 1:
-                images[0].save(
-                    str(output),
-                    'PDF',
-                    resolution=100.0,
-                    save_all=True,
-                    append_images=list(
-                        images[i] for i in range(
-                            1,
-                            len(images))))
-            else:
-                images[0].save(str(output), 'PDF', resolution=100.0)
+            # Save as PDF asynchronously
+            def save_pdf():
+                if len(images) > 1:
+                    images[0].save(
+                        str(output),
+                        'PDF',
+                        resolution=100.0,
+                        save_all=True,
+                        append_images=list(
+                            images[i] for i in range(
+                                1,
+                                len(images))))
+                else:
+                    images[0].save(str(output), 'PDF', resolution=100.0)
+            
+            await asyncio.to_thread(save_pdf)
 
             log_command(f'images to PDF: {len(images)} images', 'images_to_pdf', True)
 
@@ -523,9 +536,9 @@ class MediaProcessor:
                     'RGBA', 'LA', 'P'):
                 image = image.convert('RGB')
 
-            # Save
+            # Save asynchronously
             output = Path(output_path).expanduser().resolve()
-            image.save(str(output), format.upper())
+            await asyncio.to_thread(image.save, str(output), format.upper())
 
             log_command(f'convert image {path.name} to {format}', 'convert_image', True)
 
@@ -591,9 +604,9 @@ class MediaProcessor:
                     'response': 'Please specify width or height'
                 }
 
-            # Save
+            # Save asynchronously
             output = Path(output_path).expanduser().resolve()
-            image.save(str(output))
+            await asyncio.to_thread(image.save, str(output))
 
             log_command(f'resize image {path.name}', 'resize_image', True)
 
@@ -637,15 +650,18 @@ class MediaProcessor:
             image = Image.open(path)
             original_size = path.stat().st_size
 
-            # Save with compression
+            # Save with compression asynchronously
             output = Path(output_path).expanduser().resolve()
 
-            if path.suffix.lower() in ['.jpg', '.jpeg']:
-                image.save(str(output), 'JPEG', quality=quality, optimize=True)
-            elif path.suffix.lower() == '.png':
-                image.save(str(output), 'PNG', optimize=True)
-            else:
-                image.save(str(output), optimize=True)
+            def do_compress():
+                if path.suffix.lower() in ['.jpg', '.jpeg']:
+                    image.save(str(output), 'JPEG', quality=quality, optimize=True)
+                elif path.suffix.lower() == '.png':
+                    image.save(str(output), 'PNG', optimize=True)
+                else:
+                    image.save(str(output), optimize=True)
+            
+            await asyncio.to_thread(do_compress)
 
             new_size = output.stat().st_size
             reduction = ((original_size - new_size) / original_size) * 100
@@ -733,15 +749,20 @@ class MediaProcessor:
             target_exts = extensions.get(file_type.lower(), [])
             found_files = []
 
-            for root, _, files in os.walk(folder):
-                for file in files:
-                    if not target_exts or Path(
-                            file).suffix.lower() in target_exts:
-                        found_files.append({
-                            'name': file,
-                            'path': os.path.join(root, file),
-                            'size': os.path.getsize(os.path.join(root, file))
-                        })
+            def do_scan():
+                found_files = []
+                for root, _, files in os.walk(folder):
+                    for file in files:
+                        if not target_exts or Path(
+                                file).suffix.lower() in target_exts:
+                            found_files.append({
+                                'name': file,
+                                'path': os.path.join(root, file),
+                                'size': os.path.getsize(os.path.join(root, file))
+                            })
+                return found_files
+
+            found_files = await asyncio.to_thread(do_scan)
 
             # Limit results for performance
             limited_files = list(found_files[i]
@@ -762,12 +783,15 @@ class MediaProcessor:
     async def make_drawing(self, language: str = 'en') -> Dict:
         """Open a drawing application (MS Paint fallback)"""
         try:
-            if is_windows():
-                os.startfile('mspaint.exe')  # type: ignore
-            elif is_macos():
-                subprocess.run(['open', '-a', 'Preview'])
-            else:
-                subprocess.run(['pinta'])
+            def do_draw():
+                if is_windows():
+                    os.startfile('mspaint.exe')  # type: ignore
+                elif is_macos():
+                    subprocess.run(['open', '-a', 'Preview'])
+                else:
+                    subprocess.run(['pinta'])
+            
+            await asyncio.to_thread(do_draw)
 
             return {
                 'success': True,
@@ -779,16 +803,19 @@ class MediaProcessor:
     async def get_selected_text(self, language: str = 'en') -> Dict:
         """Get currently selected text on screen (via clipboard)"""
         try:
-            # Press Ctrl+C (or Cmd+C)
-            if is_macos():
-                pyautogui.hotkey('command', 'c')
-            else:
-                pyautogui.hotkey('ctrl', 'c')
+            # Press Ctrl+C (or Cmd+C) asynchronously
+            def copy_to_clipboard():
+                if is_macos():
+                    pyautogui.hotkey('command', 'c')
+                else:
+                    pyautogui.hotkey('ctrl', 'c')
+            
+            await asyncio.to_thread(copy_to_clipboard)
 
             # Wait a bit for clipboard update
             await asyncio.sleep(0.5)
 
-            selected_text = pyperclip.paste()
+            selected_text = await asyncio.to_thread(pyperclip.paste)
 
             return {
                 'success': True,
