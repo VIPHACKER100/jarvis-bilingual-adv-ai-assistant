@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  jarvis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - BACKEND_PORT=8000
+      - FRONTEND_URL=http://localhost:5173
+      - LOG_LEVEL=INFO
+      # Add API keys in a .env file
+    env_file:
+      - .env
+    restart: unless-stopped

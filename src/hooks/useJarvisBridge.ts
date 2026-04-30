@@ -1,80 +1,26 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { websocketService } from '../services/websocketService';
 import { apiClient } from '../services/apiClient';
 import {
   SystemStatus,
   CommandResponse,
-  ConfirmationRequest,
-  ConnectionStatus,
   WebSocketMessage
 } from '../types/bridge';
 import { useNotifications } from '../context/NotificationContext';
+import { useJarvisStore } from '../store/jarvisStore';
 
-interface UseJarvisBridgeReturn {
-  // Connection
-  isConnected: boolean;
-  connectionStatus: ConnectionStatus;
+export function useJarvisBridge() {
+  const { 
+    isConnected, setConnected,
+    connectionStatus, setConnectionStatus,
+    setSystemStatus,
+    lastResponse, setLastResponse,
+    pendingConfirmation, setPendingConfirmation,
+    setBridgeError
+  } = useJarvisStore();
 
-  // System status
-  systemStatus: SystemStatus | null;
-
-  // Commands
-  sendCommand: (command: string, language?: 'en' | 'hi' | 'hinglish') => void;
-  lastResponse: CommandResponse | null;
-
-  // Confirmations
-  pendingConfirmation: ConfirmationRequest | null;
-  confirmCommand: (approved: boolean) => void;
-
-  // Error
-  error: string | null;
-
-  // Actions
-  reconnect: () => void;
-  requestStatus: () => void;
-}
-
-export function useJarvisBridge(): UseJarvisBridgeReturn {
-  // State
-  const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
-  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
-  const [lastResponse, setLastResponse] = useState<CommandResponse | null>(null);
-  const [pendingConfirmation, setPendingConfirmation] = useState<ConfirmationRequest | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const { addNotification } = useNotifications();
-
-  // Refs
   const confirmationTimeoutRef = useRef<number | null>(null);
-
-  // Connect on mount
-  useEffect(() => {
-    websocketService.connect();
-
-    // Subscribe to status changes
-    const unsubscribeStatus = websocketService.onStatusChange((status) => {
-      setConnectionStatus(status);
-      setIsConnected(status === 'connected');
-    });
-
-    // Subscribe to messages
-    const unsubscribeMessages = websocketService.onMessage((message: WebSocketMessage) => {
-      handleWebSocketMessage(message);
-    });
-
-    // Health check
-    checkBackendHealth();
-
-    // Cleanup
-    return () => {
-      unsubscribeStatus();
-      unsubscribeMessages();
-      websocketService.disconnect();
-      if (confirmationTimeoutRef.current) {
-        clearTimeout(confirmationTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Handle WebSocket messages
   const handleWebSocketMessage = useCallback((message: WebSocketMessage) => {
@@ -98,10 +44,9 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
               command_text: response.data?.command_text || '',
               language: response.language,
               response: response.response,
-              timeout: 30, // Default timeout
+              timeout: 30,
             });
 
-            // Auto-clear after timeout
             if (confirmationTimeoutRef.current) {
               clearTimeout(confirmationTimeoutRef.current);
             }
@@ -113,7 +58,7 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
         break;
 
       case 'error':
-        setError(message.message || 'Unknown error');
+        setBridgeError(message.message || 'Unknown error');
         break;
 
       case 'notification':
@@ -140,36 +85,47 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
         break;
 
       case 'pong':
-        // Keep-alive received
         break;
     }
-  }, []);
+  }, [setSystemStatus, setLastResponse, setPendingConfirmation, setBridgeError, addNotification]);
 
-  // Check backend health
-  const checkBackendHealth = useCallback(async () => {
-    try {
-      await apiClient.healthCheck();
-    } catch (err) {
-      console.warn('Backend health check failed:', err);
-    }
-  }, []);
+  // Connect on mount
+  useEffect(() => {
+    websocketService.connect();
 
-  // Send command
+    const unsubscribeStatus = websocketService.onStatusChange((status) => {
+      setConnectionStatus(status);
+      setConnected(status === 'connected');
+    });
+
+    const unsubscribeMessages = websocketService.onMessage((message: WebSocketMessage) => {
+      handleWebSocketMessage(message);
+    });
+
+    apiClient.healthCheck().catch(err => console.warn('Health check failed:', err));
+
+    return () => {
+      unsubscribeStatus();
+      unsubscribeMessages();
+      websocketService.disconnect();
+      if (confirmationTimeoutRef.current) {
+        clearTimeout(confirmationTimeoutRef.current);
+      }
+    };
+  }, [setConnectionStatus, setConnected, handleWebSocketMessage]);
+
+  // Actions
   const sendCommand = useCallback((command: string, language: 'en' | 'hi' | 'hinglish' = 'en') => {
     if (!isConnected) {
-      setError('Not connected to backend');
+      setBridgeError('Not connected to backend');
       return;
     }
-
-    setError(null);
+    setBridgeError(null);
     websocketService.sendCommand(command, language);
-  }, [isConnected]);
+  }, [isConnected, setBridgeError]);
 
-  // Confirm command
   const confirmCommand = useCallback(async (approved: boolean) => {
-    if (!pendingConfirmation) {
-      return;
-    }
+    if (!pendingConfirmation) return;
 
     try {
       const result = await apiClient.confirmCommand(
@@ -188,35 +144,21 @@ export function useJarvisBridge(): UseJarvisBridgeReturn {
         confirmationTimeoutRef.current = null;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Confirmation failed');
+      setBridgeError(err instanceof Error ? err.message : 'Confirmation failed');
       setPendingConfirmation(null);
     }
-  }, [pendingConfirmation]);
+  }, [pendingConfirmation, setLastResponse, setPendingConfirmation, setBridgeError]);
 
-  // Reconnect
   const reconnect = useCallback(() => {
-    setError(null);
+    setBridgeError(null);
     websocketService.disconnect();
-    setTimeout(() => {
-      websocketService.connect();
-    }, 100);
-  }, []);
-
-  // Request status manually
-  const requestStatus = useCallback(() => {
-    websocketService.requestStatus();
-  }, []);
+    setTimeout(() => websocketService.connect(), 100);
+  }, [setBridgeError]);
 
   return {
-    isConnected,
-    connectionStatus,
-    systemStatus,
     sendCommand,
-    lastResponse,
-    pendingConfirmation,
     confirmCommand,
-    error,
     reconnect,
-    requestStatus,
+    requestStatus: () => websocketService.requestStatus(),
   };
 }

@@ -6,22 +6,17 @@ from datetime import datetime
 from modules.system import system_module
 from utils.logger import logger, log_system_event
 from models import WebSocketMessage, WebSocketResponse
+from utils.websocket_manager import manager
 
 router = APIRouter(tags=["WebSocket"])
-
-# Connected clients
-connected_clients: Dict[str, WebSocket] = {}
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = None):
     """Real-time bidirectional communication"""
     from handlers.command_handler import handle_command
     
-    await websocket.accept()
     cid = client_id or f"client_{id(websocket)}"
-    connected_clients[cid] = websocket
-    
-    logger.info(f"WebSocket client connected: {cid}")
+    await manager.connect(websocket, cid)
     
     try:
         while True:
@@ -32,10 +27,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = No
             try:
                 message = WebSocketMessage(**message_dict)
             except Exception as e:
-                await websocket.send_json(WebSocketResponse(
+                await manager.send_personal_message(WebSocketResponse(
                     type="error",
                     data=f"Invalid message format: {str(e)}"
-                ).dict())
+                ).dict(), cid)
                 continue
 
             msg_type = message.type
@@ -53,41 +48,36 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = No
                         )
                         
                         # Send result back
-                        await websocket.send_json(WebSocketResponse(
+                        await manager.send_personal_message(WebSocketResponse(
                             type="command_result",
                             data=result
-                        ).dict())
+                        ).dict(), cid)
                     except Exception as e:
                         logger.error(f"Error executing background command: {e}")
-                        try:
-                            await websocket.send_json(WebSocketResponse(
-                                type="error",
-                                data=f"Command execution failed: {str(e)}"
-                            ).dict())
-                        except: pass
+                        await manager.send_personal_message(WebSocketResponse(
+                            type="error",
+                            data=f"Command execution failed: {str(e)}"
+                        ).dict(), cid)
 
                 asyncio.create_task(execute_task(message, cid))
             
             elif msg_type == "ping":
-                await websocket.send_json(WebSocketResponse(
+                await manager.send_personal_message(WebSocketResponse(
                     type="pong"
-                ).dict())
+                ).dict(), cid)
             
             elif msg_type == "get_status":
                 status = await system_module.get_system_status()
-                await websocket.send_json(WebSocketResponse(
+                await manager.send_personal_message(WebSocketResponse(
                     type="system_status",
                     data=status
-                ).dict())
+                ).dict(), cid)
                 
     except WebSocketDisconnect:
-        connected_clients.pop(cid, None)
-        logger.info(f"WebSocket client disconnected: {cid}")
+        manager.disconnect(cid)
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
-    finally:
-        if cid in connected_clients:
-            connected_clients.pop(cid, None)
+        manager.disconnect(cid)
 
 async def broadcast_notification(title: str, message: str, type: str = "info", duration: int = 5000):
     """Broadcast a UI notification to all connected WebSocket clients"""
@@ -101,21 +91,5 @@ async def broadcast_notification(title: str, message: str, type: str = "info", d
         }
     )
     
-    payload = response.dict()
-    
-    if not connected_clients:
-        return 0
-        
-    disconnected = []
-    count = 0
-    for cid, ws in connected_clients.items():
-        try:
-            await ws.send_json(payload)
-            count += 1
-        except:
-            disconnected.append(cid)
-            
-    for cid in disconnected:
-        connected_clients.pop(cid, None)
-        
-    return count
+    await manager.broadcast(response.dict())
+    return len(manager.active_connections)

@@ -100,19 +100,49 @@ class BilingualParser:
         text_lower = text.lower().strip()
         lang = self.detect_language(text_lower)
 
+        from rapidfuzz import fuzz
+        
         # Try to match against Hindi command phrases (sorted by length to match longest first)
         sorted_phrases = sorted(self.command_map.items(), key=lambda x: len(x[0]), reverse=True)
         
-        for phrase, command_key in sorted_phrases:
+        best_match = None
+        best_score = 0
+        best_phrase = ""
+        
+        for phrase, cmd_key in sorted_phrases:
+            # First try exact match (fastest)
             if phrase in text_lower:
-                # Special handling for "search" to avoid matching "search file" incorrectly
-                if phrase == 'search' and 'search file' in text_lower:
-                    continue
-                    
-                # Extract parameters (text before or after the command phrase)
-                phrase_index = text_lower.find(phrase)
-                params_after = text[phrase_index + len(phrase):].strip()  # type: ignore
-                params_before = text[:phrase_index].strip()  # type: ignore
+                score = 100
+            else:
+                # Fallback to fuzzy substring match
+                score = fuzz.partial_ratio(phrase, text_lower)
+                
+            if score > best_score and score >= 85: # 85% threshold for fuzzy match
+                best_score = score
+                best_match = cmd_key
+                best_phrase = phrase
+                if score == 100:
+                    break # Perfect match found
+        
+        if best_match:
+            command_key = best_match
+            phrase = best_phrase
+            
+            # Special handling for "search" to avoid matching "search file" incorrectly
+            if phrase == 'search' and 'search file' in text_lower:
+                pass # Don't return here, let English fallback handle it if no other match
+            else:
+                # For fuzzy matches, finding the exact index for parameter extraction is tricky.
+                # We'll use a simple approach: if it was a perfect match, we extract exactly.
+                # If fuzzy, we might just pass the whole text as params and clean it later.
+                if best_score == 100:
+                    phrase_index = text_lower.find(phrase)
+                    params_after = text[phrase_index + len(phrase):].strip()
+                    params_before = text[:phrase_index].strip()
+                else:
+                    # For fuzzy, we can't easily split. Assume the whole text (minus some noise) is the param or there are no params
+                    params_after = text_lower
+                    params_before = ""
                 
                 # Clean up Hindi trailing noise words
                 noise_hindi_words = {
@@ -126,16 +156,15 @@ class BilingualParser:
                 for _ in range(2):
                     for word in noise_hindi_words:
                         if clean_after.endswith(" " + word):
-                            clean_after = clean_after[:-(len(word)+1)].strip()  # type: ignore
+                            clean_after = clean_after[:-(len(word)+1)].strip()
                         elif clean_after == word:
                             clean_after = ""
                         if clean_after.startswith(word + " "):
-                            clean_after = clean_after[len(word)+1:].strip()  # type: ignore
+                            clean_after = clean_after[len(word)+1:].strip()
                         elif clean_after == word:
                             clean_after = ""
                 
-                # In Hindi, nouns often come before the verb/phrase (e.g., "Aryan folder kholo")
-                # In English, parameters usually come after (e.g., "Open folder Aryan")
+                # Parameter extraction logic
                 if lang == 'hi':
                     if params_before and clean_after:
                         params = f"{params_before} {clean_after}"
@@ -156,6 +185,11 @@ class BilingualParser:
                 # If parameters were cleaned but now look like a search, change command_key
                 if clean_params and command_key in ['open_browser', 'open_app'] and ('search' in text_lower or 'new tab' in text_lower):
                     return 'google_search', lang, clean_params
+                    
+                # If fuzzy match, clean_params might just be the whole string. 
+                # That's fine for search, but for things like 'shutdown' we don't want params.
+                if best_score < 100 and command_key in ['shutdown', 'restart', 'sleep', 'mute', 'volume_up', 'volume_down']:
+                    clean_params = None
                     
                 return command_key, lang, clean_params if clean_params else None
 

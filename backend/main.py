@@ -15,6 +15,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from config import BACKEND_PORT, FRONTEND_URL, PLATFORM
 from modules.system import system_module
@@ -58,12 +61,19 @@ async def lifespan(app: FastAPI):
     logger.info("JARVIS Backend shutting down...")
     log_system_event("SHUTDOWN", {})
 
+# Initialize Limiter
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per minute"])
+
 app = FastAPI(
     title="JARVIS Backend",
     description="Modular AI assistant backend with high-fidelity HUD support",
     version="3.4.1",
     lifespan=lifespan
 )
+
+# Set limiter state and handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS middleware
 app.add_middleware(
@@ -148,28 +158,18 @@ async def favicon():
 
 async def broadcast_system_status():
     """Broadcast system status to all connected clients every 5 seconds"""
-    from routers.websocket import connected_clients
+    from utils.websocket_manager import manager
     while True:
         try:
             await asyncio.sleep(5)
-            if connected_clients:
+            if manager.active_connections:
                 status = await system_module.get_system_status()
                 message = {
                     "type": "system_status",
                     "data": status,
                     "timestamp": datetime.now().isoformat()
                 }
-                # Send to all connected clients
-                disconnected = []
-                for client_id, ws in connected_clients.items():
-                    try:
-                        await ws.send_json(message)
-                    except:
-                        disconnected.append(client_id)
-                
-                # Remove disconnected clients
-                for client_id in disconnected:
-                    connected_clients.pop(client_id, None)
+                await manager.broadcast(message)
                         
         except asyncio.CancelledError:
             break
