@@ -42,6 +42,17 @@ class ApiClient {
     return response.json();
   }
 
+  // Get performance history
+  async getPerformanceHistory(limit: number = 60): Promise<{ success: boolean; data: any[] }> {
+    const response = await fetch(`${this.baseUrl}/system/performance/history?limit=${limit}`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get performance history');
+    }
+    return response.json();
+  }
+
   // Execute command
   async executeCommand(command: string, language: 'en' | 'hi' = 'en'): Promise<CommandResponse> {
     const response = await fetch(`${this.baseUrl}/command`, {

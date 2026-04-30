@@ -187,6 +187,17 @@ class MemoryManager:
                     )
                 ''')
 
+                # Performance metrics table
+                await db.execute('''
+                    CREATE TABLE IF NOT EXISTS performance_metrics (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT NOT NULL,
+                        event_loop_lag REAL NOT NULL,
+                        cpu_percent REAL,
+                        memory_percent REAL
+                    )
+                ''')
+
                 # Create indexes for faster queries
                 await db.execute('''
                     CREATE INDEX IF NOT EXISTS idx_conversations_timestamp
@@ -203,6 +214,10 @@ class MemoryManager:
                 await db.execute('''
                     CREATE INDEX IF NOT EXISTS idx_memory_key
                     ON memory(key)
+                ''')
+                await db.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_performance_timestamp
+                    ON performance_metrics(timestamp)
                 ''')
 
                 await db.commit()

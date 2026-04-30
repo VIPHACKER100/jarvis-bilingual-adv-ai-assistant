@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
+from config import VERSION
 
 # --- Base Responses ---
 
@@ -10,7 +11,7 @@ class BaseResponse(BaseModel):
     error: Optional[str] = None
     response_time: Optional[float] = None
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
-    version: str = "3.4.1"
+    version: str = VERSION
 
 # --- Command Models ---
 

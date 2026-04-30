@@ -1,4 +1,4 @@
-# JARVIS API Documentation (v2.2.2)
+# JARVIS API Documentation (v3.4.1)
 
 Complete API reference for JARVIS Backend.
 
@@ -113,7 +113,8 @@ GET /api/system/status
   },
   "uptime": 86400,
   "volume": 75,
-  "platform": "Windows"
+  "platform": "Windows",
+  "event_loop_lag": 1.5
 }
 ```
 
@@ -824,6 +825,58 @@ GET /api/memory/facts?category=job
 
 ---
 
+## Automation & Tasks
+
+### Create Scheduled Task
+
+```http
+POST /api/automation/task
+Content-Type: application/json
+
+{
+  "name": "Nightly Backup",
+  "description": "Copy projects to backup drive",
+  "command": "search for projects and copy to D:/Backups",
+  "schedule_type": "daily",
+  "schedule_time": "02:00",
+  "days": ["Monday", "Wednesday", "Friday"],
+  "condition": "battery > 50"
+}
+```
+
+**Fields:**
+- `schedule_type`: `daily`, `once`, `interval`
+- `condition`: (Optional) System state constraint (e.g., `cpu < 30`, `battery > 20`)
+
+### List Tasks
+
+```http
+GET /api/automation/tasks
+```
+
+### Create Macro
+
+```http
+POST /api/automation/macro
+Content-Type: application/json
+
+{
+  "name": "Dev Mode",
+  "description": "Open development environment",
+  "commands": [
+    "open vscode",
+    "open chrome",
+    "open terminal"
+  ]
+}
+```
+
+### Run Macro
+
+```http
+POST /api/automation/macro/{macro_id}/run
+```
+
 ## WebSocket Protocol
 
 ### Connect
@@ -913,7 +966,14 @@ Currently no rate limiting for local usage. Future versions may implement limits
 
 ## Changelog
 
-### v2.2.0
+### v3.4.1
+
+- **Async Migration**: Refactored backend to fully non-blocking asynchronous architecture.
+- **Performance Observability**: Added `event_loop_lag` telemetry to system status.
+- **Conditional Automation**: Added support for `condition` field in automation tasks (e.g., CPU/Battery checks).
+- **HUD Performance Feedback**: Visual glitch/vibration effects in UI based on backend health.
+
+### v3.4.0
 
 - Added Neural Memory System (`/api/memory/*`) for conversation tracking and generic facts.
 - Added detailed User Analytics (interaction volume, popular commands, language breakdown).

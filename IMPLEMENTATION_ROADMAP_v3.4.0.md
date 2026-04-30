@@ -63,6 +63,21 @@ This roadmap documents the transition from a monolithic architecture (v2.1.0) to
 - [x] **Deep Network Scan**: Track and report established network connections.
 - [x] **Security Alerts**: Broadcast real-time warnings to HUD via WebSockets.
 
+## ✅ Phase 10: Performance Hardening & Async Migration (v3.4.1) (DONE)
+
+- [x] **Full Async Refactoring**: Migration of all backend routers and modules to non-blocking `async/await` patterns.
+- [x] **Worker Thread Offloading**: Legacy I/O, GUI automation, and OCR tasks wrapped in `asyncio.to_thread` for zero-lag responsiveness.
+- [x] **Real-time Observability HUD**: Integrated event loop lag monitoring into the System Diagnostics panel.
+- [x] **Visual Health Feedback**: Implemented "Vibration" and "Glitch" HUD effects triggered by backend performance degradation.
+- [x] **Intelligent Task Triggers**: Added support for condition-based task execution (battery, CPU thresholds) in `AutomationManager`.
+
+## ✅ Phase 11: Real-time Performance Analytics (v3.4.2) (DONE)
+
+- [x] **Persistent Metric Logging**: Implemented background saving of event loop lag, CPU, and RAM usage every 5 seconds.
+- [x] **Diagnostic Data API**: Created historical performance endpoints with configurable lookback limits.
+- [x] **Performance Timeline HUD**: Added a new reactive trend chart to the Diagnostics panel for real-time and historical health visualization.
+- [x] **Automated Data Retention**: Added cleanup logic to prune performance logs older than 7 days.
+
 ---
 
 ## Technical Debt & Maintenance
@@ -74,6 +89,6 @@ This roadmap documents the transition from a monolithic architecture (v2.1.0) to
 ---
 
 **Lead Developer**: VIPHACKER100 (Aryan Ahirwar)  
-**Project Version**: 3.4.0
-**Status**: STABLE RELEASE (UPGRADED)
-**Last Updated**: 2026-04-28
+**Project Version**: 3.4.1
+**Status**: STABLE RELEASE (OPTIMIZED)
+**Last Updated**: 2026-05-01

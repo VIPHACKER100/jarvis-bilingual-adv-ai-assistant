@@ -32,7 +32,7 @@ sys.path.insert(0, str(bundle_dir))
 
 # Import and run main (Import after path adjustment)
 try:
-    from config import BACKEND_PORT, LOGS_DIR, DATA_DIR
+    from config import BACKEND_PORT, LOGS_DIR, DATA_DIR, VERSION
     from main import app
     import uvicorn
     import traceback
@@ -68,9 +68,9 @@ if __name__ == "__main__":
     
     try:
         safe_print("=" * 60)
-        safe_print("JARVIS AI Assistant v3.4.1")
-        safe_print("Production Hardened Backend")
-        safe_print("Made by VIPHACKER100")
+        safe_print(f"JARVIS AI Assistant v{VERSION}")
+        safe_print("Diagnostic Analytics & Async Architecture")
+        safe_print("Developed by VIPHACKER100")
         safe_print("=" * 60)
         safe_print(f"\nStarting JARVIS Backend Server...")
         safe_print(f"Data Directory: {DATA_DIR}")

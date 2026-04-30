@@ -202,7 +202,7 @@ websocketService.connect() → ws://localhost:8000/ws
 - `PUT /api/memory/fact/{id}` - Update fact ID
 - `DELETE /api/memory/fact/{id}` - Delete fact ID
 - `GET /api/memory/facts` - Get facts
-- `POST /api/automation/task` - Create task
+- `POST /api/automation/task` - Create task (Supports 'condition' field v3.4.1)
 - `GET /api/automation/tasks` - Get tasks
 - `POST /api/automation/macro` - Create macro
 - `GET /api/automation/macros` - Get macros

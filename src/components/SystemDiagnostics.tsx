@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { Cpu, HardDrive, Battery, Network, Globe, Activity } from 'lucide-react';
+import { PerformanceHistory } from './PerformanceHistory';
 
 interface SystemDiagnosticsProps {
   systemStatus: {
@@ -188,6 +189,9 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
           </div>
         )}
       </div>
+
+      {/* Performance Analytics Chart */}
+      <PerformanceHistory />
 
       {/* Platform & Context Information */}
       <div className="space-y-3">

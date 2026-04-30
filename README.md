@@ -20,16 +20,15 @@
 
 ---
 
-## 🌟 Modern Capabilities (v3.4.0)
+## 🌟 Modern Capabilities (v3.4.1)
 
-### 🚀 **What's New? (v3.4.0)**
+### 🚀 **What's New? (v3.4.1)**
 
-- 💬 **Neural Chat Assist** - JARVIS analyzes your active WhatsApp screen via OCR and drafts a contextually-aware, bilingual reply using the LLM — auto-copied to clipboard. Trigger: `"draft a reply"` / `"उत्तर लिखो"`.
-- 🛡️ **Neural Security Matrix (Phase 8)** - Real-time Process Guardian with blacklist-driven threat detection, one-click quarantine (suspend/resume/terminate), and full network deep scan with PID tracing.
-- ⚡ **Performance Hardening (Phase 10)** - Semantic context pruning (25-entry TTL with LLM summarization), system status caching (<1ms cached responses), and mobile UI memoization reduce resource usage by ~75%.
-- 🧠 **Neural Memory Map (Phase 9)** - Advanced file-based cognitive foundation using Markdown nodes (`personality.md`, `user.md`, `security.md`, `projects.md`). JARVIS now remembers your identity, preferences, architecture decisions, and active projects.
-- 👁️‍🗨️ **Advanced Visual Intelligence (Phase 7)** - Document classification (Legal, Financial, Technical) and entity extraction from screenshots. Proactively surfaces key facts before you even ask.
-- 📱 **Mobile Ecosystem Sync** - A dedicated touch-optimized dashboard with real-time security alerts, hardware telemetry, and memoized rendering for zero-lag mobile experience.
+- ⚡ **High-Performance Async Backend** - Full migration to a non-blocking asynchronous architecture. Legacy I/O, GUI automation, and OCR tasks are now offloaded to worker threads, ensuring zero event loop lag.
+- 👁️ **Real-Time Observability HUD** - New "Core Lifecycle" monitoring in the System Diagnostics panel. Visual "Vibration" and "Glitch" effects on the Arc Reactor provide instant feedback on backend responsiveness.
+- ⚙️ **Intelligent Conditional Automation** - Automation tasks now support complex execution conditions (e.g., `battery < 20`, `cpu > 80`). Tasks only trigger when system state constraints are met.
+- 💬 **Neural Chat Assist (v2)** - Enhanced context-aware WhatsApp drafting with improved bilingual LLM prompts and faster OCR processing.
+- 🛡️ **Neural Security Matrix (v2)** - Process Guardian now monitors event loop health to detect "noisy" processes that might be impacting system performance.
 
 ---
 

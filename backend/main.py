@@ -19,7 +19,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from config import BACKEND_PORT, FRONTEND_URL, PLATFORM
+from config import BACKEND_PORT, FRONTEND_URL, PLATFORM, VERSION
 from modules.system import system_module
 from modules.automation import automation_manager
 from utils.logger import logger, log_system_event
@@ -41,11 +41,9 @@ BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     logger.info("JARVIS Backend starting up (Modular Architecture)...")
-    log_system_event("STARTUP", {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
-        "version": "3.4.1"
-    })
+        "version": VERSION
     
     # Initialize managers
     await memory_manager.initialize()
@@ -71,7 +69,7 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["200 per minute"]
 app = FastAPI(
     title="JARVIS Backend",
     description="Modular AI assistant backend with high-fidelity HUD support",
-    version="3.4.1",
+    version=VERSION,
     lifespan=lifespan
 )
 
@@ -213,6 +211,9 @@ async def favicon():
         return FileResponse(favicon_path)
     return Response(status_code=404)
 
+# Global state for performance monitoring
+current_event_loop_lag = 0.0
+
 async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 100.0):
     """Monitor event loop latency to detect blocking calls"""
     logger.info(f"Event loop monitor started (threshold={threshold_ms}ms)")
@@ -226,9 +227,12 @@ async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 10
             actual_delay = (end - start)
             lag_ms = (actual_delay - interval) * 1000
             
+            global current_event_loop_lag
+            current_event_loop_lag = round(lag_ms, 2)
+            
             if lag_ms > threshold_ms:
                 logger.warning(f"CRITICAL: Event loop lag detected! {lag_ms:.2f}ms. Some code is blocking the loop.")
-                log_system_event("EVENT_LOOP_LAG", {"lag_ms": round(lag_ms, 2)})
+                log_system_event("EVENT_LOOP_LAG", {"lag_ms": current_event_loop_lag})
             
         except asyncio.CancelledError:
             break
@@ -239,11 +243,23 @@ async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 10
 async def broadcast_system_status():
     """Broadcast system status to all connected clients every 5 seconds"""
     from utils.websocket_manager import manager
+    from modules.memory import memory_manager
     while True:
         try:
             await asyncio.sleep(5)
+            status = await system_module.get_system_status()
+            
+            # Update status with current lag before broadcasting
+            status.event_loop_lag = current_event_loop_lag
+            
+            # Save to database for history
+            await memory_manager.save_performance_metric(
+                current_event_loop_lag,
+                status.cpu.percent,
+                status.memory.percent
+            )
+            
             if manager.active_connections:
-                status = await system_module.get_system_status()
                 message = {
                     "type": "system_status",
                     "data": status,
@@ -282,7 +298,7 @@ else:
         return {
             "status": "online",
             "system": "JARVIS",
-            "version": "3.4.1",
+            "version": VERSION,
             "platform": PLATFORM,
             "developer": "VIPHACKER100",
             "note": "Frontend directory not found"

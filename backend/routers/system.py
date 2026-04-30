@@ -78,3 +78,10 @@ async def get_weather(city: Optional[str] = None, language: str = "en"):
 async def google_search(query: str, language: str = "en"):
     """Open web browser for Google search"""
     return await system_module.google_search(query, language)
+
+@router.get("/performance/history")
+async def get_performance_history(limit: int = Query(60, ge=1, le=1440)):
+    """Get historical performance metrics"""
+    from modules.memory import memory_manager
+    history = await memory_manager.get_performance_history(limit)
+    return {"success": True, "data": history}
