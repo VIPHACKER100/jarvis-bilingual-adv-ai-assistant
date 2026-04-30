@@ -40,6 +40,7 @@ export interface SystemStatus {
     process: string;
   } | string | null;
   context_suggestion?: string | null;
+  event_loop_lag?: number;
 }
 
 export interface CommandRequest {

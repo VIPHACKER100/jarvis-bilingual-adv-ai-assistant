@@ -14,7 +14,8 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
     mode, 
     language, 
     currentSuggestion, setCurrentSuggestion,
-    transcript 
+    transcript,
+    systemStatus
   } = useJarvisStore();
 
   return (
@@ -57,6 +58,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
         isActive={mode !== AppMode.IDLE}
         onClick={onToggleActivation}
         language={language === Language.HINDI ? 'hi' : 'en'}
+        eventLoopLag={systemStatus?.event_loop_lag}
       />
 
       {currentSuggestion && (

@@ -183,7 +183,7 @@ class WindowManager:
             logger.info(f"Opening application: {app_name}")
 
             # Try to find executable
-            executable = self.find_app_executable(app_name)
+            executable = await self.find_app_executable(app_name)
 
             if executable:
                 if is_windows():

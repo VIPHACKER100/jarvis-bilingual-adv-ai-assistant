@@ -17,6 +17,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
   const [scheduleType, setScheduleType] = useState('daily');
   const [scheduleTime, setScheduleTime] = useState('08:00');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [taskCondition, setTaskCondition] = useState('');
 
   // Macro state
   const [macroName, setMacroName] = useState('');
@@ -37,6 +38,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
         setScheduleType(item.schedule_type || 'daily');
         setScheduleTime(item.schedule_time || '08:00');
         setSelectedDays(item.days || []);
+        setTaskCondition(item.condition || '');
       } else {
         setMacroName(item.name || '');
         setMacroDesc(item.description || '');
@@ -49,6 +51,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
       setTaskName('');
       setTaskDesc('');
       setTaskCommand('');
+      setTaskCondition('');
       setMacroName('');
       setMacroDesc('');
       setMacroCommands([]);
@@ -67,7 +70,8 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
           command: taskCommand,
           schedule_type: scheduleType,
           schedule_time: scheduleTime,
-          days: selectedDays
+          days: selectedDays,
+          condition: taskCondition
         });
       } else {
         if (!macroName || macroCommands.length === 0) throw new Error('Name and at least one command are required');
@@ -197,6 +201,18 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
                   </div>
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-1">Execution Condition (Optional)</label>
+                <input 
+                  value={taskCondition} onChange={e => setTaskCondition(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none font-mono text-sm"
+                  placeholder="e.g. battery < 20 or cpu > 80"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Task will only run if this condition is met.
+                </p>
+              </div>
             </>
           ) : (
             <>

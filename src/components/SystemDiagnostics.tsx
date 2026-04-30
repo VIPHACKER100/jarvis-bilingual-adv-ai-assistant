@@ -14,6 +14,7 @@ interface SystemDiagnosticsProps {
     platform?: string;
     active_window?: { title: string; process: string } | null;
     context_suggestion?: string | null;
+    event_loop_lag?: number;
   } | null;
 }
 
@@ -165,6 +166,27 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
             </div>
           )}
         </div>
+
+        {/* Loop Health Indicators */}
+        {systemStatus.event_loop_lag !== undefined && (
+          <div className="pt-4 border-t border-border-default space-y-2">
+            <div className="flex justify-between items-center text-[10px] font-mono">
+              <div className="flex items-center gap-2 text-foreground-muted">
+                <Activity className={`w-3 h-3 ${systemStatus.event_loop_lag > 50 ? 'text-red-400 animate-pulse' : 'text-accent'}`} />
+                <span>CORE_LIFECYCLE</span>
+              </div>
+              <span className={systemStatus.event_loop_lag > 50 ? "text-red-400" : "text-accent"}>
+                {systemStatus.event_loop_lag.toFixed(1)}ms
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-[8px] uppercase tracking-widest text-foreground-muted font-bold">
+              <span>Loop_Latency</span>
+              <span className={systemStatus.event_loop_lag < 20 ? "text-green-500" : (systemStatus.event_loop_lag < 100 ? "text-yellow-500" : "text-red-500")}>
+                {systemStatus.event_loop_lag < 20 ? "OPTIMAL" : (systemStatus.event_loop_lag < 100 ? "DEGRADED" : "CRITICAL")}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Platform & Context Information */}

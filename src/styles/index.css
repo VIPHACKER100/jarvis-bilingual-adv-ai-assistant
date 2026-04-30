@@ -327,5 +327,29 @@ button:active, [role="button"]:active {
         rgba(139, 92, 246, 0.015) 2px,
         rgba(6, 182, 212, 0.015) 4px
     );
-    opacity: 0.8;
+/* ─── Performance Monitoring Visuals ──────────────────────────── */
+@keyframes vibrate {
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-1px, -1px); }
+    20% { transform: translate(1px, 1px); }
+    30% { transform: translate(-1px, 1px); }
+    40% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, -1px); }
+    60% { transform: translate(1px, 1px); }
+    70% { transform: translate(-1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+    90% { transform: translate(-1px, -1px); }
+    100% { transform: translate(0, 0); }
 }
+
+@keyframes glitch {
+    0% { transform: translate(0); filter: hue-rotate(0deg); }
+    20% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+    40% { transform: translate(-2px, -1px); filter: hue-rotate(180deg); }
+    60% { transform: translate(2px, 1px); filter: hue-rotate(270deg); }
+    80% { transform: translate(2px, -1px); filter: hue-rotate(360deg); }
+    100% { transform: translate(0); filter: hue-rotate(0deg); }
+}
+
+.animate-vibrate { animation: vibrate 0.2s linear infinite; }
+.animate-glitch { animation: glitch 0.3s steps(2) infinite; }

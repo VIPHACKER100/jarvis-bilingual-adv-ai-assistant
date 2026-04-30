@@ -5,6 +5,7 @@ interface ArcReactorProps {
   isActive: boolean;
   onClick: () => void;
   language: 'en' | 'hi';
+  eventLoopLag?: number;
 }
 
 export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language }) => {
@@ -32,10 +33,14 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language })
 
   return (
     <div 
-      className="relative flex items-center justify-center p-4 md:p-10 cursor-pointer group" 
+      className={`relative flex items-center justify-center p-4 md:p-10 cursor-pointer group ${isLagging ? 'animate-vibrate' : ''}`} 
       onClick={handleClick}
       onMouseEnter={() => sfx.playBlip()}
     >
+      {/* Glitch Overlay if critical */}
+      {isCritical && (
+        <div className="absolute inset-0 z-50 pointer-events-none mix-blend-overlay opacity-30 animate-glitch bg-red-500/10" />
+      )}
 
       {/* --- Ambient Glow (Far Field) --- */}
       <div className={`absolute rounded-full transition-all duration-1000 ${isActive
