@@ -120,3 +120,7 @@ export const useJarvisStore = create<JarvisState>((set, get) => ({
   showPermission: false,
   setShowPermission: (showPermission) => set({ showPermission }),
 }));
+// Attach to window for external service access (v3.6.1)
+if (typeof window !== 'undefined') {
+  (window as any).jarvisStore = useJarvisStore;
+}

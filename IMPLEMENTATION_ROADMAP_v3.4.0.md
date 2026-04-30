@@ -78,6 +78,41 @@ This roadmap documents the transition from a monolithic architecture (v2.1.0) to
 - [x] **Performance Timeline HUD**: Added a new reactive trend chart to the Diagnostics panel for real-time and historical health visualization.
 - [x] **Automated Data Retention**: Added cleanup logic to prune performance logs older than 7 days.
 
+## ✅ Phase 12: Neural Proactivity & Situational Awareness (v3.5.0) (DONE)
+
+- [x] **Neural Proactive Engine**: Implemented background situational analysis using LLM-driven window title tracking.
+- [x] **Autonomous Task Suggestion**: JARVIS now proactively suggests actions based on current window context (e.g., summarizing GitHub issues, fixing terminal errors).
+- [x] **Dynamic Context Broadcasting**: Real-time delivery of proactive insights to the HUD via high-priority WebSocket events.
+- [x] **Smart Situational Heuristics**: Optimized analysis loops to minimize API calls while maintaining high-fidelity awareness.
+
+## ✅ Phase 13: Dynamic Personalities & Aesthetic Personalization (v3.5.1) (DONE)
+
+- [x] **Multi-Persona System**: Introduced 4 distinct JARVIS personalities (Stark, Midnight, Avenue, Linear).
+- [x] **Real-time Theme Sync**: Accent colors and theme metadata are now broadcasted from the backend to the HUD dynamically.
+- [x] **Persistent Persona Configuration**: User personality preference is saved in the permanent system config.
+
+## ✅ Phase 14: Neural Knowledge Base & Semantic Context (v3.6.0) (DONE)
+
+- [x] **Semantic Node Retrieval**: Upgraded `NeuralMemoryManager` to use fuzzy matching and keyword relevance for dynamic knowledge selection.
+- [x] **Query-Aware Context Injection**: JARVIS now selectively injects the most relevant memory nodes based on the current user query, optimizing prompt space.
+- [x] **Bilingual Knowledge Ranking**: Semantic scoring system now supports both English and Hindi phrasings for cross-lingual memory retrieval.
+- [x] **Memory Pruning & Optimization**: Implemented background routines to keep the semantic index clean and high-fidelity.
+
+## ✅ Phase 15: Adaptive Voice Synchronization & Audio Matrix (v3.6.1) (DONE)
+
+- [x] **Neural Voice Sync**: JARVIS's voice pitch and rate now dynamically synchronize with the active personality (Stark, Midnight, etc.).
+- [x] **Global Audio Matrix**: Exposed system state to the voice engine via global store bridging, enabling real-time audio-visual alignment.
+- [x] **Bilingual Audio Clarity**: Refined Hinglish TTS parameters for better pronunciation and natural cadence in Indian English mode.
+- [x] **Dynamic Pitch Control**: Implemented low-latency pitch shifting for distinct persona recognition (e.g., deeper voice for Midnight protocol).
+
+## ✅ Phase 16: Command Analytics & Voice Persona Switching (v3.7.0) (DONE)
+
+- [x] **Behavioral Insights Engine**: Added `get_command_insights()` to `MemoryManager` — surfaces top commands, daily activity, peak hour, and failure patterns from the SQLite history.
+- [x] **Analytics API**: Exposed `/api/system/command-insights` endpoint for dashboard consumption.
+- [x] **Voice Persona Switching**: Added `set_personality` command key with bilingual phrases so users can say *"Activate Midnight Mode"* to switch themes by voice.
+- [x] **Query-Aware AI Fallback**: Upgraded the LLM conversation fallback to use the actual user command as a search key, dramatically improving context relevance.
+- [x] **Bilingual Command Registration**: All new commands registered in `HINDI_COMMANDS` with English and Hinglish phrase variants.
+
 ---
 
 ## Technical Debt & Maintenance

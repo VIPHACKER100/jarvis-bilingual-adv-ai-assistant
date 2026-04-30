@@ -137,4 +137,17 @@ HINDI_COMMANDS = {
     # Search & Browser
     'google_search': ['search', 'google search', 'dhoondo', 'dhundo', 'pata karo', 'khojo', 'search karo', 'baar mein batao', 'सर्च', 'गूगल सर्च', 'ढूंढो', 'पता करो', 'खोजो', 'सर्च करो'],
     'open_browser': ['open browser', 'browser kholo', 'open new', 'new tab', 'naya tab', 'internet kholo', 'chrome kholo', 'edge kholo', 'ब्राउज़र खोलो', 'ब्राउज़र खोलो', 'नया टैब', 'नया टैब खोलो', 'इंटरनेट खोलो'],
+
+    # Phase 13+: Personality & Analytics (v3.7.0)
+    'set_personality': [
+        'set personality', 'change personality', 'switch personality', 'change theme',
+        'switch theme', 'activate stark', 'activate midnight', 'activate avenue', 'activate linear',
+        'stark mode', 'midnight mode', 'avenue mode', 'linear mode',
+        'personality badlo', 'theme badlo', 'mode badlo',
+    ],
+    'command_insights': [
+        'command insights', 'show insights', 'usage insights', 'show analytics',
+        'what do i use most', 'my top commands', 'usage stats', 'command stats',
+        'mera usage', 'meri analytics', 'kya use karta hoon',
+    ],
 }

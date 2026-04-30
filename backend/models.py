@@ -80,6 +80,7 @@ class SystemStatusResponse(BaseResponse):
     platform: str
     active_window: Optional[Dict[str, Any]] = None
     context_suggestion: Optional[str] = None
+    personality: Optional[Dict[str, Any]] = None
 
 class BatteryResponse(BaseResponse):
     percent: Optional[int] = None

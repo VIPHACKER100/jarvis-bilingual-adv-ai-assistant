@@ -85,3 +85,28 @@ async def get_performance_history(limit: int = Query(60, ge=1, le=1440)):
     from modules.memory import memory_manager
     history = await memory_manager.get_performance_history(limit)
     return {"success": True, "data": history}
+
+@router.get("/personalities")
+async def get_personalities():
+    """Get list of available personalities"""
+    from modules.personalities import personality_manager
+    return {"success": True, "data": personality_manager.get_all_personalities()}
+
+@router.post("/personality/{p_id}")
+async def set_personality(p_id: str):
+    """Set system personality and theme"""
+    from modules.personalities import personality_manager
+    if personality_manager.set_personality(p_id):
+        # Save to permanent config
+        from config import CONFIG, save_config
+        CONFIG["personality"] = p_id
+        save_config(CONFIG)
+        return {"success": True, "message": f"Personality set to {p_id}", "config": personality_manager.get_config()}
+    raise HTTPException(status_code=400, detail="Invalid personality ID")
+
+@router.get("/command-insights")
+async def get_command_insights(days: int = Query(30, ge=1, le=365)):
+    """Get behavioral command analytics"""
+    from modules.memory import memory_manager
+    data = await memory_manager.get_command_insights(days)
+    return {"success": True, "data": data}

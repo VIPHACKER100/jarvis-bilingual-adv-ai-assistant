@@ -91,8 +91,8 @@ class LLMModule:
         
         system_prompt += "\nIf the user asks for a command you can't perform, explain it politely."
 
-        # Inject Neural Memory context
-        neural_context = await memory_manager.neural.get_neural_context()
+        # Inject Neural Memory context (Query-aware in v3.6.0)
+        neural_context = await memory_manager.neural.get_neural_context(text)
         if neural_context:
             system_prompt += f"\n\nNEURAL MEMORY MAP (Core Identity & Behavioral Matrix):\n{neural_context}"
 

@@ -33,6 +33,7 @@ from routers import (
 )
 from modules.memory import memory_manager
 from modules.whatsapp import whatsapp_manager
+from modules.proactive import proactive_manager
 
 # Security
 BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
@@ -41,14 +42,23 @@ BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     logger.info("JARVIS Backend starting up (Modular Architecture)...")
+    startup_info = {
         "port": BACKEND_PORT, 
         "platform": PLATFORM,
         "version": VERSION
+    }
+    log_system_event("STARTUP", startup_info)
     
     # Initialize managers
+    from modules.personalities import personality_manager
+    from config import CONFIG
+    personality_manager.set_personality(CONFIG.get("personality", "stark"))
+    
     await memory_manager.initialize()
     await whatsapp_manager.initialize()
     await automation_manager.initialize()
+    await automation_manager.start()
+    await proactive_manager.start()
     
     # Start background tasks
     status_broadcast_task = asyncio.create_task(broadcast_system_status())
@@ -59,7 +69,8 @@ async def lifespan(app: FastAPI):
     # Cleanup
     status_broadcast_task.cancel()
     lag_monitor_task.cancel()
-    await automation_manager.stop_scheduler()
+    await automation_manager.stop()
+    await proactive_manager.stop()
     logger.info("JARVIS Backend shutting down...")
     log_system_event("SHUTDOWN", {})
 
@@ -244,13 +255,15 @@ async def broadcast_system_status():
     """Broadcast system status to all connected clients every 5 seconds"""
     from utils.websocket_manager import manager
     from modules.memory import memory_manager
+    from modules.personalities import personality_manager
     while True:
         try:
             await asyncio.sleep(5)
             status = await system_module.get_system_status()
             
-            # Update status with current lag before broadcasting
+            # Update status with current lag and personality before broadcasting
             status.event_loop_lag = current_event_loop_lag
+            status.personality = personality_manager.get_config()
             
             # Save to database for history
             await memory_manager.save_performance_metric(

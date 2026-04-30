@@ -22,10 +22,10 @@ def get_version():
         pkg_json = PROJECT_ROOT / 'package.json'
         if pkg_json.exists():
             with open(pkg_json, 'r', encoding='utf-8') as f:
-                return json.load(f).get('version', '3.4.0')
+                return json.load(f).get('version', '3.7.0')
     except Exception:
         pass
-    return '3.4.0'
+    return '3.7.0'
 
 VERSION = get_version()
 

@@ -117,15 +117,61 @@ class NeuralMemoryManager:
         
         return {"content": content, "metadata": metadata}
 
-    async def get_neural_context(self) -> str:
-        """Collect core memory nodes for LLM context injection"""
+    async def get_neural_context(self, query: Optional[str] = None) -> str:
+        """
+        Dynamically collect relevant memory nodes for LLM context.
+        Uses fuzzy matching and keyword relevance if a query is provided.
+        """
+        from rapidfuzz import fuzz
+        
+        nodes = await self.list_nodes()
+        if not nodes:
+            return ""
+
+        # Always include core nodes (personality, user info)
+        core_node_names = ["personality.md", "user.md", "preferences.md"]
+        selected_nodes = [n for n in nodes if n["name"] in core_node_names]
+        
+        # If we have a query, find additional relevant nodes
+        if query:
+            query_lower = query.lower()
+            other_nodes = [n for n in nodes if n["name"] not in core_node_names]
+            
+            scored_nodes = []
+            for node in other_nodes:
+                # Score based on filename and metadata (if available)
+                # We do a fast check first
+                name_clean = node["name"].replace(".md", "").lower()
+                score = fuzz.partial_ratio(query_lower, name_clean)
+                
+                # Bonus for exact keyword matches
+                if any(word in query_lower for word in name_clean.split("_")):
+                    score += 20
+                
+                if score >= 60:
+                    scored_nodes.append((node, score))
+            
+            # Sort by score and take top 3 non-core nodes
+            scored_nodes.sort(key=lambda x: x[1], reverse=True)
+            selected_nodes.extend([n[0] for n in scored_nodes[:3]])
+
         context_parts = []
-        # Prioritize personality and user info
-        for node_name in ["personality.md", "user.md", "preferences.md"]:
-            node_data = await self.get_node_with_metadata(node_name)
-            content = node_data["content"]
+        # Deduplicate and load content
+        seen_names = set()
+        for node in selected_nodes:
+            if node["name"] in seen_names:
+                continue
+            seen_names.add(node["name"])
+            
+            content = await self.get_node(node["name"])
             if content:
-                context_parts.append(f"### {node_name.replace('.md', '').upper()} ###\n{content}")
+                # Strip YAML frontmatter if present for cleaner context
+                if content.startswith("---"):
+                    parts = content.split("---", 2)
+                    if len(parts) >= 3:
+                        content = parts[2].strip()
+                
+                context_parts.append(f"### {node['name'].replace('.md', '').upper()} ###\n{content}")
         
         return "\n\n".join(context_parts)
 
@@ -407,6 +453,73 @@ class MemoryManager:
 
         except Exception as e:
             logger.error(f"Error getting conversation stats: {e}")
+            return {}
+
+    async def get_command_insights(self, days: int = 30) -> Dict:
+        """Mines command history to produce behavioral usage insights"""
+        try:
+            since = (datetime.now() - timedelta(days=days)).isoformat()
+            async with aiosqlite.connect(str(self.db_path)) as db:
+                db.row_factory = aiosqlite.Row
+
+                # Top 5 most used command types
+                async with db.execute('''
+                    SELECT command_type, COUNT(*) as count
+                    FROM conversations
+                    WHERE timestamp > ?
+                    GROUP BY command_type
+                    ORDER BY count DESC
+                    LIMIT 5
+                ''', (since,)) as cursor:
+                    top_commands = [dict(r) for r in await cursor.fetchall()]
+
+                # Commands per day (last 7 days)
+                async with db.execute('''
+                    SELECT DATE(timestamp) as day, COUNT(*) as count
+                    FROM conversations
+                    WHERE timestamp > DATE('now', '-7 days')
+                    GROUP BY day
+                    ORDER BY day ASC
+                ''') as cursor:
+                    daily_activity = [dict(r) for r in await cursor.fetchall()]
+
+                # Peak usage hour (0-23)
+                async with db.execute('''
+                    SELECT CAST(STRFTIME('%H', timestamp) AS INTEGER) as hour,
+                           COUNT(*) as count
+                    FROM conversations
+                    WHERE timestamp > ?
+                    GROUP BY hour
+                    ORDER BY count DESC
+                    LIMIT 1
+                ''', (since,)) as cursor:
+                    row = await cursor.fetchone()
+                    peak_hour = dict(row) if row else {"hour": None, "count": 0}
+
+                # Failure rate by command type
+                async with db.execute('''
+                    SELECT command_type,
+                           SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as failures,
+                           COUNT(*) as total
+                    FROM conversations
+                    WHERE timestamp > ?
+                    GROUP BY command_type
+                    HAVING failures > 0
+                    ORDER BY failures DESC
+                    LIMIT 5
+                ''', (since,)) as cursor:
+                    failure_patterns = [dict(r) for r in await cursor.fetchall()]
+
+                return {
+                    "top_commands": top_commands,
+                    "daily_activity": daily_activity,
+                    "peak_hour": peak_hour,
+                    "failure_patterns": failure_patterns,
+                    "period_days": days
+                }
+
+        except Exception as e:
+            logger.error(f"Error getting command insights: {e}")
             return {}
 
     async def save_memory(self, entry: MemoryEntry) -> bool:

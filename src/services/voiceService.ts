@@ -137,9 +137,15 @@ class VoiceService {
       utterance.voice = matchVoice;
     }
 
-    // Adjust pitch/rate for a more natural human-like feel
-    // JARVIS doesn't need to be robotic to be cool.
-    if (lang === 'hinglish') {
+    // Adjust pitch/rate based on dynamic personality config in v3.6.1
+    // Fallback to defaults if personality config isn't available
+    const { systemStatus } = (window as any).jarvisStore?.getState() || {};
+    const personality = systemStatus?.personality;
+
+    if (personality && personality.voice_pitch && personality.voice_rate) {
+      utterance.pitch = personality.voice_pitch;
+      utterance.rate = personality.voice_rate;
+    } else if (lang === 'hinglish') {
       utterance.pitch = 0.85; // Lower pitch for Hinglish
       utterance.rate = 0.9;  // Slower rate for Hinglish clarity
     } else {

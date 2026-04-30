@@ -201,13 +201,38 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     
     elif command_key == 'whatsapp_draft_reply':
         result = await whatsapp_manager.draft_smart_reply(current_lang)
-    
+
+    # Personality / theme switching
+    elif command_key == 'set_personality':
+        from modules.personalities import personality_manager
+        from config import CONFIG, save_config
+        p_id = str(params).lower().strip() if params else 'stark'
+        if personality_manager.set_personality(p_id):
+            CONFIG['personality'] = p_id
+            save_config(CONFIG)
+            name = personality_manager.get_config()['name']
+            result = {'success': True, 'action_type': 'PERSONALITY_SET',
+                      'response': f"Switching to {name} protocol, Sir." if current_lang == 'en'
+                                  else f"{name} प्रोटोकॉल सक्रिय।"}
+        else:
+            result = {'success': False, 'action_type': 'PERSONALITY_SET',
+                      'response': f"Unknown personality '{p_id}'. Available: stark, midnight, avenue, linear."}
+
+    # Command insights
+    elif command_key == 'command_insights':
+        insights = await memory_manager.get_command_insights()
+        top = ', '.join([c['command_type'] for c in insights.get('top_commands', [])[:3]])
+        result = {'success': True, 'action_type': 'INSIGHTS',
+                  'response': f"Your top commands: {top}." if top else "No insight data yet.",
+                  'data': insights}
+
     # AI Conversation Fallback
     else:
         logger.info(f"No direct handler for '{command_key}', using AI fallback...")
         context_str = ""
         try:
-            facts = await memory_manager.search_memory("")
+            # Use query-aware search for better context relevance (v3.7.0)
+            facts = await memory_manager.search_memory(command)
             if facts:
                 context_str += "Known facts:\n" + "\n".join([f"- {f.key}: {f.value}" for f in facts[:5]])
             history = await context_manager.get_conversation_context(limit=3)

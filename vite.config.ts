@@ -14,6 +14,23 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src'),
       }
+    },
+    build: {
+      // Disable source maps in production release build
+      sourcemap: false,
+      // Suppress the chunk size warning (we handle it via splitting)
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          // Split vendor libraries into dedicated chunks for better caching
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-motion': ['framer-motion'],
+            'vendor-state': ['zustand'],
+            'vendor-ui': ['lucide-react'],
+          }
+        }
+      }
     }
   };
 });

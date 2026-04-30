@@ -84,6 +84,18 @@ export function useJarvisBridge() {
         }
         break;
 
+      case 'proactive_suggestion':
+        if (message.data && message.data.text) {
+          const { systemStatus, setSystemStatus } = useJarvisStore.getState();
+          if (systemStatus) {
+            setSystemStatus({
+              ...systemStatus,
+              context_suggestion: message.data.text
+            });
+          }
+        }
+        break;
+
       case 'pong':
         break;
     }

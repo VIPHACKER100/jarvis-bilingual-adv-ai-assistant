@@ -2,6 +2,8 @@ import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { Cpu, HardDrive, Battery, Network, Globe, Activity } from 'lucide-react';
 import { PerformanceHistory } from './PerformanceHistory';
+import { CommandInsights } from './CommandInsights';
+import { PersonalitySwitcher } from './PersonalitySwitcher';
 
 interface SystemDiagnosticsProps {
   systemStatus: {
@@ -16,6 +18,7 @@ interface SystemDiagnosticsProps {
     active_window?: { title: string; process: string } | null;
     context_suggestion?: string | null;
     event_loop_lag?: number;
+    personality?: string;
   } | null;
 }
 
@@ -192,6 +195,15 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
 
       {/* Performance Analytics Chart */}
       <PerformanceHistory />
+
+      {/* Command Behavioral Insights */}
+      <CommandInsights />
+
+      {/* Personality / Theme Switcher */}
+      <PersonalitySwitcher
+        currentPersonality={systemStatus.personality}
+        onSwitch={(id) => console.info('[JARVIS] Personality switched to:', id)}
+      />
 
       {/* Platform & Context Information */}
       <div className="space-y-3">
