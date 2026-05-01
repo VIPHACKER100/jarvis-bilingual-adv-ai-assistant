@@ -145,6 +145,13 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         result = await system_module.google_search(query, current_lang)
     elif command_key == 'open_browser':
         result = await system_module.google_search(None, current_lang)
+    elif command_key == 'ip_address':
+        result = await system_module.get_network_info(current_lang)
+    elif command_key == 'uptime':
+        result = await system_module.get_uptime(current_lang)
+    elif command_key == 'weather':
+        city = params.get('city', str(params)) if isinstance(params, dict) else (params if params != command else None)
+        result = await system_module.get_weather(city, current_lang)
     
     # Window/App commands
     elif command_key == 'open_app':
@@ -157,27 +164,199 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         result = await window_manager.minimize_window(params, current_lang)
     elif command_key == 'maximize':
         result = await window_manager.maximize_window(params, current_lang)
+    elif command_key == 'snap_left':
+        result = await window_manager.snap_window('left', current_lang)
+    elif command_key == 'snap_right':
+        result = await window_manager.snap_window('right', current_lang)
+    elif command_key == 'close_window':
+        result = await window_manager.close_window_by_title(params, current_lang)
+    elif command_key == 'show_desktop':
+        result = await window_manager.show_desktop(current_lang)
     
     # Desktop commands
     elif command_key == 'take_screenshot':
         result = await desktop_manager.take_screenshot(True, current_lang)
     elif command_key == 'media_play':
-        result = await desktop_manager.media_play_pause(current_lang)
+        result = await desktop_manager.play_pause_media(current_lang)
     elif command_key == 'media_next':
-        result = await desktop_manager.media_next_track(current_lang)
+        result = await desktop_manager.next_track(current_lang)
     elif command_key == 'media_previous':
-        result = await desktop_manager.media_previous_track(current_lang)
+        result = await desktop_manager.previous_track(current_lang)
+    elif command_key == 'get_clipboard':
+        result = await desktop_manager.get_clipboard_text(current_lang)
+    elif command_key == 'set_clipboard':
+        text = params.get('text', str(params)) if isinstance(params, dict) else str(params)
+        result = await desktop_manager.set_clipboard_text(text, current_lang)
+    elif command_key == 'change_wallpaper':
+        path = params.get('path', str(params)) if isinstance(params, dict) else str(params)
+        result = await desktop_manager.change_wallpaper(path, current_lang)
+    elif command_key == 'empty_recycle_bin':
+        result = await desktop_manager.empty_recycle_bin(current_lang)
+    elif command_key == 'toggle_taskbar':
+        result = await desktop_manager.toggle_taskbar(current_lang)
+    elif command_key == 'zoom_in':
+        result = await desktop_manager.zoom_screen('in', current_lang)
+    elif command_key == 'zoom_out':
+        result = await desktop_manager.zoom_screen('out', current_lang)
+    elif command_key == 'stop_media':
+        result = await desktop_manager.stop_media(current_lang)
+    elif command_key == 'toggle_desktop_icons':
+        result = await desktop_manager.toggle_desktop_icons(current_lang)
+    elif command_key == 'set_theme':
+        theme = params.get('theme', str(params)) if isinstance(params, dict) else str(params)
+        result = await desktop_manager.set_theme(theme, current_lang)
+    
+    # Input / Automation commands
+    elif command_key == 'move_cursor':
+        if isinstance(params, dict):
+            x, y = params.get('x', 0), params.get('y', 0)
+            result = await input_controller.move_cursor(x, y)
+    elif command_key == 'click':
+        button = params.get('button', 'left') if isinstance(params, dict) else 'left'
+        result = await input_controller.click(button)
+    elif command_key == 'double_click':
+        result = await input_controller.double_click()
+    elif command_key == 'right_click':
+        result = await input_controller.right_click()
+    elif command_key == 'scroll_up':
+        result = await input_controller.scroll(3)
+    elif command_key == 'scroll_down':
+        result = await input_controller.scroll(-3)
+    elif command_key == 'type_text':
+        text = params.get('text', str(params)) if isinstance(params, dict) else str(params)
+        result = await input_controller.type_text(text)
+    elif command_key == 'press_key':
+        key = params.get('key', str(params)) if isinstance(params, dict) else str(params)
+        result = await input_controller.press_key(key)
+    elif command_key == 'hotkey':
+        keys = params.get('keys', []) if isinstance(params, dict) else [str(params)]
+        result = await input_controller.press_hotkey(keys)
+    elif command_key == 'new_tab':
+        result = await input_controller.new_tab()
+    elif command_key == 'close_tab':
+        result = await input_controller.close_tab()
+    elif command_key == 'copy':
+        result = await input_controller.copy_selection()
+    elif command_key == 'paste':
+        result = await input_controller.paste_clipboard()
+    elif command_key == 'select_all':
+        result = await input_controller.select_all()
+    elif command_key == 'undo':
+        result = await input_controller.undo()
+    elif command_key == 'save':
+        result = await input_controller.save()
+    elif command_key == 'new_window':
+        result = await input_controller.new_window()
+    elif command_key == 'find':
+        result = await input_controller.find()
+
+    # File Management
+    elif command_key == 'open_folder':
+        folder = params.get('folder', str(params)) if isinstance(params, dict) else str(params)
+        result = await file_manager.open_folder(folder, current_lang)
+    elif command_key == 'open_downloads':
+        result = await file_manager.open_folder('downloads', current_lang)
+    elif command_key == 'open_documents':
+        result = await file_manager.open_folder('documents', current_lang)
+    elif command_key == 'open_desktop':
+        result = await file_manager.open_folder('desktop', current_lang)
+    elif command_key == 'open_pictures':
+        result = await file_manager.open_folder('pictures', current_lang)
+    elif command_key == 'open_videos':
+        result = await file_manager.open_folder('videos', current_lang)
+    elif command_key == 'open_music':
+        result = await file_manager.open_folder('music', current_lang)
+    elif command_key == 'open_home':
+        result = await file_manager.open_folder('home', current_lang)
+    elif command_key == 'search_files':
+        query = params.get('query', str(params)) if isinstance(params, dict) else str(params)
+        result = await file_manager.search_files(query, None, current_lang)
+    elif command_key == 'create_folder':
+        name = params.get('name', str(params)) if isinstance(params, dict) else str(params)
+        result = await file_manager.create_folder(name, None, current_lang)
+    elif command_key == 'delete_file':
+        path = params.get('path', str(params)) if isinstance(params, dict) else str(params)
+        result = await file_manager.delete_file(path, current_lang)
+    elif command_key == 'copy_file':
+        if isinstance(params, dict):
+            src, dst = params.get('source', ''), params.get('destination', '')
+            result = await file_manager.copy_file(src, dst, current_lang)
+    elif command_key == 'move_file':
+        if isinstance(params, dict):
+            src, dst = params.get('source', ''), params.get('destination', '')
+            result = await file_manager.move_file(src, dst, current_lang)
+    elif command_key == 'rename_file':
+        if isinstance(params, dict):
+            path, name = params.get('path', ''), params.get('name', '')
+            result = await file_manager.rename_file(path, name, current_lang)
     
     # OCR/Vision commands
     elif command_key in ['ocr_image', 'extract_text']:
         if params:
-            result = await media_processor.ocr_image(params, current_lang)
+            result = await media_processor.extract_text_from_image(params, current_lang)
         else:
-            result = await media_processor.ocr_screenshot(current_lang)
+            result = await media_processor.extract_text_from_screenshot(current_lang)
     
     elif command_key in ['analyze_screen', 'what_is_on_my_screen']:
         query = params.get('query', str(params)) if isinstance(params, dict) else (params if params != command else None)
         result = await media_processor.analyze_screen(query, current_lang)
+    
+    elif command_key == 'ocr_pdf':
+        path = params.get('path', str(params)) if isinstance(params, dict) else str(params)
+        result = await media_processor.extract_text_from_pdf(path, None, current_lang)
+    
+    elif command_key == 'convert_image':
+        if isinstance(params, dict):
+            src, dst = params.get('input', ''), params.get('output', '')
+            fmt = params.get('format')
+            result = await media_processor.convert_image(src, dst, fmt, current_lang)
+            
+    elif command_key == 'resize_image':
+        if isinstance(params, dict):
+            src, dst = params.get('input', ''), params.get('output', '')
+            w, h = params.get('width'), params.get('height')
+            result = await media_processor.resize_image(src, dst, w, h, True, current_lang)
+            
+    elif command_key == 'compress_image':
+        if isinstance(params, dict):
+            src, dst = params.get('input', ''), params.get('output', '')
+            q = params.get('quality', 85)
+            result = await media_processor.compress_image(src, dst, q, current_lang)
+            
+    elif command_key == 'merge_pdfs':
+        if isinstance(params, dict):
+            files, out = params.get('files', []), params.get('output', '')
+            result = await media_processor.merge_pdfs(files, out, current_lang)
+            
+    elif command_key == 'pdf_to_images':
+        path = params.get('path', str(params)) if isinstance(params, dict) else str(params)
+        result = await media_processor.pdf_to_images(path, None, 200, current_lang)
+        
+    elif command_key == 'images_to_pdf':
+        if isinstance(params, dict):
+            files, out = params.get('images', []), params.get('output', '')
+            result = await media_processor.images_to_pdf(files, out, current_lang)
+            
+    elif command_key == 'batch_pdf':
+        folder = params.get('folder', str(params)) if isinstance(params, dict) else str(params)
+        result = await media_processor.batch_images_to_pdf(folder, "batch.pdf", current_lang)
+        
+    elif command_key == 'scan_folder':
+        folder = params.get('folder', str(params)) if isinstance(params, dict) else str(params)
+        ftype = params.get('type', 'all')
+        result = await media_processor.scan_folder(folder, ftype, current_lang)
+        
+    elif command_key == 'make_drawing':
+        result = await media_processor.make_drawing(current_lang)
+        
+    elif command_key == 'get_selected_text':
+        result = await media_processor.get_selected_text(current_lang)
+        
+    elif command_key == 'narrate_screen':
+        result = await media_processor.narrate_screen(current_lang)
+        
+    elif command_key == 'get_screen_summary':
+        result = await media_processor.get_screen_summary(current_lang)
     
     # WhatsApp
     elif command_key == 'whatsapp_message':

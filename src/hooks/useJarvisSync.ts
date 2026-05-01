@@ -12,7 +12,7 @@ export const useJarvisSync = () => {
     setVisionData, 
     setCurrentSuggestion,
     addToHistory,
-    transcript,
+    transcript, setTranscript,
     setMode,
     isActive,
     language
@@ -22,6 +22,9 @@ export const useJarvisSync = () => {
 
   useEffect(() => {
     if (lastResponse) {
+      // Clear transcript as execution is complete (v3.7.1)
+      setTranscript('');
+
       // Volume updates
       if (lastResponse.command_key === 'volume_up' && lastResponse.success) {
         setVolume(lastResponse.volume || Math.min(volume + 10, 100));

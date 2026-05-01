@@ -37,4 +37,4 @@ WAKE_WORD_ENABLED = os.getenv("WAKE_WORD_ENABLED", "false").lower() == "true"
 WAKE_WORD_PHRASE = os.getenv("WAKE_WORD_PHRASE", "jarvis")
 
 # Version
-VERSION = "3.7.0"
+VERSION = "3.7.1"

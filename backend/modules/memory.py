@@ -522,6 +522,26 @@ class MemoryManager:
             logger.error(f"Error getting command insights: {e}")
             return {}
 
+    async def save_performance_metric(self, lag: float, cpu: float, memory: float) -> bool:
+        """Save system performance metrics to database"""
+        try:
+            async with aiosqlite.connect(str(self.db_path)) as db:
+                await db.execute('''
+                    INSERT INTO performance_metrics
+                    (timestamp, event_loop_lag, cpu_percent, memory_percent)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    datetime.now().isoformat(),
+                    lag,
+                    cpu,
+                    memory
+                ))
+                await db.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Error saving performance metric: {e}")
+            return False
+
     async def save_memory(self, entry: MemoryEntry) -> bool:
         """Save a memory/fact about the user"""
         try:

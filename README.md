@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-3.7.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-3.7.1-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,7 +20,14 @@
 
 ---
 
-## 🌟 Modern Capabilities (v3.7.0)
+## 🌟 Modern Capabilities (v3.7.1)
+
+### 🚀 **What's New? (v3.7.1)**
+
+- 🛠️ **Modular Command Overhaul** - Re-engineered dispatch logic with 50+ new mapped voice triggers for file management, media tools, and diagnostics.
+- 📄 **Advanced Media & PDF Engine** - Professional voice-activated PDF merging, splitting, OCR, and image conversion directly from the HUD.
+- ⚡ **Infrastructure Stabilization** - Fixed performance logging leaks and stabilized the real-time system status broadcast loop.
+- 🧼 **Fluid HUD Interaction** - Automatic transcript clearing immediately upon task execution for a more immersive and clean user experience.
 
 ### 🚀 **What's New? (v3.7.0)**
 
@@ -28,7 +35,6 @@
 - 🎭 **Dynamic Persona Switching** - Switch between 4 distinct personalities (Stark, Midnight, Avenue, Linear) via voice commands. Each persona features synchronized UI accents and voice profiles.
 - ⚡ **Neural Proactivity Core** - Real-time background analysis of active windows to provide autonomous task suggestions and context-aware summaries.
 - ⚙️ **Intelligent Conditional Automation** - Automation tasks now support complex execution conditions (e.g., `battery < 20`, `cpu > 80`).
-- 💬 **Neural Chat Assist (v3)** - Enhanced context-aware WhatsApp drafting with improved bilingual LLM prompts and synchronized personality-based responses.
 
 ---
 

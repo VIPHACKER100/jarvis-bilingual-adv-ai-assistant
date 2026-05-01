@@ -150,4 +150,59 @@ HINDI_COMMANDS = {
         'what do i use most', 'my top commands', 'usage stats', 'command stats',
         'mera usage', 'meri analytics', 'kya use karta hoon',
     ],
+
+    # System Diagnostics (v3.7.1)
+    'ip_address': [
+        'ip address', 'my ip', 'what is my ip', 'network info', 'ip kya hai',
+        'mera ip', 'network details', 'आईपी एड्रेस', 'नेटवर्क इंफो',
+    ],
+    'uptime': [
+        'uptime', 'how long running', 'system uptime', 'pc uptime',
+        'kitne time se chal raha hai', 'अपटाइम', 'कब से चल रहा है',
+    ],
+    'weather': [
+        'weather', 'weather today', 'mausam', 'mausam kaisa hai', 'weather kya hai',
+        'what is the weather', 'mosam', 'मौसम', 'मौसम कैसा है', 'आज का मौसम',
+    ],
+
+    # Brightness (v3.7.1)
+    'brightness_up': [
+        'brightness up', 'increase brightness', 'screen bright karo', 'chamak badhao',
+        '밝기 up', 'brightness badhao', 'ब्राइटनेस बढ़ाओ', 'स्क्रीन ब्राइट करो',
+    ],
+    'brightness_down': [
+        'brightness down', 'decrease brightness', 'screen dim karo', 'chamak kam karo',
+        'brightness ghatao', 'dim screen', 'ब्राइटनेस कम करो', 'स्क्रीन डिम करो',
+    ],
+
+    # Browser / Tab Management (v3.7.1)
+    'new_tab': ['new tab', 'naya tab', 'tab kholo', 'नया टैब', 'टैब खोलो'],
+    'close_tab': ['close tab', 'tab band karo', 'tab hatao', 'टैब बंद करो', 'टैब हटाओ'],
+    'new_window': ['new window', 'naya window', 'विंडो खोलो', 'नई विंडो'],
+    'find': ['find on page', 'page search', 'find text', 'खोजो', 'ढूंढो'],
+    'copy': ['copy', 'copy karo', 'कॉपी', 'कॉपी करो'],
+    'paste': ['paste', 'paste karo', 'पेस्ट', 'पेस्ट करो'],
+    'select_all': ['select all', 'sab select karo', 'सब चुनो', 'सब सेलेक्ट करो'],
+    'undo': ['undo', 'wapis karo', 'undo karo', 'अनडू', 'वापस करो'],
+    'save': ['save', 'save karo', 'save file', 'सेव', 'सेव करो'],
+
+    # Media Stop (v3.7.1)
+    'stop_media': [
+        'stop music', 'stop song', 'stop media', 'band karo gaana', 'media stop karo',
+        'म्यूजिक बंद करो', 'गाना बंद करो', 'मीडिया रोको',
+    ],
+
+    # Screen Narration (v3.7.1)
+    'narrate_screen': [
+        'narrate screen', 'read screen', 'screen padho', 'screen kya hai', 'what is on screen',
+        'स्क्रीन पढ़ो', 'स्क्रीन पर क्या है',
+    ],
+    'get_screen_summary': [
+        'screen summary', 'summarize screen', 'screen ka summary', 'screen overview',
+        'स्क्रीन सारांश', 'स्क्रीन समरी',
+    ],
+    'analyze_screen': [
+        'analyze screen', 'screen analyze karo', 'what am i looking at', 'screen analyze',
+        'स्क्रीन एनालाइज करो', 'मैं क्या देख रहा हूँ',
+    ],
 }
