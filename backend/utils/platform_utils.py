@@ -87,14 +87,28 @@ async def sleep_system():
 
 def _set_volume_windows(percent):
     try:
-        from pycaw.pycaw import AudioUtilities
+        import pythoncom
+        from comtypes import CLSCTX_ALL
+        from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+        
+        pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
-        volume = devices.EndpointVolume
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume = interface.QueryInterface(IAudioEndpointVolume)
+        
         volume.SetMasterVolumeLevelScalar(percent / 100.0, None)
         return True
     except Exception as e:
         logger.error(f"Error setting volume on Windows: {e}")
         return False
+    finally:
+        try:
+            import pythoncom
+            pythoncom.CoUninitialize()
+        except:
+            pass
+
+
 
 async def set_volume(percent):
     """Set system volume (0-100)"""
@@ -110,15 +124,29 @@ async def set_volume(percent):
 
 def _get_volume_windows():
     try:
-        from pycaw.pycaw import AudioUtilities
+        import pythoncom
+        from comtypes import CLSCTX_ALL
+        from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+        
+        pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
-        volume = devices.EndpointVolume
-        return int(volume.GetMasterVolumeLevelScalar() * 100)
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume = interface.QueryInterface(IAudioEndpointVolume)
+        
+        vol_scalar = volume.GetMasterVolumeLevelScalar()
+        return int(vol_scalar * 100)
     except Exception as e:
         logger.error(f"Error getting volume on Windows: {e}")
         return 50
+    finally:
+        try:
+            import pythoncom
+            pythoncom.CoUninitialize()
+        except:
+            pass
 
 async def get_volume():
+
     """Get current system volume"""
     if is_windows():
         return await asyncio.to_thread(_get_volume_windows)
@@ -132,14 +160,28 @@ async def get_volume():
 
 def _set_mute_windows(mute_state):
     try:
-        from pycaw.pycaw import AudioUtilities
+        import pythoncom
+        from comtypes import CLSCTX_ALL
+        from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+        
+        pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
-        volume = devices.EndpointVolume
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume = interface.QueryInterface(IAudioEndpointVolume)
+        
         volume.SetMute(1 if mute_state else 0, None)
         return True
     except Exception as e:
         logger.error(f"Error setting mute on Windows: {e}")
         return False
+    finally:
+        try:
+            import pythoncom
+            pythoncom.CoUninitialize()
+        except:
+            pass
+
+
 
 async def set_mute(mute_state):
     """Set system mute state (True/False)"""
@@ -157,13 +199,27 @@ async def set_mute(mute_state):
 
 def _is_muted_windows():
     try:
-        from pycaw.pycaw import AudioUtilities
+        import pythoncom
+        from comtypes import CLSCTX_ALL
+        from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+        
+        pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
-        volume = devices.EndpointVolume
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume = interface.QueryInterface(IAudioEndpointVolume)
+        
         return volume.GetMute() == 1
     except Exception as e:
         logger.error(f"Error checking mute on Windows: {e}")
         return False
+    finally:
+        try:
+            import pythoncom
+            pythoncom.CoUninitialize()
+        except:
+            pass
+
+
 
 async def is_muted():
     """Check if system is muted"""

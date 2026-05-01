@@ -949,4 +949,5 @@ class MediaProcessor:
 
 
 # Singleton instance
-media_processor = MediaProcessor()
+media_manager = MediaProcessor()
+media_processor = media_manager

@@ -64,6 +64,23 @@ class AutomationManager:
         await self.start_scheduler()
         logger.info("AutomationManager initialized")
 
+    async def start(self):
+        """Alias for initialize for lifespan consistency"""
+        if not self.running:
+            await self.initialize()
+
+    async def stop(self):
+        """Asynchronously shut down the automation manager"""
+        self.running = False
+        if self._scheduler_task:
+            self._scheduler_task.cancel()
+            try:
+                await self._scheduler_task
+            except asyncio.CancelledError:
+                pass
+        logger.info("AutomationManager stopped")
+
+
     async def _load_data(self):
         """Load tasks and macros from file asynchronously"""
         tasks_file = DATA_DIR / "scheduled_tasks.json"

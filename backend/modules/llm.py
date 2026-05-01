@@ -462,3 +462,4 @@ class LLMModule:
 
 # Singleton instance
 llm_module = LLMModule()
+llm_client = llm_module

@@ -8,8 +8,10 @@
 export const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || "8000";
 
 // Base URLs for API and WebSocket
-export const API_BASE_URL = `http://localhost:${BACKEND_PORT}/api/v1`;
-export const WS_BASE_URL = `ws://localhost:${BACKEND_PORT}/ws`;
+// Dynamically resolve hostname to avoid CORS issues in various network environments
+const HOST = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+export const API_BASE_URL = `http://${HOST}:${BACKEND_PORT}/api/v1`;
+export const WS_BASE_URL = `ws://${HOST}:${BACKEND_PORT}/ws`;
 
 // Version Info
 export const APP_VERSION = "v3.7.0";
