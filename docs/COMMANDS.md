@@ -36,6 +36,14 @@ Complete reference of all voice commands supported by JARVIS.
 | "System status" | "System check karo" | Full system info |
 | "PC status" | "Computer status" | System overview |
 
+### Diagnostics & Weather (New in v3.7.1)
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "IP address" | "Mera IP batao" | Get current IP address |
+| "Uptime" | "Kitne time se chal raha hai?" | System uptime |
+| "Weather" | "Aaj ka mausam kaisa hai?" | Current weather information |
+
 ### Power Control ⚠️
 
 | English | Hindi | Description |
@@ -76,6 +84,8 @@ Complete reference of all voice commands supported by JARVIS.
 | "Search for [query]" | "[query] dhoondo" | Search on Google |
 | "Open browser" | "Browser kholo" | Open default browser |
 | "New tab" | "Naya tab kholo" | Open new browser tab |
+| "Close tab" | "Tab band karo" | Close current tab |
+| "New window" | "Naya window kholo" | Open new browser window |
 | "Open [website.com]" | "[website.com] kholo" | Open specific URL |
 | "Search [query]" | "[query] search karo" | Smart search extraction |
 
@@ -221,7 +231,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "Read PDF" | "PDF padho" | Extract PDF text |
 | "PDF to text" | "PDF ko text mein badlo" | Convert PDF to text |
 
-### Screenshot OCR
+### Screenshot OCR & Analysis (v3.7.1)
 
 | English | Hindi | Description |
 | :--- | :--- | :--- |
@@ -229,6 +239,8 @@ Complete reference of all voice commands supported by JARVIS.
 | "Read screen" | "Screen padho" | JARVIS Vision V3 HUD |
 | "Copy text from screen" | "Screen se text copy karo" | Extract visible text |
 | "Analyze my screen" | "Screen analyze karo" | Premium Robotic Vision protocol |
+| "Narrate screen" | "Screen padho" | Reads out visible text |
+| "Screen summary" | "Screen ka summary" | High-level summary of the screen |
 
 ---
 
