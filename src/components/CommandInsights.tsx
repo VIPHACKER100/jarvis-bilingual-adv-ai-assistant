@@ -28,11 +28,12 @@ export const CommandInsights: FC = () => {
   useEffect(() => {
     const fetchInsights = async () => {
       try {
-        const res = await apiClient.get('/system/command-insights?days=30');
-        if (res.data?.success) {
-          setInsights(res.data.data);
+        const res = await apiClient.getCommandInsights(30);
+        if (res.success) {
+          setInsights(res.data);
         }
       } catch {
+
         /* silent — panel just won't render */
       } finally {
         setLoading(false);

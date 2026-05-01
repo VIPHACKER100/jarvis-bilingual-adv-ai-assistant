@@ -166,6 +166,20 @@ class ApiClient {
     return response.json();
   }
 
+  // Get command insights
+  async getCommandInsights(days: number = 30): Promise<{
+    success: boolean;
+    data: any;
+  }> {
+    const response = await fetch(`${this.baseUrl}/system/command-insights?days=${days}`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get command insights');
+    }
+    return response.json();
+  }
+
   // Save conversation (optional, usually done by backend, but useful for manual additions)
   async saveConversation(convData: any): Promise<{ success: boolean; id: number }> {
     const response = await fetch(`${this.baseUrl}/memory/conversation`, {
