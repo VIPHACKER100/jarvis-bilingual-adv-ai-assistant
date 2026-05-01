@@ -293,18 +293,45 @@ async def broadcast_system_status():
 
 # Frontend static file serving logic extracted from original main.py
 def _find_frontend_dir() -> Optional[Path]:
-    candidates = [
-        Path(__file__).resolve().parent.parent / "dist",
-        Path(__file__).resolve().parent.parent / "frontend",
-        Path.cwd() / "dist",
-        Path.cwd() / "frontend"
-    ]
+    """Find the frontend directory in various environments (dev, bundled)"""
+    candidates = []
+    
+    # 1. Check if we're running as a PyInstaller bundle
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        mei_path = Path(sys._MEIPASS)
+        candidates.extend([
+            mei_path / "frontend",
+            mei_path / "dist",
+            mei_path / "_internal" / "frontend",
+            mei_path / "_internal" / "dist"
+        ])
+    
+    # 2. Check relative to current file (works in dev)
+    try:
+        base_path = Path(__file__).resolve().parent.parent
+        candidates.extend([
+            base_path / "dist",
+            base_path / "frontend"
+        ])
+    except:
+        pass
+        
+    # 3. Check relative to CWD
+    cwd = Path.cwd()
+    candidates.extend([
+        cwd / "dist",
+        cwd / "frontend",
+        cwd / "release" / "backend" / "_internal" / "frontend" # Extra backup for local release testing
+    ])
+    
     for c in candidates:
-        # print(f"Checking frontend candidate: {c}") # Debug
+        # logger.debug(f"Checking frontend candidate: {c}")
         if c.exists() and (c / "index.html").exists():
             return c
-    logger.warning(f"Frontend directory not found! Checked: {[str(c) for c in candidates]}")
+            
+    logger.warning(f"Frontend directory not found! Checked {len(candidates)} candidates.")
     return None
+
 
 frontend_dir = _find_frontend_dir()
 if frontend_dir is not None:
