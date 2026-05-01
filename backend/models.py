@@ -291,16 +291,9 @@ class MacroRequest(BaseModel):
 
 # --- Settings Models ---
 
-class SettingsResponse(BaseModel):
-    AI_ENGINE: str
-    NVIDIA_MODEL: str
-    OPENROUTER_MODEL: str
-    PORT: int
-    LOG_LEVEL: str
-    DANGEROUS_COMMANDS_ENABLED: bool
-    CONFIRMATION_TIMEOUT: int
-    WAKE_WORD_ENABLED: bool
-    WAKE_WORD_PHRASE: str
+class SettingsResponse(BaseResponse):
+    settings: Dict[str, Any]
+
 
 class ApiKeyStatusResponse(BaseModel):
     NVIDIA_API_KEY: Optional[str] = None

@@ -40,22 +40,25 @@ class ProactiveManager:
                 
                 # 1. Get current window context
                 window_info = await window_manager.get_active_window()
-                if not window_info or not window_info.title:
+                if not window_info or not window_info.get('title'):
                     continue
                 
+                window_title = window_info.get('title', "")
+                
                 # Skip if it's just the desktop or JARVIS itself
-                if any(x in window_info.title.lower() for x in ["jarvis", "taskbar", "program manager"]):
+                if any(x in window_title.lower() for x in ["jarvis", "taskbar", "program manager"]):
                     continue
-
+ 
                 # 2. Check if context has changed significantly
-                current_context_fingerprint = f"{window_info.title}"
+                current_context_fingerprint = f"{window_title}"
                 if current_context_fingerprint == self.last_context:
                     continue
                 
                 self.last_context = current_context_fingerprint
-
+ 
                 # 3. Perform lightweight analysis (OCR snippet + Title)
-                suggestion = await self._analyze_situation(window_info.title)
+                suggestion = await self._analyze_situation(window_title)
+
                 
                 if suggestion and suggestion != self.last_suggestion:
                     self.last_suggestion = suggestion

@@ -14,16 +14,21 @@ router = APIRouter(prefix="/settings", tags=["Settings"])
 async def get_settings():
     """Get all current settings"""
     return {
-        "AI_ENGINE": CONFIG.get("llm_provider", "nvidia"),
-        "NVIDIA_MODEL": NVIDIA_MODEL,
-        "OPENROUTER_MODEL": OPENROUTER_MODEL,
-        "PORT": BACKEND_PORT,
-        "LOG_LEVEL": LOG_LEVEL,
-        "DANGEROUS_COMMANDS_ENABLED": CONFIG.get("enable_dangerous_commands", True),
-        "CONFIRMATION_TIMEOUT": CONFIG.get("confirmation_timeout", 30),
-        "WAKE_WORD_ENABLED": CONFIG.get("wake_word_enabled", True),
-        "WAKE_WORD_PHRASE": CONFIG.get("wake_word_phrase", "jarvis")
+        "success": True,
+        "settings": {
+            "llm_provider": CONFIG.get("llm_provider", "nvidia"),
+            "nvidia_model": NVIDIA_MODEL,
+            "openrouter_model": OPENROUTER_MODEL,
+            "language": CONFIG.get("language", "en"),
+            "port": BACKEND_PORT,
+            "log_level": LOG_LEVEL,
+            "enable_dangerous_commands": CONFIG.get("enable_dangerous_commands", True),
+            "confirmation_timeout": CONFIG.get("confirmation_timeout", 30),
+            "wake_word_enabled": CONFIG.get("wake_word_enabled", True),
+            "wake_word_phrase": CONFIG.get("wake_word_phrase", "jarvis")
+        }
     }
+
 
 @router.get("/keys", response_model=ApiKeyStatusResponse)
 async def get_keys():
@@ -39,7 +44,7 @@ async def get_keys():
         "BACKEND_API_KEY": redact(os.getenv("BACKEND_API_KEY"))
     }
 
-@router.post("", response_model=BaseResponse)
+@router.post("", response_model=SettingsResponse)
 async def update_settings(data: SettingsUpdateRequest):
     """Update system configuration"""
     try:
@@ -51,9 +56,11 @@ async def update_settings(data: SettingsUpdateRequest):
         # Save to config.json
         await asyncio.to_thread(save_config, CONFIG)
         
-        return {"success": True, "response": "Settings updated successfully"}
+        # Return full updated settings
+        return await get_settings()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
+
 
 @router.post("/keys", response_model=BaseResponse)
 async def update_keys(data: ApiKeyUpdateRequest):

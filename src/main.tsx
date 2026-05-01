@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { NotificationProvider } from './context/NotificationContext';
+import { BrowserRouter } from 'react-router-dom';
 import './styles/index.css';
 
 const rootElement = document.getElementById('root');
@@ -13,10 +14,12 @@ if (!rootElement) {
 const root = createRoot(rootElement);
 root.render(
   <StrictMode>
-    <ErrorBoundary>
-      <NotificationProvider>
-        <App />
-      </NotificationProvider>
-    </ErrorBoundary>
+    <BrowserRouter>
+      <ErrorBoundary>
+        <NotificationProvider>
+          <App />
+        </NotificationProvider>
+      </ErrorBoundary>
+    </BrowserRouter>
   </StrictMode>
 );

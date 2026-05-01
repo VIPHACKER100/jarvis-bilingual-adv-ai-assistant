@@ -633,7 +633,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
 
         {/* Footer */}
         <div className="p-5 border-t border-white/5 flex justify-between items-center bg-black/20">
-          <span className="text-[10px] font-mono text-gray-700 uppercase tracking-widest">JARVIS CONFIG v2.2.0</span>
+          <span className="text-[10px] font-mono text-gray-700 uppercase tracking-widest">JARVIS CONFIG v3.7.0</span>
+
           <button
             type="button"
             onClick={onClose}

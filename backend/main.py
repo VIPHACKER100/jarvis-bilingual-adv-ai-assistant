@@ -146,12 +146,18 @@ async def api_key_middleware(request: Request, call_next):
     # Only protect /api/ routes, exclude static files and root
     if request.url.path.startswith("/api/") and BACKEND_API_KEY:
         api_key = request.headers.get("X-API-Key")
-        if api_key != BACKEND_API_KEY:
+        
+        # Determine if request is from localhost
+        client_host = request.client.host if request.client else ""
+        is_local = client_host in ("127.0.0.1", "localhost", "::1")
+        
+        if api_key != BACKEND_API_KEY and not is_local:
             return JSONResponse(
                 status_code=403,
                 content={"success": False, "detail": "Invalid or missing API Key"}
             )
     return await call_next(request)
+
 
 # Global Exception Handler
 @app.exception_handler(Exception)
