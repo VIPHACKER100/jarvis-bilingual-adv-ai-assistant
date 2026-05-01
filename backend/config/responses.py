@@ -131,4 +131,32 @@ RESPONSES = {
         'en': 'Confirmation timed out. Action cancelled.',
         'hi': 'पुष्टि का समय समाप्त हो गया। कार्य रद्द कर दिया गया है।'
     },
+    'media_next': {
+        'en': 'Playing next track.',
+        'hi': 'अगला ट्रैक चला रहा हूँ।'
+    },
+    'media_play_pause': {
+        'en': 'Toggled media playback.',
+        'hi': 'मीडिया प्लेबैक टॉगल किया गया।'
+    },
+    'media_prev': {
+        'en': 'Playing previous track.',
+        'hi': 'पिछला ट्रैक चला रहा हूँ।'
+    },
+    'media_stop': {
+        'en': 'Media stopped.',
+        'hi': 'मीडिया रोक दिया गया है।'
+    },
+    'muted': {
+        'en': 'System muted.',
+        'hi': 'सिस्टम म्यूट कर दिया गया है।'
+    },
+    'unmuted': {
+        'en': 'System unmuted.',
+        'hi': 'सिस्टम अनम्यूट कर दिया गया है।'
+    },
+    'screenshot_captured': {
+        'en': 'Screenshot captured successfully.',
+        'hi': 'स्क्रीनशॉट सफलतापूर्वक ले लिया गया है।'
+    }
 }
