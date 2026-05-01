@@ -337,6 +337,19 @@ Complete reference of all voice commands supported by JARVIS.
 | "What can you do?" | "Tum kya kar sakte ho?" | List capabilities |
 | "Commands" | "Commands batao" | Show command list |
 | "Features" | "Features batao" | List features |
+| "Show analytics" | "Analytics dikhao" | Open Command Insights |
+| "Command insights" | "Usage statistics" | View behavioral patterns |
+| "Peak usage" | "Most used commands" | Top command metrics |
+
+### 🎭 Personality & Persona Switching
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Activate Stark Mode" | "Stark mode chalu karo" | Switch to Stark Personality |
+| "Midnight Protocol" | "Midnight mode" | Switch to Midnight (Dark) |
+| "Switch to Avenue" | "Avenue persona" | Switch to Avenue Style |
+| "Linear Mode" | "Linear interface" | Switch to Linear Design |
+| "Change your persona" | "Apna vyaktitva badlo" | Randomly switch personality |
 
 ---
 
@@ -399,7 +412,9 @@ Commands marked with ⚠️ require confirmation:
 | Image Processing | 10 | 10 | 20 |
 | Desktop Utilities | 8 | 8 | 16 |
 | WhatsApp | 5 | 5 | 10 |
-| **Total** | **100** | **100** | **200+** |
+| Analytics | 5 | 5 | 10 |
+| Persona | 5 | 5 | 10 |
+| **Total** | **110** | **110** | **220+** |
 
 ---
 

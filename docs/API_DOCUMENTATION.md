@@ -1,4 +1,4 @@
-# JARVIS API Documentation (v3.4.1)
+# JARVIS API Documentation (v3.7.0)
 
 Complete API reference for JARVIS Backend.
 
@@ -115,6 +115,37 @@ GET /api/system/status
   "volume": 75,
   "platform": "Windows",
   "event_loop_lag": 1.5
+}
+```
+
+---
+
+### Command Insights (Behavioral Analytics)
+
+```http
+GET /api/system/command-insights?days=30
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "top_commands": [
+      {"command_type": "open_app", "count": 45},
+      {"command_type": "google_search", "count": 20}
+    ],
+    "daily_activity": [
+      {"day": "2024-05-01", "count": 12},
+      {"day": "2024-05-02", "count": 15}
+    ],
+    "peak_hour": {"hour": 14, "count": 25},
+    "failure_patterns": [
+      {"command_type": "whatsapp_send", "failures": 2, "total": 10}
+    ],
+    "period_days": 30
+  }
 }
 ```
 
@@ -912,6 +943,10 @@ ws.onmessage = (event) => {
     case "confirmation_request":
       console.log("Confirmation needed:", message.data);
       break;
+    case "personality_sync":
+      console.log("Personality updated:", message.data);
+      // Data: { id: "midnight", name: "Midnight", accent: "#5E6AD2" }
+      break;
   }
 };
 ```
@@ -965,6 +1000,13 @@ Currently no rate limiting for local usage. Future versions may implement limits
 ---
 
 ## Changelog
+
+### v3.7.0
+
+- **Behavioral Insights Engine**: Added `/api/system/command-insights` to surface usage patterns, failure diagnostics, and peak activity hours.
+- **Dynamic Persona Switching**: Added bilingual voice commands for activating Stark, Midnight, Avenue, and Linear personalities.
+- **Neural Proactivity Core**: Real-time situational analysis with autonomous task suggestions delivered via WebSockets.
+- **Settings API Reform**: Refactored settings response to a nested dictionary structure for better scalability and frontend parsing.
 
 ### v3.4.1
 

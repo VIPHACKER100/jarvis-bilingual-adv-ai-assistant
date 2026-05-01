@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-3.4.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-3.7.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,15 +20,15 @@
 
 ---
 
-## 🌟 Modern Capabilities (v3.4.1)
+## 🌟 Modern Capabilities (v3.7.0)
 
-### 🚀 **What's New? (v3.4.1)**
+### 🚀 **What's New? (v3.7.0)**
 
-- ⚡ **High-Performance Async Backend** - Full migration to a non-blocking asynchronous architecture. Legacy I/O, GUI automation, and OCR tasks are now offloaded to worker threads, ensuring zero event loop lag.
-- 👁️ **Real-Time Observability HUD** - New "Core Lifecycle" monitoring in the System Diagnostics panel. Visual "Vibration" and "Glitch" effects on the Arc Reactor provide instant feedback on backend responsiveness.
-- ⚙️ **Intelligent Conditional Automation** - Automation tasks now support complex execution conditions (e.g., `battery < 20`, `cpu > 80`). Tasks only trigger when system state constraints are met.
-- 💬 **Neural Chat Assist (v2)** - Enhanced context-aware WhatsApp drafting with improved bilingual LLM prompts and faster OCR processing.
-- 🛡️ **Neural Security Matrix (v2)** - Process Guardian now monitors event loop health to detect "noisy" processes that might be impacting system performance.
+- 📊 **Behavioral Insights Engine** - Surfaces deep command usage patterns, peak activity hours, and failure diagnostics directly on the HUD.
+- 🎭 **Dynamic Persona Switching** - Switch between 4 distinct personalities (Stark, Midnight, Avenue, Linear) via voice commands. Each persona features synchronized UI accents and voice profiles.
+- ⚡ **Neural Proactivity Core** - Real-time background analysis of active windows to provide autonomous task suggestions and context-aware summaries.
+- ⚙️ **Intelligent Conditional Automation** - Automation tasks now support complex execution conditions (e.g., `battery < 20`, `cpu > 80`).
+- 💬 **Neural Chat Assist (v3)** - Enhanced context-aware WhatsApp drafting with improved bilingual LLM prompts and synchronized personality-based responses.
 
 ---
 
@@ -274,11 +274,11 @@ graph TD
 
 ### **The Tech Stack**
 
-- **Frontend**: `React 19`, `TypeScript 5.8`, `Vite`, `Tailwind CSS`
-- **Backend**: `Python 3.11`, `FastAPI`, `PyAutoGUI`
-- **Architecture**: `Modular Router System`, `Command Handlers`
-- **Intelligence**: `Bilingual Parser`, `Gemini AI` / `NVIDIA NIM` / `OpenRouter LLM`
-- **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`
+- **Frontend**: `React 19`, `TypeScript 5.8`, `Vite`, `Tailwind CSS`, `Framer Motion`
+- **Backend**: `Python 3.11`, `FastAPI`, `PyAutoGUI`, `SQLAlchemy`
+- **Architecture**: `Modular Router System`, `Centralized Command Handlers`, `Async Event Loop`
+- **Intelligence**: `Neural Proactive Engine`, `Bilingual LLM Parser`, `Gemini AI` / `NVIDIA NIM`
+- **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`, `SQLite`
 
 ---
 

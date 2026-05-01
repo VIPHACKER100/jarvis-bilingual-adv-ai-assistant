@@ -1,7 +1,7 @@
 # Backend-Frontend Sync Verification
 
-**Generated:** 2026-04-28 00:30:00  
-**Status:** ✅ FULLY SYNCED (v3.4.0)
+**Generated:** 2026-05-01 13:00:00  
+**Status:** ✅ FULLY SYNCED (v3.7.0)
 
 ## Architecture Overview
 
@@ -9,13 +9,15 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                        FRONTEND                              │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │  App.tsx (Dashboard V3.4.0)                             │  │
+│  │  App.tsx (Dashboard V3.7.0)                             │  │
 │  │  - Premium HUD (SystemDiagnostics, ArcReactor V3)     │  │
 │  │  - Procedural SFX (audioUtils.ts - Web Audio API)    │  │
 │  │  - Voice Recognition (voiceService)                   │  │
 │  │  - State Management (NotificationContext)             │  │
 │  │  - Mobile Sync (/mobile → MobileDashboard.tsx)        │  │
 │  │  - Neural Chat Assist UI (draft reply trigger)        │  │
+│  │  - Command Insights UI (visual analytics dashboard)   │  │
+│  │  - Personality Switcher (Dynamic UI sync)             │  │
 │  └────────────────────┬─────────────────────────────────┘  │
 │                       │                                      │
 │  ┌────────────────────▼─────────────────────────────────┐  │
@@ -58,6 +60,8 @@
 │  │  - NEW: /api/whatsapp/draft_reply (Neural Chat Assist)│  │
 │  │  - NEW: /api/system/security/* (Process Guardian)     │  │
 │  │  - NEW: /api/notifications/broadcast (WebSocket push) │  │
+│  │  - NEW: /api/system/command-insights (Behavioral)     │  │
+│  │  - NEW: /api/settings (Refactored nested structure)   │  │
 │  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -141,6 +145,7 @@ websocketService.connect() → ws://localhost:8000/ws
 ### System
 
 - `GET /api/system/status` - Get system status
+- `GET /api/system/command-insights` - Get behavioral usage analytics
 - `POST /api/command` - Execute command (alternative to WebSocket)
 
 ### Windows
@@ -336,6 +341,8 @@ websocketService.connect() → ws://localhost:8000/ws
 - [x] **Procedural Audio Feedback** (Zero-latency HUD SFX)
 - [x] **Framer Motion Animations** (Staggered HUD entrance)
 - [x] **Pydantic Type Safety** (Full Backend/Frontend Schema Sync)
+- [x] **Command Insights Dashboard** (Usage & Health Analytics)
+- [x] **Multi-Persona Theme Sync** (Accent & UI personalization)
 
 ### ✅ Module Integration
 

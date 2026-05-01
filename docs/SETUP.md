@@ -183,7 +183,7 @@ You should see:
 ```text
 INFO:     Started server process [xxxxx]
 INFO:     Waiting for application startup.
-INFO:     JARVIS Backend starting up (v3.4.1 - High Performance Async)...
+INFO:     JARVIS Backend starting up (v3.7.0 - High Performance Async)...
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
