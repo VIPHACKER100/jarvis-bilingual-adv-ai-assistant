@@ -7,7 +7,7 @@ from models import (
     UptimeResponse, NetworkInfoResponse
 )
 
-router = APIRouter(prefix="/api/system", tags=["System"])
+router = APIRouter(prefix="/system", tags=["System"])
 
 @router.get("/status", response_model=SystemStatusResponse)
 async def get_system_status(language: str = "en"):

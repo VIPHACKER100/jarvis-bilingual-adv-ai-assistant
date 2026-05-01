@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional, List
 from modules.window_manager import window_manager
 from models import BaseResponse, WindowListResponse, AppListResponse
 
-router = APIRouter(prefix="/api", tags=["Windows & Applications"])
+router = APIRouter(prefix="", tags=["Windows & Applications"])
 
 @router.get("/windows/list", response_model=WindowListResponse)
 async def list_windows():

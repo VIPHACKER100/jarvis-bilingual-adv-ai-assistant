@@ -14,7 +14,7 @@ from models import (
     PairedDevice
 )
 
-router = APIRouter(prefix="/api/sync", tags=["sync"])
+router = APIRouter(prefix="/sync", tags=["sync"])
 
 @router.get("/status", response_model=SyncStatusResponse)
 async def get_sync_status():

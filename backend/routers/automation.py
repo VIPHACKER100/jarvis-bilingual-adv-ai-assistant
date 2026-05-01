@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional, List
 from modules.automation import automation_manager
 from models import BaseResponse, AutomationTaskRequest, MacroRequest
 
-router = APIRouter(prefix="/api/automation", tags=["Automation"])
+router = APIRouter(prefix="/automation", tags=["Automation"])
 
 
 @router.post("/task", response_model=BaseResponse)

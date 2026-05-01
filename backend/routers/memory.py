@@ -13,7 +13,7 @@ from models import (
     MemoryNodeUpdateRequest
 )
 
-router = APIRouter(prefix="/api/memory", tags=["Memory & Analytics"])
+router = APIRouter(prefix="/memory", tags=["Memory & Analytics"])
 
 
 @router.post("/conversation", response_model=BaseResponse)

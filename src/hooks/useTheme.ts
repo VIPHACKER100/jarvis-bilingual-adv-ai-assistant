@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useJarvisStore } from '../store/jarvisStore';
 
 export type ThemeName = 'cyan' | 'red' | 'green' | 'purple' | 'gold';
 
@@ -74,17 +75,26 @@ export const THEMES: JarvisTheme[] = [
 
 const STORAGE_KEY = 'jarvis-theme';
 
-function applyTheme(theme: JarvisTheme) {
+function hexToRgb(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result 
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : '94, 106, 210';
+}
+
+function applyTheme(theme: any) {
   const root = document.documentElement;
-  root.style.setProperty('--neon-blue', theme.primary);
-  root.style.setProperty('--neon-glow', theme.glow);
-  root.style.setProperty('--neon-rgb', theme.primaryRgb);
-  root.style.setProperty('--accent-color', theme.accent);
-  root.style.setProperty('--accent-rgb', theme.accentRgb);
-  root.setAttribute('data-theme', theme.name);
+  const accentHex = theme.accent || theme.primary;
+  const accentRgb = hexToRgb(accentHex);
+  
+  root.style.setProperty('--accent', accentHex);
+  root.style.setProperty('--accent-rgb', accentRgb);
+  root.style.setProperty('--neon-rgb', accentRgb);
+  root.style.setProperty('--neon-blue', theme.primary || accentHex);
 }
 
 export function useTheme() {
+  const { systemStatus } = useJarvisStore();
   const [themeName, setThemeName] = useState<ThemeName>(() => {
     return (localStorage.getItem(STORAGE_KEY) as ThemeName) || 'cyan';
   });
@@ -92,8 +102,12 @@ export function useTheme() {
   const currentTheme = THEMES.find(t => t.name === themeName) ?? THEMES[0];
 
   useEffect(() => {
-    applyTheme(currentTheme);
-  }, [currentTheme]);
+    if (systemStatus?.personality) {
+      applyTheme(systemStatus.personality);
+    } else {
+      applyTheme(currentTheme);
+    }
+  }, [currentTheme, systemStatus?.personality]);
 
   const changeTheme = (name: ThemeName) => {
     setThemeName(name);

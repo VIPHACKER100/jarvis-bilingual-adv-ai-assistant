@@ -8,7 +8,7 @@ from models import (
     SettingsUpdateRequest, ApiKeyUpdateRequest, KeyTestRequest
 )
 
-router = APIRouter(prefix="/api/settings", tags=["Settings"])
+router = APIRouter(prefix="/settings", tags=["Settings"])
 
 @router.get("", response_model=SettingsResponse)
 async def get_settings():

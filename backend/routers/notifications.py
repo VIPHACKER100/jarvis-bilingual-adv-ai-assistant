@@ -5,7 +5,7 @@ from routers.websocket import broadcast_notification
 from utils.logger import logger
 from models import NotificationRequest, NotificationResponse
 
-router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
+router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
 @router.post("", response_model=NotificationResponse)
 async def push_notification(data: NotificationRequest):

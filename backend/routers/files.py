@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional, List
 from modules.file_manager import file_manager
 from models import BaseResponse, FileListResponse, FileInfoResponse
 
-router = APIRouter(prefix="/api/files", tags=["Files"])
+router = APIRouter(prefix="/files", tags=["Files"])
 
 @router.post("/open", response_model=BaseResponse)
 async def open_folder(folder: str, language: str = "en"):

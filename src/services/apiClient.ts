@@ -22,6 +22,45 @@ class ApiClient {
     return headers;
   }
 
+  // --- Generic REST Methods ---
+
+  async get(path: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error(`GET ${path} failed`);
+    return { data: await response.json(), status: response.status };
+  }
+
+  async post(path: string, body: any): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(body)
+    });
+    if (!response.ok) throw new Error(`POST ${path} failed`);
+    return { data: await response.json(), status: response.status };
+  }
+
+  async put(path: string, body: any): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify(body)
+    });
+    if (!response.ok) throw new Error(`PUT ${path} failed`);
+    return { data: await response.json(), status: response.status };
+  }
+
+  async delete(path: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
+      method: 'DELETE',
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error(`DELETE ${path} failed`);
+    return { data: await response.json(), status: response.status };
+  }
+
   // Health check
   async healthCheck(): Promise<{ status: string; name: string; version: string }> {
     const response = await fetch(`${this.baseUrl}/health`);

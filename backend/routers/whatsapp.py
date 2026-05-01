@@ -7,7 +7,7 @@ from models import (
     WhatsAppDraftResponse
 )
 
-router = APIRouter(prefix="/api/whatsapp", tags=["WhatsApp Automation"])
+router = APIRouter(prefix="/whatsapp", tags=["WhatsApp Automation"])
 
 @router.post("/open", response_model=BaseResponse)
 async def open_whatsapp(language: str = "en"):

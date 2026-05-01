@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional, List
 from modules.input_control import input_controller
 from models import BaseResponse, CursorPositionResponse, ShortcutRequest
 
-router = APIRouter(prefix="/api/input", tags=["Input Control"])
+router = APIRouter(prefix="/input", tags=["Input Control"])
 
 @router.get("/cursor", response_model=CursorPositionResponse)
 async def get_cursor_position():
@@ -54,3 +54,4 @@ async def drag(start_x: int = Body(...), start_y: int = Body(...), end_x: int = 
 async def hotkey(data: ShortcutRequest):
     """Run keyboard shortcut (hotkey combo)"""
     return await input_controller.press_hotkey(data.keys)
+

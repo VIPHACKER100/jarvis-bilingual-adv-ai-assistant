@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional
 from modules.desktop import desktop_manager
 from models import BaseResponse, ClipboardResponse, ScreenshotResponse
 
-router = APIRouter(prefix="/api/desktop", tags=["Desktop Utilities"])
+router = APIRouter(prefix="/desktop", tags=["Desktop Utilities"])
 
 @router.get("/screenshot", response_model=ScreenshotResponse)
 async def take_screenshot(save: bool = True, language: str = "en"):

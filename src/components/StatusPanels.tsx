@@ -4,6 +4,8 @@ import { useJarvisStore } from '../store/jarvisStore';
 import { HistoryLog } from './HistoryLog';
 import { VolumeControl } from './VolumeControl';
 import { SystemDiagnostics } from './SystemDiagnostics';
+import { CommandInsights } from './CommandInsights';
+import { PersonalitySwitcher } from './PersonalitySwitcher';
 
 export const StatusPanels: FC = () => {
   const { mode, history, volume, systemStatus } = useJarvisStore();
@@ -17,6 +19,16 @@ export const StatusPanels: FC = () => {
         {systemStatus && systemStatus.success && (
           <SystemDiagnostics systemStatus={systemStatus} />
         )}
+
+        <CommandInsights />
+
+        <PersonalitySwitcher 
+          currentPersonality={systemStatus?.personality?.id} 
+          onSwitch={(id) => {
+            // Force refresh status to update theme immediately if needed
+            // But usually the store/sync handles this
+          }}
+        />
 
         {!systemStatus && (
           <div className="glass-panel p-4 w-full md:w-64 text-[10px] sm:text-xs font-mono grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg backdrop-blur-md hover:border-purple-500/40 transition-all">

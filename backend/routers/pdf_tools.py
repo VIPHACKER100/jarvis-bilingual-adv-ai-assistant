@@ -6,7 +6,7 @@ from models import (
     PDFToImageRequest, ImageToPDFRequest
 )
 
-router = APIRouter(prefix="/api/pdf", tags=["PDF Tools"])
+router = APIRouter(prefix="/pdf", tags=["PDF Tools"])
 
 @router.post("/merge", response_model=BaseResponse)
 async def merge_pdfs(data: PDFMergeRequest):

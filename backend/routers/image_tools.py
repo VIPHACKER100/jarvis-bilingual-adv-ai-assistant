@@ -6,7 +6,7 @@ from models import (
     ImageResizeRequest, ImageCompressRequest
 )
 
-router = APIRouter(prefix="/api/image", tags=["Image Tools"])
+router = APIRouter(prefix="/image", tags=["Image Tools"])
 
 @router.post("/convert", response_model=BaseResponse)
 async def convert_image(data: ImageConvertRequest):

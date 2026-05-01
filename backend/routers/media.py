@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional
 from modules.media import media_processor
 from models import OCRResultResponse
 
-router = APIRouter(prefix="/api/media", tags=["Media (OCR)"])
+router = APIRouter(prefix="/media", tags=["Media (OCR)"])
 
 @router.post("/ocr/image", response_model=OCRResultResponse)
 async def ocr_image(image_path: str, language: str = "en"):

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Settings, Globe } from 'lucide-react';
 import { Language } from '../../types';
 import { useJarvisStore } from '../../store/jarvisStore';
+import { APP_VERSION } from '../../config';
 import { sfx } from '../../utils/audioUtils';
 
 export const Header: FC = () => {
@@ -21,7 +22,7 @@ export const Header: FC = () => {
     >
       <div className="flex flex-col">
         <h1 className="text-3xl md:text-5xl font-bold tracking-tight gradient-text-linear">
-          JARVIS <span className="accent-text-linear text-2xl md:text-4xl ml-2">v3.4.0</span>
+          JARVIS <span className="accent-text-linear text-2xl md:text-4xl ml-2">{APP_VERSION}</span>
         </h1>
         <p className="text-[10px] md:text-xs font-mono text-foreground-muted tracking-widest uppercase mt-2">
           Neural Interface // Active_Status: Online

@@ -3,7 +3,7 @@ from typing import Dict, Any, Optional, List
 from modules.security import security
 from models import CommandRequest, CommandResult, ConfirmationRequest, BaseResponse
 
-router = APIRouter(prefix="/api", tags=["Commands"])
+router = APIRouter(prefix="", tags=["Commands"])
 
 @router.post("/command", response_model=CommandResult)
 async def execute_command(request: Request, data: CommandRequest):

@@ -12,7 +12,7 @@ export const API_BASE_URL = `http://localhost:${BACKEND_PORT}/api/v1`;
 export const WS_BASE_URL = `ws://localhost:${BACKEND_PORT}/ws`;
 
 // Version Info
-export const APP_VERSION = "v3.4.1";
+export const APP_VERSION = "v3.7.0";
 export const DEVELOPER = "VIPHACKER100";
 
 // Feature Flags

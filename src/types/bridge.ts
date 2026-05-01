@@ -41,6 +41,13 @@ export interface SystemStatus {
   } | string | null;
   context_suggestion?: string | null;
   event_loop_lag?: number;
+  personality?: {
+    id: string;
+    name: string;
+    accent: string;
+    primary: string;
+    style: string;
+  };
 }
 
 export interface CommandRequest {

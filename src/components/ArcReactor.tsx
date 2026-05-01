@@ -8,8 +8,11 @@ interface ArcReactorProps {
   eventLoopLag?: number;
 }
 
-export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language }) => {
+export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language, eventLoopLag = 0 }) => {
   const [rotation, setRotation] = useState(0);
+
+  const isLagging = eventLoopLag > 10;
+  const isCritical = eventLoopLag > 50;
 
   // Simple rotation effect for interaction
   useEffect(() => {
