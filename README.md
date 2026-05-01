@@ -365,17 +365,16 @@ LOG_RETENTION_DAYS=30
 
 ### Adding New Commands
 
-1. Add command mapping in `backend/config.py`:
+1. Add command mapping in `backend/config/commands.py`:
 
 ```python
 'new_command': ['command', 'hindi_command'],
 ```
 
-1. Implement handler in appropriate module
-
-2. Add route in `backend/main.py`
-
-3. Test via WebSocket or REST API
+2. Add a response mapping in `backend/config/responses.py`
+3. Implement handler in appropriate module (`backend/modules/`)
+4. Add route in `backend/handlers/command_handler.py`
+5. Test via WebSocket or REST API
 
 ---
 
