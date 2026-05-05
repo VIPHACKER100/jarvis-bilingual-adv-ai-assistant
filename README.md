@@ -22,12 +22,11 @@
 
 ## 🌟 Modern Capabilities (v3.7.1)
 
-### 🚀 **What's New? (v3.7.1)**
-
-- 🛠️ **Modular Command Overhaul** - Re-engineered dispatch logic with 50+ new mapped voice triggers for file management, media tools, and diagnostics.
+- 🛠️ **Modular Router Architecture** - Transitioned to a fully decoupled router system with versioned API endpoints (`/api/v1`) for improved scalability and responsiveness.
+- 📱 **Mobile Synchronization Core** - New synchronization layer for future mobile dashboard integration, including secure device pairing and real-time status syncing.
 - 📄 **Advanced Media & PDF Engine** - Professional voice-activated PDF merging, splitting, OCR, and image conversion directly from the HUD.
-- ⚡ **Infrastructure Stabilization** - Fixed performance logging leaks and stabilized the real-time system status broadcast loop.
-- 🧼 **Fluid HUD Interaction** - Automatic transcript clearing immediately upon task execution for a more immersive and clean user experience.
+- ⚡ **Neural Proactivity Integration** - Fully operational background analysis engine for context-aware suggestions and autonomous task summaries.
+- 🧼 **Fluid HUD Interaction** - Automatic transcript clearing and Linear V3.1 theme synchronization for a premium immersive experience.
 
 ### 🚀 **What's New? (v3.7.0)**
 

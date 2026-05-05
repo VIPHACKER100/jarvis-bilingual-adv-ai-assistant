@@ -43,6 +43,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "IP address" | "Mera IP batao" | Get current IP address |
 | "Uptime" | "Kitne time se chal raha hai?" | System uptime |
 | "Weather" | "Aaj ka mausam kaisa hai?" | Current weather information |
+| "System summary" | "System ki summary" | Overall system status |
 
 ### Power Control ⚠️
 
@@ -73,6 +74,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "Brightness down" | "Roshni kam karo" | Decrease brightness |
 | "Raise brightness" | "Brightness badhao" | Screen brightness +10% |
 | "Lower brightness" | "Brightness kam karo" | Screen brightness -10% |
+| "Max brightness" | "Poori brightness" | Set brightness to 100% |
 
 ---
 
@@ -88,6 +90,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "New window" | "Naya window kholo" | Open new browser window |
 | "Open [website.com]" | "[website.com] kholo" | Open specific URL |
 | "Search [query]" | "[query] search karo" | Smart search extraction |
+| "Find on page [text]" | "Page par [text] dhoondo" | Find text in browser |
 
 ---
 
@@ -323,6 +326,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "Volume up" | "Volume badhao" | Increase volume |
 | "Volume down" | "Volume kam karo" | Decrease volume |
 | "Mute" | "Mute karo" | Mute audio |
+| "Kill media" | "Gaana khatam karo" | Force stop all media |
 
 ---
 
