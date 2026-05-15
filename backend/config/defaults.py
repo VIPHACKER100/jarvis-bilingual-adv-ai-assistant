@@ -9,6 +9,8 @@ from .environment import (
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "nvidia").lower()
 NVIDIA_MODEL = os.getenv("NVIDIA_MODEL", "deepseek-ai/deepseek-v4-pro")
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
 
@@ -26,6 +28,7 @@ def get_config():
         "llm_provider": LLM_PROVIDER,
         "nvidia_model": NVIDIA_MODEL,
         "openrouter_model": OPENROUTER_MODEL,
+        "openai_model": OPENAI_MODEL,
         "ollama_url": OLLAMA_URL,
         "ollama_model": OLLAMA_MODEL,
         "wake_word_enabled": WAKE_WORD_ENABLED,

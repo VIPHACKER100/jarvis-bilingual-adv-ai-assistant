@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM, LLM_PROVIDER, NVIDIA_MODEL, OPENROUTER_MODEL
+from config import BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM, LLM_PROVIDER, NVIDIA_MODEL, OPENROUTER_MODEL, OPENAI_MODEL
 from modules.memory import memory_manager
 
 load_dotenv()
@@ -24,6 +24,7 @@ class LLMModule:
     def __init__(self):
         self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
         self.nvidia_api_key = os.getenv("NVIDIA_API_KEY")
+        self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.provider = LLM_PROVIDER
         
         from config import OLLAMA_URL, OLLAMA_MODEL
@@ -40,9 +41,16 @@ class LLMModule:
             )
         else:
             self.nvidia_client = None
+            
+        # Initialize OpenAI client for ChatGPT
+        if self.openai_api_key:
+            self.openai_client = OpenAI(api_key=self.openai_api_key)
+        else:
+            self.openai_client = None
         
         # Use models from config as primary, with fallbacks
         self.nvidia_model = NVIDIA_MODEL
+        self.openai_model = OPENAI_MODEL
         self.openrouter_models = [OPENROUTER_MODEL] + [
             "google/gemini-2.0-flash-lite-preview-02-05",
             "deepseek/deepseek-r1",
@@ -53,6 +61,7 @@ class LLMModule:
         self.provider_status = {
             "nvidia": {"healthy": True, "last_failure": 0},
             "openrouter": {"healthy": True, "last_failure": 0},
+            "openai": {"healthy": True, "last_failure": 0},
             "ollama": {"healthy": True, "last_failure": 0}
         }
 
@@ -102,6 +111,8 @@ class LLMModule:
                 logger.warning("NVIDIA is currently in lockout due to recent failures. Using OpenRouter instead.")
                 return await self._get_openrouter_response(text, system_prompt)
             return await self._get_nvidia_response(text, system_prompt)
+        elif self.provider == "openai" and self.openai_api_key:
+            return await self._get_openai_response(text, system_prompt)
         elif self.provider == "ollama":
             return await self._get_ollama_response(text, system_prompt)
         elif self.openrouter_api_key:
@@ -142,6 +153,9 @@ class LLMModule:
 
         if self.provider == "nvidia" and self.nvidia_api_key:
             async for chunk in self._stream_nvidia(text, system_prompt):
+                yield chunk
+        elif self.provider == "openai" and self.openai_api_key:
+            async for chunk in self._stream_openai(text, system_prompt):
                 yield chunk
         elif self.provider == "ollama":
             async for chunk in self._stream_ollama(text, system_prompt):
@@ -585,6 +599,51 @@ class LLMModule:
         except Exception as e:
             logger.error(f"OpenRouter Streaming Error: {e}")
             yield f"Error in OpenRouter stream: {str(e)}"
+
+    async def _get_openai_response(self, text: str, system_prompt: str) -> Optional[str]:
+        """Get response from OpenAI API"""
+        if not self.openai_client:
+            return None
+        try:
+            import asyncio
+            def call_openai():
+                completion = self.openai_client.chat.completions.create(
+                    model=self.openai_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": text}
+                    ]
+                )
+                return completion.choices[0].message.content.strip()
+            
+            return await asyncio.to_thread(call_openai)
+        except Exception as e:
+            logger.error(f"OpenAI Error: {e}")
+            return None
+
+    async def _stream_openai(self, text: str, system_prompt: str) -> AsyncGenerator[str, None]:
+        """Stream response from OpenAI API"""
+        if not self.openai_client:
+            yield "Error: OpenAI client not initialized."
+            return
+        try:
+            import asyncio
+            def get_stream():
+                return self.openai_client.chat.completions.create(
+                    model=self.openai_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": text}
+                    ],
+                    stream=True
+                )
+            completion = await asyncio.to_thread(get_stream)
+            for chunk in completion:
+                if chunk.choices and chunk.choices[0].delta.content is not None:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            logger.error(f"OpenAI Streaming Error: {e}")
+            yield f"Error in OpenAI stream: {str(e)}"
 
 # Singleton instance
 llm_module = LLMModule()

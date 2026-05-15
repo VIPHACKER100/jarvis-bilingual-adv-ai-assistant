@@ -12,7 +12,7 @@ from typing import Optional, AsyncGenerator
 from contextlib import asynccontextmanager
 
 from utils.logger import logger
-from config import DATA_DIR
+from config import DATA_DIR, BASE_DIR
 
 
 class DatabaseManager:
@@ -29,7 +29,7 @@ class DatabaseManager:
         self._connection: Optional[aiosqlite.Connection] = None
         self._lock = asyncio.Lock()
         self._initialized = False
-        self._migrations_dir = Path(__file__).parent.parent / "migrations"
+        self._migrations_dir = BASE_DIR / "migrations"
 
     async def initialize(self) -> None:
         """Open the persistent connection and apply pending migrations."""
@@ -174,24 +174,31 @@ class DatabaseManager:
         """)
         
         # PROACTIVE CHECK: Ensure core tables exist.
+        logger.debug(f"Checking for core tables in {self.db_path}...")
+        
         # If performance_metrics is missing but _schema_version exists, we might have a corrupted state.
         cursor = await self._connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='performance_metrics'")
         table_exists = await cursor.fetchone()
         
         if not table_exists:
-            logger.warning("Core tables missing. Forcing migration v1 (001_initial.sql)...")
+            logger.warning(f"Core tables missing in {self.db_path}. Forcing migration v1 from {self._migrations_dir}...")
             initial_migration = self._migrations_dir / "001_initial.sql"
             if initial_migration.exists():
-                sql = initial_migration.read_text(encoding="utf-8")
-                await self._connection.executescript(sql)
-                # Check if already in _schema_version
-                cursor = await self._connection.execute("SELECT version FROM _schema_version WHERE version = 1")
-                if not await cursor.fetchone():
-                    await self._connection.execute(
-                        "INSERT INTO _schema_version (version, filename) VALUES (1, '001_initial.sql')"
-                    )
-                await self._connection.commit()
-                logger.info("Core tables created successfully via forced migration.")
+                try:
+                    sql = initial_migration.read_text(encoding="utf-8")
+                    await self._connection.executescript(sql)
+                    # Check if already in _schema_version
+                    cursor = await self._connection.execute("SELECT version FROM _schema_version WHERE version = 1")
+                    if not await cursor.fetchone():
+                        await self._connection.execute(
+                            "INSERT INTO _schema_version (version, filename) VALUES (1, '001_initial.sql')"
+                        )
+                    await self._connection.commit()
+                    logger.info("Core tables created successfully via forced migration.")
+                except Exception as mig_err:
+                    logger.error(f"Failed to execute initial migration: {mig_err}")
+            else:
+                logger.error(f"CRITICAL: Initial migration file not found at {initial_migration}")
 
         # Get current version
         cursor = await self._connection.execute(

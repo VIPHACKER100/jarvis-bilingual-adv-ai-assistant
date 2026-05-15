@@ -108,6 +108,8 @@ data_files = [
     (str(backend_dir / '.env.example'), '.'),
     # Frontend build
     (str(project_root / 'dist'), 'frontend'),
+    # Migrations
+    (str(backend_dir / 'migrations'), 'migrations'),
 ]
 
 # Add data directory structure

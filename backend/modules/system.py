@@ -37,23 +37,37 @@ class SystemModule:
 
         start = now
         try:
-            # Battery
-            battery = await asyncio.to_thread(psutil.sensors_battery)
+            # CPU (non-blocking call to get current usage since last call)
+            # Use interval=None to get non-blocking CPU percent
+            cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=None)
+            
+            # CPU count is static, no need to call every time
+            if not hasattr(self, '_cpu_count'):
+                self._cpu_count = await asyncio.to_thread(psutil.cpu_count)
+
+            # Parallelize metric collection to reduce total duration
+            metric_results = await asyncio.gather(
+                asyncio.to_thread(psutil.sensors_battery),
+                asyncio.to_thread(psutil.virtual_memory),
+                asyncio.to_thread(psutil.disk_usage, '/'),
+                asyncio.to_thread(psutil.net_io_counters),
+                asyncio.to_thread(psutil.boot_time),
+                get_volume()
+            )
+            
+            battery, memory, disk, net_io, boot_time, current_volume = metric_results
+
             battery_info = BatteryInfo(
                 percent=int(battery.percent) if battery else None,
                 is_charging=battery.power_plugged if battery else None,
                 secs_left=battery.secsleft if battery else None
             )
 
-            # CPU
-            cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=0.1)
             cpu_info = CPUInfo(
                 percent=cpu_percent,
-                count=await asyncio.to_thread(psutil.cpu_count)
+                count=self._cpu_count
             )
 
-            # Memory
-            memory = await asyncio.to_thread(psutil.virtual_memory)
             memory_info = MemoryInfo(
                 total=memory.total,
                 used=memory.used,
@@ -61,8 +75,6 @@ class SystemModule:
                 available=memory.available
             )
 
-            # Disk
-            disk = await asyncio.to_thread(psutil.disk_usage, '/')
             disk_info = DiskInfo(
                 total=disk.total,
                 used=disk.used,
@@ -70,8 +82,6 @@ class SystemModule:
                 percent=(disk.used / disk.total) * 100
             )
 
-            # Network
-            net_io = await asyncio.to_thread(psutil.net_io_counters)
             network_info = NetworkIOInfo(
                 bytes_sent=net_io.bytes_sent,
                 bytes_recv=net_io.bytes_recv,
@@ -79,16 +89,10 @@ class SystemModule:
                 packets_recv=net_io.packets_recv
             )
 
-            # Uptime
-            boot_time = await asyncio.to_thread(psutil.boot_time)
             uptime_seconds = time.time() - boot_time
-
-            # Current volume
-            current_volume = await get_volume()
-
             platform_name = 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux'
 
-            # Contextual info
+            # Contextual info (Optional, try-except)
             active_window = None
             context_suggestion = None
             try:
@@ -103,12 +107,8 @@ class SystemModule:
                     }
                 
                 context_suggestion = await context_manager.suggest_next_action()
-            except Exception as context_err:
-                logger.debug(f"Could not get context for status: {context_err}")
-
-            # Check system health and monitor processes in background to avoid blocking the status response
-            asyncio.create_task(self.check_system_health(battery_info, cpu_percent))
-            asyncio.create_task(self.monitor_processes())
+            except:
+                pass
 
             status = SystemStatusResponse(
                 response=f"System status retrieved successfully in {language}",

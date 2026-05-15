@@ -253,6 +253,13 @@ LOG_RETENTION_DAYS=30
 
 # Automation
 AUTO_START_SCHEDULER=true
+
+# LLM Configuration (Options: nvidia, openrouter, openai, ollama)
+LLM_PROVIDER=nvidia
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+NVIDIA_API_KEY=
+OPENROUTER_API_KEY=
 '''
     
     env_path = RELEASE_DIR / 'config.env'
