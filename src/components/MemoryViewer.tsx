@@ -237,6 +237,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
           </div>
           <button
             onClick={onClose}
+            title="Close Neural Archive"
+            aria-label="Close Neural Archive"
             className="text-slate-600 hover:text-white transition-all hover:rotate-90 p-2"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -461,6 +463,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                         <div className="flex gap-2 animate-in fade-in zoom-in-95">
                           <input 
                             autoFocus
+                            title="Edit memory value"
+                            placeholder="Enter new value..."
                             className="bg-black/40 border border-orange-500/50 rounded px-2 py-1 text-sm text-white flex-1 outline-none"
                             value={editValue}
                             onChange={e => setEditValue(e.target.value)}
@@ -640,6 +644,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                     <div className="flex-1 p-0 relative">
                       <textarea
                         value={nodeContent}
+                        title="Edit Node Content"
+                        placeholder="Neural node content (markdown supported)..."
                         onChange={(e) => setNodeContent(e.target.value)}
                         className="w-full h-full bg-slate-950 text-slate-300 p-6 font-mono text-xs focus:outline-none resize-none custom-scrollbar leading-relaxed"
                         spellCheck="false"

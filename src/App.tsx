@@ -130,7 +130,7 @@ const App: FC = () => {
       <div className="linear-bg"></div>
       <div className="grid-overlay"></div>
       <div className="ambient-blob w-[800px] h-[800px] bg-accent/20 top-[-200px] left-1/2 -translate-x-1/2 blur-[150px]"></div>
-      <div className="ambient-blob w-[600px] h-[600px] bg-purple-500/10 bottom-[-100px] right-[-100px] blur-[120px]" style={{ animationDelay: '-5s' }}></div>
+      <div className="ambient-blob w-[600px] h-[600px] bg-purple-500/10 bottom-[-100px] right-[-100px] blur-[120px] delay-neg-5s"></div>
 
       <Header />
 

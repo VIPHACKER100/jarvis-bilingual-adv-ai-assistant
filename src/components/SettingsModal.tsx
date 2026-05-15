@@ -533,8 +533,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                       <button
                         type="button"
                         onClick={handleSaveAudio}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold transition-all border text-white"
-                        style={{ background: `rgba(var(--neon-rgb), 0.15)`, borderColor: `rgba(var(--neon-rgb), 0.4)`, color: 'var(--neon-blue)' }}
+                        className="px-6 py-2.5 rounded-lg text-sm font-bold transition-all border btn-neon-save"
                       >
                         💾 Save Audio Devices
                       </button>
@@ -568,11 +567,12 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                       >
                         {/* Color preview circle */}
                         <div
-                          className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-xl font-bold shadow-lg transition-all"
+                          className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-xl font-bold shadow-lg transition-all theme-preview-circle"
                           style={{
-                            background: `radial-gradient(circle at 35% 35%, ${theme.accent}, ${theme.primary})`,
+                            '--theme-primary': theme.primary,
+                            '--theme-accent': theme.accent,
                             boxShadow: isActive ? `0 0 20px ${theme.primary}80` : 'none',
-                          }}
+                          } as any}
                         >
                           {isActive ? '✓' : ''}
                         </div>
@@ -581,8 +581,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                             <span className="text-sm font-bold text-white">{theme.emoji} {theme.label}</span>
                             {isActive && (
                               <span
-                                className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest"
-                                style={{ background: theme.primary + '20', color: theme.primary, border: `1px solid ${theme.primary}40` }}
+                                className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest theme-active-badge"
+                                style={{ '--theme-primary': theme.primary } as any}
                               >
                                 ACTIVE
                               </span>
@@ -592,8 +592,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                         </div>
                         {/* Gradient swatch */}
                         <div
-                          className="w-14 h-8 rounded-md flex-shrink-0 border border-white/5"
-                          style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})` }}
+                          className="w-14 h-8 rounded-md flex-shrink-0 border border-white/5 theme-swatch"
+                          style={{ '--theme-primary': theme.primary, '--theme-accent': theme.accent } as any}
                         />
                       </button>
                     );
@@ -661,11 +661,7 @@ const SaveButton: FC<{ saving: boolean }> = ({ saving }) => (
   <button
     type="submit"
     disabled={saving}
-    className="px-8 py-2.5 text-white rounded-xl text-sm font-bold transition-all flex items-center gap-2 disabled:opacity-60"
-    style={{
-      background: `linear-gradient(135deg, rgba(var(--neon-rgb), 0.8), rgba(var(--accent-rgb), 0.8))`,
-      boxShadow: `0 4px 15px rgba(var(--neon-rgb), 0.25)`,
-    }}
+    className="px-8 py-2.5 text-white rounded-xl text-sm font-bold transition-all flex items-center gap-2 disabled:opacity-60 btn-neon-save-config"
   >
     {saving ? (
       <>

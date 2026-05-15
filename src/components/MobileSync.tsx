@@ -124,6 +124,8 @@ export const MobileSync: FC = () => {
                 <button 
                   onClick={handleRefreshCode}
                   disabled={isRefreshing}
+                  title="Refresh pairing code"
+                  aria-label="Refresh pairing code"
                   className={`p-2 rounded-lg hover:bg-white/5 transition-colors ${isRefreshing ? 'animate-spin' : ''}`}
                 >
                   <RefreshCw className="w-4 h-4 text-foreground-muted" />

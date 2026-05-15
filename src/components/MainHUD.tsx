@@ -81,6 +81,8 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
                   <span className="text-[9px] font-mono text-accent tracking-[0.2em] uppercase font-bold">Neural_Inference // Suggestion</span>
                   <button 
                     onClick={() => setCurrentSuggestion(null)}
+                    title="Dismiss suggestion"
+                    aria-label="Dismiss suggestion"
                     className="text-foreground-muted hover:text-foreground transition-colors p-1"
                   >
                     <X className="w-3 h-3" />

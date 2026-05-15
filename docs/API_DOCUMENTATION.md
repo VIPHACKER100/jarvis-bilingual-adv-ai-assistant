@@ -975,6 +975,7 @@ Content-Type: application/json
 ```
 
 **Fields:**
+
 - `schedule_type`: `daily`, `once`, `interval`
 - `condition`: (Optional) System state constraint (e.g., `cpu < 30`, `battery > 20`)
 

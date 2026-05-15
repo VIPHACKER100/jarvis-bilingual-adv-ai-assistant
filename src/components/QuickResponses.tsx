@@ -147,6 +147,8 @@ export const QuickResponses: FC = () => {
               </div>
               <button 
                 onClick={() => setCurrentSuggestion(null)}
+                title="Close suggestion"
+                aria-label="Close suggestion"
                 className="text-slate-600 hover:text-white transition-colors"
               >
                 <X className="w-4 h-4" />

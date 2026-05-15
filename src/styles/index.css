@@ -229,6 +229,33 @@ body {
     animation: shimmer 3s ease-in-out infinite;
 }
 
+.delay-neg-5s { animation-delay: -5s; }
+
+.btn-neon-save {
+    background: rgba(var(--neon-rgb), 0.15);
+    border-color: rgba(var(--neon-rgb), 0.4);
+    color: var(--neon-blue);
+}
+
+.btn-neon-save-config {
+    background: linear-gradient(135deg, rgba(var(--neon-rgb), 0.8), rgba(var(--accent-rgb), 0.8));
+    box-shadow: 0 4px 15px rgba(var(--neon-rgb), 0.25);
+}
+
+.theme-swatch {
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-accent));
+}
+
+.theme-preview-circle {
+    background: radial-gradient(circle at 35% 35%, var(--theme-accent), var(--theme-primary));
+}
+
+.theme-active-badge {
+    background: color-mix(in srgb, var(--theme-primary), transparent 80%);
+    color: var(--theme-primary);
+    border: 1px solid color-mix(in srgb, var(--theme-primary), transparent 60%);
+}
+
 /* ─── Reactor Ring Helpers ───────────────────────────────────── */
 .reactor-ring-1 {
     border-top-color: transparent;

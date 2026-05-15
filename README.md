@@ -370,9 +370,9 @@ LOG_RETENTION_DAYS=30
 
 1. Add command mapping in `backend/config/commands.py`:
 
-```python
-'new_command': ['command', 'hindi_command'],
-```
+   ```python
+   'new_command': ['command', 'hindi_command'],
+   ```
 
 2. Add a response mapping in `backend/config/responses.py`
 3. Implement handler in appropriate module (`backend/modules/`)
