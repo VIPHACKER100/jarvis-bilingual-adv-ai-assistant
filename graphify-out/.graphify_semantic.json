@@ -1,0 +1,189 @@
+{
+  "nodes": [
+    {
+      "id": "root_claude_md",
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md"
+    },
+    {
+      "id": "root_readme",
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "README.md"
+    },
+    {
+      "id": "root_implementation_roadmap",
+      "label": "Implementation Roadmap",
+      "file_type": "document",
+      "source_file": "IMPLEMENTATION_ROADMAP_v3.7.0.md"
+    },
+    {
+      "id": "memory_map",
+      "label": "Neural Memory Map",
+      "file_type": "document",
+      "source_file": "memory/MEMORY_MAP.md"
+    },
+    {
+      "id": "memory_personality",
+      "label": "Personality Matrix",
+      "file_type": "document",
+      "source_file": "memory/personality.md"
+    },
+    {
+      "id": "memory_user",
+      "label": "User Identity Node",
+      "file_type": "document",
+      "source_file": "memory/user.md"
+    },
+    {
+      "id": "backend_main",
+      "label": "FastAPI Server Core",
+      "file_type": "code",
+      "source_file": "backend/main.py"
+    },
+    {
+      "id": "backend_command_handler",
+      "label": "Neural Command Dispatcher",
+      "file_type": "code",
+      "source_file": "backend/handlers/command_handler.py"
+    },
+    {
+      "id": "backend_bilingual_parser",
+      "label": "Bilingual Intent Parser",
+      "file_type": "code",
+      "source_file": "backend/modules/bilingual_parser.py"
+    },
+    {
+      "id": "backend_whatsapp",
+      "label": "WhatsApp Automation Engine",
+      "file_type": "code",
+      "source_file": "backend/modules/whatsapp.py"
+    },
+    {
+      "id": "backend_security",
+      "label": "Process Guardian Layer",
+      "file_type": "code",
+      "source_file": "backend/modules/security.py"
+    },
+    {
+      "id": "backend_visual_intel",
+      "label": "Visual Intelligence Engine",
+      "file_type": "code",
+      "source_file": "backend/modules/context.py"
+    },
+    {
+      "id": "frontend_app",
+      "label": "React Application Core",
+      "file_type": "code",
+      "source_file": "src/App.tsx"
+    },
+    {
+      "id": "frontend_hud",
+      "label": "Glassmorphism HUD",
+      "file_type": "code",
+      "source_file": "src/components/MainHUD.tsx"
+    },
+    {
+      "id": "frontend_store",
+      "label": "Zustand Global Store",
+      "file_type": "code",
+      "source_file": "src/store/jarvisStore.ts"
+    },
+    {
+      "id": "frontend_bridge",
+      "label": "JARVIS Backend Bridge",
+      "file_type": "code",
+      "source_file": "src/hooks/useJarvisBridge.ts"
+    }
+  ],
+  "edges": [
+    {
+      "source": "backend_main",
+      "target": "backend_command_handler",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "backend_command_handler",
+      "target": "backend_bilingual_parser",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "backend_command_handler",
+      "target": "backend_whatsapp",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "backend_command_handler",
+      "target": "backend_security",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "backend_command_handler",
+      "target": "backend_visual_intel",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "frontend_app",
+      "target": "frontend_hud",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "frontend_app",
+      "target": "frontend_bridge",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "frontend_bridge",
+      "target": "backend_main",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95
+    },
+    {
+      "source": "backend_main",
+      "target": "memory_map",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85
+    },
+    {
+      "source": "backend_command_handler",
+      "target": "memory_personality",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85
+    },
+    {
+      "source": "root_claude_md",
+      "target": "memory_map",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "memory_map",
+      "target": "memory_user",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}
