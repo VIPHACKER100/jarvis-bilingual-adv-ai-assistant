@@ -1,7 +1,16 @@
 import { create } from 'zustand';
+import { persist, devtools } from 'zustand/middleware';
 import { AppMode, Language, CommandResult } from '../types';
 import { SystemStatus, CommandResponse, ConfirmationRequest, ConnectionStatus } from '../types/bridge';
+import { JarvisSettings } from '../types/api';
 import { INITIAL_VOLUME } from '../constants';
+
+/** Vision overlay state */
+interface VisionData {
+  isOpen: boolean;
+  content: string;
+  metadata?: Record<string, unknown>;
+}
 
 interface JarvisState {
   mode: AppMode;
@@ -20,14 +29,14 @@ interface JarvisState {
   history: CommandResult[];
   addToHistory: (entry: CommandResult) => void;
   
-  settings: any;
-  setSettings: (settings: any) => void;
+  settings: JarvisSettings | null;
+  setSettings: (settings: JarvisSettings | null) => void;
   
   currentSuggestion: string | null;
   setCurrentSuggestion: (suggestion: string | null) => void;
   
-  visionData: { isOpen: boolean; content: string; metadata?: any };
-  setVisionData: (data: { isOpen: boolean; content: string; metadata?: any }) => void;
+  visionData: VisionData;
+  setVisionData: (data: VisionData) => void;
   
   isActive: boolean;
   setIsActive: (isActive: boolean) => void;
@@ -59,7 +68,10 @@ interface JarvisState {
   setShowPermission: (show: boolean) => void;
 }
 
-export const useJarvisStore = create<JarvisState>((set, get) => ({
+export const useJarvisStore = create<JarvisState>()(
+  devtools(
+    persist(
+      (set, get) => ({
   mode: AppMode.IDLE,
   setMode: (mode) => set({ mode }),
   
@@ -119,7 +131,19 @@ export const useJarvisStore = create<JarvisState>((set, get) => ({
   setShowAdvanced: (showAdvanced) => set({ showAdvanced }),
   showPermission: false,
   setShowPermission: (showPermission) => set({ showPermission }),
-}));
+      }),
+      {
+        name: 'jarvis-storage',
+        partialize: (state) => ({
+          language: state.language,
+          volume: state.volume,
+          isActive: state.isActive,
+        }),
+      }
+    ),
+    { name: 'JarvisStore' }
+  )
+);
 // Attach to window for external service access (v3.6.1)
 if (typeof window !== 'undefined') {
   (window as any).jarvisStore = useJarvisStore;

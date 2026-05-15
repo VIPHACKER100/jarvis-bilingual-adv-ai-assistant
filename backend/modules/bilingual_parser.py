@@ -10,6 +10,7 @@ class BilingualParser:
     """Parse and translate between Hindi and English commands"""
 
     def __init__(self):
+        self.commands = HINDI_COMMANDS
         self.command_map = self._build_command_map()
 
     def _build_command_map(self) -> Dict[str, str]:

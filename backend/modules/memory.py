@@ -1,5 +1,3 @@
-import sqlite3
-import aiosqlite
 import aiofiles
 import asyncio
 import json
@@ -10,6 +8,7 @@ from dataclasses import dataclass, asdict
 
 from config import DATA_DIR, PROJECT_ROOT
 from utils.logger import logger
+from utils.database import db_manager
 
 
 @dataclass
@@ -180,109 +179,20 @@ class MemoryManager:
     """Manage conversation history and user memory"""
 
     def __init__(self):
-        self.db_path = DATA_DIR / "memory.db"
         self.neural = NeuralMemoryManager()
 
     async def initialize(self):
         """Initialize memory system asynchronously"""
-        await self._init_database()
-        logger.info("Memory system initialized")
-
-    async def _init_database(self):
-        """Initialize SQLite database with tables using aiosqlite"""
-        try:
-            async with aiosqlite.connect(str(self.db_path)) as db:
-                # Conversations table
-                await db.execute('''
-                    CREATE TABLE IF NOT EXISTS conversations (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        timestamp TEXT NOT NULL,
-                        user_input TEXT NOT NULL,
-                        jarvis_response TEXT NOT NULL,
-                        command_type TEXT,
-                        success BOOLEAN DEFAULT 1,
-                        context TEXT,
-                        language TEXT DEFAULT 'en',
-                        session_id TEXT
-                    )
-                ''')
-
-                # Memory/facts table
-                await db.execute('''
-                    CREATE TABLE IF NOT EXISTS memory (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        key TEXT UNIQUE NOT NULL,
-                        value TEXT NOT NULL,
-                        category TEXT DEFAULT 'general',
-                        created_at TEXT NOT NULL,
-                        updated_at TEXT NOT NULL,
-                        confidence REAL DEFAULT 1.0,
-                        source TEXT
-                    )
-                ''')
-
-                # Sessions table for tracking conversation sessions
-                await db.execute('''
-                    CREATE TABLE IF NOT EXISTS sessions (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        session_id TEXT UNIQUE NOT NULL,
-                        started_at TEXT NOT NULL,
-                        ended_at TEXT,
-                        command_count INTEGER DEFAULT 0,
-                        metadata TEXT
-                    )
-                ''')
-
-                # Performance metrics table
-                await db.execute('''
-                    CREATE TABLE IF NOT EXISTS performance_metrics (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        timestamp TEXT NOT NULL,
-                        event_loop_lag REAL NOT NULL,
-                        cpu_percent REAL,
-                        memory_percent REAL
-                    )
-                ''')
-
-                # Create indexes for faster queries
-                await db.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_conversations_timestamp
-                    ON conversations(timestamp)
-                ''')
-                await db.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_conversations_session
-                    ON conversations(session_id)
-                ''')
-                await db.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_memory_category
-                    ON memory(category)
-                ''')
-                await db.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_memory_key
-                    ON memory(key)
-                ''')
-                await db.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_performance_timestamp
-                    ON performance_metrics(timestamp)
-                ''')
-
-                await db.commit()
-            
-            logger.info("Memory database initialized successfully")
-
-        except Exception as e:
-            logger.error(f"Error initializing memory database: {e}")
+        await db_manager.initialize()
+        logger.info("Memory system initialized via DatabaseManager")
 
     async def save_conversation(self, entry: ConversationEntry) -> bool:
         """Save a conversation entry"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             if not entry.timestamp:
                 entry.timestamp = datetime.now().isoformat()
 
-            await cursor.execute('''
+            cursor = await db_manager.execute('''
                 INSERT INTO conversations
                 (timestamp, user_input, jarvis_response, command_type, success, context, language, session_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -297,10 +207,7 @@ class MemoryManager:
                 entry.session_id
             ))
 
-            await db.commit()
             entry.id = cursor.lastrowid
-            await db.close()
-
             logger.info(f"Saved conversation entry: {entry.id}")
             return True
 
@@ -314,25 +221,19 @@ class MemoryManager:
             session_id: Optional[str] = None) -> List[ConversationEntry]:
         """Get recent conversation history"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             if session_id:
-                await cursor.execute('''
+                rows = await db_manager.fetchall('''
                     SELECT * FROM conversations
                     WHERE session_id = ?
                     ORDER BY timestamp DESC
                     LIMIT ?
                 ''', (session_id, limit))
             else:
-                await cursor.execute('''
+                rows = await db_manager.fetchall('''
                     SELECT * FROM conversations
                     ORDER BY timestamp DESC
                     LIMIT ?
                 ''', (limit,))
-
-            rows = await cursor.fetchall()
-            await db.close()
 
             entries = []
             for row in rows:
@@ -361,19 +262,13 @@ class MemoryManager:
             limit: int = 10) -> List[ConversationEntry]:
         """Search conversation history"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             search_term = f"%{query}%"
-            await cursor.execute('''
+            rows = await db_manager.fetchall('''
                 SELECT * FROM conversations
                 WHERE user_input LIKE ? OR jarvis_response LIKE ?
                 ORDER BY timestamp DESC
                 LIMIT ?
             ''', (search_term, search_term, limit))
-
-            rows = await cursor.fetchall()
-            await db.close()
 
             entries = []
             for row in rows:
@@ -399,48 +294,40 @@ class MemoryManager:
     async def get_conversation_stats(self, days: int = 7) -> Dict:
         """Get conversation statistics"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             since = (datetime.now() - timedelta(days=days)).isoformat()
 
             # Total conversations
-            await cursor.execute('''
+            row = await db_manager.fetchone('''
                 SELECT COUNT(*) FROM conversations
                 WHERE timestamp > ?
             ''', (since,))
-            total = await cursor.fetchone()[0]
+            total = row[0] if row else 0
 
             # Successful commands
-            await cursor.execute('''
+            row = await db_manager.fetchone('''
                 SELECT COUNT(*) FROM conversations
                 WHERE timestamp > ? AND success = 1
             ''', (since,))
-            successful = await cursor.fetchone()[0]
+            successful = row[0] if row else 0
 
             # Command types breakdown
-            await cursor.execute('''
+            rows = await db_manager.fetchall('''
                 SELECT command_type, COUNT(*) as count
                 FROM conversations
                 WHERE timestamp > ?
                 GROUP BY command_type
                 ORDER BY count DESC
             ''', (since,))
-            command_types = {row[0]: row[1] for row in await cursor.fetchall()}
+            command_types = {row[0]: row[1] for row in rows}
 
             # Language distribution
-            await cursor.execute('''
+            rows = await db_manager.fetchall('''
                 SELECT language, COUNT(*) as count
                 FROM conversations
                 WHERE timestamp > ?
                 GROUP BY language
             ''', (since,))
-            languages = {row[0]: row[1] for row in await cursor.fetchall()}
-            
-            # Map 'hi-EN' or 'hinglish' to a consistent key if needed
-            # In our case, the frontend uses 'hi-EN' and backend might see 'hinglish'
-            
-            await db.close()
+            languages = {row[0]: row[1] for row in rows}
 
             return {
                 "total_conversations": total,
@@ -459,8 +346,8 @@ class MemoryManager:
         """Mines command history to produce behavioral usage insights"""
         try:
             since = (datetime.now() - timedelta(days=days)).isoformat()
-            async with aiosqlite.connect(str(self.db_path)) as db:
-                db.row_factory = aiosqlite.Row
+            async with db_manager.connection() as db:
+                db.row_factory = __import__('aiosqlite').Row
 
                 # Top 5 most used command types
                 async with db.execute('''
@@ -525,18 +412,16 @@ class MemoryManager:
     async def save_performance_metric(self, lag: float, cpu: float, memory: float) -> bool:
         """Save system performance metrics to database"""
         try:
-            async with aiosqlite.connect(str(self.db_path)) as db:
-                await db.execute('''
-                    INSERT INTO performance_metrics
-                    (timestamp, event_loop_lag, cpu_percent, memory_percent)
-                    VALUES (?, ?, ?, ?)
-                ''', (
-                    datetime.now().isoformat(),
-                    lag,
-                    cpu,
-                    memory
-                ))
-                await db.commit()
+            await db_manager.execute('''
+                INSERT INTO performance_metrics
+                (timestamp, event_loop_lag, cpu_percent, memory_percent)
+                VALUES (?, ?, ?, ?)
+            ''', (
+                datetime.now().isoformat(),
+                lag,
+                cpu,
+                memory
+            ))
             return True
         except Exception as e:
             logger.error(f"Error saving performance metric: {e}")
@@ -545,18 +430,14 @@ class MemoryManager:
     async def save_memory(self, entry: MemoryEntry) -> bool:
         """Save a memory/fact about the user"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             now = datetime.now().isoformat()
 
             # Check if key already exists
-            await cursor.execute('SELECT id FROM memory WHERE key = ?', (entry.key,))
-            existing = await cursor.fetchone()
+            row = await db_manager.fetchone('SELECT id FROM memory WHERE key = ?', (entry.key,))
 
-            if existing:
+            if row:
                 # Update existing
-                await cursor.execute('''
+                await db_manager.execute('''
                     UPDATE memory
                     SET value = ?, updated_at = ?, confidence = ?, source = ?
                     WHERE key = ?
@@ -568,7 +449,7 @@ class MemoryManager:
                 if not entry.updated_at:
                     entry.updated_at = now
 
-                await cursor.execute('''
+                await db_manager.execute('''
                     INSERT INTO memory
                     (key, value, category, created_at, updated_at, confidence, source)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -582,9 +463,6 @@ class MemoryManager:
                     entry.source
                 ))
 
-            await db.commit()
-            await db.close()
-
             logger.info(f"Saved memory: {entry.key} = {entry.value}")
             return True
 
@@ -595,12 +473,7 @@ class MemoryManager:
     async def get_memory(self, key: str) -> Optional[MemoryEntry]:
         """Get a specific memory entry"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
-            await cursor.execute('SELECT * FROM memory WHERE key = ?', (key,))
-            row = await cursor.fetchone()
-            await db.close()
+            row = await db_manager.fetchone('SELECT * FROM memory WHERE key = ?', (key,))
 
             if row:
                 return MemoryEntry(
@@ -622,17 +495,11 @@ class MemoryManager:
     async def get_memories_by_category(self, category: str) -> List[MemoryEntry]:
         """Get all memories in a category"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
-            await cursor.execute('''
+            rows = await db_manager.fetchall('''
                 SELECT * FROM memory
                 WHERE category = ?
                 ORDER BY updated_at DESC
             ''', (category,))
-
-            rows = await cursor.fetchall()
-            await db.close()
 
             entries = []
             for row in rows:
@@ -657,18 +524,12 @@ class MemoryManager:
     async def search_memory(self, query: str) -> List[MemoryEntry]:
         """Search memory entries"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             search_term = f"%{query}%"
-            await cursor.execute('''
+            rows = await db_manager.fetchall('''
                 SELECT * FROM memory
                 WHERE key LIKE ? OR value LIKE ?
                 ORDER BY confidence DESC, updated_at DESC
             ''', (search_term, search_term))
-
-            rows = await cursor.fetchall()
-            await db.close()
 
             entries = []
             for row in rows:
@@ -693,13 +554,7 @@ class MemoryManager:
     async def delete_memory(self, key: str) -> bool:
         """Delete a memory entry"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
-            await cursor.execute('DELETE FROM memory WHERE key = ?', (key,))
-            await db.commit()
-            await db.close()
-
+            await db_manager.execute('DELETE FROM memory WHERE key = ?', (key,))
             logger.info(f"Deleted memory: {key}")
             return True
 
@@ -710,16 +565,10 @@ class MemoryManager:
     async def start_session(self, session_id: str) -> bool:
         """Start a new conversation session"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
-            await cursor.execute('''
+            await db_manager.execute('''
                 INSERT INTO sessions (session_id, started_at, command_count)
                 VALUES (?, ?, 0)
             ''', (session_id, datetime.now().isoformat()))
-
-            await db.commit()
-            await db.close()
 
             logger.info(f"Started session: {session_id}")
             return True
@@ -731,23 +580,17 @@ class MemoryManager:
     async def end_session(self, session_id: str) -> bool:
         """End a conversation session"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             # Count commands in session
-            await cursor.execute('''
+            row = await db_manager.fetchone('''
                 SELECT COUNT(*) FROM conversations WHERE session_id = ?
             ''', (session_id,))
-            count = await cursor.fetchone()[0]
+            count = row[0] if row else 0
 
-            await cursor.execute('''
+            await db_manager.execute('''
                 UPDATE sessions
                 SET ended_at = ?, command_count = ?
                 WHERE session_id = ?
             ''', (datetime.now().isoformat(), count, session_id))
-
-            await db.commit()
-            await db.close()
 
             logger.info(f"Ended session: {session_id} with {count} commands")
             return True
@@ -759,19 +602,13 @@ class MemoryManager:
     async def cleanup_old_data(self, days: int = 30) -> int:
         """Remove old conversation data"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-
             cutoff = (datetime.now() - timedelta(days=days)).isoformat()
 
-            await cursor.execute('''
+            cursor = await db_manager.execute('''
                 DELETE FROM conversations WHERE timestamp < ?
             ''', (cutoff,))
 
             deleted = cursor.rowcount
-            await db.commit()
-            await db.close()
-
             logger.info(f"Cleaned up {deleted} old conversation entries")
             return deleted
 
@@ -782,11 +619,7 @@ class MemoryManager:
     async def delete_all_conversations(self) -> bool:
         """Wipe all conversion history"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-            await cursor.execute('DELETE FROM conversations')
-            await db.commit()
-            await db.close()
+            await db_manager.execute('DELETE FROM conversations')
             logger.info("All conversation history deleted")
             return True
         except Exception as e:
@@ -799,25 +632,22 @@ class MemoryManager:
         Returns the number of entries deleted.
         """
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-            
             # Identify entries to keep
             if session_id:
-                await cursor.execute('''
+                rows = await db_manager.fetchall('''
                     SELECT id FROM conversations 
                     WHERE session_id = ? 
                     ORDER BY timestamp DESC 
                     LIMIT ?
                 ''', (session_id, limit))
             else:
-                await cursor.execute('''
+                rows = await db_manager.fetchall('''
                     SELECT id FROM conversations 
                     ORDER BY timestamp DESC 
                     LIMIT ?
                 ''', (limit,))
                 
-            keep_ids = [row[0] for row in await cursor.fetchall()]
+            keep_ids = [row[0] for row in rows]
             
             if not keep_ids:
                 return 0
@@ -825,19 +655,17 @@ class MemoryManager:
             # Delete everything else
             placeholders = ','.join(['?'] * len(keep_ids))
             if session_id:
-                await cursor.execute(f'''
+                cursor = await db_manager.execute(f'''
                     DELETE FROM conversations 
                     WHERE session_id = ? AND id NOT IN ({placeholders})
-                ''', [session_id] + keep_ids)
+                ''', (session_id,) + tuple(keep_ids))
             else:
-                await cursor.execute(f'''
+                cursor = await db_manager.execute(f'''
                     DELETE FROM conversations 
                     WHERE id NOT IN ({placeholders})
-                ''', keep_ids)
+                ''', tuple(keep_ids))
                 
             deleted = cursor.rowcount
-            await db.commit()
-            await db.close()
             
             if deleted > 0:
                 logger.info(f"Pruned {deleted} conversation entries to maintain performance.")
@@ -850,11 +678,7 @@ class MemoryManager:
     async def delete_memory_by_id(self, memory_id: int) -> bool:
         """Delete specific memory fact by ID"""
         try:
-            db = await aiosqlite.connect(str(self.db_path))
-            cursor = await db.cursor()
-            await cursor.execute('DELETE FROM memory WHERE id = ?', (memory_id,))
-            await db.commit()
-            await db.close()
+            await db_manager.execute('DELETE FROM memory WHERE id = ?', (memory_id,))
             logger.info(f"Deleted memory fact ID: {memory_id}")
             return True
         except Exception as e:

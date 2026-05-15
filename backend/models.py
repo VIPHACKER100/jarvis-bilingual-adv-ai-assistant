@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
 from config import VERSION
@@ -6,6 +6,9 @@ from config import VERSION
 # --- Base Responses ---
 
 class BaseResponse(BaseModel):
+    """Base response model with strict validation for all API endpoints."""
+    model_config = ConfigDict(strict=True, extra='forbid')
+
     success: bool = True
     response: str = ""
     error: Optional[str] = None
@@ -16,6 +19,9 @@ class BaseResponse(BaseModel):
 # --- Command Models ---
 
 class CommandRequest(BaseModel):
+    """Inbound command with strict input validation."""
+    model_config = ConfigDict(strict=True, extra='forbid')
+
     command: str = Field(..., min_length=1, max_length=500)
     language: str = Field(default="en", pattern="^(en|hi|hinglish)$")
     session_id: Optional[str] = Field(None, max_length=100)

@@ -14,7 +14,7 @@ export const API_BASE_URL = `http://${HOST}:${BACKEND_PORT}/api/v1`;
 export const WS_BASE_URL = `ws://${HOST}:${BACKEND_PORT}/ws`;
 
 // Version Info
-export const APP_VERSION = "v3.7.0";
+export const APP_VERSION = "v3.8.0";
 export const DEVELOPER = "VIPHACKER100";
 
 // Feature Flags
