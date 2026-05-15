@@ -110,3 +110,36 @@ async def get_command_insights(days: int = Query(30, ge=1, le=365)):
     from modules.memory import memory_manager
     data = await memory_manager.get_command_insights(days)
     return {"success": True, "data": data}
+
+@router.get("/security/processes")
+async def get_suspicious_processes():
+    """Get all running processes for security analysis"""
+    # For now, return all processes with basic info
+    import psutil
+    processes = []
+    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info', 'status']):
+        try:
+            info = proc.info
+            processes.append({
+                "pid": info['pid'],
+                "name": info['name'],
+                "cpu_percent": info['cpu_percent'],
+                "memory_mb": info['memory_info'].rss / (1024 * 1024),
+                "status": info['status'],
+                "threat_level": "safe" # Basic stub
+            })
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return {"success": True, "processes": sorted(processes, key=lambda x: x['cpu_percent'], reverse=True)[:50]}
+
+@router.get("/security/connections")
+async def get_network_scan():
+    """Get deep network connection scan"""
+    connections = await system_module.get_network_connections()
+    return {"success": True, "connections": connections}
+
+@router.post("/security/quarantine")
+async def quarantine_process(pid: int, action: str = "suspend"):
+    """Quarantine a process"""
+    success = await system_module.quarantine_process(pid, action)
+    return {"success": success, "response": f"Process {pid} {action}ed" if success else "Failed"}

@@ -230,10 +230,14 @@ export interface AutomationTask {
   id: string;
   name: string;
   command: string;
+  description?: string;
   schedule_type: 'interval' | 'cron' | 'once';
+  schedule_time?: string;
+  days?: string[];
   interval_seconds: number | null;
   cron_expression: string | null;
   enabled: boolean;
+  run_count?: number;
   last_run: string | null;
   next_run: string | null;
 }
@@ -241,10 +245,12 @@ export interface AutomationTask {
 export interface AutomationMacro {
   id: string;
   name: string;
+  description?: string;
   commands: string[];
+  trigger?: string;
   trigger_phrase: string | null;
-  description: string;
   enabled: boolean;
+  run_count?: number;
 }
 
 export interface AutomationStatusResponse {

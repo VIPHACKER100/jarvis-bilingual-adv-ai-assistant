@@ -14,6 +14,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -29,7 +30,7 @@ from routers import (
     system, windows, files, media, pdf_tools, 
     image_tools, desktop, memory, automation, 
     commands, websocket, settings, whatsapp,
-    input_control, notifications, sync, health
+    input_control, notifications, sync, health, context
 )
 from modules.memory import memory_manager
 from modules.whatsapp import whatsapp_manager
@@ -216,6 +217,7 @@ app.include_router(input_control.router)
 app.include_router(notifications.router)
 app.include_router(sync.router)
 app.include_router(health.router)
+app.include_router(context.router)
 
 # WebSocket does not need prefix as it is typically handled separately
 app.include_router(websocket.router)
@@ -281,7 +283,7 @@ async def broadcast_system_status():
             if manager.active_connections:
                 message = {
                     "type": "system_status",
-                    "data": status,
+                    "data": jsonable_encoder(status),
                     "timestamp": datetime.now().isoformat()
                 }
                 await manager.broadcast(message)

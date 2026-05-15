@@ -44,6 +44,8 @@ __pycache__/
 *.zip
 *.tar.gz
 backend/JARVIS_*.zip
+JARVIS_*.zip
+release/
 
 # AI memory & instructions (personal/private)
 memory/

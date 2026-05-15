@@ -106,9 +106,9 @@ class SystemModule:
             except Exception as context_err:
                 logger.debug(f"Could not get context for status: {context_err}")
 
-            # Check system health and push notifications if needed
-            await self.check_system_health(battery_info, cpu_percent)
-            await self.monitor_processes()
+            # Check system health and monitor processes in background to avoid blocking the status response
+            asyncio.create_task(self.check_system_health(battery_info, cpu_percent))
+            asyncio.create_task(self.monitor_processes())
 
             status = SystemStatusResponse(
                 response=f"System status retrieved successfully in {language}",
@@ -635,7 +635,8 @@ class SystemModule:
         try:
             def scan_net():
                 res = []
-                for conn in psutil.net_connections(kind='inet'):
+                # Use a smaller subset of kinds to speed up
+                for conn in psutil.net_connections(kind='inet4'):
                     if conn.status == 'ESTABLISHED':
                         try:
                             proc = psutil.Process(conn.pid) if conn.pid else None

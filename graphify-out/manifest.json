@@ -1,0 +1,1022 @@
+{
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.graphify_detect.json": {
+    "mtime": 1778863861.1211243,
+    "ast_hash": "86bf1b3a2eeda095eafc5eb2424e6941",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.markdownlint.json": {
+    "mtime": 1772892792.6167572,
+    "ast_hash": "28a5919a416b47473a815ce3868085a8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\metadata.json": {
+    "mtime": 1771234420.0,
+    "ast_hash": "c4e349bfc26074c6a5a577bb4bf0d076",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\package.json": {
+    "mtime": 1778862491.6358175,
+    "ast_hash": "74bfe73eb2a8fa46cd4d42354d334e9b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\tsconfig.json": {
+    "mtime": 1774853196.0541024,
+    "ast_hash": "a54eac1ab64d51bb1065990b51b145cd",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\vite.config.ts": {
+    "mtime": 1777581343.6821122,
+    "ast_hash": "68faad1160af11896ddc863955e49e92",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\vitest.config.ts": {
+    "mtime": 1777572925.750957,
+    "ast_hash": "16e657114adae87a72ad237144d01de8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\config.py": {
+    "mtime": 1777572306.7340965,
+    "ast_hash": "3c43d2e781870baaa7d3720b31a29641",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\entry_point.py": {
+    "mtime": 1777580274.7786763,
+    "ast_hash": "c67350f25cac7911ed99849ef784b901",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\hidden_imports.py": {
+    "mtime": 1774866945.1324768,
+    "ast_hash": "f0d8047dc4cc382ed0ee5d715ba0668a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\main.py": {
+    "mtime": 1778863399.5483415,
+    "ast_hash": "b9def5d6cf3ee884ef407958ed4fd051",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\models.py": {
+    "mtime": 1778853462.8905866,
+    "ast_hash": "e70052383d325b7cf456235c1a1d4b9d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\test_functionality.py": {
+    "mtime": 1777312887.68883,
+    "ast_hash": "ac1571485e23bb246b730753f136638d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\test_modules.py": {
+    "mtime": 1771348085.4163983,
+    "ast_hash": "ae6a9c0a3920255ae3d5ba5ac8f596a5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\test_nvidia_llm.py": {
+    "mtime": 1772884212.6774404,
+    "ast_hash": "9c911a58e427bea8ef26991b5afea561",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\test_proactivity.py": {
+    "mtime": 1777313332.306052,
+    "ast_hash": "afcd6118e994bb1b2fea8568b70da274",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\test_sync.py": {
+    "mtime": 1771348348.117818,
+    "ast_hash": "f67d1e3ca1001dc734f168d75fa978bb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\__init__.py": {
+    "mtime": 1777572761.69553,
+    "ast_hash": "c6243983f4d51eb03d2724401bf1e940",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\config\\commands.py": {
+    "mtime": 1777624364.0701115,
+    "ast_hash": "d9a1e265ab2353250739df9570d440af",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\config\\defaults.py": {
+    "mtime": 1777572272.2614014,
+    "ast_hash": "248aec9f1eee4e8ecedafb55919ff0ca",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\config\\environment.py": {
+    "mtime": 1778862496.7887511,
+    "ast_hash": "aaa721a530aa13dc20c59e3754a521df",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\config\\responses.py": {
+    "mtime": 1777624652.3928676,
+    "ast_hash": "b8825696475b17cd375d265b0678237b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\config\\__init__.py": {
+    "mtime": 1777572276.7108636,
+    "ast_hash": "c26ffc6f9cdb7f6b485b371d65183fa5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\data\\contacts.json": {
+    "mtime": 1777317539.69795,
+    "ast_hash": "e3b75eef7e2440770b775b351234272b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\data\\macros.json": {
+    "mtime": 1771354800.057749,
+    "ast_hash": "9ce5e0ab98df5e5e0c3cdacea21c688f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\data\\scheduled_tasks.json": {
+    "mtime": 1771354800.0565312,
+    "ast_hash": "087986e49cd8eecc72cd514c78017ff8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\handlers\\command_handler.py": {
+    "mtime": 1778854448.3189223,
+    "ast_hash": "4397a204fc95f03789cd56f2118fdf42",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\migrations\\001_initial.sql": {
+    "mtime": 1778853082.8857858,
+    "ast_hash": "614bad54379a13d54aabb6ffeeb8f724",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\automation.py": {
+    "mtime": 1777617436.2156808,
+    "ast_hash": "f2c88a3c2c905a5ccfe73f13369c604e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\bilingual_parser.py": {
+    "mtime": 1778853989.454406,
+    "ast_hash": "0834a3ee642daa1d6650262ab66e80da",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\context.py": {
+    "mtime": 1777579329.6313505,
+    "ast_hash": "fde55172bd185feece98ed0cbdecdd40",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\desktop.py": {
+    "mtime": 1777578719.6071546,
+    "ast_hash": "98c1bd76eb291fd6d233d603e8016282",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\file_manager.py": {
+    "mtime": 1777579943.026348,
+    "ast_hash": "3870f28123dbe3db728b00baa30e3495",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\health.py": {
+    "mtime": 1777578736.8161726,
+    "ast_hash": "ef0391b8e3859961d0eae6501dbac1b5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\input_control.py": {
+    "mtime": 1777578065.9891274,
+    "ast_hash": "956a14e23f1e47337434319cd3367784",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\llm.py": {
+    "mtime": 1778854440.2608836,
+    "ast_hash": "2779c0026af454a5e3f772fe744e191a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\media.py": {
+    "mtime": 1777616607.5759242,
+    "ast_hash": "e2a092d8dbce938505e7968181f6471b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\memory.py": {
+    "mtime": 1778862056.9071236,
+    "ast_hash": "c6adafc457b6610c9f26071bd73b632a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\personalities.py": {
+    "mtime": 1777580520.2521667,
+    "ast_hash": "8acf42ac05af3c798dd738b05f6cd528",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\proactive.py": {
+    "mtime": 1777619303.570797,
+    "ast_hash": "d8a2179f96749b38f26fe00bb4cd6639",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\security.py": {
+    "mtime": 1771353746.920652,
+    "ast_hash": "b328f697eb72932c0a828c6cbb275553",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\system.py": {
+    "mtime": 1778863256.8519187,
+    "ast_hash": "62af2e9fedc1476c357005991c40684d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\whatsapp.py": {
+    "mtime": 1777578106.622849,
+    "ast_hash": "a1970751af72da02bea2a1f3ae93ea90",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\window_manager.py": {
+    "mtime": 1778860868.7720983,
+    "ast_hash": "3d8da62a77f664d1745550d1921786e8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\modules\\__init__.py": {
+    "mtime": 1771331532.3136177,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\automation.py": {
+    "mtime": 1778861960.6272037,
+    "ast_hash": "6c661a9f9c06f36a5f858cb5c2e74197",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\commands.py": {
+    "mtime": 1777616011.739161,
+    "ast_hash": "a312054b4215121275162496c147fa9b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\context.py": {
+    "mtime": 1778863393.5948198,
+    "ast_hash": "3e4e9e0d331e0e6b0447f80bd50bfc8a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\desktop.py": {
+    "mtime": 1777616011.7411563,
+    "ast_hash": "9245aa2838eea3a04ebd685c264639f2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\files.py": {
+    "mtime": 1777616011.7421768,
+    "ast_hash": "b1cfd3ca6140c4c10cd3dfbecd88c6c4",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\health.py": {
+    "mtime": 1777577858.6179163,
+    "ast_hash": "096ab86c91a5fc8543d25b7ccb7e0b7a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\image_tools.py": {
+    "mtime": 1777616011.7451813,
+    "ast_hash": "d30560dfca4fa7c2be1f40b57f61dde7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\input_control.py": {
+    "mtime": 1777616011.7467272,
+    "ast_hash": "57b04ef57f8cf61762ae4fd8fa119c93",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\media.py": {
+    "mtime": 1777616011.748819,
+    "ast_hash": "05469212ca72697052862e40fc424d3f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\memory.py": {
+    "mtime": 1777616011.749822,
+    "ast_hash": "2fb3a2fbaf5d429add9849581a70751b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\notifications.py": {
+    "mtime": 1777616011.7510004,
+    "ast_hash": "4f6f183bd6da1d39ea8f9297f1e20cf3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\pdf_tools.py": {
+    "mtime": 1777616011.7521956,
+    "ast_hash": "027ef63b6250ad79b03ee99de89f5e4b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\settings.py": {
+    "mtime": 1777618228.2997267,
+    "ast_hash": "4a7492afbfc0e3c6886e8fdd5b314b89",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\sync.py": {
+    "mtime": 1778861952.8307173,
+    "ast_hash": "f90e4be18a480c9096961955138f2067",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\system.py": {
+    "mtime": 1778861978.7714972,
+    "ast_hash": "7a8febf2ff364c9dde8bdd2963836cfe",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\websocket.py": {
+    "mtime": 1778863188.6352818,
+    "ast_hash": "f992f673dc2be3f5ec83713b3dcc0efb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\whatsapp.py": {
+    "mtime": 1777616011.755556,
+    "ast_hash": "b8baa4ea09946f27acce67aed0018832",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\windows.py": {
+    "mtime": 1777616011.756557,
+    "ast_hash": "7f49f948541ca1bba725b2b81c49e6d8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\routers\\__init__.py": {
+    "mtime": 1778860863.418121,
+    "ast_hash": "1388d83e9446727a59f4bbfe689b6eb7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\scratch\\verify_modules.py": {
+    "mtime": 1778860875.72096,
+    "ast_hash": "dc2d3b93cca0f1bacd8d74c6c0540d75",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\tests\\conftest.py": {
+    "mtime": 1778854049.351699,
+    "ast_hash": "4cfc32f3bb28e697840f27804844faad",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\tests\\test_api.py": {
+    "mtime": 1777572774.585626,
+    "ast_hash": "2722e50e2782399ca58d8d73b6f270e6",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\tests\\test_bilingual_parser.py": {
+    "mtime": 1778854139.6407197,
+    "ast_hash": "dc3ad18631dd9a2e635986f20d0ba904",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\tests\\test_command_handler.py": {
+    "mtime": 1778854134.0603778,
+    "ast_hash": "57fac890221ee895c67cda6469e26726",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\tests\\test_config.py": {
+    "mtime": 1777572844.7288969,
+    "ast_hash": "a88bf181a4da334b22c19dbe51c431d1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\tests\\test_memory.py": {
+    "mtime": 1778853199.8921423,
+    "ast_hash": "8743a567d27aa8f76959a3c37ac781bc",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\tests\\__init__.py": {
+    "mtime": 1778853237.3566675,
+    "ast_hash": "ce93b25567142f1634312efeb1eb3f10",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\utils\\automation_utils.py": {
+    "mtime": 1777578029.4458804,
+    "ast_hash": "1d45912f5d776d5fc9fb2c604af634ab",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\utils\\database.py": {
+    "mtime": 1778863175.5297108,
+    "ast_hash": "ab2aeac2d0c698fc0b8ce71cd644e44c",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\utils\\error_handler.py": {
+    "mtime": 1777572600.546659,
+    "ast_hash": "37a9d292744d8c2ab9b85e0d535f6e9f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\utils\\logger.py": {
+    "mtime": 1777318504.3867435,
+    "ast_hash": "b687e739769e84f7f07ee0f6d0f75d7b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\utils\\platform_utils.py": {
+    "mtime": 1778861253.098004,
+    "ast_hash": "be96c74b948571a713b6190ca1c5d769",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\utils\\websocket_manager.py": {
+    "mtime": 1777573090.9272633,
+    "ast_hash": "b15b6d233c3a78a84b25fdcf142a2310",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\utils\\__init__.py": {
+    "mtime": 1771331532.69328,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\data\\macros.json": {
+    "mtime": 1777319563.3386948,
+    "ast_hash": "093b9da54d4c7cd7edee420010cfb719",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\data\\scheduled_tasks.json": {
+    "mtime": 1777319563.337704,
+    "ast_hash": "2268b9fc947047d65f8ab4fe21452ef0",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\config.py": {
+    "mtime": 1778862774.7957864,
+    "ast_hash": "3c43d2e781870baaa7d3720b31a29641",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\cryptography-47.0.0.dist-info\\sboms\\cryptography-rust.cyclonedx.json": {
+    "mtime": 1778862776.4503798,
+    "ast_hash": "60e1e92446342dfe49ee0a151236e7f8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\cryptography-47.0.0.dist-info\\sboms\\sbom.json": {
+    "mtime": 1778862776.4603221,
+    "ast_hash": "380dc6ade3f0e12cbea0e0d69f21d403",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\cv2\\config-3.py": {
+    "mtime": 1778862778.4446466,
+    "ast_hash": "e8ed8f25854821c8910bcb8308507dce",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\cv2\\config.py": {
+    "mtime": 1778862778.4375257,
+    "ast_hash": "fcb98ffc6e408d714fc0e0555b1fb530",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\cv2\\load_config_py3.py": {
+    "mtime": 1778862778.4375257,
+    "ast_hash": "eed4002ffe913424133d8f19fdf1c2a8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\cv2\\__init__.py": {
+    "mtime": 1778862778.5005894,
+    "ast_hash": "eab99b31f1fd18e46e6e081ba3b5c06e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\frontend\\assets\\index-C4ihhBor.js": {
+    "mtime": 1778862774.8195696,
+    "ast_hash": "00c44f114a6d9f7e878d8815526987d2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\frontend\\assets\\vendor-motion-BRkCKIn4.js": {
+    "mtime": 1778862774.8270226,
+    "ast_hash": "7d9b36e3e136ff7641f0569ad60a00c8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\frontend\\assets\\vendor-react-C5SQmJhS.js": {
+    "mtime": 1778862774.8270226,
+    "ast_hash": "04bd5250e64dce53d66870cb6ce55bc7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\frontend\\assets\\vendor-state-wezUU0SS.js": {
+    "mtime": 1778862774.8310444,
+    "ast_hash": "74df7281f9fa39a4c6b19a67e3d38b77",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\frontend\\assets\\vendor-ui-CMJLHt7S.js": {
+    "mtime": 1778862774.8366463,
+    "ast_hash": "f7c13741e46665cad1b250bfb1ae570b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\limits\\resources\\redis\\lua_scripts\\acquire_moving_window.lua": {
+    "mtime": 1778862778.4572017,
+    "ast_hash": "0b3253f4ef1a9b14680a4af13e2f05c7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\limits\\resources\\redis\\lua_scripts\\acquire_sliding_window.lua": {
+    "mtime": 1778862778.4531014,
+    "ast_hash": "1414578351d7e209772b9e03c8d58518",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\limits\\resources\\redis\\lua_scripts\\clear_keys.lua": {
+    "mtime": 1778862778.4470744,
+    "ast_hash": "b1e232d0f46c5118e98f31ba82f00435",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\limits\\resources\\redis\\lua_scripts\\incr_expire.lua": {
+    "mtime": 1778862778.454608,
+    "ast_hash": "53248e5e7d5d7b1cfe8d1836b6f35120",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\limits\\resources\\redis\\lua_scripts\\moving_window.lua": {
+    "mtime": 1778862778.4470744,
+    "ast_hash": "414e27a35f9529889d8c7a6e81e1d75f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\limits\\resources\\redis\\lua_scripts\\sliding_window.lua": {
+    "mtime": 1778862778.4470744,
+    "ast_hash": "233b9075bf944f75852707d76e4c1e5c",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scratch\\debug_paths.py": {
+    "mtime": 1777620480.689381,
+    "ast_hash": "7089c686bdb4759b80685ce2286e25a8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scratch\\list_nvidia_models.py": {
+    "mtime": 1777320596.7988467,
+    "ast_hash": "af4a70beab8c1d247451891dd78fa902",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scratch\\test_direct_nvidia.py": {
+    "mtime": 1777321155.7722342,
+    "ast_hash": "2a1fe98eae7a5342735f8b895625a5a7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scratch\\test_non_streaming.py": {
+    "mtime": 1777320691.3186736,
+    "ast_hash": "9eec942d53a09097fb879cd010b1a4a6",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scratch\\test_nvidia.py": {
+    "mtime": 1777320432.2150981,
+    "ast_hash": "f5e51164f44336ee6c56c84d3c740181",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scratch\\verify_phase_10.py": {
+    "mtime": 1777315209.707278,
+    "ast_hash": "3f3faac057638305290e93b62f6d5983",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scripts\\build.py": {
+    "mtime": 1777581178.9585977,
+    "ast_hash": "2131cc7eb7c4f670ce31dc7c88d36385",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scripts\\refactor_await.py": {
+    "mtime": 1777579317.4702327,
+    "ast_hash": "e9f800d6b6932cf82bb07aac16cb262b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\scripts\\refactor_memory_async.py": {
+    "mtime": 1777575194.6639607,
+    "ast_hash": "6fbff6c48aa30d3f473fcc17c6bff145",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\App.tsx": {
+    "mtime": 1778864291.152549,
+    "ast_hash": "a201ebfb63b73d6bc645ab901fd8e454",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\config.ts": {
+    "mtime": 1778853506.0435781,
+    "ast_hash": "004b950c86298f679c3d25d16c130ecf",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\constants.ts": {
+    "mtime": 1771234420.0,
+    "ast_hash": "29388326c1bf0818ca919ec65bf8acfa",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\main.tsx": {
+    "mtime": 1777619442.4318492,
+    "ast_hash": "d343c7a0d566e5b7cd64cd7f4e4d5fbd",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\setupTests.ts": {
+    "mtime": 1777572976.0829947,
+    "ast_hash": "00e47f7b9836e8f731101981fa2bb2de",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\AdvancedTools.tsx": {
+    "mtime": 1777574005.7860003,
+    "ast_hash": "c1f7b3b81fc75514d4bd674d6772ed8e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\ArcReactor.tsx": {
+    "mtime": 1777616069.5584126,
+    "ast_hash": "f4c855c25143f47937fef4cabb412411",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\AutomationDashboard.tsx": {
+    "mtime": 1778864762.016482,
+    "ast_hash": "f431b72a9c64717abb7718020a203c12",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\AutomationEditor.tsx": {
+    "mtime": 1778864776.0673034,
+    "ast_hash": "46f4c405b75a308ff520de85e0bc8411",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\CommandInsights.tsx": {
+    "mtime": 1778862508.3165543,
+    "ast_hash": "f90aee676dd16f0bbe91cf823634f794",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\ConfirmationModal.tsx": {
+    "mtime": 1771330296.075002,
+    "ast_hash": "06b13e26e413d06db00e34c909ca2136",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\DesktopControls.tsx": {
+    "mtime": 1774853056.9614143,
+    "ast_hash": "be411387795b719f14b16999df090be7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\ErrorBoundary.tsx": {
+    "mtime": 1774552259.1655085,
+    "ast_hash": "304b41909ba32a4997e7bafbc1e6686e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\HistoryLog.tsx": {
+    "mtime": 1777313807.6729188,
+    "ast_hash": "9496715b7028e7ebaa8621cd68b43fc2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\JarvisModals.tsx": {
+    "mtime": 1777574079.5375502,
+    "ast_hash": "16b25114ade7523d6f14f631ecc6f426",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\MainHUD.tsx": {
+    "mtime": 1778863227.1180117,
+    "ast_hash": "4d7a9c91840d461cc171b70ea3cb064a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\MediaTools.tsx": {
+    "mtime": 1774853065.1243453,
+    "ast_hash": "b4c797ddae0847d0409fbb5601247d01",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\MemoryViewer.tsx": {
+    "mtime": 1778864670.0488546,
+    "ast_hash": "f3c9179bb64df31b520db3242eb345a1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\MobileDashboard.tsx": {
+    "mtime": 1778864307.547742,
+    "ast_hash": "33f346ac892c824adffa28b20f03567d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\MobileSync.tsx": {
+    "mtime": 1778864345.723609,
+    "ast_hash": "2651772af3f1542cd32d28f2cc0b1ffe",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\NotificationCenter.tsx": {
+    "mtime": 1774556466.8411686,
+    "ast_hash": "d5b8d7a48467ac9dc27a17e1beb9f4f3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\PerformanceHistory.tsx": {
+    "mtime": 1778862513.7169626,
+    "ast_hash": "e1e19851a1248a24e27bc1e189878b99",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\PermissionModal.tsx": {
+    "mtime": 1777313838.1243014,
+    "ast_hash": "72e17e6e78397d61eccca460c7855578",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\PersonalitySwitcher.tsx": {
+    "mtime": 1778864357.1330357,
+    "ast_hash": "92eea0010b58ec62f454797c3d3c928c",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\QuickAccess.tsx": {
+    "mtime": 1777572503.9611466,
+    "ast_hash": "8753b8719f91919e9fe1875be188db37",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\QuickResponses.tsx": {
+    "mtime": 1778863447.8424695,
+    "ast_hash": "b32db12771930c987d624a615b082ae1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\SecurityDashboard.tsx": {
+    "mtime": 1778864443.329391,
+    "ast_hash": "f3e11c19ce52fa651d52b1397a5f39ae",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\SettingsModal.tsx": {
+    "mtime": 1777618172.2575326,
+    "ast_hash": "e33e65de1489a8bb1f308823c5e95189",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\StatusPanels.tsx": {
+    "mtime": 1777616087.9487476,
+    "ast_hash": "18f45e264e0c583ac472228a8225d633",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\SystemDiagnostics.tsx": {
+    "mtime": 1778864831.086605,
+    "ast_hash": "34218ee7ea5a93fd45ae5adf9bf0fa88",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\VisionOverlay.tsx": {
+    "mtime": 1777313091.0529153,
+    "ast_hash": "ace1b7a8688b3af91150e725a5e6954e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\VolumeControl.tsx": {
+    "mtime": 1777313821.5102866,
+    "ast_hash": "ae5550f49dc25056967f140987fe9e7e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\layout\\Footer.tsx": {
+    "mtime": 1777617893.8674352,
+    "ast_hash": "ded5dc4ce51b378a069a25113bddd7ec",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\components\\layout\\Header.tsx": {
+    "mtime": 1777615844.6708484,
+    "ast_hash": "3f76850ca493629a991f0bcd244727ee",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\context\\NotificationContext.tsx": {
+    "mtime": 1774556433.4003289,
+    "ast_hash": "b147b324df32207af546ce78007db7c4",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\hooks\\useJarvisBridge.ts": {
+    "mtime": 1778864614.7182126,
+    "ast_hash": "ace891293e5082da39c47e83cb2f5ddb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\hooks\\useJarvisSync.ts": {
+    "mtime": 1777623089.934572,
+    "ast_hash": "b745a65a4f65a5ecc593009688a16a90",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\hooks\\useTheme.ts": {
+    "mtime": 1777616117.5667932,
+    "ast_hash": "665cf496673ea703a2f4d1afc5a34bd5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\hooks\\useVoiceController.ts": {
+    "mtime": 1777572433.7395,
+    "ast_hash": "df65b8559f38b9b70db7f5b8a20e37e5",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\services\\apiClient.ts": {
+    "mtime": 1778864578.112921,
+    "ast_hash": "0a6f00a1560c52c6e4d0faa8e6c68b55",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\services\\securityService.ts": {
+    "mtime": 1778852513.7511296,
+    "ast_hash": "f9267ae2e61b82a689ec12c90c2355a8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\services\\voiceService.ts": {
+    "mtime": 1777580711.9113271,
+    "ast_hash": "1b8c61b1a881616abc361ad12eab181b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\services\\websocketService.ts": {
+    "mtime": 1777318868.2774637,
+    "ast_hash": "4488118fed04a64e4485d9334736ad17",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\store\\jarvisStore.ts": {
+    "mtime": 1778853328.331761,
+    "ast_hash": "c6d0c2323a70d58af9a97c548cfbc66b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\tests\\jarvisStore.test.ts": {
+    "mtime": 1777573040.7998164,
+    "ast_hash": "b9dc4d798ce6fad4b69a34176c283504",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\types\\api.ts": {
+    "mtime": 1778864625.7377827,
+    "ast_hash": "22403559e9dd86383e56d6160e82f090",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\types\\bridge.ts": {
+    "mtime": 1778864459.8196998,
+    "ast_hash": "b478c51fb4667e98a3b3a13653844519",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\types\\index.ts": {
+    "mtime": 1774853104.3533833,
+    "ast_hash": "1bee66e98defe738fbaac95b7d70d6fb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\utils\\audioUtils.ts": {
+    "mtime": 1774859567.6736343,
+    "ast_hash": "d8051c47f32bbe3f2cd38e49c91324ca",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\utils\\microInteractions.ts": {
+    "mtime": 1774859547.0991056,
+    "ast_hash": "c778d36a1b4e4823dd4cd3fc9dea367a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\src\\__tests__\\apiClient.test.ts": {
+    "mtime": 1778853493.8169038,
+    "ast_hash": "238ee8ded068682ad38d8f0db63863bb",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\BACKEND_FRONTEND_SYNC.md": {
+    "mtime": 1777622514.2946167,
+    "ast_hash": "c7687e70a2c308a40f36da650f07c66a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backup_input_control.txt": {
+    "mtime": 1777305180.158353,
+    "ast_hash": "9ce6b6b6cd741b505a0be262f55c0268",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\CLAUDE.md": {
+    "mtime": 1777579789.8527205,
+    "ast_hash": "5c81825ce8e6ad93c03485c54dec9895",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\docker-compose.yml": {
+    "mtime": 1777573169.853759,
+    "ast_hash": "84eaffecdf0446998ed1f24662c1deb2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\error.md": {
+    "mtime": 1778850976.1779225,
+    "ast_hash": "0cf3d45111fe42113dbab43c97d19ac7",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\IMPLEMENTATION_ROADMAP_v3.7.0.md": {
+    "mtime": 1777620726.9674087,
+    "ast_hash": "77f1cc8ee1a0d140694eab478667c5ef",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\index.html": {
+    "mtime": 1774854872.8048992,
+    "ast_hash": "b07ac40f12ec772e1b7c5965301e1f82",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\README.md": {
+    "mtime": 1778864180.4162357,
+    "ast_hash": "6e1f2df314e7794e11d5f30fff233dfe",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\SECURITY.md": {
+    "mtime": 1778850975.9479394,
+    "ast_hash": "3634b1ffff5f5ab021b7db549fef6968",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.agent\\workflows\\update-memory.md": {
+    "mtime": 1774551512.6581051,
+    "ast_hash": "1b46a4e683c7d2e737762e6a9900e884",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.agents\\rules\\graphify.md": {
+    "mtime": 1778849093.6537201,
+    "ast_hash": "56d322bc02e948acf8a5abc7fd5d20ff",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.agents\\workflows\\graphify.md": {
+    "mtime": 1778849093.6557152,
+    "ast_hash": "84de69efd46ab0b8430393bd4188f8f2",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.github\\workflows\\ci.yml": {
+    "mtime": 1778853230.688464,
+    "ast_hash": "6a59c3bcbff6e91653000d467ac4c5a6",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\.github\\workflows\\codeql.yml": {
+    "mtime": 1778850975.9449496,
+    "ast_hash": "4ebf1a50c16ce932487e5693fb255340",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\MODULES_STATUS.md": {
+    "mtime": 1777313120.4473658,
+    "ast_hash": "d6dad132c7ad21cf3d23a73baf9fa56b",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\requirements-prod.txt": {
+    "mtime": 1777577622.9379232,
+    "ast_hash": "02dc073446036c517f9a4392b73282d9",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\backend\\requirements.txt": {
+    "mtime": 1778861071.9955516,
+    "ast_hash": "b7a819052d1792d6cba021591bd1c174",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\docs\\API_DOCUMENTATION.md": {
+    "mtime": 1778864202.2043273,
+    "ast_hash": "758379549277727e8f36dfc3c298dec4",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\docs\\COMMANDS.md": {
+    "mtime": 1778850976.1714282,
+    "ast_hash": "b741632203cbc2df1495e7510d3ca93a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\docs\\DISTRIBUTION.md": {
+    "mtime": 1778850976.1724238,
+    "ast_hash": "0e9b454842775fdfe613dfd676c74073",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\docs\\SETUP.md": {
+    "mtime": 1778850976.1734204,
+    "ast_hash": "49bd0ab988bb9ebd03bb97ab8842f31e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\docs\\TROUBLESHOOTING.md": {
+    "mtime": 1778850976.1749291,
+    "ast_hash": "aab888f8a120b256317dfc7fb2f7e681",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\decisions.md": {
+    "mtime": 1778864091.1147208,
+    "ast_hash": "7db4409ece583c6c0b4728f35ead7376",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\MEMORY_MAP.md": {
+    "mtime": 1778864145.969499,
+    "ast_hash": "fcb7d1b39e9acd12a9bb2644bb85e084",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\people.md": {
+    "mtime": 1774551535.3058584,
+    "ast_hash": "7efcb314d943bf91f6e512d34cd24871",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\personality.md": {
+    "mtime": 1777314574.3684464,
+    "ast_hash": "9533f794eef20d4caf5d4b5fcdf8c11d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\preferences.md": {
+    "mtime": 1778862115.8197105,
+    "ast_hash": "feb51f489e2697315c942e9d0ee38841",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\projects.md": {
+    "mtime": 1778864096.9819815,
+    "ast_hash": "88b9cedc0c995567be3272446c814f20",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\security.md": {
+    "mtime": 1778864152.826457,
+    "ast_hash": "32e7b1a1cb4513537e1e8fb378e96a67",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\memory\\user.md": {
+    "mtime": 1778864157.1512926,
+    "ast_hash": "2f71cfb1d9dd633d3fdb24496ab47172",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\README.txt": {
+    "mtime": 1778862781.3919,
+    "ast_hash": "cb21100861099e51aec47f7cdc8e7cf6",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\click-8.3.1.dist-info\\licenses\\LICENSE.txt": {
+    "mtime": 1778862778.4572017,
+    "ast_hash": "1fa98232fd645608937a0fdc82e999b8",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\frontend\\index.html": {
+    "mtime": 1778862774.8664284,
+    "ast_hash": "7b95d3af025d8f5990ab5da71ec94cd1",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\websockets-12.0.dist-info\\top_level.txt": {
+    "mtime": 1778862778.4672296,
+    "ast_hash": "f36b810914d17b7d95a034db8477fece",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\docs\\assets\\jarvis_logo.svg": {
+    "mtime": 1771426430.05503,
+    "ast_hash": "09a28b7e8a3c05e42930ee680ee22f1d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\logo100.gif": {
+    "mtime": 1778862777.5541408,
+    "ast_hash": "ff04b357b7ab0a8b573c10c6da945d6a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\logo64.gif": {
+    "mtime": 1778862778.1396506,
+    "ast_hash": "b226cc3da70aab2ebb8dffd0c953933d",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\logoLarge.gif": {
+    "mtime": 1778862777.1160247,
+    "ast_hash": "45d9b00c4cf82cc53723b00d876b5e7e",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\logoMed.gif": {
+    "mtime": 1778862777.0805118,
+    "ast_hash": "bd12b645a9b0036a9c24298cd7a81e5a",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\pwrdLogo100.gif": {
+    "mtime": 1778862777.8586643,
+    "ast_hash": "dbfae61191b9fadd4041f4637963d84f",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\pwrdLogo150.gif": {
+    "mtime": 1778862778.388056,
+    "ast_hash": "711f4e22670fc5798e4f84250c0d0eaa",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\pwrdLogo175.gif": {
+    "mtime": 1778862777.802641,
+    "ast_hash": "da5fb10f4215e9a1f4b162257972f9f3",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\pwrdLogo200.gif": {
+    "mtime": 1778862777.8396087,
+    "ast_hash": "a5e4284d75c457f7a33587e7ce0d1d99",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\pwrdLogo75.gif": {
+    "mtime": 1778862778.3660643,
+    "ast_hash": "7013cfc23ed23bff3bda4952266fa7f4",
+    "semantic_hash": ""
+  },
+  "C:\\Users\\vipha\\Downloads\\jarvis-bilingual-adv-ai-assistant\\release\\backend\\_internal\\tk\\images\\tai-ku.gif": {
+    "mtime": 1778862777.7643535,
+    "ast_hash": "048afe69735f6974d2ca7384b879820c",
+    "semantic_hash": ""
+  }
+}

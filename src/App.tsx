@@ -20,11 +20,16 @@ import { NotificationCenter } from './components/NotificationCenter';
 const App: FC = () => {
   useTheme();
   useJarvisSync();
-  
-  const { 
-    isConnected, connectionStatus, 
-    sendCommand, lastResponse,
-    bridgeError
+
+  const {
+    isConnected, connectionStatus, lastResponse, bridgeError
+  } = useJarvisStore();
+
+  const {
+    sendCommand,
+    confirmCommand,
+    reconnect,
+    requestStatus
   } = useJarvisBridge();
   
   const { 

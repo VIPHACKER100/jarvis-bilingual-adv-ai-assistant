@@ -17,9 +17,10 @@ export const PerformanceHistory: FC = () => {
   const fetchHistory = async () => {
     try {
       const response = await apiClient.getPerformanceHistory(30);
-      if (response.success) {
+      if (response.success && response.data) {
         // Reverse to get chronological order for the chart
-        setHistory(response.data.reverse());
+        const historyData = Array.isArray(response.data) ? response.data : [];
+        setHistory([...historyData].reverse());
       }
     } catch (error) {
       console.error('Failed to fetch performance history:', error);

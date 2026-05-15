@@ -5,10 +5,11 @@ import { apiClient } from '../services/apiClient';
 
 interface NetworkConnection {
   pid: number | null;
-  process: string;
-  local_addr: string;
-  remote_addr: string;
+  name: string;
+  local_addr?: string;
+  remote_addr?: string;
   status: string;
+  type?: string;
 }
 
 export const SecurityDashboard: FC = () => {
@@ -27,7 +28,7 @@ export const SecurityDashboard: FC = () => {
     try {
       const res = await apiClient.getNetworkScan();
       if (res.success) {
-        setConnections(res.connections);
+        setConnections(res.connections || []);
       }
     } catch (error) {
       console.error("Failed to load security data:", error);
@@ -103,7 +104,7 @@ export const SecurityDashboard: FC = () => {
                 <div className="col-span-1 text-right">Action</div>
               </div>
 
-              {connections.map((conn, idx) => (
+              {connections && connections.map((conn, idx) => (
                 <div 
                   key={`${conn.pid}-${idx}`}
                   className="glass-panel p-3 bg-white/[0.01] border border-white/5 rounded-lg flex flex-col gap-2 hover:border-cyan-500/30 transition-all group"
@@ -111,7 +112,7 @@ export const SecurityDashboard: FC = () => {
                   <div className="grid grid-cols-5 items-center">
                     <div className="col-span-1 flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                      <span className="text-[11px] text-white font-medium truncate">{conn.process}</span>
+                      <span className="text-[11px] text-white font-medium truncate">{conn.name || conn.pid || 'Unknown'}</span>
                     </div>
                     <div className="col-span-1 text-center text-[10px] font-mono text-slate-400">{conn.pid || 'N/A'}</div>
                     <div className="col-span-1 text-[10px] font-mono text-slate-400 truncate">{conn.local_addr}</div>
@@ -138,7 +139,7 @@ export const SecurityDashboard: FC = () => {
                 </div>
               ))}
               
-              {connections.length === 0 && (
+              {connections?.length === 0 && (
                 <div className="h-64 flex flex-col items-center justify-center text-slate-600 opacity-50">
                   <Network className="w-12 h-12 mb-4" />
                   <p className="text-xs uppercase tracking-widest">No established connections found</p>
@@ -185,7 +186,7 @@ export const SecurityDashboard: FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></div>
-            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Quarantine_Ready: {connections.length} Nodes</span>
+            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Quarantine_Ready: {connections?.length || 0} Nodes</span>
           </div>
         </div>
         <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Security_Protocol: AES-256-ENCRYPTED</span>

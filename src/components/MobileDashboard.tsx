@@ -1,11 +1,11 @@
 import { FC, useEffect, useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smartphone, Activity, Zap, Shield, Cpu, Database, Wifi, AlertTriangle } from 'lucide-react';
-import { useJarvisBridge } from '../hooks/useJarvisBridge';
+import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
 
 export const MobileDashboard: FC = () => {
-  const { isConnected, systemStatus, connectionStatus } = useJarvisBridge();
+  const { isConnected, connectionStatus, systemStatus } = useJarvisStore();
   const { notifications } = useNotifications();
   const [lastUpdate, setLastUpdate] = useState<string>(new Date().toLocaleTimeString());
 

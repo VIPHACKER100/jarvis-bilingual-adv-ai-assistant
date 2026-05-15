@@ -172,7 +172,26 @@ class DatabaseManager:
                 applied_at TEXT NOT NULL DEFAULT (datetime('now'))
             )
         """)
-        await self._connection.commit()
+        
+        # PROACTIVE CHECK: Ensure core tables exist.
+        # If performance_metrics is missing but _schema_version exists, we might have a corrupted state.
+        cursor = await self._connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='performance_metrics'")
+        table_exists = await cursor.fetchone()
+        
+        if not table_exists:
+            logger.warning("Core tables missing. Forcing migration v1 (001_initial.sql)...")
+            initial_migration = self._migrations_dir / "001_initial.sql"
+            if initial_migration.exists():
+                sql = initial_migration.read_text(encoding="utf-8")
+                await self._connection.executescript(sql)
+                # Check if already in _schema_version
+                cursor = await self._connection.execute("SELECT version FROM _schema_version WHERE version = 1")
+                if not await cursor.fetchone():
+                    await self._connection.execute(
+                        "INSERT INTO _schema_version (version, filename) VALUES (1, '001_initial.sql')"
+                    )
+                await self._connection.commit()
+                logger.info("Core tables created successfully via forced migration.")
 
         # Get current version
         cursor = await self._connection.execute(

@@ -64,7 +64,7 @@ async def pair_device(request: DevicePairingRequest):
     
     raise HTTPException(status_code=400, detail="Invalid pairing code")
 
-@router.get("/devices", response_model=Dict[str, List[Dict]])
+@router.get("/devices")
 async def get_paired_devices():
     """List all paired mobile devices (sanitized)"""
     devices = await memory_manager.get_setting("paired_devices", [])
@@ -73,7 +73,11 @@ async def get_paired_devices():
         {k: v for k, v in d.items() if k != "token"}
         for d in devices
     ]
-    return {"success": True, "devices": sanitized}
+    return {
+        "success": True, 
+        "devices": sanitized,
+        "count": len(sanitized)
+    }
 
 @router.delete("/devices/{device_id}")
 async def unpair_device(device_id: str):

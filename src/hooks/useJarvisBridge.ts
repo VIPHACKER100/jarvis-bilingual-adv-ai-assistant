@@ -10,7 +10,7 @@ import { useNotifications } from '../context/NotificationContext';
 import { useJarvisStore } from '../store/jarvisStore';
 
 export function useJarvisBridge() {
-  const { 
+  const {
     isConnected, setConnected,
     connectionStatus, setConnectionStatus,
     setSystemStatus,
@@ -18,6 +18,8 @@ export function useJarvisBridge() {
     pendingConfirmation, setPendingConfirmation,
     setBridgeError
   } = useJarvisStore();
+
+  const getStoreState = useJarvisStore.getState;
 
   const { addNotification } = useNotifications();
   const confirmationTimeoutRef = useRef<number | null>(null);
@@ -86,10 +88,10 @@ export function useJarvisBridge() {
 
       case 'proactive_suggestion':
         if (message.data && message.data.text) {
-          const { systemStatus, setSystemStatus } = useJarvisStore.getState();
-          if (systemStatus) {
+          const currentStatus = getStoreState().systemStatus;
+          if (currentStatus) {
             setSystemStatus({
-              ...systemStatus,
+              ...currentStatus,
               context_suggestion: message.data.text
             });
           }
@@ -146,7 +148,8 @@ export function useJarvisBridge() {
       );
 
       if (result.success && result.result) {
-        setLastResponse(result.result);
+        const typedResult = result.result as unknown as CommandResponse;
+        setLastResponse(typedResult);
       }
 
       setPendingConfirmation(null);

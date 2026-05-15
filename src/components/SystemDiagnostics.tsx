@@ -15,10 +15,10 @@ interface SystemDiagnosticsProps {
     volume?: number;
     uptime?: number;
     platform?: string;
-    active_window?: { title: string; process: string } | null;
+    active_window?: { title: string; process: string } | string | null;
     context_suggestion?: string | null;
     event_loop_lag?: number;
-    personality?: string;
+    personality?: { id: string; name: string; accent: string; primary: string; style: string } | string;
   } | null;
 }
 
@@ -201,7 +201,7 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
 
       {/* Personality / Theme Switcher */}
       <PersonalitySwitcher
-        currentPersonality={systemStatus.personality}
+        currentPersonality={typeof systemStatus.personality === 'string' ? systemStatus.personality : systemStatus.personality?.id}
         onSwitch={(id) => console.info('[JARVIS] Personality switched to:', id)}
       />
 
@@ -212,10 +212,10 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
             <div className="flex flex-col gap-1">
               <span className="text-[7px] text-accent uppercase tracking-widest font-bold">Active_Context</span>
               <span className="text-[10px] text-foreground truncate font-mono">
-                {systemStatus.active_window.title}
+                {typeof systemStatus.active_window === 'object' ? systemStatus.active_window.title : systemStatus.active_window}
               </span>
               <span className="text-[8px] text-foreground-muted uppercase tracking-tighter">
-                PID: {systemStatus.active_window.process}
+                PID: {typeof systemStatus.active_window === 'object' ? systemStatus.active_window.process : 'N/A'}
               </span>
             </div>
           </div>

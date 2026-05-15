@@ -6,25 +6,25 @@ import { useNotifications } from '../context/NotificationContext';
 interface Task {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   command: string;
-  schedule_type: string;
-  schedule_time: string;
-  days: string[];
+  schedule_type: 'interval' | 'cron' | 'once';
+  schedule_time?: string;
+  days?: string[];
   enabled: boolean;
-  run_count: number;
-  last_run: string;
+  run_count?: number;
+  last_run: string | null;
 }
 
 interface Macro {
   id: string;
   name: string;
-  description: string;
-  commands: any[];
-  trigger: string;
-  trigger_phrase: string;
+  description?: string;
+  commands: string[];
+  trigger?: string;
+  trigger_phrase?: string | null;
   enabled: boolean;
-  run_count: number;
+  run_count?: number;
 }
 
 interface AutomationDashboardProps {
@@ -55,10 +55,10 @@ export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onCl
     setLoading(true);
     try {
       const tasksData = await apiClient.getTasks();
-      if (tasksData.success) setTasks(tasksData.tasks);
+      if (tasksData.success) setTasks(tasksData.tasks || []);
 
       const macrosData = await apiClient.getMacros();
-      if (macrosData.success) setMacros(macrosData.macros);
+      if (macrosData.success) setMacros(macrosData.macros || []);
 
       const statusData = await apiClient.getAutomationStatus();
       if (statusData.success) setStatus(statusData.status);
@@ -141,12 +141,12 @@ export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onCl
 
   const getScheduleLabel = (task: Task) => {
     switch (task.schedule_type) {
-      case 'daily':
-        return `Daily at ${task.schedule_time}`;
-      case 'weekly':
-        return `Weekly on ${task.days.join(', ')} at ${task.schedule_time}`;
+      case 'once':
+        return task.schedule_time ? `Once at ${task.schedule_time}` : 'One-time';
       case 'interval':
-        return `Every ${task.schedule_time} minutes`;
+        return task.schedule_time ? `Every ${task.schedule_time} seconds` : 'Interval';
+      case 'cron':
+        return task.schedule_time || 'Cron schedule';
       default:
         return task.schedule_type;
     }
@@ -229,14 +229,14 @@ export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onCl
             </div>
           ) : activeTab === 'tasks' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {tasks.length === 0 ? (
+              {(!tasks || tasks.length === 0) ? (
                 <div className="col-span-2 text-center py-20 text-slate-600">
                   <p className="text-4xl mb-4 opacity-20">📅</p>
                   <p className="text-sm font-medium">No scheduled tasks found.</p>
                   <p className="text-xs mt-1">Click "Create Task" to automate a recurring action.</p>
                 </div>
               ) : (
-                tasks.map((task) => (
+                tasks?.map((task) => (
                   <div key={task.id} className={`group relative bg-slate-800/40 border rounded-xl p-5 transition-all hover:bg-slate-800/60 ${task.enabled ? 'border-slate-700' : 'border-slate-800 opacity-60'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
@@ -277,14 +277,14 @@ export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onCl
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {macros.length === 0 ? (
+              {macros?.length === 0 ? (
                 <div className="col-span-2 text-center py-20 text-slate-600">
                   <p className="text-4xl mb-4 opacity-20">🎬</p>
                   <p className="text-sm font-medium">No macros created.</p>
                   <p className="text-xs mt-1">Combine multiple commands into a single sequence.</p>
                 </div>
               ) : (
-                macros.map((macro) => (
+                macros?.map((macro) => (
                   <div key={macro.id} className={`group relative bg-slate-800/40 border rounded-xl p-5 transition-all hover:bg-slate-800/60 ${macro.enabled ? 'border-slate-700' : 'border-slate-800 opacity-60'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
@@ -308,7 +308,7 @@ export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onCl
                         </span>
                       )}
                       <span className="text-[10px] px-2 py-1 bg-cyan-500/10 border border-cyan-500/30 rounded text-cyan-400 font-mono">
-                        {macro.commands.length} STEPS
+                        {macro.commands?.length || 0} STEPS
                       </span>
                     </div>
 

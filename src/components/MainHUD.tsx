@@ -4,6 +4,7 @@ import { Activity, X } from 'lucide-react';
 import { AppMode, Language } from '../types';
 import { useJarvisStore } from '../store/jarvisStore';
 import { ArcReactor } from './ArcReactor';
+import { QuickResponses } from './QuickResponses';
 
 interface MainHUDProps {
   onToggleActivation: () => void;
@@ -60,6 +61,8 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
         language={language === Language.HINDI ? 'hi' : 'en'}
         eventLoopLag={systemStatus?.event_loop_lag}
       />
+
+      <QuickResponses />
 
       {currentSuggestion && (
         <motion.div 

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi.encoders import jsonable_encoder
 from typing import Dict, Any, List, Optional
 import asyncio
 import json
@@ -27,10 +28,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = No
             try:
                 message = WebSocketMessage(**message_dict)
             except Exception as e:
-                await manager.send_personal_message(WebSocketResponse(
+                await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
                     type="error",
                     data=f"Invalid message format: {str(e)}"
-                ).dict(), cid)
+                )), cid)
                 continue
 
             msg_type = message.type
@@ -48,30 +49,30 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = No
                         )
                         
                         # Send result back
-                        await manager.send_personal_message(WebSocketResponse(
+                        await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
                             type="command_result",
                             data=result
-                        ).dict(), cid)
+                        )), cid)
                     except Exception as e:
                         logger.error(f"Error executing background command: {e}")
-                        await manager.send_personal_message(WebSocketResponse(
+                        await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
                             type="error",
                             data=f"Command execution failed: {str(e)}"
-                        ).dict(), cid)
+                        )), cid)
 
                 asyncio.create_task(execute_task(message, cid))
             
             elif msg_type == "ping":
-                await manager.send_personal_message(WebSocketResponse(
+                await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
                     type="pong"
-                ).dict(), cid)
+                )), cid)
             
             elif msg_type == "get_status":
                 status = await system_module.get_system_status()
-                await manager.send_personal_message(WebSocketResponse(
+                await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
                     type="system_status",
                     data=status
-                ).dict(), cid)
+                )), cid)
                 
     except WebSocketDisconnect:
         manager.disconnect(cid)
@@ -91,5 +92,5 @@ async def broadcast_notification(title: str, message: str, type: str = "info", d
         }
     )
     
-    await manager.broadcast(response.dict())
+    await manager.broadcast(jsonable_encoder(response))
     return len(manager.active_connections)

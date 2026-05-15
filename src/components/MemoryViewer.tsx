@@ -4,7 +4,7 @@ import { apiClient } from '../services/apiClient';
 import { SecurityDashboard } from './SecurityDashboard';
 
 interface Conversation {
-  id: number;
+  id: number | null;
   timestamp: string;
   user_input: string;
   jarvis_response: string;
@@ -19,12 +19,12 @@ interface MemoryViewerProps {
 }
 
 interface MemoryFact {
-  id: number;
+  id: number | null;
   key: string;
   value: string;
   category: string;
-  confidence: number;
-  updated_at: string;
+  source?: string;
+  timestamp?: string;
 }
 
 type ViewMode = 'history' | 'analytics' | 'memories' | 'map' | 'security';
@@ -60,13 +60,13 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
       ]);
 
       if (convRes.success) {
-        setConversations(convRes.conversations);
+        setConversations(convRes.conversations || []);
       }
       if (statsRes.success) {
         setStats(statsRes.stats);
       }
       if (factsRes.success) {
-        setFacts(factsRes.facts);
+        setFacts(factsRes.facts || []);
       }
       
       // Load Neural Memory Nodes
@@ -105,7 +105,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
     try {
       const data = await apiClient.updateMemoryFact(id, editValue);
       if (data.success) {
-        setFacts(prev => prev.map(f => f.id === id ? { ...f, value: editValue, updated_at: new Date().toISOString() } : f));
+        setFacts(prev => prev.map(f => f.id === id ? { ...f, value: editValue, timestamp: new Date().toISOString() } : f));
         setEditingId(null);
       }
     } catch (error) {
@@ -430,10 +430,10 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                         <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 uppercase tracking-widest">
                           {fact.category}
                         </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[9px] font-mono text-slate-600 uppercase">
-                            Archived: {new Date(fact.updated_at).toLocaleDateString()}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[9px] font-mono text-slate-600 uppercase">
+                              Updated: {fact.timestamp ? new Date(fact.timestamp).toLocaleDateString() : 'N/A'}
+                            </span>
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEditFact(fact)}
@@ -443,7 +443,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </button>
                             <button
-                              onClick={() => {if(confirm('Delete memory?')) handleDeleteFact(fact.id)}}
+                              onClick={() => {if(confirm('Delete memory?')) handleDeleteFact(fact.id!)}}
                               className="text-slate-600 hover:text-red-400 transition-colors"
                               title="Purge record"
                             >
@@ -465,11 +465,11 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                             value={editValue}
                             onChange={e => setEditValue(e.target.value)}
                             onKeyDown={e => {
-                                if (e.key === 'Enter') saveEdit(fact.id);
+                                if (e.key === 'Enter') saveEdit(fact.id!);
                                 if (e.key === 'Escape') setEditingId(null);
                             }}
                           />
-                          <button onClick={() => saveEdit(fact.id)} className="text-green-500 hover:text-white">✓</button>
+                          <button onClick={() => saveEdit(fact.id!)} className="text-green-500 hover:text-white">✓</button>
                           <button onClick={() => setEditingId(null)} className="text-red-500 hover:text-white">×</button>
                         </div>
                       ) : (
@@ -481,10 +481,12 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                           className={`h-full bg-gradient-to-r from-orange-600/60 to-orange-400/20 transition-all duration-1000 ease-out fact-width-${idx}`}
                         />
                       </div>
-                      <div className="flex justify-between text-[8px] font-mono text-slate-600 mt-1 uppercase tracking-widest">
-                        <span>Linguistic Certainty</span>
-                        <span>{(fact.confidence * 100).toFixed(0)}%</span>
-                      </div>
+                      {fact.source && (
+                        <div className="flex justify-between text-[8px] font-mono text-slate-600 mt-1 uppercase tracking-widest">
+                          <span>Source: {fact.source}</span>
+                          <span>{fact.timestamp ? new Date(fact.timestamp).toLocaleDateString() : ''}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -530,7 +532,8 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                         .sort(([, a], [, b]) => (b as number) - (a as number))
                         .slice(0, 8)
                         .map(([type, count], idx) => {
-                          const percentage = ((count as number) / stats.total_conversations * 100).toFixed(0);
+                            const total = stats.total_conversations || 1;
+                            const percentage = ((count as number) / total * 100).toFixed(0);
                           return (
                             <div key={type} className="space-y-1">
                               <div className="flex justify-between text-[11px] font-mono uppercase tracking-tighter">
@@ -734,8 +737,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.1); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.2); border-radius: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.4); }
-        ${filteredFacts.map((fact, idx) => ".fact-width-" + idx + " { width: " + (fact.confidence * 100) + "%; }").join('\\n')}
-        ${stats && stats.command_types ? Object.entries(stats.command_types).sort(([, a], [, b]) => (b as number) - (a as number)).slice(0, 8).map(([, count], idx) => ".protocol-width-" + idx + " { width: " + (((count as number) / stats.total_conversations) * 100) + "%; }").join('\\n') : ''}
+        ${stats && stats.command_types && stats.total_conversations > 0 ? Object.entries(stats.command_types).sort(([, a], [, b]) => (b as number) - (a as number)).slice(0, 8).map(([, count], idx) => ".protocol-width-" + idx + " { width: " + (((count as number) / stats.total_conversations) * 100) + "%; }").join('\n') : ''}
       `}</style>
     </div>
   );

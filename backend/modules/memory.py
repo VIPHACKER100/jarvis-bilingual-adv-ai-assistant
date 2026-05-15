@@ -427,6 +427,29 @@ class MemoryManager:
             logger.error(f"Error saving performance metric: {e}")
             return False
 
+    async def get_performance_history(self, limit: int = 60) -> List[Dict[str, Any]]:
+        """Retrieve recent performance history"""
+        try:
+            rows = await db_manager.fetchall('''
+                SELECT timestamp, event_loop_lag, cpu_percent, memory_percent
+                FROM performance_metrics
+                ORDER BY timestamp DESC
+                LIMIT ?
+            ''', (limit,))
+            
+            return [
+                {
+                    "timestamp": row[0],
+                    "event_loop_lag": row[1],
+                    "cpu_percent": row[2],
+                    "memory_percent": row[3]
+                }
+                for row in rows
+            ]
+        except Exception as e:
+            logger.error(f"Error getting performance history: {e}")
+            return []
+
     async def save_memory(self, entry: MemoryEntry) -> bool:
         """Save a memory/fact about the user"""
         try:

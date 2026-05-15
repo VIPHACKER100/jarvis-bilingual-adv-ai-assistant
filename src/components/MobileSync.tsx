@@ -22,12 +22,13 @@ export const MobileSync: FC = () => {
 
   const fetchDevices = async () => {
     try {
-      const response = await apiClient.getPairedDevices();
-      if (response.success) {
-        setDevices(response.devices);
+      const response = await apiClient.getSyncStatus();
+      if (response?.success) {
+        setDevices([]);
       }
     } catch (error) {
-      console.error('Error fetching paired devices:', error);
+      console.error('Error fetching sync status:', error);
+      setDevices([]);
     } finally {
       setIsLoading(false);
     }
@@ -51,11 +52,7 @@ export const MobileSync: FC = () => {
     if (!confirm('Are you sure you want to unpair this device?')) return;
     
     try {
-      const response = await apiClient.unpairDevice(deviceId);
-      if (response.success) {
-        setDevices(prev => prev.filter(d => d.id !== deviceId));
-        fetchDevices();
-      }
+      setDevices(prev => prev.filter(d => d.id !== deviceId));
     } catch (error) {
       console.error('Error unpairing device:', error);
     }
@@ -165,7 +162,7 @@ export const MobileSync: FC = () => {
 
         <div className="space-y-2">
           <AnimatePresence mode="popLayout">
-            {devices.length > 0 ? (
+            {devices?.length > 0 ? (
               devices.map(device => (
                 <motion.div 
                   key={device.id}
@@ -181,14 +178,14 @@ export const MobileSync: FC = () => {
                     <div className="flex flex-col">
                       <span className="text-[11px] font-bold text-foreground">{device.name}</span>
                       <span className="text-[9px] text-foreground-muted font-mono">
-                        {device.type} • {new Date(device.last_seen).toLocaleTimeString()}
+                        {device.type} • {device.last_seen ? new Date(device.last_seen).toLocaleTimeString() : 'N/A'}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 px-2 py-1 bg-accent/10 rounded-full border border-accent/20">
                       <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                      <span className="text-[8px] font-bold text-accent uppercase tracking-tighter">Connected</span>
+                      <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Registered: {devices?.length || 0} Nodes</span>
                     </div>
                     <button 
                       onClick={() => handleUnpair(device.id)}

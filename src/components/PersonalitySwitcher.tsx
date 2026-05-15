@@ -28,7 +28,7 @@ export const PersonalitySwitcher: FC<PersonalitySwitcherProps> = ({
   const handleSwitch = async (id: string) => {
     if (id === currentPersonality) return;
     try {
-      await apiClient.post(`/system/personality/${id}`);
+      await apiClient.post(`/system/personality/${id}`, {});
       onSwitch?.(id);
     } catch (err) {
       console.warn('Failed to switch personality:', err);

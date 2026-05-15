@@ -14,7 +14,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
   const [taskName, setTaskName] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
   const [taskCommand, setTaskCommand] = useState('');
-  const [scheduleType, setScheduleType] = useState('daily');
+  const [scheduleType, setScheduleType] = useState<'once' | 'interval' | 'cron'>('once');
   const [scheduleTime, setScheduleTime] = useState('08:00');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [taskCondition, setTaskCondition] = useState('');
@@ -66,12 +66,9 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
         if (!taskName || !taskCommand) throw new Error('Name and command are required');
         await apiClient.createTask({
           name: taskName,
-          description: taskDesc,
           command: taskCommand,
           schedule_type: scheduleType,
           schedule_time: scheduleTime,
-          days: selectedDays,
-          condition: taskCondition
         });
       } else {
         if (!macroName || macroCommands.length === 0) throw new Error('Name and at least one command are required');
@@ -159,13 +156,13 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">Schedule Type</label>
                   <select 
-                    value={scheduleType} onChange={e => setScheduleType(e.target.value)}
+                    value={scheduleType} onChange={e => setScheduleType(e.target.value as 'once' | 'interval' | 'cron')}
                     className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none"
                     title="Select schedule frequency"
                   >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="interval">Interval (Minutes)</option>
+                    <option value="once">Once</option>
+                    <option value="interval">Interval</option>
+                    <option value="cron">Cron</option>
                   </select>
                 </div>
                 <div>
@@ -181,7 +178,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
                 </div>
               </div>
 
-              {scheduleType === 'weekly' && (
+              {false && (
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-2">Days</label>
                   <div className="flex flex-wrap gap-2">

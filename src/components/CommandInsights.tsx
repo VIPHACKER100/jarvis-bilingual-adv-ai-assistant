@@ -29,7 +29,7 @@ export const CommandInsights: FC = () => {
     const fetchInsights = async () => {
       try {
         const res = await apiClient.getCommandInsights(30);
-        if (res.success) {
+        if (res.success && res.data) {
           setInsights(res.data);
         }
       } catch {
@@ -46,10 +46,10 @@ export const CommandInsights: FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading || !insights || insights.top_commands.length === 0) return null;
+  if (loading || !insights || !insights.top_commands || insights.top_commands.length === 0) return null;
 
   const maxCount = Math.max(...insights.top_commands.map(c => c.count), 1);
-  const maxDay = Math.max(...insights.daily_activity.map(d => d.count), 1);
+  const maxDay = Math.max(...(insights.daily_activity?.map(d => d.count) ?? [1]), 1);
 
   const formatHour = (h: number | null) => {
     if (h === null) return '—';
@@ -109,7 +109,7 @@ export const CommandInsights: FC = () => {
       </div>
 
       {/* 7-day Activity Sparkline */}
-      {insights.daily_activity.length > 0 && (
+      {insights.daily_activity?.length > 0 && (
         <div className="pt-3 border-t border-border-default">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-3 h-3 text-foreground-muted" />

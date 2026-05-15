@@ -30,7 +30,7 @@ async def create_task(data: AutomationTaskRequest):
 def get_tasks():
     """List all scheduled tasks"""
     tasks = automation_manager.get_all_tasks()
-    return [
+    data = [
         {
             "id": t.id,
             "name": t.name,
@@ -42,6 +42,7 @@ def get_tasks():
         }
         for t in tasks
     ]
+    return {"success": True, "tasks": data}
 
 
 @router.post("/task/{task_id}/toggle", response_model=BaseResponse)
@@ -78,16 +79,18 @@ def create_macro(data: MacroRequest):
 def get_macros():
     """List all saved macros"""
     macros = automation_manager.get_all_macros()
-    return [
+    data = [
         {
             "id": m.id,
             "name": m.name,
             "description": m.description,
             "trigger": m.trigger,
             "enabled": m.enabled,
+            "commands": m.commands # Ensure commands are returned to avoid frontend crash
         }
         for m in macros
     ]
+    return {"success": True, "macros": data}
 
 
 @router.post("/macro/{macro_id}/run", response_model=BaseResponse)
@@ -100,4 +103,5 @@ def run_macro(macro_id: str):
 @router.get("/status")
 def get_automation_status():
     """Get scheduler engine status"""
-    return automation_manager.get_scheduler_status()
+    status = automation_manager.get_scheduler_status()
+    return {"success": True, "status": status}

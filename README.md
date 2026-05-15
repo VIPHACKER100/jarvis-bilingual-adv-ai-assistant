@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-3.7.1-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-3.8.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,20 +20,24 @@
 
 ---
 
-## 🌟 Modern Capabilities (v3.7.1)
+## 🌟 Modern Capabilities (v3.8.0)
 
-- 🛠️ **Modular Router Architecture** - Transitioned to a fully decoupled router system with versioned API endpoints (`/api/v1`) for improved scalability and responsiveness.
+- 🛠️ **Modular Router Architecture** - Fully decoupled router system with versioned API endpoints (`/api/v1`) for improved scalability and responsiveness.
 - 📱 **Mobile Synchronization Core** - New synchronization layer for future mobile dashboard integration, including secure device pairing and real-time status syncing.
 - 📄 **Advanced Media & PDF Engine** - Professional voice-activated PDF merging, splitting, OCR, and image conversion directly from the HUD.
 - ⚡ **Neural Proactivity Integration** - Fully operational background analysis engine for context-aware suggestions and autonomous task summaries.
 - 🧼 **Fluid HUD Interaction** - Automatic transcript clearing and Linear V3.1 theme synchronization for a premium immersive experience.
+- 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models for compile-time safety.
+- 🗄️ **Database Connection Pooling** - WAL journal mode, connection pooling, and SQL migration runner for reliable data persistence.
+- ⚙️ **CI/CD Pipeline** - GitHub Actions with matrix testing (Python 3.11, 3.12, Node 20), pytest, and Vitest integration.
+- 🧪 **Full Test Suite** - In-memory DB fixtures, mock modules, and comprehensive endpoint testing.
 
-### 🚀 **What's New? (v3.7.0)**
+### 🚀 **What's New? (v3.8.0)**
 
-- 📊 **Behavioral Insights Engine** - Surfaces deep command usage patterns, peak activity hours, and failure diagnostics directly on the HUD.
-- 🎭 **Dynamic Persona Switching** - Switch between 4 distinct personalities (Stark, Midnight, Avenue, Linear) via voice commands. Each persona features synchronized UI accents and voice profiles.
-- ⚡ **Neural Proactivity Core** - Real-time background analysis of active windows to provide autonomous task suggestions and context-aware summaries.
-- ⚙️ **Intelligent Conditional Automation** - Automation tasks now support complex execution conditions (e.g., `battery < 20`, `cpu > 80`).
+- 🔒 **Type Safety First** - 350+ TypeScript interfaces, zero `any` types, Pydantic v2 strict mode.
+- 🗄️ **Database Reliability** - Connection pooling, WAL journal mode, SQL migration runner.
+- ⚙️ **CI/CD Pipeline** - GitHub Actions with automated pytest and Vitest testing.
+- 📊 **Dashboard Stability** - Crash-resilient components with optional chaining, full API parity fixes.
 
 ---
 

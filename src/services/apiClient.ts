@@ -559,36 +559,62 @@ class ApiClient {
     }
   }
 
-  // --- Sync Methods ---
+  // --- Context & Quick Actions ---
 
-  async getSyncStatus(): Promise<import('../types/api').SyncStatusResponse> {
+  /** Get a context-aware proactive suggestion on demand */
+  async getSuggestion(language: 'en' | 'hi' = 'en'): Promise<{
+    success: boolean;
+    suggestion: string;
+    topic?: string;
+    mood?: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/context/suggestion?language=${language}`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get suggestion');
+    return response.json();
+  }
+
+  /** Get list of user-configured quick actions */
+  async getQuickActions(): Promise<{
+    success: boolean;
+    actions: any[];
+  }> {
+    const response = await fetch(`${this.baseUrl}/context/quick-actions`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get quick actions');
+    return response.json();
+  }
+
+  /** Update user-configured quick actions */
+  async updateQuickActions(actions: any[]): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    const response = await fetch(`${this.baseUrl}/context/quick-actions`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(actions)
+    });
+    if (!response.ok) throw new Error('Failed to update quick actions');
+    return response.json();
+  }
+
+  // --- Mobile Sync ---
+
+  /** Get sync status and paired devices count */
+  async getSyncStatus(): Promise<{
+    success: boolean;
+    device_name: string;
+    paired_devices_count: number;
+    system_status: Record<string, unknown>;
+    last_updated: string;
+  }> {
     const response = await fetch(`${this.baseUrl}/sync/status`, {
       headers: this.getHeaders()
     });
-    if (!response.ok) {
-      throw new Error('Failed to get sync status');
-    }
-    return response.json();
-  }
-
-  async getPairedDevices(): Promise<import('../types/api').PairedDevicesResponse> {
-    const response = await fetch(`${this.baseUrl}/sync/devices`, {
-      headers: this.getHeaders()
-    });
-    if (!response.ok) {
-      throw new Error('Failed to get paired devices');
-    }
-    return response.json();
-  }
-
-  async unpairDevice(deviceId: string): Promise<SuccessResponse> {
-    const response = await fetch(`${this.baseUrl}/sync/devices/${deviceId}`, {
-      method: 'DELETE',
-      headers: this.getHeaders()
-    });
-    if (!response.ok) {
-      throw new Error('Failed to unpair device');
-    }
+    if (!response.ok) throw new Error('Failed to get sync status');
     return response.json();
   }
 }
