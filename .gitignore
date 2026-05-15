@@ -51,3 +51,7 @@ release/
 memory/
 CLAUDE.md
 *.local
+
+# Scratch / debug scripts (not for production)
+scratch/
+backend/scratch/
