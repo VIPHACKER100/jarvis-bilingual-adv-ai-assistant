@@ -11,7 +11,7 @@ export const SecurityService = {
     if (!command) return "";
     return command
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove scripts
-      .replace(/javascript:/gi, '') // Remove protocol handlers
+      .replace(/(?:javascript|data|vbscript):/gi, '') // Remove protocol handlers
       .replace(/on\w+=/gi, '') // Remove event handlers
       .trim();
   },
