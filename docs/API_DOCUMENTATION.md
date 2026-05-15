@@ -1,4 +1,4 @@
-# JARVIS API Documentation (v3.7.0)
+# JARVIS API Documentation (v3.7.1)
 
 Complete API reference for JARVIS Backend.
 
@@ -10,11 +10,18 @@ Complete API reference for JARVIS Backend.
 http://localhost:8000
 ```
 
-## WebSocket URL
-
 ```bash
 ws://localhost:8000/ws
 ```
+
+---
+
+## API Versioning
+
+As of v3.7.1, JARVIS has transitioned to a modular router-based system. All endpoints are now available under the `/api/v1` prefix.
+
+- **V1 Prefix**: `http://localhost:8000/api/v1`
+- **Legacy Support**: Root-level endpoints (e.g., `http://localhost:8000/api/command`) are maintained for backward compatibility.
 
 ---
 
@@ -114,7 +121,11 @@ GET /api/system/status
   "uptime": 86400,
   "volume": 75,
   "platform": "Windows",
-  "event_loop_lag": 1.5
+  "event_loop_lag": 1.5,
+  "personality": {
+    "name": "stark",
+    "theme": "ironman-gold"
+  }
 }
 ```
 
@@ -803,11 +814,99 @@ POST /api/memory/fact
 Content-Type: application/json
 
 {
-  "key": "company",
-  "value": "Google",
-  "category": "job",
-  "source": "auto-extraction"
+  "fact": "The user likes coffee",
+  "category": "preferences"
 }
+```
+
+---
+
+## Device Synchronization
+
+### Get Sync Status
+
+```http
+GET /api/v1/sync/status
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "device_name": "JARVIS-MAIN",
+  "paired_devices_count": 1,
+  "system_status": { ... },
+  "last_updated": "2024-01-01T12:00:00"
+}
+```
+
+### Pair Device
+
+```http
+POST /api/v1/sync/pair
+Content-Type: application/json
+
+{
+  "device_name": "iPhone 15 Pro",
+  "device_type": "mobile",
+  "pairing_code": "JARVIS-SYNC"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "device_id": "uuid-v4-string",
+  "access_token": "secure-token-string",
+  "message": "Successfully paired iPhone 15 Pro"
+}
+```
+
+### List Paired Devices
+
+```http
+GET /api/v1/sync/devices
+```
+
+### Unpair Device
+
+```http
+DELETE /api/v1/sync/devices/{device_id}
+```
+
+---
+
+## WebSocket Messages (Server to Client)
+
+### Proactive Suggestion
+
+Broadcasted when the Neural Proactivity Engine detects a helpful action.
+
+```json
+{
+  "type": "proactive_suggestion",
+  "data": {
+    "text": "Detected Terminal error. Would you like me to suggest a fix?",
+    "timestamp": "2024-01-01T12:00:00"
+  }
+}
+```
+
+### System Status Broadcast
+
+Broadcasted every 5 seconds.
+
+```json
+{
+  "type": "system_status",
+  "data": { ... },
+  "timestamp": "2024-01-01T12:00:00"
+}
+```
+
 ```
 
 ### Update User Fact

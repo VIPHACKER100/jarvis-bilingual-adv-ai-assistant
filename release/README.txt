@@ -1,4 +1,4 @@
-# JARVIS AI Assistant v3.7.0
+# JARVIS AI Assistant v3.7.1
 > By VIPHACKER100 (Aryan Ahirwar)
 
 ## 🚀 Quick Start
@@ -65,4 +65,4 @@
 - Email: viphacker.100.org@gmail.com
 
 ---
-Made with ❤️ by VIPHACKER100 (Aryan Ahirwar) — JARVIS v3.7.0
+Made with ❤️ by VIPHACKER100 (Aryan Ahirwar) — JARVIS v3.7.1
