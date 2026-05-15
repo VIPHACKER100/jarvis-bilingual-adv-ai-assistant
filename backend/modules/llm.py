@@ -1,3 +1,4 @@
+from typing import Dict, Any, Optional, List, AsyncGenerator
 import httpx
 from utils.logger import logger
 import os
@@ -6,7 +7,6 @@ import sys
 import time
 from openai import OpenAI
 from pathlib import Path
-from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 
 # Add parent directory to path for imports
@@ -109,6 +109,47 @@ class LLMModule:
         else:
             logger.warning("No LLM API keys or local LLM configured.")
             return None
+
+    async def get_response_stream(
+            self,
+            text: str,
+            language: str = 'en',
+            context: Optional[str] = None) -> AsyncGenerator[str, None]:
+        """Stream chunks from the LLM for progressive UI updates"""
+        
+        await memory_manager.prune_conversations(limit=25)
+        
+        if language == 'hi':
+            lang_desc = "Hindi (Devanagari script)"
+        elif language == 'hinglish':
+            lang_desc = "Hinglish (Hindi words written in Latin/English script)"
+        else:
+            lang_desc = "English"
+
+        system_prompt = (
+            "You are JARVIS, a highly intelligent and helpful AI assistant. "
+            f"Respond in {lang_desc}. Keep responses concise and conversational. "
+            "Guidelines: 1-3 sentences for quick queries, longer for depth. "
+            "Capabilities: system commands, web search, code assistance, and research."
+        )
+
+        if context:
+            system_prompt += f"\n\nUSER CONTEXT:\n{context}"
+        
+        neural_context = await memory_manager.neural.get_neural_context(text)
+        if neural_context:
+            system_prompt += f"\n\nNEURAL MEMORY MAP:\n{neural_context}"
+
+        if self.provider == "nvidia" and self.nvidia_api_key:
+            async for chunk in self._stream_nvidia(text, system_prompt):
+                yield chunk
+        elif self.provider == "ollama":
+            async for chunk in self._stream_ollama(text, system_prompt):
+                yield chunk
+        else:
+            # Fallback to streaming via OpenRouter if possible
+            async for chunk in self._stream_openrouter(text, system_prompt):
+                yield chunk
 
     async def _get_ollama_response(self, text: str, system_prompt: str) -> Optional[str]:
         """Get response from local Ollama instance"""
@@ -459,6 +500,91 @@ class LLMModule:
         except:
             return False
 
+
+    async def _stream_nvidia(self, text: str, system_prompt: str) -> AsyncGenerator[str, None]:
+        """Stream response from NVIDIA API"""
+        if not self.nvidia_client:
+            yield "Error: NVIDIA client not initialized."
+            return
+
+        model = "deepseek-ai/deepseek-v4-pro"
+        try:
+            # We use to_thread because the OpenAI sync client is used here
+            # For a fully async experience, we'd use AsyncOpenAI
+            def get_stream():
+                return self.nvidia_client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": text}
+                    ],
+                    stream=True
+                )
+
+            completion = await asyncio.to_thread(get_stream)
+            for chunk in completion:
+                if chunk.choices and chunk.choices[0].delta.content is not None:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            logger.error(f"NVIDIA Streaming Error: {e}")
+            yield f"Error in NVIDIA stream: {str(e)}"
+
+    async def _stream_ollama(self, text: str, system_prompt: str) -> AsyncGenerator[str, None]:
+        """Stream response from Ollama"""
+        payload = {
+            "model": self.ollama_model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": text}
+            ],
+            "stream": True
+        }
+        try:
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", self.ollama_url, json=payload, timeout=60.0) as response:
+                    async for line in response.aiter_lines():
+                        if not line: continue
+                        data = json.loads(line)
+                        if "message" in data:
+                            yield data["message"]["content"]
+                        if data.get("done"):
+                            break
+        except Exception as e:
+            logger.error(f"Ollama Streaming Error: {e}")
+            yield f"Error in Ollama stream: {str(e)}"
+
+    async def _stream_openrouter(self, text: str, system_prompt: str) -> AsyncGenerator[str, None]:
+        """Stream response from OpenRouter"""
+        headers = {
+            "Authorization": f"Bearer {self.openrouter_api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://aryanahirwar.in",
+            "X-Title": "JARVIS AI Assistant"
+        }
+        model = self.openrouter_models[self.current_model_index]
+        payload = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": text}
+            ],
+            "stream": True
+        }
+        try:
+            async with httpx.AsyncClient() as client:
+                async with client.stream("POST", self.openrouter_url, headers=headers, json=payload, timeout=30.0) as response:
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            if data_str == "[DONE]": break
+                            try:
+                                data = json.loads(data_str)
+                                if "choices" in data and data["choices"][0]["delta"].get("content"):
+                                    yield data["choices"][0]["delta"]["content"]
+                            except: continue
+        except Exception as e:
+            logger.error(f"OpenRouter Streaming Error: {e}")
+            yield f"Error in OpenRouter stream: {str(e)}"
 
 # Singleton instance
 llm_module = LLMModule()

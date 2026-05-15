@@ -413,7 +413,7 @@ class WindowManager:
         """Get list of open windows"""
         try:
             if is_windows() and self.win32gui:
-                windows = self._get_window_list_windows()
+                windows = await self._get_window_list_windows()
                 window_data = [
                     {
                         'title': w.title,

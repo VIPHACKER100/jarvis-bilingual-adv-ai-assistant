@@ -93,13 +93,20 @@ def _set_volume_windows(percent):
         
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
+        if not devices:
+            return False
+            
+        if not hasattr(devices, 'Activate'):
+            logger.debug("Audio speakers device lacks 'Activate' method - likely virtual environment")
+            return False
+
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
         
         volume.SetMasterVolumeLevelScalar(percent / 100.0, None)
         return True
     except Exception as e:
-        logger.error(f"Error setting volume on Windows: {e}")
+        logger.debug(f"Error setting volume on Windows: {e}")
         return False
     finally:
         try:
@@ -130,13 +137,16 @@ def _get_volume_windows():
         
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
+        if not devices or not hasattr(devices, 'Activate'):
+            return 50
+            
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
         
         vol_scalar = volume.GetMasterVolumeLevelScalar()
         return int(vol_scalar * 100)
     except Exception as e:
-        logger.error(f"Error getting volume on Windows: {e}")
+        logger.debug(f"Error getting volume on Windows: {e}")
         return 50
     finally:
         try:
@@ -166,13 +176,16 @@ def _set_mute_windows(mute_state):
         
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
+        if not devices or not hasattr(devices, 'Activate'):
+            return False
+            
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
         
         volume.SetMute(1 if mute_state else 0, None)
         return True
     except Exception as e:
-        logger.error(f"Error setting mute on Windows: {e}")
+        logger.debug(f"Error setting mute on Windows: {e}")
         return False
     finally:
         try:
@@ -205,12 +218,15 @@ def _is_muted_windows():
         
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
+        if not devices or not hasattr(devices, 'Activate'):
+            return False
+            
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
         
         return volume.GetMute() == 1
     except Exception as e:
-        logger.error(f"Error checking mute on Windows: {e}")
+        logger.debug(f"Error checking mute on Windows: {e}")
         return False
     finally:
         try:

@@ -419,7 +419,37 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
                 context_str += "\nHistory:\n" + "\n".join([f"User: {h['user']}\nJARVIS: {h['jarvis']}" for h in history])
         except: pass
 
-        llm_response = await llm_module.get_response(command, current_lang, context=context_str)
+        llm_response = ""
+        if websocket:
+            # Send initial signal that AI is thinking
+            try:
+                await websocket.send_json({
+                    'type': 'stream_start',
+                    'session_id': session_id
+                })
+            except: pass
+
+            async for chunk in llm_module.get_response_stream(command, current_lang, context=context_str):
+                llm_response += chunk
+                try:
+                    await websocket.send_json({
+                        'type': 'stream_chunk',
+                        'chunk': chunk,
+                        'session_id': session_id
+                    })
+                except: break
+            
+            # Send final signal
+            try:
+                await websocket.send_json({
+                    'type': 'stream_end',
+                    'full_response': llm_response,
+                    'session_id': session_id
+                })
+            except: pass
+        else:
+            llm_response = await llm_module.get_response(command, current_lang, context=context_str)
+
         if llm_response:
             result = {'success': True, 'action_type': 'CONVERSATION', 'response': llm_response}
             log_command(command, 'conversation', True)
