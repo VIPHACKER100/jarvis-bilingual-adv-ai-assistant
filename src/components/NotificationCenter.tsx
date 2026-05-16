@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useMemo } from 'react';
-import { useNotifications, NotificationType } from '../context/NotificationContext';
+import { useNotifications, NotificationType, Notification } from '../context/NotificationContext';
 
 const MAX_VISIBLE = 3;
 
@@ -8,7 +8,7 @@ export const NotificationCenter: FC = () => {
 
   // Deduplicate: if same title+type exists, show only the latest
   const deduped = useMemo(() => {
-    const seen = new Map<string, typeof notifications[0]>();
+    const seen = new Map<string, Notification>();
     for (const n of notifications) {
       const key = `${n.type}:${n.title}`;
       seen.set(key, n); // last wins — keeps the most recent timestamp
@@ -36,7 +36,7 @@ export const NotificationCenter: FC = () => {
 };
 
 const NotificationItem: FC<{
-  notification: any;
+  notification: Notification;
   index: number;
   onRemove: () => void;
 }> = ({ notification, index, onRemove }) => {

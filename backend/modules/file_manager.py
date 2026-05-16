@@ -553,6 +553,30 @@ class FileManager:
     async def open_pictures(self, language: str = 'en') -> Dict:
         return await self.open_folder('pictures', language)
 
+    async def read_file(self, file_path: str, max_chars: int = 5000, language: str = 'en') -> Dict:
+        """Read the content of a text-based file."""
+        try:
+            path = Path(file_path).expanduser().resolve()
+            if not path.exists() or not path.is_file():
+                return {'success': False, 'error': 'File not found or is not a file', 'response': 'File not found'}
+
+            def do_read():
+                with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                    return f.read(max_chars)
+
+            content = await asyncio.to_thread(do_read)
+            
+            return {
+                'success': True,
+                'action_type': 'READ_FILE',
+                'content': content,
+                'path': str(path),
+                'response': f"Read {len(content)} characters from {path.name}"
+            }
+        except Exception as e:
+            logger.error(f"Error reading file {file_path}: {e}")
+            return {'success': False, 'error': str(e), 'response': f"Failed to read {file_path}"}
+
 
 # Singleton instance
 file_manager = FileManager()

@@ -1,16 +1,16 @@
 # Graph Report - jarvis-bilingual-adv-ai-assistant  (2026-05-16)
 
 ## Corpus Check
-- 1365 files · ~753,116 words
+- 1373 files · ~755,955 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 28698 nodes · 31808 edges · 3875 communities (3385 shown, 490 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 444 edges (avg confidence: 0.79)
+- 28823 nodes · 31967 edges · 3880 communities (3386 shown, 494 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 453 edges (avg confidence: 0.79)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f08fe27d`
+- Built from commit: `3b5af09d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -3624,7 +3624,6 @@
 - [[_COMMUNITY_Community 3664|Community 3664]]
 - [[_COMMUNITY_Community 3665|Community 3665]]
 - [[_COMMUNITY_Community 3666|Community 3666]]
-- [[_COMMUNITY_Community 3667|Community 3667]]
 - [[_COMMUNITY_Community 3668|Community 3668]]
 - [[_COMMUNITY_Community 3669|Community 3669]]
 - [[_COMMUNITY_Community 3670|Community 3670]]
@@ -3719,6 +3718,9 @@
 - [[_COMMUNITY_Community 3813|Community 3813]]
 - [[_COMMUNITY_Community 3817|Community 3817]]
 - [[_COMMUNITY_Community 3829|Community 3829]]
+- [[_COMMUNITY_Community 3875|Community 3875]]
+- [[_COMMUNITY_Community 3876|Community 3876]]
+- [[_COMMUNITY_Community 3879|Community 3879]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `pagination` - 188 edges
@@ -3741,42 +3743,46 @@
   backend/main.py → memory/MEMORY_MAP.md
 - `test_all_providers()` --calls--> `Any`  [INFERRED]
   backend/test_nvidia_llm.py → release/backend/_internal/cv2/gapi/__init__.py
-- `handle_command()` --calls--> `Int`  [INFERRED]
+- `dispatch_command()` --calls--> `Int`  [INFERRED]
   backend/handlers/command_handler.py → release/backend/_internal/cv2/gapi/__init__.py
 
-## Communities (3875 total, 490 thin omitted)
+## Communities (3880 total, 494 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.03
-Nodes (124): A, Dh(), op(), Wc(), ae(), an, as(), au() (+116 more)
+Cohesion: 0.02
+Nodes (142): A, Dh(), op(), Wc(), ae(), ai, an, as() (+134 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.03
-Nodes (64): DesktopManager, Save base64 screenshot to file, Get text from clipboard, Set text to clipboard, Screenshots, clipboard, and media controls, Play/pause media playback, Mute/unmute system volume, Increase system volume (+56 more)
+Nodes (51): DesktopManager, Save base64 screenshot to file, Get text from clipboard, Set text to clipboard, Screenshots, clipboard, and media controls, Play/pause media playback, Mute/unmute system volume, Increase system volume (+43 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.04
-Nodes (50): $, ab(), ae, [ae,de], {basename:A,navigator:G,unstable_useTransitions:q}, bb(), Bh, bm (+42 more)
+Cohesion: 0.03
+Nodes (60): $, ab(), ae, [ae,de], b, {basename:A,navigator:G,unstable_useTransitions:q}, Bh, bm (+52 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.06
-Nodes (22): Float, AutomationManager, Save tasks and macros to file asynchronously, Start the scheduler as an async task, Run the async scheduler loop, Determine if a task should run based on its schedule and condition, Evaluate a simple automation condition, Execute a scheduled task asynchronously (+14 more)
+Cohesion: 0.05
+Nodes (27): AutomationManager, Macro, Save tasks and macros to file asynchronously, Start the scheduler as an async task, Run the async scheduler loop, Execute a scheduled task asynchronously, Register a callback function for a task, Create a new scheduled task asynchronously (+19 more)
+
+### Community 4 - "Community 4"
+Cohesion: 0.07
+Nodes (3): ApiClient, mockFetch, mockStatus
 
 ### Community 5 - "Community 5"
 Cohesion: 0.1
 Nodes (31): build_backend(), build_frontend(), clean_build_dirs(), Colors, create_env_template(), create_launcher_script(), create_release_package(), create_release_readme() (+23 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.22
-Nodes (5): X, es(), F(), _t(), vu()
+Cohesion: 0.12
+Nodes (8): X, es(), F(), mc(), pn, _t(), vu(), Zs()
 
 ### Community 8 - "Community 8"
-Cohesion: 0.07
-Nodes (21): InputController, Cross-platform mouse and keyboard controller with human-like delays, Add random human-like delay (async), Drag from start to end position, Type text with human-like speed, Delay between keystrokes (typing speed) (async), Get current cursor position, Press multiple keys simultaneously (hotkey) (+13 more)
+Cohesion: 0.08
+Nodes (19): InputController, Cross-platform mouse and keyboard controller with human-like delays, Add random human-like delay (async), Drag from start to end position, Delay between keystrokes (typing speed) (async), Get current cursor position, Press multiple keys simultaneously (hotkey), Copy selected text (Ctrl+C / Cmd+C) (+11 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.04
-Nodes (43): add_request_id(), broadcast_system_status(), favicon(), _find_frontend_dir(), lifespan(), monitor_event_loop_lag(), Monitor event loop latency to detect blocking calls, Monitor event loop latency to detect blocking calls (+35 more)
+Cohesion: 0.08
+Nodes (25): add_request_id(), broadcast_system_status(), favicon(), _find_frontend_dir(), lifespan(), monitor_event_loop_lag(), Monitor event loop latency to detect blocking calls, Monitor event loop latency to detect blocking calls (+17 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.05
@@ -3792,11 +3798,11 @@ Nodes (20): Search for contact in WhatsApp Desktop (async), WhatsApp automation 
 
 ### Community 13 - "Community 13"
 Cohesion: 0.06
-Nodes (21): Aa(), dc(), dl(), ec(), el(), hl(), $i(), io() (+13 more)
+Nodes (23): Aa(), Cn(), dc(), ec(), el(), hl(), $i(), io() (+15 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.06
-Nodes (22): get_battery_status(), get_command_insights(), get_network_info(), get_network_scan(), get_performance_history(), get_personalities(), get_suspicious_processes(), get_system_status() (+14 more)
+Nodes (24): get_battery_status(), get_command_insights(), get_network_info(), get_network_scan(), get_performance_history(), get_personalities(), get_suspicious_processes(), get_system_status() (+16 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.01
@@ -3804,11 +3810,11 @@ Nodes (141): examples, AllocateAddress, AssignPrivateIpAddresses, AssociateAddre
 
 ### Community 16 - "Community 16"
 Cohesion: 0.03
-Nodes (121): $, ab(), ag(), Ah(), b, {basename:w,navigator:O,unstable_useTransitions:z}, bb(), bg() (+113 more)
+Nodes (124): $, ab(), ag(), Ah(), b, {basename:w,navigator:O,unstable_useTransitions:z}, bb(), bg() (+116 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.04
-Nodes (78): ApiKeyStatusResponse, ApiKeyUpdateRequest, AppListResponse, AutomationTaskRequest, BaseResponse, BatteryInfo, BatteryResponse, ClipboardResponse (+70 more)
+Nodes (77): ApiKeyStatusResponse, ApiKeyUpdateRequest, AppListResponse, AutomationTaskRequest, BaseResponse, BatteryInfo, BatteryResponse, ClipboardResponse (+69 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.18
@@ -3816,23 +3822,23 @@ Nodes (11): dependencies, framer-motion, @google/generative-ai, lucide-react, qr
 
 ### Community 19 - "Community 19"
 Cohesion: 0.03
-Nodes (41): MemoryManager, Manage conversation history and user memory, Manage conversation history and user memory, Initialize memory system asynchronously, Initialize memory system asynchronously, Save a conversation entry, Initialize SQLite database with tables using aiosqlite, Save a conversation entry (+33 more)
+Nodes (61): MemoryManager, Manage conversation history and user memory, Manage conversation history and user memory, Initialize memory system asynchronously, Initialize memory system asynchronously, Save a conversation entry, Initialize SQLite database with tables using aiosqlite, Save a conversation entry (+53 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.09
-Nodes (42): AdvancedTools(), ArcReactor(), ArcReactorProps, styles, DesktopControls(), DesktopControlsProps, JarvisModals(), MainHUD() (+34 more)
+Nodes (39): AdvancedTools(), ArcReactor(), ArcReactorProps, styles, DesktopControls(), DesktopControlsProps, JarvisModals(), MainHUD() (+31 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.02
 Nodes (106): examples, AllocateAddress, AssignPrivateIpAddresses, AssociateAddress, AssociateDhcpOptions, AssociateRouteTable, AttachInternetGateway, AttachNetworkInterface (+98 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.09
-Nodes (22): Sleep/suspend computer, Toggle system mute state, get_volume(), get_whatsapp_desktop_path(), is_linux(), is_muted(), Set system volume (0-100), Set system volume (0-100) (+14 more)
+Cohesion: 0.08
+Nodes (25): Int, Format bytes to human readable, Format bytes to human readable, Sleep/suspend computer, get_volume(), _get_volume_windows(), get_whatsapp_desktop_path(), is_linux() (+17 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.11
-Nodes (35): ag(), am(), Bg(), $c(), cg(), co(), Dg(), Eg() (+27 more)
+Cohesion: 0.1
+Nodes (39): ag(), am(), bb(), Bg(), $c(), cg(), co(), Dg() (+31 more)
 
 ### Community 25 - "Community 25"
 Cohesion: 0.02
@@ -3840,39 +3846,39 @@ Nodes (106): examples, AllocateAddress, AssignPrivateIpAddresses, AssociateAddre
 
 ### Community 26 - "Community 26"
 Cohesion: 0.06
-Nodes (26): ContextManager, ContextState, IntentAnalysis, Current context state, Analyze user intent from input, Detect user mood from input, Extract entities from user input, Extract text from current screen and perform structural analysis to enrich conte (+18 more)
+Nodes (28): ContextManager, ContextState, IntentAnalysis, Current context state, Analyze user intent from input, Detect user mood from input, Extract entities from user input, Extract text from current screen and perform structural analysis to enrich conte (+20 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.02
 Nodes (83): examples, AddSourceIdentifierToSubscription, AddTagsToResource, ApplyPendingMaintenanceAction, AuthorizeDBSecurityGroupIngress, CopyDBClusterParameterGroup, CopyDBClusterSnapshot, CopyDBParameterGroup (+75 more)
 
 ### Community 28 - "Community 28"
-Cohesion: 0.02
-Nodes (129): ae(), ai, an, ao, ar(), au(), Bn, bo (+121 more)
+Cohesion: 0.03
+Nodes (115): ae(), ai, an, au(), Bn, bo, br(), bs() (+107 more)
 
 ### Community 29 - "Community 29"
-Cohesion: 0.16
-Nodes (7): up(), Fe(), He, nc, qi(), zu(), R
+Cohesion: 0.08
+Nodes (17): Find executable path for an application asynchronously, Cross-platform window and application manager, List all running applications, Get list of windows on Windows asynchronously, Initialize platform-specific components, Get list of open windows, Get list of running processes asynchronously, Show desktop (minimize all windows) (+9 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.13
-Nodes (16): CommandInsights(), DayActivity, InsightsData, TopCommand, HistoryLog(), HistoryLogProps, PerformanceHistory(), PerformanceMetric (+8 more)
+Cohesion: 0.12
+Nodes (17): CommandInsights(), DayActivity, InsightsData, TopCommand, HistoryLog(), HistoryLogProps, PerformanceHistory(), PerformanceMetric (+9 more)
 
 ### Community 31 - "Community 31"
-Cohesion: 0.12
-Nodes (13): $a, Cn(), Fa(), fi(), Fn(), jo(), Js(), ma() (+5 more)
+Cohesion: 0.1
+Nodes (12): $a, ar(), Fa(), fi(), Fn(), ic, Js(), ma() (+4 more)
 
 ### Community 32 - "Community 32"
 Cohesion: 0.04
-Nodes (55): Ab(), ae(), Ai, {basename:C,navigator:D,unstable_useTransitions:k}, C, [ce,Ae,qe], Ci, D (+47 more)
+Nodes (71): Ab(), ag(), Ai, av(), {basename:C,navigator:D,unstable_useTransitions:k}, bg(), bv(), [ce,Ae,qe] (+63 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.06
 Nodes (13): Double, GArray, GMat, GOpaque, Mat, Point, Point2f, Point3f (+5 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.08
-Nodes (7): ba, du(), Pa(), rn, sn(), ti(), wi()
+Cohesion: 0.06
+Nodes (23): Th(), ba, bc, bi(), ca, ci(), du(), ea() (+15 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.03
@@ -3884,11 +3890,11 @@ Nodes (78): examples, AbortEnvironmentUpdate, CheckDNSAvailability, CloneReceipt
 
 ### Community 37 - "Community 37"
 Cohesion: 0.03
-Nodes (124): $, ab(), ae, [ae,de], ag(), Ah(), b, {basename:w,navigator:O,unstable_useTransitions:z} (+116 more)
+Nodes (122): $, ab(), ae, [ae,de], ag(), Ah(), b, {basename:w,navigator:O,unstable_useTransitions:z} (+114 more)
 
 ### Community 38 - "Community 38"
-Cohesion: 0.12
-Nodes (8): FileManager, List files in folder with optional pattern matching, Cross-platform file system manager, Search for files by name, Get common folder paths, Resolve folder name to path (supports fuzzy matching), Format bytes to human readable, Open folder in file explorer
+Cohesion: 0.11
+Nodes (10): FileManager, List files in folder with optional pattern matching, Cross-platform file system manager, Search for files by name, Get common folder paths, Delete file or folder (with confirmation), Resolve folder name to path (supports fuzzy matching), Rename file or folder (+2 more)
 
 ### Community 39 - "Community 39"
 Cohesion: 0.09
@@ -3896,47 +3902,43 @@ Nodes (21): bomFormat, author, bom-ref, components, licenses, name, purl, scope 
 
 ### Community 40 - "Community 40"
 Cohesion: 0.06
-Nodes (14): $(), Be(), bo, ce(), Dt(), ea(), ei(), Fo() (+6 more)
-
-### Community 41 - "Community 41"
-Cohesion: 0.06
-Nodes (15): Th(), bc, bi(), ca, da, ge, Gn(), ha() (+7 more)
+Nodes (13): $(), Be(), Dt(), ei(), ia, ie, na(), $o() (+5 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.07
-Nodes (19): ai, At, fc(), gl(), Gt(), It(), ko, lo() (+11 more)
+Cohesion: 0.11
+Nodes (9): fc(), gl(), Gt(), lo(), nr(), Q(), tc(), yc (+1 more)
 
 ### Community 43 - "Community 43"
-Cohesion: 0.07
-Nodes (19): ao, eu, gs(), Ji(), mc(), nl(), pl(), qu() (+11 more)
+Cohesion: 0.06
+Nodes (24): ao, en, eu, fu(), ga, hi(), Ji(), ku() (+16 more)
 
 ### Community 44 - "Community 44"
 Cohesion: 0.1
 Nodes (20): compilerOptions, allowImportingTsExtensions, allowJs, esModuleInterop, experimentalDecorators, forceConsistentCasingInFileNames, isolatedModules, jsx (+12 more)
 
 ### Community 45 - "Community 45"
-Cohesion: 0.14
-Nodes (11): Get response from local Ollama instance, Get response from local Ollama instance, Get response from local Ollama instance, Get response from OpenRouter API, Get response from OpenRouter API, Get response from OpenRouter API, Generate a concise semantic summary of past interactions to save tokens, Generate a concise semantic summary of past interactions to save tokens (+3 more)
+Cohesion: 0.12
+Nodes (14): Get a response from the LLM with automatic context optimization, Get response from local Ollama instance, Get response from local Ollama instance, Get response from local Ollama instance, Get response from local Ollama instance, Get response from OpenRouter API, Get response from OpenRouter API, Get response from OpenRouter API (+6 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.05
-Nodes (62): ActiveWindowInfo, ApiError, ApiKeyStatus, ApiKeyUpdatePayload, ApiKeyUpdateResponse, ApiResult, ApiSuccess, AutomationMacro (+54 more)
+Cohesion: 0.04
+Nodes (79): AutomationDashboard(), AutomationDashboardProps, Macro, Task, AutomationEditor(), AutomationEditorProps, Conversation, MemoryFact (+71 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 0.06
-Nodes (20): $a, Aa(), Cn(), dc(), ec(), el(), Fa(), hl() (+12 more)
+Cohesion: 0.07
+Nodes (15): $a, Aa(), Cn(), dc(), dl(), ec(), Fa(), hl() (+7 more)
 
 ### Community 48 - "Community 48"
 Cohesion: 0.18
 Nodes (4): Run a GUI action (pyautogui) in a thread pool with safety checks, Run a system command asynchronously with timeout and safety, Wrapper for GUI and system automation to ensure safety and reliability, SafeAutomation
 
 ### Community 49 - "Community 49"
-Cohesion: 0.14
-Nodes (21): addEccAndInterleave(), applyMask(), constructor(), drawAlignmentPattern(), drawCodewords(), drawFinderPattern(), drawFormatBits(), drawFunctionPatterns() (+13 more)
+Cohesion: 0.2
+Nodes (15): addEccAndInterleave(), applyMask(), constructor(), drawAlignmentPattern(), drawCodewords(), drawFinderPattern(), drawFormatBits(), drawFunctionPatterns() (+7 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.1
-Nodes (21): ConfirmationModal(), ConfirmationModalProps, Conversation, MemoryFact, MemoryViewer(), MemoryViewerProps, ViewMode, PermissionModal() (+13 more)
+Cohesion: 0.11
+Nodes (22): ConfirmationModal(), ConfirmationModalProps, MemoryViewer(), PermissionModal(), PermissionModalProps, SettingsModal(), VisionMetadata, VisionOverlay() (+14 more)
 
 ### Community 51 - "Community 51"
 Cohesion: 0.12
@@ -3947,12 +3949,12 @@ Cohesion: 0.12
 Nodes (12): Bilingual Intent Parser, Neural Command Dispatcher, FastAPI Server Core, Process Guardian Layer, Visual Intelligence Engine, WhatsApp Automation Engine, React Application Core, JARVIS Backend Bridge (+4 more)
 
 ### Community 53 - "Community 53"
-Cohesion: 0.14
-Nodes (18): Gh(), S(), T(), be(), de(), _e, Ee, G() (+10 more)
+Cohesion: 0.13
+Nodes (19): Gh(), S(), T(), be(), de(), _e, Ee, G() (+11 more)
 
 ### Community 55 - "Community 55"
-Cohesion: 0.12
-Nodes (13): MobileSync(), SettingsModal(), SettingsModalProps, SettingsTab, applyTheme(), hexToRgb(), JarvisTheme, ThemeName (+5 more)
+Cohesion: 0.11
+Nodes (12): MobileSync(), SettingsModalProps, SettingsTab, applyTheme(), hexToRgb(), JarvisTheme, ThemeName, THEMES (+4 more)
 
 ### Community 56 - "Community 56"
 Cohesion: 0.11
@@ -3963,8 +3965,8 @@ Cohesion: 0.23
 Nodes (14): Ap(), Db(), Dp(), Il(), it, jp(), Mb(), ob() (+6 more)
 
 ### Community 58 - "Community 58"
-Cohesion: 0.2
-Nodes (15): encodeBinary(), encodeSegments(), encodeText(), getData(), getTotalBits(), isAlphanumeric(), isNumeric(), makeAlphanumeric() (+7 more)
+Cohesion: 0.1
+Nodes (16): cs(), Ct, el(), hs(), il(), io(), ki(), ol() (+8 more)
 
 ### Community 59 - "Community 59"
 Cohesion: 0.13
@@ -3980,35 +3982,31 @@ Nodes (8): Test input control module, Test automation module, Test file manager 
 
 ### Community 62 - "Community 62"
 Cohesion: 0.13
-Nodes (12): LLMModule, Stream chunks from the LLM for progressive UI updates, Stream chunks from the LLM for progressive UI updates, Module for handling conversational AI using OpenRouter or NVIDIA, Module for handling conversational AI using OpenRouter or NVIDIA, Stream response from NVIDIA API, Stream response from NVIDIA API, Stream response from Ollama (+4 more)
+Nodes (11): Stream chunks from the LLM for progressive UI updates, Stream chunks from the LLM for progressive UI updates, Stream chunks from the LLM for progressive UI updates, Stream response from NVIDIA API, Stream response from NVIDIA API, Stream response from Ollama, Stream response from NVIDIA API, Stream response from Ollama (+3 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.12
-Nodes (13): NeuralMemoryManager, Read content and parse metadata of a memory node, Read content and parse metadata of a memory node, Dynamically collect relevant memory nodes for LLM context.         Uses fuzzy m, Dynamically collect relevant memory nodes for LLM context.         Uses fuzzy m, Manage file-based Markdown memory nodes, Manage file-based Markdown memory nodes, Read content of a specific memory node (+5 more)
+Cohesion: 0.08
+Nodes (21): NeuralMemoryManager, Read content and parse metadata of a memory node, Read content and parse metadata of a memory node, Read content and parse metadata of a memory node, Dynamically collect relevant memory nodes for LLM context.         Uses fuzzy m, Dynamically collect relevant memory nodes for LLM context.         Uses fuzzy m, Dynamically collect relevant memory nodes for LLM context.         Uses hybrid, Calculate semantic similarity scores for all indexed nodes (+13 more)
 
 ### Community 64 - "Community 64"
 Cohesion: 0.11
 Nodes (15): create_macro(), create_task(), get_automation_status(), get_macros(), get_tasks(), Get scheduler engine status, Get scheduler engine status, List all scheduled tasks (+7 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.12
-Nodes (12): Check system health and broadcast notifications for critical events, Scan for suspicious processes based on Neural Security Node and resource usage, push_notification(), Push a notification to all connected WebSocket clients, broadcast_notification(), Broadcast a UI notification to all connected WebSocket clients, Real-time bidirectional communication, Real-time bidirectional communication (+4 more)
-
-### Community 66 - "Community 66"
-Cohesion: 0.08
-Nodes (3): gx(), Rx, xi()
+Cohesion: 0.17
+Nodes (11): WebSocketResponse, push_notification(), Push a notification to all connected WebSocket clients, broadcast_notification(), Broadcast a UI notification to all connected WebSocket clients, Real-time bidirectional communication, Real-time bidirectional communication, Real-time bidirectional communication with authentication (+3 more)
 
 ### Community 67 - "Community 67"
-Cohesion: 0.1
-Nodes (17): Bool, Get recent conversation history, Search conversation history, Get recent conversation history, Search conversation history, call_contact(), draft_whatsapp_reply(), get_whatsapp_status() (+9 more)
+Cohesion: 0.09
+Nodes (19): Bool, Get recent conversation history, Search conversation history, Get recent conversation history, Get recent conversation history, Search conversation history, Search conversation history, call_contact() (+11 more)
 
 ### Community 68 - "Community 68"
 Cohesion: 0.05
-Nodes (17): $(), Be(), Cr(), Dt(), ei(), G(), ia, ie (+9 more)
+Nodes (21): $(), ar(), Be(), ce(), Cr(), dn(), Dt(), ea() (+13 more)
 
 ### Community 69 - "Community 69"
-Cohesion: 0.06
-Nodes (48): Kl(), mx(), Ct(), E, kx(), Yh(), Kl(), mx() (+40 more)
+Cohesion: 0.05
+Nodes (53): Kl(), mx(), Ct(), E, kx(), Yh(), Kl(), mx() (+45 more)
 
 ### Community 70 - "Community 70"
 Cohesion: 0.17
@@ -4035,20 +4033,20 @@ Cohesion: 0.2
 Nodes (10): get_keys(), get_settings(), Verify an API key by making a test request, Get all current settings, Get status of configured API keys (redacted), Update system configuration, Update API keys in the .env file, test_key() (+2 more)
 
 ### Community 77 - "Community 77"
-Cohesion: 0.07
-Nodes (20): ba, bi(), di, du(), ea(), ge, Gi(), Gn() (+12 more)
+Cohesion: 0.11
+Nodes (5): ba, du(), Pa(), rn, ti()
 
 ### Community 78 - "Community 78"
-Cohesion: 0.13
-Nodes (13): DevicePairingResponse, SyncStatusResponse, get_new_pairing_code(), get_paired_devices(), get_sync_status(), pair_device(), Get system status for mobile dashboard, Generate a new dynamic pairing code for the HUD display (+5 more)
+Cohesion: 0.15
+Nodes (11): get_new_pairing_code(), get_paired_devices(), get_sync_status(), pair_device(), Get system status for mobile dashboard, Generate a new dynamic pairing code for the HUD display, Get system status for mobile dashboard, Pair a new mobile device (+3 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.04
 Nodes (48): 📚 Additional Resources, Battery & Power, Brightness Control, 📋 Clipboard Commands, Close Applications, 📝 Command Categories Summary, Command Tips, Diagnostics & Weather (New in v3.7.1) (+40 more)
 
 ### Community 82 - "Community 82"
-Cohesion: 0.33
-Nodes (9): ho(), ib(), lb(), nb(), oo(), pg(), sb(), tb() (+1 more)
+Cohesion: 0.36
+Nodes (8): ho(), ib(), lb(), nb(), oo(), pg(), tb(), uo()
 
 ### Community 83 - "Community 83"
 Cohesion: 0.22
@@ -4075,28 +4073,28 @@ Cohesion: 0.25
 Nodes (7): bomFormat, components, metadata, timestamp, serialNumber, specVersion, version
 
 ### Community 89 - "Community 89"
-Cohesion: 0.08
-Nodes (14): wg(), At, fc(), gl(), Gt(), It(), lo(), Me() (+6 more)
+Cohesion: 0.07
+Nodes (15): wg(), At, fc(), gl(), Gt(), It(), lo(), Me() (+7 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.05
 Nodes (43): f2py_rout_wrap_attrs(), f2py_rout_wrap_call(), PyArray_DiscardWritebackIfCopy(), PyArray_BASE(), PyArray_CHKFLAGS(), PyArray_CLEARFLAGS(), PyArray_DATA(), PyArray_DESCR() (+35 more)
 
 ### Community 91 - "Community 91"
-Cohesion: 0.04
-Nodes (45): Xh(), Zb(), Vx(), Zb(), $, _1, a1, b (+37 more)
+Cohesion: 0.05
+Nodes (43): Zb(), Vx(), Zb(), $, _1, a1, b, C() (+35 more)
 
 ### Community 92 - "Community 92"
-Cohesion: 0.29
-Nodes (6): confirm_command(), execute_command(), get_pending_actions(), Execute a single command via REST, Confirm or deny a pending dangerous command, List actions awaiting confirmation
+Cohesion: 0.08
+Nodes (15): Manage command confirmations and security checks, Get status of confirmation: None=pending, True=confirmed, False=rejected/timeout, Register async callback for confirmation result, Get confirmation request details, Remove expired confirmations, Check if command requires confirmation, Request user confirmation for dangerous command         Returns confirmation_id, Handle confirmation timeout (+7 more)
 
 ### Community 93 - "Community 93"
 Cohesion: 0.29
 Nodes (6): ocr_image(), ocr_pdf(), ocr_screen(), Extract text from image, Extract text from PDF page, Extract text from current screen (OCR + Screen Analytics)
 
 ### Community 95 - "Community 95"
-Cohesion: 0.11
-Nodes (7): eu, nl(), Sc, su, te(), yr, ge()
+Cohesion: 0.07
+Nodes (15): ao, eu, Ji(), nl(), pl(), qu(), ro(), ru() (+7 more)
 
 ### Community 97 - "Community 97"
 Cohesion: 0.33
@@ -4115,8 +4113,8 @@ Cohesion: 0.4
 Nodes (4): MD013, MD036, MD040, MD060
 
 ### Community 101 - "Community 101"
-Cohesion: 0.09
-Nodes (16): AutomationDashboard(), AutomationDashboardProps, Macro, Task, AutomationEditor(), AutomationEditorProps, ErrorBoundary, Props (+8 more)
+Cohesion: 0.11
+Nodes (13): ErrorBoundary, Props, State, ActionButton, HealthItem, StatCard, Notification, NotificationContext (+5 more)
 
 ### Community 104 - "Community 104"
 Cohesion: 0.67
@@ -4127,20 +4125,20 @@ Cohesion: 0.5
 Nodes (3): description, name, requestFramePermissions
 
 ### Community 106 - "Community 106"
-Cohesion: 0.07
-Nodes (8): bc, da, ha(), kr(), mn, pi(), qr(), I
+Cohesion: 0.06
+Nodes (13): bc, bi(), da, ge, Gn(), ha(), ic, la() (+5 more)
 
 ### Community 109 - "Community 109"
 Cohesion: 0.22
 Nodes (8): name, private, scripts, build, dev, preview, test, version
 
 ### Community 114 - "Community 114"
-Cohesion: 0.15
-Nodes (9): Ux(), al(), gr(), je(), Oe(), so(), to(), yl() (+1 more)
+Cohesion: 0.08
+Nodes (12): ac(), At, It(), jt(), ko, kr(), lt, Me() (+4 more)
 
 ### Community 115 - "Community 115"
-Cohesion: 0.09
-Nodes (14): bl(), cs(), Ct, hs(), $i(), ic, il(), ki() (+6 more)
+Cohesion: 0.08
+Nodes (22): Ux(), al(), bl(), di, e, Fe(), G(), Gi() (+14 more)
 
 ### Community 116 - "Community 116"
 Cohesion: 0.17
@@ -4152,15 +4150,15 @@ Nodes (21): event_loop(), mock_desktop(), mock_llm(), mock_memory(), mock_system
 
 ### Community 155 - "Community 155"
 Cohesion: 0.03
-Nodes (60): $, $1, A, a0, A1, b1, C(), c0 (+52 more)
+Nodes (59): $, $1, a0, A1, b1, C(), c0, C1 (+51 more)
 
 ### Community 156 - "Community 156"
 Cohesion: 0.17
 Nodes (12): connection(), DatabaseManager, JARVIS v3.8.0 — Centralized Database Manager  Provides connection pooling, WAL m, Execute and fetch a single row., Execute and fetch all rows., Close the persistent connection cleanly., Probe database connectivity and return status., Apply SQL migration files in order.         Tracks applied migrations in a `_sch (+4 more)
 
 ### Community 157 - "Community 157"
-Cohesion: 0.13
-Nodes (18): _, hg(), S(), T(), ae(), de(), _e(), Ee (+10 more)
+Cohesion: 0.1
+Nodes (24): Xh(), _, db(), fg(), gv(), hg(), S(), T() (+16 more)
 
 ### Community 158 - "Community 158"
 Cohesion: 0.09
@@ -4191,8 +4189,8 @@ Cohesion: 0.12
 Nodes (16): 🚀 Backend Issues, 📦 Build & Frontend Issues, Facts are not being saved, "I don't understand that command", JARVIS doesn't hear me, JARVIS Troubleshooting Guide, Launcher (START_JARVIS.bat) fails, 🖼️ Media & OCR (+8 more)
 
 ### Community 165 - "Community 165"
-Cohesion: 0.16
-Nodes (13): test_proactivity(), handle_command(), Process a command and return result as a dictionary compatible with CommandResul, JARVIS v3.8.0 — Command Handler Tests  Validates that every registered command k, Verify response structure matches frontend expectations., Test individual command execution paths with mocked modules., test_get_battery_command(), test_get_time_command() (+5 more)
+Cohesion: 0.06
+Nodes (31): test_proactivity(), get_config(), Load user config from JSON, merging with defaults, Load user config from JSON, merging with defaults, Load user config from JSON, merging with defaults, Save user config to JSON, Save user config to JSON, Save user config to JSON (+23 more)
 
 ### Community 166 - "Community 166"
 Cohesion: 0.1
@@ -4208,7 +4206,7 @@ Nodes (60): examples, AttachInstances, AttachLoadBalancers, AttachLoadBalancerTa
 
 ### Community 169 - "Community 169"
 Cohesion: 0.11
-Nodes (12): test_all_providers(), Any, Detect if text is Hindi or English, Detect if text is Hindi or English, Parse command text and return (command_key, language, parameters), Parse command text and return (command_key, language, parameters), ProactiveManager, Intelligent background engine for proactive suggestions (+4 more)
+Nodes (13): test_all_providers(), Any, Detect if text is Hindi or English, Detect if text is Hindi or English, Parse command text and return (command_key, language, parameters), Parse command text and return (command_key, language, parameters), ProactiveManager, Send the suggestion to all connected clients (+5 more)
 
 ### Community 170 - "Community 170"
 Cohesion: 0.14
@@ -4219,8 +4217,8 @@ Cohesion: 0.11
 Nodes (17): code:text (jarvis-bilingual-adv-ai-assistant/), 🤝 Community & Support, � Connect with VIPHACKER100, *"I'm here to help."*, 🤖 JARVIS, **JARVIS - The Future of System Control**, 🌟 Modern Capabilities (v3.7.1), 🌟 Modern Capabilities (v3.8.0) (+9 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.19
-Nodes (11): Ci(), Il(), it, jb(), kx(), qb(), tg(), Ux() (+3 more)
+Cohesion: 0.15
+Nodes (14): Ci(), Il(), it, jb(), jx(), kx(), Nx(), qb() (+6 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.15
@@ -4231,8 +4229,8 @@ Cohesion: 0.04
 Nodes (55): examples, AbortMultipartUpload, CompleteMultipartUpload, CopyObject, CreateBucket, CreateMultipartUpload, DeleteBucket, DeleteBucketCors (+47 more)
 
 ### Community 175 - "Community 175"
-Cohesion: 0.17
-Nodes (8): get_config(), Load user config from JSON, merging with defaults, Load user config from JSON, merging with defaults, Save user config to JSON, Save user config to JSON, save_config(), Set system personality and theme, set_personality()
+Cohesion: 0.2
+Nodes (15): encodeBinary(), encodeSegments(), encodeText(), getData(), getTotalBits(), isAlphanumeric(), isNumeric(), makeAlphanumeric() (+7 more)
 
 ### Community 176 - "Community 176"
 Cohesion: 0.18
@@ -4263,8 +4261,8 @@ Cohesion: 0.2
 Nodes (10): 2. REST API Endpoints, Communication Protocol, Confirmations, Desktop, Files, Input Control, Media, Memory & Automation (+2 more)
 
 ### Community 183 - "Community 183"
-Cohesion: 0.25
-Nodes (6): Get response from NVIDIA API using OpenAI client and DeepSeek reasoning, Get response from NVIDIA API using OpenAI client and DeepSeek reasoning, Get response from NVIDIA API using OpenAI client and DeepSeek reasoning, Use LLM to extract structured command and params from natural language, Use LLM to extract structured command and params from natural language, Use LLM to extract structured command and params from natural language
+Cohesion: 0.2
+Nodes (8): Get response from NVIDIA API using OpenAI client and DeepSeek reasoning, Get response from NVIDIA API using OpenAI client and DeepSeek reasoning, Get response from NVIDIA API using OpenAI client and DeepSeek reasoning, Get response from NVIDIA API using OpenAI client and DeepSeek reasoning, Use LLM to extract structured command and params from natural language, Use LLM to extract structured command and params from natural language, Use LLM to extract structured command and params from natural language, Use LLM to extract structured command and params from natural language
 
 ### Community 184 - "Community 184"
 Cohesion: 0.22
@@ -4347,8 +4345,8 @@ Cohesion: 0.29
 Nodes (6): 🟢 Active Projects, DARKWIN Automation Toolkit, 🔴 Decision Log, JARVIS Bilingual AI Assistant, JARVIS Project Registry, StudyHub Educational Platform
 
 ### Community 205 - "Community 205"
-Cohesion: 0.5
-Nodes (3): Get a response from a vision-capable LLM based on an image, Get a response from a vision-capable LLM based on an image, Get a response from a vision-capable LLM based on an image
+Cohesion: 0.13
+Nodes (10): LLMModule, Module for handling conversational AI using OpenRouter or NVIDIA, Module for handling conversational AI using OpenRouter or NVIDIA, Get a response from a vision-capable LLM based on an image, Get a response from a vision-capable LLM based on an image, Get a response from a vision-capable LLM based on an image, Get a response from a vision-capable LLM based on an image, Module for handling conversational AI using OpenRouter or NVIDIA (+2 more)
 
 ### Community 206 - "Community 206"
 Cohesion: 0.33
@@ -4363,12 +4361,12 @@ Cohesion: 0.29
 Nodes (6): API Security (v3.8.0), Authorized Access, Blacklisted Processes (Auto-Alert), Core Protocols, Security Protocol: The Process Guardian, Threat Matrix Reasoning
 
 ### Community 209 - "Community 209"
-Cohesion: 0.12
-Nodes (23): addEccAndInterleave(), applyMask(), constructor(), drawAlignmentPattern(), drawCodewords(), drawFinderPattern(), drawFormatBits(), drawFunctionPatterns() (+15 more)
+Cohesion: 0.1
+Nodes (37): addEccAndInterleave(), applyMask(), constructor(), drawAlignmentPattern(), drawCodewords(), drawFinderPattern(), drawFormatBits(), drawFunctionPatterns() (+29 more)
 
 ### Community 210 - "Community 210"
-Cohesion: 0.5
-Nodes (3): Zh(), Zh(), wi()
+Cohesion: 0.15
+Nodes (12): 1. Neural Engine Failure (Wake-Word), 2. Networking Service Failure (mDNS), 3. Structural Type Safety (Technical Debt), 🔍 Anomaly & Correlation Analysis, 📋 Executive Summary, 🤖 JARVIS AI System Health Analysis Report, **Level 1: Stability Risk (High)**, **Level 2: Performance Risk (Medium)** (+4 more)
 
 ### Community 212 - "Community 212"
 Cohesion: 0.4
@@ -4427,8 +4425,8 @@ Cohesion: 0.67
 Nodes (3): 1. WebSocket Connection, code:typescript (// Connection), code:python (# Command Response)
 
 ### Community 227 - "Community 227"
-Cohesion: 0.67
-Nodes (3): code:mermaid (graph TD), 📊 Technical Architecture, **The Tech Stack**
+Cohesion: 0.15
+Nodes (9): AgentController, JARVIS v3.9.0 — Autonomous Agent Controller Implements the ReAct (Reasoning and, Extract content of a field like 'Thought: ...' or 'Action: ..., Manages the autonomous reasoning loop for JARVIS., Execute the Thought-Action-Observation loop to resolve a complex query., Invoke the system tools via the direct dispatcher., get_tools_prompt(), JARVIS v3.9.0 — Tool Registry for Autonomous Agent Defines all available system (+1 more)
 
 ### Community 228 - "Community 228"
 Cohesion: 0.04
@@ -4439,12 +4437,12 @@ Cohesion: 0.04
 Nodes (47): acceptors, delay, maxAttempts, operation, acceptors, delay, maxAttempts, operation (+39 more)
 
 ### Community 241 - "Community 241"
-Cohesion: 0.08
-Nodes (20): ac(), Cr(), dr(), fr(), hr(), jt(), ka, kr() (+12 more)
+Cohesion: 0.2
+Nodes (9): analysis_type, anomalies, recommendations, status, timestamp, vital_signs, cpu, db_latency (+1 more)
 
 ### Community 242 - "Community 242"
 Cohesion: 0.18
-Nodes (8): Macro, A macro - sequence of commands, Create useful preset tasks (Synchronous as called during init), Create useful preset macros (Synchronous as called during init), Asynchronously initialize the automation manager, Alias for initialize for lifespan consistency, Load tasks and macros from file asynchronously, ScheduledTask
+Nodes (14): Ci(), fb(), Gg(), ha(), hp(), jh(), kg(), lm() (+6 more)
 
 ### Community 243 - "Community 243"
 Cohesion: 0.04
@@ -4452,7 +4450,7 @@ Nodes (47): input_token, limit_key, output_token, result_key, input_token, limit
 
 ### Community 244 - "Community 244"
 Cohesion: 0.2
-Nodes (15): encodeBinary(), encodeSegments(), encodeText(), getData(), getTotalBits(), isAlphanumeric(), isNumeric(), makeAlphanumeric() (+7 more)
+Nodes (10): ae(), C, D, Ox(), pg(), ro(), se, Y (+2 more)
 
 ### Community 245 - "Community 245"
 Cohesion: 0.04
@@ -4478,10 +4476,6 @@ Nodes (46): input_token, limit_key, output_token, result_key, input_token, limit
 Cohesion: 0.04
 Nodes (46): input_token, limit_key, output_token, result_key, input_token, limit_key, output_token, result_key (+38 more)
 
-### Community 251 - "Community 251"
-Cohesion: 0.29
-Nodes (7): b, cp(), le(), rp(), se, V, C()
-
 ### Community 252 - "Community 252"
 Cohesion: 0.04
 Nodes (46): input_token, limit_key, output_token, result_key, input_token, limit_key, output_token, result_key (+38 more)
@@ -4495,8 +4489,8 @@ Cohesion: 0.04
 Nodes (46): input_token, limit_key, output_token, result_key, input_token, limit_key, output_token, result_key (+38 more)
 
 ### Community 255 - "Community 255"
-Cohesion: 0.1
-Nodes (39): be_shrunk(), Cache, calculate_rho(), clone(), do_shrinking(), dot(), get_data(), info() (+31 more)
+Cohesion: 0.11
+Nodes (38): be_shrunk(), Cache, calculate_rho(), clone(), do_shrinking(), dot(), get_data(), info() (+30 more)
 
 ### Community 256 - "Community 256"
 Cohesion: 0.04
@@ -4510,9 +4504,9 @@ Nodes (44): input_token, limit_key, output_token, result_key, input_token, limit
 Cohesion: 0.04
 Nodes (44): examples, CreateDevicePool, CreateProject, CreateRemoteAccessSession, CreateUpload, DeleteDevicePool, DeleteProject, DeleteRemoteAccessSession (+36 more)
 
-### Community 260 - "Community 260"
-Cohesion: 0.5
-Nodes (3): CONTACTS, GREETINGS, UNKNOWN_COMMAND
+### Community 259 - "Community 259"
+Cohesion: 0.33
+Nodes (6): Health check and root info (Frontend fallback), Health check and root info (Frontend fallback), Health check and root info (Frontend fallback), Health check and root info (Frontend fallback), Health check and root info (Frontend fallback), root()
 
 ### Community 261 - "Community 261"
 Cohesion: 0.1
@@ -4563,8 +4557,8 @@ Cohesion: 0.05
 Nodes (41): input_token, limit_key, output_token, result_key, input_token, limit_key, output_token, result_key (+33 more)
 
 ### Community 274 - "Community 274"
-Cohesion: 0.09
-Nodes (42): Am(), Ao(), as(), av(), _b(), bb(), Bi(), cb() (+34 more)
+Cohesion: 0.11
+Nodes (36): Am(), Ao(), as(), _b(), bb(), Bi(), cb(), co (+28 more)
 
 ### Community 275 - "Community 275"
 Cohesion: 0.05
@@ -4724,7 +4718,7 @@ Nodes (32): acceptors, delay, maxAttempts, operation, acceptors, delay, maxAttem
 
 ### Community 314 - "Community 314"
 Cohesion: 0.07
-Nodes (23): al(), ar(), bl(), cc(), di, e, Gi(), hn() (+15 more)
+Nodes (22): up(), al(), bl(), cs(), Ct, di, Fe(), Gi() (+14 more)
 
 ### Community 315 - "Community 315"
 Cohesion: 0.06
@@ -4768,7 +4762,7 @@ Nodes (31): input_token, limit_key, output_token, result_key, input_token, limit
 
 ### Community 325 - "Community 325"
 Cohesion: 0.06
-Nodes (31): $ref, applies_when, policies, applies_when, $ref, $ref, $ref, applies_when (+23 more)
+Nodes (31): $ref, applies_when, applies_when, policies, $ref, $ref, $ref, applies_when (+23 more)
 
 ### Community 326 - "Community 326"
 Cohesion: 0.08
@@ -4803,8 +4797,8 @@ Cohesion: 0.08
 Nodes (22): acceptors, delay, maxAttempts, operation, acceptors, delay, maxAttempts, operation (+14 more)
 
 ### Community 334 - "Community 334"
-Cohesion: 0.11
-Nodes (3): eg, Lx(), $x
+Cohesion: 0.1
+Nodes (4): eg, Lx(), wi(), $x
 
 ### Community 335 - "Community 335"
 Cohesion: 0.07
@@ -4972,7 +4966,7 @@ Nodes (25): input_token, limit_key, output_token, result_key, input_token, limit
 
 ### Community 376 - "Community 376"
 Cohesion: 0.1
-Nodes (26): response, applies_when, applies_when, definitions, bad_gateway, gateway_timeout, general_server_error, limit_exceeded (+18 more)
+Nodes (26): response, applies_when, definitions, bad_gateway, gateway_timeout, general_server_error, limit_exceeded, request_throttled_exception (+18 more)
 
 ### Community 377 - "Community 377"
 Cohesion: 0.08
@@ -5215,8 +5209,8 @@ Cohesion: 0.1
 Nodes (20): acceptors, delay, description, maxAttempts, operation, acceptors, delay, description (+12 more)
 
 ### Community 438 - "Community 438"
-Cohesion: 0.11
-Nodes (21): dg(), Di(), dm(), Em(), fo(), hb(), jg(), Jh() (+13 more)
+Cohesion: 0.4
+Nodes (4): ia, na(), sa(), si()
 
 ### Community 439 - "Community 439"
 Cohesion: 0.1
@@ -5271,8 +5265,8 @@ Cohesion: 0.11
 Nodes (16): input_token, limit_key, output_token, result_key, input_token, limit_key, output_token, result_key (+8 more)
 
 ### Community 452 - "Community 452"
-Cohesion: 0.17
-Nodes (18): ag(), bg(), bv(), cg(), et, _g(), gg(), hv() (+10 more)
+Cohesion: 0.33
+Nodes (3): Float, Determine if a task should run based on its schedule and condition, Evaluate a simple automation condition
 
 ### Community 454 - "Community 454"
 Cohesion: 0.12
@@ -5355,8 +5349,8 @@ Cohesion: 0.12
 Nodes (16): input_token, limit_key, output_token, result_key, input_token, limit_key, output_token, result_key (+8 more)
 
 ### Community 474 - "Community 474"
-Cohesion: 0.13
-Nodes (7): ac(), Fe(), He, jt(), ns, qi(), zu()
+Cohesion: 0.5
+Nodes (3): Stream response from OpenRouter, Stream response from OpenRouter, Stream response from OpenRouter
 
 ### Community 475 - "Community 475"
 Cohesion: 0.12
@@ -5448,7 +5442,7 @@ Nodes (12): examples, CreateEnvironmentEC2, CreateEnvironmentMembership, DeleteE
 
 ### Community 498 - "Community 498"
 Cohesion: 0.15
-Nodes (13): non_aggregate_keys, non_aggregate_keys, non_aggregate_keys, non_aggregate_keys, pagination, DescribeFolderPermissions, DescribeFolderResolvedPermissions, ListAnalyses (+5 more)
+Nodes (13): non_aggregate_keys, non_aggregate_keys, non_aggregate_keys, non_aggregate_keys, pagination, DescribeFolderPermissions, DescribeFolderResolvedPermissions, ListActionConnectors (+5 more)
 
 ### Community 499 - "Community 499"
 Cohesion: 0.15
@@ -5759,8 +5753,8 @@ Cohesion: 0.25
 Nodes (7): merge, pagination, SearchFacets, SearchListings, non_aggregate_keys, non_aggregate_keys, version
 
 ### Community 588 - "Community 588"
-Cohesion: 0.25
-Nodes (4): mDNSBroadcaster, Start the mDNS broadcast, Stop the mDNS broadcast, Broadcasts the JARVIS service on the local network using mDNS (ZeroConf).     Al
+Cohesion: 0.18
+Nodes (7): mDNSBroadcaster, Start the mDNS broadcast, Start the mDNS broadcast, Stop the mDNS broadcast, Stop the mDNS broadcast, Broadcasts the JARVIS service on the local network using mDNS (ZeroConf).     Al, Broadcasts the JARVIS service on the local network using mDNS (ZeroConf).     Al
 
 ### Community 589 - "Community 589"
 Cohesion: 0.29
@@ -5839,8 +5833,8 @@ Cohesion: 0.29
 Nodes (6): input_token, limit_key, output_token, result_key, pagination, ListMonitoringExecutions
 
 ### Community 610 - "Community 610"
-Cohesion: 0.29
-Nodes (6): input_token, limit_key, output_token, result_key, pagination, DescribeSchedule
+Cohesion: 0.4
+Nodes (5): input_token, limit_key, output_token, result_key, DescribeSchedule
 
 ### Community 611 - "Community 611"
 Cohesion: 0.29
@@ -6223,8 +6217,8 @@ Cohesion: 0.33
 Nodes (5): non_aggregate_keys, merge, pagination, ListFunctionVersionsByCapacityProvider, version
 
 ### Community 710 - "Community 710"
-Cohesion: 0.33
-Nodes (5): input_token, output_token, result_key, pagination, DescribeUpdateDirectory
+Cohesion: 0.5
+Nodes (4): input_token, output_token, result_key, DescribeUpdateDirectory
 
 ### Community 711 - "Community 711"
 Cohesion: 0.33
@@ -6283,8 +6277,8 @@ Cohesion: 0.33
 Nodes (5): input_token, output_token, result_key, pagination, DescribeReservedInstancesModifications
 
 ### Community 725 - "Community 725"
-Cohesion: 0.33
-Nodes (5): input_token, output_token, result_key, pagination, ListProjects
+Cohesion: 0.5
+Nodes (4): input_token, output_token, result_key, ListProjects
 
 ### Community 726 - "Community 726"
 Cohesion: 0.33
@@ -11643,8 +11637,8 @@ Cohesion: 0.4
 Nodes (5): input_token, limit_key, output_token, result_key, ListUsers
 
 ### Community 2070 - "Community 2070"
-Cohesion: 0.4
-Nodes (5): input_token, limit_key, output_token, result_key, ListAlerts
+Cohesion: 0.29
+Nodes (6): input_token, limit_key, output_token, result_key, pagination, ListAlerts
 
 ### Community 2071 - "Community 2071"
 Cohesion: 0.4
@@ -16250,10 +16244,6 @@ Nodes (5): input_token, limit_key, output_token, result_key, ListPentests
 Cohesion: 0.4
 Nodes (5): input_token, limit_key, output_token, result_key, ListTargetDomains
 
-### Community 3226 - "Community 3226"
-Cohesion: 0.4
-Nodes (4): ia, na(), sa(), si()
-
 ### Community 3227 - "Community 3227"
 Cohesion: 0.4
 Nodes (4): cdf_data, COMMENT, moment_data, pdf_data
@@ -16311,8 +16301,8 @@ Cohesion: 0.5
 Nodes (4): input_token, output_token, result_key, GetComplianceDetailsByResource
 
 ### Community 3247 - "Community 3247"
-Cohesion: 0.5
-Nodes (4): input_token, output_token, result_key, DescribeRegions
+Cohesion: 0.33
+Nodes (5): input_token, output_token, result_key, pagination, DescribeRegions
 
 ### Community 3249 - "Community 3249"
 Cohesion: 0.5
@@ -16383,8 +16373,8 @@ Cohesion: 0.5
 Nodes (3): examples, BatchGetBuilds, version
 
 ### Community 3268 - "Community 3268"
-Cohesion: 0.5
-Nodes (4): input_token, output_token, result_key, ListBuilds
+Cohesion: 0.33
+Nodes (5): input_token, output_token, result_key, pagination, ListBuilds
 
 ### Community 3269 - "Community 3269"
 Cohesion: 0.5
@@ -16571,8 +16561,8 @@ Cohesion: 0.5
 Nodes (3): compilerOptions, strict, extends
 
 ### Community 3349 - "Community 3349"
-Cohesion: 0.5
-Nodes (3): Verify LLM connectivity with a tiny request, Verify LLM connectivity with a tiny request, Verify LLM connectivity with a tiny request
+Cohesion: 0.4
+Nodes (4): Verify LLM connectivity with a tiny request, Verify LLM connectivity with a tiny request, Verify LLM connectivity with a tiny request, Verify LLM connectivity with a tiny request
 
 ### Community 3352 - "Community 3352"
 Cohesion: 0.5
@@ -16602,25 +16592,29 @@ Nodes (3): 4. Goals & Success Metrics, Business / Product Goals, User Experience
 Cohesion: 0.67
 Nodes (3): 6.2 Out of Scope (Current Release), 6.3 Future Roadmap (Planned), 6. Product Scope
 
+### Community 3656 - "Community 3656"
+Cohesion: 0.67
+Nodes (3): code:mermaid (graph TD), 📊 Technical Architecture, **The Tech Stack**
+
 ## Knowledge Gaps
-- **18919 isolated node(s):** `MD013`, `MD036`, `MD040`, `MD060`, `name` (+18914 more)
+- **19006 isolated node(s):** `MD013`, `MD036`, `MD040`, `MD060`, `name` (+19001 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **490 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **494 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `String` connect `Community 33` to `Community 0`, `Community 53`, `Community 69`, `Community 157`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
-- **Why does `op()` connect `Community 0` to `Community 33`, `Community 2`, `Community 34`, `Community 7`, `Community 40`, `Community 41`, `Community 42`, `Community 43`, `Community 13`, `Community 49`, `Community 241`, `Community 87`, `Community 23`, `Community 57`, `Community 314`, `Community 251`, `Community 29`?**
+- **Why does `update_keys()` connect `Community 75` to `Community 1`, `Community 13`, `Community 47`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._
-- **Why does `kx()` connect `Community 69` to `Community 32`, `Community 33`, `Community 452`, `Community 420`, `Community 68`, `Community 106`, `Community 77`, `Community 47`, `Community 474`, `Community 114`, `Community 274`, `Community 115`, `Community 438`, `Community 186`, `Community 155`, `Community 28`, `Community 157`?**
+- **Why does `String` connect `Community 33` to `Community 0`, `Community 53`, `Community 69`, `Community 157`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Are the 130 inferred relationships involving `str` (e.g. with `response_time_middleware()` and `add_request_id()`) actually correct?**
-  _`str` has 130 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `op()` connect `Community 0` to `Community 33`, `Community 2`, `Community 34`, `Community 6`, `Community 7`, `Community 43`, `Community 13`, `Community 49`, `Community 114`, `Community 87`, `Community 23`, `Community 57`, `Community 314`?**
+  _High betweenness centrality (0.002) - this node is a cross-community bridge._
+- **Are the 134 inferred relationships involving `str` (e.g. with `response_time_middleware()` and `add_request_id()`) actually correct?**
+  _`str` has 134 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `MD013`, `MD036`, `MD040` to the rest of the system?**
-  _18919 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _19006 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.03 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.02 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.03 - nodes in this community are weakly interconnected._

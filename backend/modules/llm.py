@@ -13,10 +13,37 @@ from dotenv import load_dotenv
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM, LLM_PROVIDER, NVIDIA_MODEL, OPENROUTER_MODEL, OPENAI_MODEL
+from config import BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM, LLM_PROVIDER, NVIDIA_MODEL, OPENROUTER_MODEL, OPENAI_MODEL, NVIDIA_EMBEDDING_MODEL, OPENAI_EMBEDDING_MODEL, GOOGLE_EMBEDDING_MODEL
 from modules.memory import memory_manager
 
 load_dotenv()
+
+AGENT_SYSTEM_PROMPT = """You are JARVIS, an autonomous AI agent. 
+To solve complex tasks, you must follow a ReAct (Reasoning and Acting) loop.
+For each step, you must output exactly one of the following formats:
+
+Thought: [Your reasoning about the current state and what to do next]
+Action: {{"name": "tool_name", "parameters": {{"param1": "value1"}}}}
+Observation: [The system will provide this]
+
+... repeat until you have the final answer ...
+
+Thought: I have all the information needed.
+Final Answer: [Your comprehensive response to the user in the requested language]
+
+RULES:
+1. Only use the tools provided in the context.
+2. Output valid JSON for the Action field.
+3. Be concise but precise.
+4. If a tool fails, try an alternative or explain why.
+5. Use the user's language ({{language}}) for the Final Answer.
+
+Available Tools:
+{{tools_context}}
+
+Relevant Context:
+{{neural_context}}
+"""
 
 
 class LLMModule:
@@ -645,6 +672,128 @@ class LLMModule:
         except Exception as e:
             logger.error(f"OpenAI Streaming Error: {e}")
             yield f"Error in OpenAI stream: {str(e)}"
+
+    async def get_embedding(self, text: str) -> Optional[List[float]]:
+        """Generate a vector embedding for the given text"""
+        if not text:
+            return None
+
+        # Try NVIDIA if it's the provider or if key is available
+        if self.provider == "nvidia" and self.nvidia_client:
+            try:
+                def call_nvidia():
+                    response = self.nvidia_client.embeddings.create(
+                        input=[text],
+                        model=NVIDIA_EMBEDDING_MODEL
+                    )
+                    return response.data[0].embedding
+                
+                return await asyncio.to_thread(call_nvidia)
+            except Exception as e:
+                logger.error(f"Error getting NVIDIA embedding: {e}")
+                # Fallback to OpenAI if available
+
+        if self.openai_client:
+            try:
+                def call_openai():
+                    response = self.openai_client.embeddings.create(
+                        input=[text],
+                        model=OPENAI_EMBEDDING_MODEL
+                    )
+                    return response.data[0].embedding
+                
+                return await asyncio.to_thread(call_openai)
+            except Exception as e:
+                logger.error(f"Error getting OpenAI embedding: {e}")
+
+        # If we reach here, try Google if configured
+        try:
+            import google.generativeai as genai
+            api_key = os.getenv("GOOGLE_API_KEY")
+            if api_key:
+                genai.configure(api_key=api_key)
+                def call_google():
+                    result = genai.embed_content(
+                        model=GOOGLE_EMBEDDING_MODEL,
+                        content=text,
+                        task_type="retrieval_document"
+                    )
+                    return result['embedding']
+                
+                return await asyncio.to_thread(call_google)
+        except Exception as e:
+            logger.debug(f"Google embedding failed or not configured: {e}")
+
+        return None
+
+    async def get_agent_response(self, query: str, tools_context: str, neural_context: str, history: List[Dict[str, Any]], language: str = "en") -> str:
+        """
+        Generate the next step in the agentic loop.
+        """
+        system_prompt = AGENT_SYSTEM_PROMPT.format(
+            tools_context=tools_context,
+            neural_context=neural_context,
+            language=language
+        )
+        
+        # Build conversation history for the agent
+        messages = [{"role": "system", "content": system_prompt}]
+        
+        # Add user query
+        messages.append({"role": "user", "content": query})
+        
+        # Add loop history
+        for step in history:
+            messages.append({"role": "assistant", "content": f"Thought: {step['thought']}\nAction: {step['action']}"})
+            messages.append({"role": "user", "content": f"Observation: {step['observation']}"})
+        
+        # Call the LLM (using the primary provider)
+        try:
+            if self.provider == "nvidia":
+                response = await self._call_nvidia_raw(messages)
+                return response
+            elif self.provider == "openrouter":
+                response = await self._call_openrouter_raw(messages)
+                return response
+            else:
+                response = await self._call_openai_raw(messages)
+                return response
+        except Exception as e:
+            logger.error(f"Agent LLM Call Error: {e}")
+            return f"Error: {str(e)}"
+
+    async def _call_nvidia_raw(self, messages: List[Dict[str, str]]) -> str:
+        if not self.nvidia_client: return "Error: NVIDIA client not initialized."
+        def call():
+            completion = self.nvidia_client.chat.completions.create(
+                model=NVIDIA_MODEL,
+                messages=messages,
+                temperature=0.2 # Lower temperature for reasoning
+            )
+            return completion.choices[0].message.content
+        return await asyncio.to_thread(call)
+
+    async def _call_openrouter_raw(self, messages: List[Dict[str, str]]) -> str:
+        if not self.openrouter_client: return "Error: OpenRouter client not initialized."
+        def call():
+            completion = self.openrouter_client.chat.completions.create(
+                model=OPENROUTER_MODEL,
+                messages=messages,
+                temperature=0.2
+            )
+            return completion.choices[0].message.content
+        return await asyncio.to_thread(call)
+
+    async def _call_openai_raw(self, messages: List[Dict[str, str]]) -> str:
+        if not self.openai_client: return "Error: OpenAI client not initialized."
+        def call():
+            completion = self.openai_client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=messages,
+                temperature=0.2
+            )
+            return completion.choices[0].message.content
+        return await asyncio.to_thread(call)
 
 # Singleton instance
 llm_module = LLMModule()

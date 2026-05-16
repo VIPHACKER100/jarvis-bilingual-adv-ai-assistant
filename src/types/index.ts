@@ -4,10 +4,37 @@ export * from './bridge';
 // Adding SpeechRecognition types to the global window object
 declare global {
   interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
   }
 }
+
+export interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: ISpeechRecognitionErrorEvent) => any) | null;
+  onnomatch: ((this: SpeechRecognition, ev: ISpeechRecognitionEvent) => any) | null;
+  onresult: ((this: SpeechRecognition, ev: ISpeechRecognitionEvent) => any) | null;
+  onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onspeechend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  start(): void;
+  stop(): void;
+  abort(): void;
+}
+
+export interface SpeechRecognitionStatic {
+  new (): SpeechRecognition;
+}
+
+declare var SpeechRecognition: SpeechRecognitionStatic;
+declare var webkitSpeechRecognition: SpeechRecognitionStatic;
 
 export interface ISpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;

@@ -66,6 +66,12 @@ interface JarvisState {
   setShowAdvanced: (show: boolean) => void;
   showPermission: boolean;
   setShowPermission: (show: boolean) => void;
+  
+  isAgentThinking: boolean;
+  setAgentThinking: (thinking: boolean) => void;
+  
+  agentThought: string | null;
+  setAgentThought: (thought: string | null) => void;
 }
 
 export const useJarvisStore = create<JarvisState>()(
@@ -131,6 +137,12 @@ export const useJarvisStore = create<JarvisState>()(
   setShowAdvanced: (showAdvanced) => set({ showAdvanced }),
   showPermission: false,
   setShowPermission: (showPermission) => set({ showPermission }),
+  
+  isAgentThinking: false,
+  setAgentThinking: (isAgentThinking) => set({ isAgentThinking }),
+  
+  agentThought: null,
+  setAgentThought: (agentThought) => set({ agentThought }),
       }),
       {
         name: 'jarvis-storage',

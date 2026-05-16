@@ -1,36 +1,10 @@
 import { useState, useEffect, FC } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Zap, Calendar, Layers, Plus, X, RefreshCw, 
-  Play, Pause, Edit2, Trash2, ShieldCheck, Activity 
-} from 'lucide-react';
+import { Zap, Calendar, Layers, Plus, X, RefreshCw, Play, Pause, Edit2, Trash2, ShieldCheck, Activity } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { AutomationEditor } from './AutomationEditor';
 import { useNotifications } from '../context/NotificationContext';
-
-interface Task {
-  id: string;
-  name: string;
-  description?: string;
-  command: string;
-  schedule_type: 'interval' | 'cron' | 'once';
-  schedule_time?: string;
-  days?: string[];
-  enabled: boolean;
-  run_count?: number;
-  last_run: string | null;
-}
-
-interface Macro {
-  id: string;
-  name: string;
-  description?: string;
-  commands: string[];
-  trigger?: string;
-  trigger_phrase?: string | null;
-  enabled: boolean;
-  run_count?: number;
-}
+import { AutomationTask, AutomationMacro, AutomationStatusResponse } from '../types/api';
 
 interface AutomationDashboardProps {
   isOpen: boolean;
@@ -39,16 +13,16 @@ interface AutomationDashboardProps {
 
 export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onClose }) => {
   const { addNotification } = useNotifications();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [macros, setMacros] = useState<Macro[]>([]);
-  const [status, setStatus] = useState<any>(null);
+  const [tasks, setTasks] = useState<AutomationTask[]>([]);
+  const [macros, setMacros] = useState<AutomationMacro[]>([]);
+  const [status, setStatus] = useState<AutomationStatusResponse['status'] | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'tasks' | 'macros'>('tasks');
   
   // Editor state
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editorType, setEditorType] = useState<'task' | 'macro'>('task');
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<AutomationTask | AutomationMacro | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -138,13 +112,13 @@ export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onCl
     }
   };
 
-  const openEditor = (type: 'task' | 'macro', item: any = null) => {
+  const openEditor = (type: 'task' | 'macro', item: AutomationTask | AutomationMacro | null = null) => {
     setEditorType(type);
     setEditingItem(item);
     setIsEditorOpen(true);
   };
 
-  const getScheduleLabel = (task: Task) => {
+  const getScheduleLabel = (task: AutomationTask) => {
     switch (task.schedule_type) {
       case 'once':
         return task.schedule_time ? `Once at ${task.schedule_time}` : 'One-time';

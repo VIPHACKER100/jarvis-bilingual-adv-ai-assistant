@@ -1,48 +1,27 @@
 import { useState, useEffect, FC, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  History, Brain, BarChart3, Network, Shield, Search, X, 
-  Plus, Edit, Save, Trash2, Download, RefreshCw, ChevronLeft 
-} from 'lucide-react';
+import { History, Brain, BarChart3, Network, Shield, Search, X, Plus, Edit, Save, Trash2, Download, RefreshCw, ChevronLeft } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { SecurityDashboard } from './SecurityDashboard';
-
-interface Conversation {
-  id: number | null;
-  timestamp: string;
-  user_input: string;
-  jarvis_response: string;
-  command_type: string;
-  success: boolean;
-  language: string;
-}
+import { ConversationEntry, MemoryFact, MemoryStats, MemoryNodeInfo } from '../types/api';
 
 interface MemoryViewerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface MemoryFact {
-  id: number | null;
-  key: string;
-  value: string;
-  category: string;
-  source?: string;
-  timestamp?: string;
-}
-
 type ViewMode = 'history' | 'analytics' | 'memories' | 'map' | 'security';
 
 export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, setConversations] = useState<ConversationEntry[]>([]);
   const [facts, setFacts] = useState<MemoryFact[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<MemoryStats | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('history');
   
   // Neural Memory Map State
-  const [memoryNodes, setMemoryNodes] = useState<any[]>([]);
+  const [memoryNodes, setMemoryNodes] = useState<MemoryNodeInfo[]>([]);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [nodeContent, setNodeContent] = useState<string>('');
   const [isEditingNode, setIsEditingNode] = useState(false);
@@ -203,8 +182,10 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
   };
 
   const mapData = useMemo(() => {
-    const nodes: any[] = [{ id: 'core', label: 'JARVIS CORE', type: 'core', color: '#06b6d4' }];
-    const edges: any[] = [];
+    interface MapNode { id: string; label: string; type: string; color: string }
+    interface MapEdge { source: string; target: string }
+    const nodes: MapNode[] = [{ id: 'core', label: 'JARVIS CORE', type: 'core', color: '#06b6d4' }];
+    const edges: MapEdge[] = [];
     
     // Extract unique categories
     const categories = Array.from(new Set(facts.map(f => f.category)));

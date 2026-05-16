@@ -98,6 +98,18 @@ export function useJarvisBridge() {
         }
         break;
 
+      case 'agent_thinking':
+        getStoreState().setAgentThinking(true);
+        if (message.data?.thought) {
+          getStoreState().setAgentThought(message.data.thought);
+        }
+        break;
+
+      case 'agent_resolved':
+        getStoreState().setAgentThinking(false);
+        getStoreState().setAgentThought(null);
+        break;
+
       case 'pong':
         break;
     }

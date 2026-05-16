@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 3.8.0 |
+| **Version** | 3.9.0 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
 | **Last Updated** | 2026-05-16 |
 | **Status** | Active Development |
@@ -78,7 +78,7 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 ## 6. Product Scope
 
-### 6.1 In Scope (Current — v3.8.0)
+### 6.1 In Scope (Current — v3.9.0)
 
 #### Voice & Language
 
@@ -148,6 +148,10 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 - SQLite with WAL + connection pooling.
 - GitHub Actions CI (Python 3.12, Node 20).
 - Docker Compose support.
+- **Autonomous Agentic Loop (v3.9.0)**: ReAct (Reasoning + Acting) loop for multi-step task orchestration.
+- **Situational Screen Awareness (v3.9.0)**: Deep visual context via LLM-assisted OCR analysis for proactive suggestions.
+- **Safety Gates (v3.9.0)**: Interception of dangerous autonomous commands with manual confirmation override.
+- **Semantic Vector Search (v3.9.0)**: Hybrid retrieval using ChromaDB/SQLite for long-term memory.
 
 ### 6.2 Out of Scope (Current Release)
 
@@ -161,11 +165,11 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 | Phase | Feature | Priority |
 |-------|---------|----------|
-| v3.9 | Dedicated mobile companion app | High |
-| v3.9 | Enhanced wake-word (local model) | Medium |
+| v4.0 | Dedicated mobile companion app (Production Build) | High |
 | v4.0 | Plugin/skill marketplace for custom commands | Medium |
 | v4.0 | Multi-machine neural sync | Low |
 | v4.x | Full macOS/Linux automation parity | Medium |
+| v5.0 | AGI-lite local orchestration (World Model) | Visionary |
 
 ---
 

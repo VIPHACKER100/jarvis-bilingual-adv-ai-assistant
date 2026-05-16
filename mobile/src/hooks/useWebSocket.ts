@@ -8,6 +8,8 @@ interface WebSocketOptions {
 export const useWebSocket = (options?: WebSocketOptions) => {
   const { serverUrl, setConnected, accessToken, deviceId, isPaired } = useConnectionStore();
   const [systemStatus, setSystemStatus] = useState<any>(null);
+  const [isAgentThinking, setIsAgentThinking] = useState(false);
+  const [agentThought, setAgentThought] = useState<string | null>(null);
   const ws = useRef<WebSocket | null>(null);
 
   const connect = useCallback(() => {
@@ -58,6 +60,16 @@ export const useWebSocket = (options?: WebSocketOptions) => {
           options.onWake();
         }
         break;
+      case 'agent_thinking':
+        setIsAgentThinking(true);
+        if (message.data?.thought) {
+          setAgentThought(message.data.thought);
+        }
+        break;
+      case 'agent_resolved':
+        setIsAgentThinking(false);
+        setAgentThought(null);
+        break;
       default:
         break;
     }
@@ -70,6 +82,8 @@ export const useWebSocket = (options?: WebSocketOptions) => {
 
   return {
     sendMessage: (msg: any) => ws.current?.send(JSON.stringify(msg)),
-    systemStatus
+    systemStatus,
+    isAgentThinking,
+    agentThought
   };
 };

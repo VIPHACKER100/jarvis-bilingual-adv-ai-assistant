@@ -879,23 +879,41 @@ class MediaProcessor:
         return result
 
     async def get_screen_summary(self, language: str = 'en') -> Dict:
-        """Get a summary of what's on screen"""
-        # This would ideally use a Vision LLM, but for now we use OCR
+        """Get a coherent summary of what's on screen using LLM"""
+        from modules.llm import llm_client
+        
         result = await self.extract_text_from_screenshot(language)
         if result['success']:
             text = result['text']
-            # Simple summarization: first few lines or key words
-            lines = [
-                line.strip()
-                for line in str(text).split('\n')
-                if line.strip()
-            ]
-            summary = ", ".join(cast(Any, lines)[:5]) if lines else "None"
-
+            if not text.strip():
+                return {'success': True, 'summary': "The screen appears empty.", 'response': "Screen summary: Empty."}
+            
+            # Use LLM to summarize
+            prompt = f"The following text was extracted from a screenshot via OCR. Summarize what is on the screen in one or two clear sentences. Response language: {language}. Text: {text[:2000]}"
+            summary = await llm_client.get_response(prompt, language)
+            
             return {
                 'success': True,
                 'summary': summary,
                 'response': f"Screen summary: {summary}"
+            }
+        return result
+
+    async def analyze_screen(self, query: str, language: str = 'en') -> Dict:
+        """Answer a specific question about the current screen content"""
+        from modules.llm import llm_client
+        
+        result = await self.extract_text_from_screenshot(language)
+        if result['success']:
+            text = result['text']
+            
+            prompt = f"The following text was extracted from a screenshot via OCR. Based ONLY on this text, answer the user's question: '{query}'. Response language: {language}. If you cannot find the answer, say so. Text: {text[:3000]}"
+            answer = await llm_client.get_response(prompt, language)
+            
+            return {
+                'success': True,
+                'answer': answer,
+                'response': answer
             }
         return result
 

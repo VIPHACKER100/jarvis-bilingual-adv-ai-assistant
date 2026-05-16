@@ -1,116 +1,37 @@
-import asyncio
-import re
-import json
-from datetime import datetime
-from typing import Dict, Any, List, Optional, cast, Union
-from fastapi import WebSocket
+"""
+JARVIS v3.9.0 — Command Handler
+Manages the orchestration of all commands and integrates the Autonomous Agent.
+"""
 
-from config import HINDI_COMMANDS
-from modules.system import system_module
-from modules.security import security
-from modules.bilingual_parser import parser
-from modules.window_manager import window_manager
-from modules.input_control import input_controller
-from modules.whatsapp import whatsapp_manager
-from modules.file_manager import file_manager
-from modules.media import media_processor
-from modules.desktop import desktop_manager
-from modules.llm import llm_module
-from modules.automation import automation_manager
-from modules.memory import memory_manager, ConversationEntry
-from modules.context import context_manager
+import re
+import asyncio
+from typing import Dict, Any, Optional, List
+from fastapi import WebSocket
 from utils.logger import logger, log_command
 from models import CommandResult, ConversationEntryModel
+from modules.bilingual_parser import parser
+from modules.system import system_module
+from modules.window_manager import window_manager
+from modules.desktop import desktop_manager
+from modules.input_control import input_controller
+from modules.file_manager import file_manager
+from modules.media import media_processor
+from modules.whatsapp import whatsapp_manager
+from modules.security import security
+from modules.memory import memory_manager, ConversationEntry
+from modules.context import context_manager
+from modules.llm import llm_module
 
-async def handle_command(websocket: Optional[WebSocket], command: str, 
-                         language: Optional[str] = None, 
-                         override_params: Optional[Dict[str, Any]] = None,
-                         session_id: Optional[str] = None) -> Dict[str, Any]:
-    """Process a command and return result as a dictionary compatible with CommandResult model"""
-    # Use English as default language
-    current_lang = language or 'en'
-    
-    # Detect language if not provided
-    if not language:
-        current_lang = parser.detect_language(command)
-    
-    # Parse command
-    command_key, detected_lang, params = parser.parse_command(command)
-    
-    # LLM Fallback for Adaptive NLP
-    if command_key == 'unknown' or not command_key:
-        logger.info(f"Rule-based parser failed for: '{command}'. Attempting LLM extraction...")
-        available_keys = list(HINDI_COMMANDS.keys())
-        llm_result = await llm_module.extract_command(command, available_keys)
-        if llm_result and llm_result.get('command_key') != 'unknown':
-            command_key = llm_result['command_key']
-            params = llm_result.get('params')
-            logger.info(f"LLM successfully extracted command: {command_key}")
-
-    if detected_lang and language != 'hinglish':
-        current_lang = detected_lang
-        
-    # Apply parameters override (from macros)
-    if override_params:
-        if params:
-            params.update(override_params)
-        else:
-            params = override_params
-    
-    # Check if command matches a macro trigger phrase (voice trigger)
-    macro = automation_manager.find_macro_by_trigger(command)
-    if macro:
-        logger.info(f"Voice trigger matched macro: {macro.name}")
-        
-        # Define callback for macro commands
-        async def macro_cmd_callback(cmd, p):
-            res = await handle_command(websocket, cmd, language, p, session_id)
-            if websocket:
-                try:
-                    await websocket.send_json({
-                        'type': 'macro_update',
-                        'command': cmd,
-                        'result': res
-                    })
-                except:
-                    pass
-        
-        # Start macro in background
-        asyncio.create_task(automation_manager.run_macro(macro.id, macro_cmd_callback))
-        
-        res_obj = CommandResult(
-            success=True,
-            action_type='MACRO_STARTED',
-            response=f"Executing macro: {macro.name}" if language == 'en' else f"मैक्रो शुरू कर रहा हूँ: {macro.name}",
-            macro_name=macro.name,
-            command_key='macro',
-            language=current_lang
-        )
-        res = res_obj.dict()
-
-        # Persist macro trigger to memory
-        try:
-            entry = ConversationEntry(
-                user_input=command,
-                jarvis_response=res['response'],
-                command_type='macro',
-                success=True,
-                language=current_lang,
-                session_id=session_id or ""
-            )
-            await memory_manager.save_conversation(entry)
-            await context_manager.update_context(command, 'macro', True, session_id or "default")
-        except Exception as e:
-            logger.error(f"Error persisting macro to memory: {e}")
-
-        return res
-    
-    logger.info(f"Command received: '{command}' -> '{command_key}' (lang: {current_lang})")
-    
-    # Route to appropriate module
+async def dispatch_command(command_key: str, params: Any, current_lang: str, 
+                           command: str = "", websocket: Optional[WebSocket] = None, 
+                           session_id: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Directly execute a command key with parameters.
+    This avoids recursion when called by the Autonomous Agent.
+    """
     result: Dict[str, Any] = {}
     
-    # Dispatch logic
+    # System commands
     if command_key == 'system_status':
         result = await system_module.get_system_status(current_lang)
     elif command_key == 'time':
@@ -289,6 +210,9 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
         if isinstance(params, dict):
             path, name = params.get('path', ''), params.get('name', '')
             result = await file_manager.rename_file(path, name, current_lang)
+    elif command_key == 'read_file':
+        path = params.get('path', str(params)) if isinstance(params, dict) else str(params)
+        result = await file_manager.read_file(path, 5000, current_lang)
     
     # OCR/Vision commands
     elif command_key in ['ocr_image', 'extract_text']:
@@ -296,65 +220,51 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             result = await media_processor.extract_text_from_image(params, current_lang)
         else:
             result = await media_processor.extract_text_from_screenshot(current_lang)
-    
     elif command_key in ['analyze_screen', 'what_is_on_my_screen']:
         query = params.get('query', str(params)) if isinstance(params, dict) else (params if params != command else None)
         result = await media_processor.analyze_screen(query, current_lang)
-    
     elif command_key == 'ocr_pdf':
         path = params.get('path', str(params)) if isinstance(params, dict) else str(params)
         result = await media_processor.extract_text_from_pdf(path, None, current_lang)
-    
     elif command_key == 'convert_image':
         if isinstance(params, dict):
             src, dst = params.get('input', ''), params.get('output', '')
             fmt = params.get('format')
             result = await media_processor.convert_image(src, dst, fmt, current_lang)
-            
     elif command_key == 'resize_image':
         if isinstance(params, dict):
             src, dst = params.get('input', ''), params.get('output', '')
             w, h = params.get('width'), params.get('height')
             result = await media_processor.resize_image(src, dst, w, h, True, current_lang)
-            
     elif command_key == 'compress_image':
         if isinstance(params, dict):
             src, dst = params.get('input', ''), params.get('output', '')
             q = params.get('quality', 85)
             result = await media_processor.compress_image(src, dst, q, current_lang)
-            
     elif command_key == 'merge_pdfs':
         if isinstance(params, dict):
             files, out = params.get('files', []), params.get('output', '')
             result = await media_processor.merge_pdfs(files, out, current_lang)
-            
     elif command_key == 'pdf_to_images':
         path = params.get('path', str(params)) if isinstance(params, dict) else str(params)
         result = await media_processor.pdf_to_images(path, None, 200, current_lang)
-        
     elif command_key == 'images_to_pdf':
         if isinstance(params, dict):
             files, out = params.get('images', []), params.get('output', '')
             result = await media_processor.images_to_pdf(files, out, current_lang)
-            
     elif command_key == 'batch_pdf':
         folder = params.get('folder', str(params)) if isinstance(params, dict) else str(params)
         result = await media_processor.batch_images_to_pdf(folder, "batch.pdf", current_lang)
-        
     elif command_key == 'scan_folder':
         folder = params.get('folder', str(params)) if isinstance(params, dict) else str(params)
         ftype = params.get('type', 'all')
         result = await media_processor.scan_folder(folder, ftype, current_lang)
-        
     elif command_key == 'make_drawing':
         result = await media_processor.make_drawing(current_lang)
-        
     elif command_key == 'get_selected_text':
         result = await media_processor.get_selected_text(current_lang)
-        
     elif command_key == 'narrate_screen':
         result = await media_processor.narrate_screen(current_lang)
-        
     elif command_key == 'get_screen_summary':
         result = await media_processor.get_screen_summary(current_lang)
     
@@ -372,12 +282,10 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
                     result = await whatsapp_manager.send_message(parts[0], "", current_lang)
         else:
             result = await whatsapp_manager.open_whatsapp(current_lang)
-            
     elif command_key == 'whatsapp_call':
         contact = params.get('contact', str(params)) if isinstance(params, dict) else str(params)
         is_video = 'video' in str(params).lower() or 'video' in command.lower()
         result = await whatsapp_manager.call_contact(contact, is_video, current_lang)
-    
     elif command_key == 'whatsapp_draft_reply':
         result = await whatsapp_manager.draft_smart_reply(current_lang)
 
@@ -397,68 +305,100 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
             result = {'success': False, 'action_type': 'PERSONALITY_SET',
                       'response': f"Unknown personality '{p_id}'. Available: stark, midnight, avenue, linear."}
 
-    # Command insights
-    elif command_key == 'command_insights':
-        insights = await memory_manager.get_command_insights()
-        top = ', '.join([c['command_type'] for c in insights.get('top_commands', [])[:3]])
-        result = {'success': True, 'action_type': 'INSIGHTS',
-                  'response': f"Your top commands: {top}." if top else "No insight data yet.",
-                  'data': insights}
+    # Memory commands
+    elif command_key == 'save_memory':
+        if isinstance(params, dict):
+            title, content = params.get('title', ''), params.get('content', '')
+            if title and content:
+                await memory_manager.save_node(title, content)
+                result = {'success': True, 'action_type': 'MEMORY_SAVE', 
+                          'response': f"I've saved that to my neural memory under '{title}', Sir." if current_lang == 'en'
+                                      else f"मैंने इसे '{title}' के तहत अपनी याददाश्त में सहेज लिया है, सर।"}
+    elif command_key == 'list_memories':
+        nodes = await memory_manager.list_nodes()
+        names = ", ".join([n['name'] for n in nodes])
+        result = {'success': True, 'action_type': 'MEMORY_LIST', 
+                  'response': f"Here are the memory nodes I have: {names}" if names else "My neural memory is currently empty.",
+                  'data': nodes}
 
-    # AI Conversation Fallback
+    # Fallback if no specific handler found
+    if not result:
+        result = {'success': False, 'action_type': 'UNKNOWN', 'response': 'Unknown command.'}
+        
+    return result
+
+async def handle_command(websocket: Optional[WebSocket], command: str, 
+                         language: Optional[str] = None, 
+                         override_params: Optional[Dict[str, Any]] = None,
+                         session_id: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Primary entry point for executing commands.
+    Parses intent and routes to either direct dispatch or autonomous agent.
+    """
+    current_lang = language or parser.detect_language(command)
+    
+    # Extract intent and parameters
+    command_key, params = parser.parse(command, current_lang)
+    
+    # Override params if provided (e.g., from Agent)
+    if override_params:
+        params = override_params
+        
+    # Check for direct execution match
+    logger.info(f"Command received: '{command}' -> '{command_key}' (lang: {current_lang})")
+    
+    # Route to appropriate module via direct dispatcher
+    result_raw = await dispatch_command(command_key, params, current_lang, command, websocket, session_id)
+    
+    # If rule-based dispatch worked, proceed to post-process
+    if result_raw.get('action_type') != 'UNKNOWN':
+        result = result_raw
     else:
-        logger.info(f"No direct handler for '{command_key}', using AI fallback...")
-        context_str = ""
-        try:
-            # Use query-aware search for better context relevance (v3.7.0)
-            facts = await memory_manager.search_memory(command)
-            if facts:
-                context_str += "Known facts:\n" + "\n".join([f"- {f.key}: {f.value}" for f in facts[:5]])
-            history = await context_manager.get_conversation_context(limit=3)
-            if history:
-                context_str += "\nHistory:\n" + "\n".join([f"User: {h['user']}\nJARVIS: {h['jarvis']}" for h in history])
-        except: pass
-
-        llm_response = ""
+        # AI Autonomous Agent Fallback (v3.9.0)
+        logger.info(f"No direct handler for '{command_key}', invoking Autonomous Agent...")
+        
         if websocket:
-            # Send initial signal that AI is thinking
             try:
                 await websocket.send_json({
-                    'type': 'stream_start',
+                    'type': 'agent_thinking',
                     'session_id': session_id
                 })
             except: pass
 
-            async for chunk in llm_module.get_response_stream(command, current_lang, context=context_str):
-                llm_response += chunk
+        async def on_agent_thought(thought: str):
+            if websocket:
                 try:
                     await websocket.send_json({
-                        'type': 'stream_chunk',
-                        'chunk': chunk,
-                        'session_id': session_id
+                        'type': 'agent_thinking',
+                        'data': {'thought': thought, 'session_id': session_id}
                     })
-                except: break
-            
-            # Send final signal
-            try:
-                await websocket.send_json({
-                    'type': 'stream_end',
-                    'full_response': llm_response,
-                    'session_id': session_id
-                })
-            except: pass
-        else:
-            llm_response = await llm_module.get_response(command, current_lang, context=context_str)
+                except: pass
 
-        if llm_response:
-            result = {'success': True, 'action_type': 'CONVERSATION', 'response': llm_response}
-            log_command(command, 'conversation', True)
+        # Run the agentic loop
+        from modules.agent import agent_controller
+        agent_response = await agent_controller.run_loop(
+            command, current_lang, session_id or "default", on_thought=on_agent_thought
+        )
+        
+        if agent_response:
+            result = {'success': True, 'action_type': 'AGENT_RESOLVED', 'response': agent_response}
+            log_command(command, 'agent', True)
+            
+            if websocket:
+                try:
+                    await websocket.send_json({
+                        'type': 'agent_resolved',
+                        'data': {
+                            'full_response': agent_response,
+                            'session_id': session_id
+                        }
+                    })
+                except: pass
         else:
             result = {'success': False, 'action_type': 'UNKNOWN', 'response': parser.get_response('command_not_understood', current_lang)}
             log_command(command, 'unknown', False)
 
     # Post-process with Pydantic model
-    # Convert Pydantic object to dict if needed
     if hasattr(result, 'dict'):
         result = result.dict()
     

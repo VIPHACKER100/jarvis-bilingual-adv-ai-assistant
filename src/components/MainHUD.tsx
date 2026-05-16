@@ -16,7 +16,9 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
     language, 
     currentSuggestion, setCurrentSuggestion,
     transcript,
-    systemStatus
+    systemStatus,
+    isAgentThinking,
+    agentThought
   } = useJarvisStore();
 
   return (
@@ -24,7 +26,34 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
       {/* Mode Status Indicator with smooth transitions */}
       <div className="flex flex-col items-center gap-1.5 transition-all duration-700 min-h-[24px]">
         <AnimatePresence mode="wait">
-          {mode === AppMode.LISTENING && (
+          {isAgentThinking && (
+            <motion.div
+              key="agent-thinking"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-2"
+            >
+              <div className="relative">
+                <span className="absolute inset-0 w-2 h-2 rounded-full bg-cyan-400 animate-ping opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-cyan-400 tracking-[0.4em] font-mono text-[10px] uppercase font-bold">Autonomous_Analysis_v3.9.0...</span>
+                {agentThought && (
+                  <motion.span 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-[9px] text-cyan-200/60 font-mono italic max-w-xs truncate"
+                  >
+                    Thought: {agentThought}
+                  </motion.span>
+                )}
+              </div>
+            </motion.div>
+          )}
+          {!isAgentThinking && mode === AppMode.LISTENING && (
             <motion.div
               key="listening"
               initial={{ opacity: 0, y: -8 }}

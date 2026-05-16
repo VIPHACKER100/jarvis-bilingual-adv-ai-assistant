@@ -1,7 +1,7 @@
-import { Language, ISpeechRecognitionEvent, ISpeechRecognitionErrorEvent } from '../types';
+import { Language, ISpeechRecognitionEvent, ISpeechRecognitionErrorEvent, SpeechRecognition } from '../types';
 
 class VoiceService {
-  private recognition: any = null;
+  private recognition: SpeechRecognition | null = null;
   private synthesis: SpeechSynthesis = window.speechSynthesis;
   private isListening: boolean = false;
 

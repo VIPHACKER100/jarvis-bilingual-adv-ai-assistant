@@ -1,10 +1,16 @@
 import { FC, useEffect, useState } from 'react';
 
+export interface VisionMetadata {
+  source?: string;
+  confidence?: string;
+  language?: string;
+}
+
 interface VisionOverlayProps {
   isOpen: boolean;
   content: string;
   onClose: () => void;
-  metadata?: any;
+  metadata?: VisionMetadata;
 }
 
 export const VisionOverlay: FC<VisionOverlayProps> = ({ isOpen, content, onClose, metadata }) => {

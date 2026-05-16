@@ -1,9 +1,11 @@
 import aiofiles
 import asyncio
+import hashlib
 import json
+import numpy as np
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 
 from config import DATA_DIR, PROJECT_ROOT
@@ -45,6 +47,7 @@ class NeuralMemoryManager:
         self.memory_dir = PROJECT_ROOT / "memory"
         self.memory_dir.mkdir(exist_ok=True)
         self.core_nodes = ["user.md", "personality.md", "preferences.md", "decisions.md", "people.md"]
+        self._vectors_cache: Dict[str, np.ndarray] = {}
 
     async def get_node(self, name: str) -> Optional[str]:
         """Read content of a specific memory node"""
@@ -119,7 +122,7 @@ class NeuralMemoryManager:
     async def get_neural_context(self, query: Optional[str] = None) -> str:
         """
         Dynamically collect relevant memory nodes for LLM context.
-        Uses fuzzy matching and keyword relevance if a query is provided.
+        Uses hybrid search (fuzzy + semantic) if a query is provided.
         """
         from rapidfuzz import fuzz
         
@@ -127,35 +130,55 @@ class NeuralMemoryManager:
         if not nodes:
             return ""
 
-        # Always include core nodes (personality, user info)
+        # Always include core nodes
         core_node_names = ["personality.md", "user.md", "preferences.md"]
-        selected_nodes = [n for n in nodes if n["name"] in core_node_names]
+        selected_nodes_with_scores = []
+        for n in nodes:
+            if n["name"] in core_node_names:
+                selected_nodes_with_scores.append((n, 200)) # Core nodes get max priority
         
         # If we have a query, find additional relevant nodes
         if query:
             query_lower = query.lower()
+            
+            # 1. Semantic Search (Vector)
+            semantic_scores = await self._get_semantic_scores(query)
+            
+            # 2. Fuzzy/Keyword Search
             other_nodes = [n for n in nodes if n["name"] not in core_node_names]
             
-            scored_nodes = []
             for node in other_nodes:
-                # Score based on filename and metadata (if available)
-                # We do a fast check first
                 name_clean = node["name"].replace(".md", "").lower()
-                score = fuzz.partial_ratio(query_lower, name_clean)
+                fuzzy_score = fuzz.partial_ratio(query_lower, name_clean)
                 
                 # Bonus for exact keyword matches
                 if any(word in query_lower for word in name_clean.split("_")):
-                    score += 20
+                    fuzzy_score += 20
                 
-                if score >= 60:
-                    scored_nodes.append((node, score))
+                # Combine with semantic score (if available)
+                semantic_score = semantic_scores.get(node["name"], 0) * 100
+                
+                # Hybrid score: 40% Fuzzy, 60% Semantic
+                total_score = (fuzzy_score * 0.4) + (semantic_score * 0.6)
+                
+                if total_score >= 50:
+                    selected_nodes_with_scores.append((node, total_score))
             
-            # Sort by score and take top 3 non-core nodes
-            scored_nodes.sort(key=lambda x: x[1], reverse=True)
-            selected_nodes.extend([n[0] for n in scored_nodes[:3]])
+            # Sort by score and take top 5
+            selected_nodes_with_scores.sort(key=lambda x: x[1], reverse=True)
+            top_nodes = []
+            seen = set()
+            for node, score in selected_nodes_with_scores:
+                if node["name"] not in seen:
+                    top_nodes.append(node)
+                    seen.add(node["name"])
+                if len(top_nodes) >= 6: # Total limit
+                    break
+            selected_nodes = top_nodes
+        else:
+            selected_nodes = [n for n, s in selected_nodes_with_scores]
 
         context_parts = []
-        # Deduplicate and load content
         seen_names = set()
         for node in selected_nodes:
             if node["name"] in seen_names:
@@ -164,7 +187,6 @@ class NeuralMemoryManager:
             
             content = await self.get_node(node["name"])
             if content:
-                # Strip YAML frontmatter if present for cleaner context
                 if content.startswith("---"):
                     parts = content.split("---", 2)
                     if len(parts) >= 3:
@@ -173,6 +195,98 @@ class NeuralMemoryManager:
                 context_parts.append(f"### {node['name'].replace('.md', '').upper()} ###\n{content}")
         
         return "\n\n".join(context_parts)
+
+    async def _get_semantic_scores(self, query: str) -> Dict[str, float]:
+        """Calculate semantic similarity scores for all indexed nodes"""
+        from modules.llm import llm_client
+        
+        query_vector = await llm_client.get_embedding(query)
+        if not query_vector:
+            return {}
+            
+        query_np = np.array(query_vector)
+        scores = {}
+        
+        # Load vectors from DB if not in cache
+        if not self._vectors_cache:
+            rows = await db_manager.fetchall("SELECT filename, embedding FROM neural_vectors")
+            for filename, emb_blob in rows:
+                self._vectors_cache[filename] = np.frombuffer(emb_blob, dtype=np.float32)
+        
+        for filename, vector in self._vectors_cache.items():
+            # Cosine similarity
+            dot_product = np.dot(query_np, vector)
+            norm_q = np.linalg.norm(query_np)
+            norm_v = np.linalg.norm(vector)
+            
+            if norm_q > 0 and norm_v > 0:
+                similarity = dot_product / (norm_q * norm_v)
+                scores[filename] = float(similarity)
+            else:
+                scores[filename] = 0.0
+                
+        return scores
+
+    async def sync_vectors(self):
+        """Synchronize Markdown nodes with vector embeddings in the database"""
+        logger.info("Synchronizing semantic memory vectors...")
+        from modules.llm import llm_client
+        
+        nodes = await self.list_nodes()
+        synced_count = 0
+        
+        for node in nodes:
+            try:
+                content = await self.get_node(node["name"])
+                if not content: continue
+                
+                # Calculate hash to see if it changed
+                content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
+                
+                # Check DB for existing hash
+                row = await db_manager.fetchone(
+                    "SELECT content_hash FROM neural_vectors WHERE filename = ?", 
+                    (node["name"],)
+                )
+                
+                if row and row[0] == content_hash:
+                    continue # Already up to date
+                
+                # Generate new embedding
+                embedding = await llm_client.get_embedding(content)
+                if not embedding:
+                    logger.warning(f"Could not generate embedding for {node['name']}")
+                    continue
+                
+                # Convert to numpy and then to buffer for DB
+                emb_np = np.array(embedding, dtype=np.float32)
+                emb_blob = emb_np.tobytes()
+                
+                if row:
+                    # Update
+                    await db_manager.execute(
+                        "UPDATE neural_vectors SET content_hash = ?, embedding = ?, updated_at = ? WHERE filename = ?",
+                        (content_hash, emb_blob, datetime.now().isoformat(), node["name"])
+                    )
+                else:
+                    # Insert
+                    await db_manager.execute(
+                        "INSERT INTO neural_vectors (filename, content_hash, embedding) VALUES (?, ?, ?)",
+                        (node["name"], content_hash, emb_blob)
+                    )
+                
+                # Update cache
+                self._vectors_cache[node["name"]] = emb_np
+                synced_count += 1
+                
+            except Exception as e:
+                logger.error(f"Error syncing vector for {node['name']}: {e}")
+                
+        if synced_count > 0:
+            logger.info(f"Semantic memory sync complete. Updated {synced_count} vectors.")
+        else:
+            logger.info("Semantic memory already synchronized.")
+
 
 
 class MemoryManager:

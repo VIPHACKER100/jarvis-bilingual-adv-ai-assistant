@@ -242,15 +242,37 @@ export interface AutomationTask {
   next_run: string | null;
 }
 
+export interface MacroStep {
+  command: string;
+  delay: number;
+  parameters?: Record<string, unknown>;
+}
+
 export interface AutomationMacro {
   id: string;
   name: string;
   description?: string;
-  commands: string[];
+  commands: MacroStep[];
   trigger?: string;
   trigger_phrase: string | null;
   enabled: boolean;
   run_count?: number;
+}
+
+export interface TaskCreatePayload {
+  name: string;
+  command: string;
+  description?: string;
+  schedule_type: 'interval' | 'cron' | 'once';
+  schedule_time?: string;
+}
+
+export interface MacroCreatePayload {
+  name: string;
+  description?: string;
+  commands: MacroStep[];
+  trigger?: string;
+  trigger_phrase?: string;
 }
 
 export interface AutomationStatusResponse {

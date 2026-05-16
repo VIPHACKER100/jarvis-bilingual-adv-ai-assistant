@@ -28,7 +28,9 @@ Notifications.setNotificationHandler({
 export default function App() {
   const [isActive, setIsActive] = useState(false);
   const { isConnected, isPaired, resetPairing } = useConnectionStore();
-  const { sendMessage, systemStatus } = useWebSocket({
+  const [agentStatus, setAgentStatus] = useState<string | null>(null);
+  
+  const { sendMessage, systemStatus, isAgentThinking, agentThought } = useWebSocket({
     onWake: () => {
       setIsActive(true);
       Vibration.vibrate([0, 100, 50, 100]); // Pulse pattern
@@ -36,6 +38,12 @@ export default function App() {
       setTimeout(() => setIsActive(false), 10000);
     }
   });
+
+  useEffect(() => {
+    if (isAgentThinking) {
+      Vibration.vibrate(50); // Small haptic feedback
+    }
+  }, [isAgentThinking]);
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => {
@@ -84,11 +92,16 @@ export default function App() {
 
       {/* Main HUD */}
       <StyledView className="items-center justify-center">
-        <ArcReactor isActive={isActive} onPress={toggleActivation} size={280} />
+        <ArcReactor isActive={isActive || isAgentThinking} onPress={toggleActivation} size={280} />
         <StyledView className="mt-8 items-center">
-          <StyledText className="text-foreground text-3xl font-light tracking-tighter">
-            {isActive ? "LISTENING" : "STANDBY"}
+          <StyledText className={`text-foreground text-3xl font-light tracking-tighter ${isAgentThinking ? 'text-cyan-400' : ''}`}>
+            {isAgentThinking ? "NEURAL ANALYSIS" : (isActive ? "LISTENING" : "STANDBY")}
           </StyledText>
+          {isAgentThinking && agentThought && (
+            <StyledText className="text-cyan-200/60 text-[10px] mt-2 font-light italic text-center px-10">
+              Thought: {agentThought}
+            </StyledText>
+          )}
           <StyledText className="text-accent text-xs mt-1 tracking-widest font-bold uppercase">
             Protocol V3.9.0
           </StyledText>

@@ -57,6 +57,8 @@ async def lifespan(app: FastAPI):
     personality_manager.set_personality(CONFIG.get("personality", "stark"))
     
     await memory_manager.initialize()
+    # Trigger semantic vector sync in background to avoid blocking startup
+    asyncio.create_task(memory_manager.neural.sync_vectors())
     await whatsapp_manager.initialize()
     await automation_manager.initialize()
     await automation_manager.start()

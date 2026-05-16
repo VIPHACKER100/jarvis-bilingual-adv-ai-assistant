@@ -2,7 +2,8 @@ import { FC, useEffect, useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smartphone, Activity, Zap, Shield, Cpu, Database, Wifi, AlertTriangle } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
-import { useNotifications } from '../context/NotificationContext';
+import { useNotifications, Notification } from '../context/NotificationContext';
+import { ReactNode } from 'react';
 
 export const MobileDashboard: FC = () => {
   const { isConnected, connectionStatus, systemStatus } = useJarvisStore();
@@ -47,8 +48,8 @@ export const MobileDashboard: FC = () => {
         {/* Proactive Alerts Feed */}
         <AnimatePresence>
           {notifications
-            .filter((n: { type: string }) => n.type === 'error' || n.type === 'warning')
-            .map((notif: { id: string; type: string; title: string; message: string }, idx: number) => (
+            .filter((n: Notification) => n.type === 'error' || n.type === 'warning')
+            .map((notif: Notification) => (
             <motion.div
               key={notif.id}
               initial={{ opacity: 0, x: -20 }}
@@ -191,7 +192,7 @@ export const MobileDashboard: FC = () => {
   );
 };
 
-const StatCard = memo(({ icon, label, value, unit, color }: { icon: any; label: string; value: number; unit: string; color: string }) => (
+const StatCard = memo(({ icon, label, value, unit, color }: { icon: ReactNode; label: string; value: number; unit: string; color: string }) => (
   <div className="glass-panel p-4 border-white/5 bg-white/[0.02] rounded-2xl flex flex-col gap-2">
     <div className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center ${color === 'indigo' ? 'text-accent' : 'text-purple-400'}`}>
       {icon}
@@ -220,7 +221,7 @@ const HealthItem = memo(({ label, status, color }: { label: string; status: stri
   </div>
 ));
 
-const ActionButton = memo(({ icon, label, color = "text-foreground-muted border-white/10 bg-white/[0.02]" }: { icon: any; label: string; color?: string }) => (
+const ActionButton = memo(({ icon, label, color = "text-foreground-muted border-white/10 bg-white/[0.02]" }: { icon: ReactNode; label: string; color?: string }) => (
   <button className={`flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border transition-all active:scale-95 ${color}`}>
     {icon}
     <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>

@@ -57,7 +57,14 @@ class ProactiveManager:
                 self.last_context = current_context_fingerprint
  
                 # 3. Perform lightweight analysis (OCR snippet + Title)
-                suggestion = await self._analyze_situation(window_title)
+                # For high-interest apps, get deep screen context (v3.9.0)
+                screen_context = ""
+                if any(x in window_title.lower() for x in ["vscode", "terminal", "browser", "chrome", "edge"]):
+                    summary_res = await media_manager.get_screen_summary()
+                    if summary_res.get('success'):
+                        screen_context = summary_res.get('summary', "")
+
+                suggestion = await self._analyze_situation(window_title, screen_context)
 
                 
                 if suggestion and suggestion != self.last_suggestion:
@@ -68,19 +75,24 @@ class ProactiveManager:
                 logger.error(f"Error in proactive analysis loop: {e}")
                 await asyncio.sleep(self.analysis_interval)
 
-    async def _analyze_situation(self, title: str) -> Optional[str]:
+    async def _analyze_situation(self, title: str, screen_context: str = "") -> Optional[str]:
         """Use LLM to determine if a proactive suggestion is helpful"""
         
         # Heuristics to avoid calling LLM for everything
-        interests = ["github", "stackoverflow", "youtube", "whatsapp", "mail", "outlook", "excel", "vscode", "terminal", "error", "issue"]
-        if not any(x in title.lower() for x in interests):
+        interests = ["github", "stackoverflow", "youtube", "whatsapp", "mail", "outlook", "excel", "vscode", "terminal", "error", "issue", "plan"]
+        if not any(x in title.lower() for x in interests) and not screen_context:
             return None
 
         prompt = f"""
         You are JARVIS, an advanced AI assistant. 
         The user is currently focused on a window titled: "{title}"
+        """
         
-        Based on this title, suggest a helpful proactive action I can take.
+        if screen_context:
+            prompt += f"\nDeep Context (from Screen OCR): {screen_context}\n"
+        
+        prompt += """
+        Based on this situational awareness, suggest a helpful proactive action I can take.
         Keep it extremely brief (max 15 words) and highly technical.
         Examples:
         - "User focused on GitHub. Shall I summarize the recent commits?"

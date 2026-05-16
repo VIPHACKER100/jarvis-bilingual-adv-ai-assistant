@@ -1,16 +1,14 @@
 import { useState, FC, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, Save, Plus, Trash2, Clock, Terminal, 
-  Calendar, Layers, ShieldCheck, AlertCircle, RefreshCw
-} from 'lucide-react';
+import { X, Save, Plus, Trash2, Clock, Terminal, Calendar, Layers, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
+import { AutomationTask, AutomationMacro, MacroStep } from '../types/api';
 
 interface AutomationEditorProps {
   isOpen: boolean;
   onClose: () => void;
   type: 'task' | 'macro';
-  item?: any; // If editing
+  item?: AutomationTask | AutomationMacro; // If editing
   onSave: () => void;
 }
 
@@ -29,7 +27,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
   const [macroDesc, setMacroDesc] = useState('');
   const [macroTrigger, setMacroTrigger] = useState('manual');
   const [triggerPhrase, setTriggerPhrase] = useState('');
-  const [macroCommands, setMacroCommands] = useState<any[]>([]);
+  const [macroCommands, setMacroCommands] = useState<MacroStep[]>([]);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,19 +35,21 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
   useEffect(() => {
     if (item) {
       if (type === 'task') {
-        setTaskName(item.name || '');
-        setTaskDesc(item.description || '');
-        setTaskCommand(item.command || '');
-        setScheduleType(item.schedule_type || 'daily');
-        setScheduleTime(item.schedule_time || '08:00');
-        setSelectedDays(item.days || []);
-        setTaskCondition(item.condition || '');
+        const task = item as AutomationTask;
+        setTaskName(task.name || '');
+        setTaskDesc(task.description || '');
+        setTaskCommand(task.command || '');
+        setScheduleType(task.schedule_type || 'once');
+        setScheduleTime(task.schedule_time || '08:00');
+        setSelectedDays(task.days || []);
+        setTaskCondition(''); // Not in task type yet
       } else {
-        setMacroName(item.name || '');
-        setMacroDesc(item.description || '');
-        setMacroTrigger(item.trigger || 'manual');
-        setTriggerPhrase(item.trigger_phrase || '');
-        setMacroCommands(item.commands || []);
+        const macro = item as AutomationMacro;
+        setMacroName(macro.name || '');
+        setMacroDesc(macro.description || '');
+        setMacroTrigger(macro.trigger || 'manual');
+        setTriggerPhrase(macro.trigger_phrase || '');
+        setMacroCommands(macro.commands || []);
       }
     } else {
       // Reset
@@ -87,8 +87,8 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
       }
       onSave();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to save');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setSaving(false);
     }
@@ -98,7 +98,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
     setMacroCommands([...macroCommands, { command: '', delay: 1, parameters: {} }]);
   };
 
-  const updateMacroCommand = (index: number, field: string, value: any) => {
+  const updateMacroCommand = <K extends keyof MacroStep>(index: number, field: K, value: MacroStep[K]) => {
     const newCmds = [...macroCommands];
     newCmds[index][field] = value;
     setMacroCommands(newCmds);
