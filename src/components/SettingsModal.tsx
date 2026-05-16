@@ -104,7 +104,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
     setAudioLoading(true);
     try {
       // Must request permission before enumerating
-      await navigator.mediaDevices.getUserMedia({ audio: true }).then(s => s.getTracks().forEach(t => t.stop())).catch(() => {});
+      await navigator.mediaDevices.getUserMedia({ audio: true }).then(s => s.getTracks().forEach(t => t.stop())).catch(() => { });
       const devices = await navigator.mediaDevices.enumerateDevices();
       setAudioInputs(devices.filter(d => d.kind === 'audioinput'));
       setAudioOutputs(devices.filter(d => d.kind === 'audiooutput'));
@@ -230,12 +230,10 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-3 text-[11px] font-bold tracking-wider uppercase transition-all flex flex-col items-center gap-1 ${
-                activeTab === tab.id
-                  ? 'border-b-2 neon-text'
-                  : 'text-gray-600 hover:text-gray-400 border-b-2 border-transparent'
-              }`}
-              style={activeTab === tab.id ? { borderColor: 'var(--neon-blue)' } : {}}
+              className={`flex-1 py-3 text-[11px] font-bold tracking-wider uppercase transition-all flex flex-col items-center gap-1 ${activeTab === tab.id
+                ? 'border-b-2 neon-text border-[var(--neon-blue)]'
+                : 'text-gray-600 hover:text-gray-400 border-b-2 border-transparent'
+                }`}
             >
               <span className="text-base">{tab.icon}</span>
               <span>{tab.label}</span>
@@ -319,11 +317,10 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                         key={p.id}
                         type="button"
                         onClick={() => handleChange('llm_provider', p.id)}
-                        className={`py-3 px-2 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${
-                          settings.llm_provider === p.id
-                            ? 'text-white border-[var(--neon-blue)] bg-[var(--neon-blue)]/10 shadow-[0_0_20px_rgba(var(--neon-rgb),0.2)]'
-                            : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-600'
-                        }`}
+                        className={`py-3 px-2 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${settings.llm_provider === p.id
+                          ? 'text-white border-[var(--neon-blue)] bg-[var(--neon-blue)]/10 shadow-[0_0_20px_rgba(var(--neon-rgb),0.2)]'
+                          : 'bg-slate-900 border-slate-800 text-slate-500 hover:border-slate-600'
+                          }`}
                       >
                         {p.label}
                       </button>
@@ -558,21 +555,14 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                         key={theme.name}
                         type="button"
                         onClick={() => changeTheme(theme.name as ThemeName)}
-                        className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
-                          isActive
-                            ? 'border-white/25 bg-white/5'
-                            : 'border-white/5 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]'
-                        }`}
-                        style={isActive ? { borderColor: theme.primary + '60', background: theme.primary + '10' } : {}}
+                        className={`theme-btn-${theme.name} w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${isActive
+                          ? 'is-active border-white/25 bg-white/5'
+                          : 'border-white/5 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]'
+                          }`}
                       >
                         {/* Color preview circle */}
                         <div
                           className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-xl font-bold shadow-lg transition-all theme-preview-circle"
-                          style={{
-                            '--theme-primary': theme.primary,
-                            '--theme-accent': theme.accent,
-                            boxShadow: isActive ? `0 0 20px ${theme.primary}80` : 'none',
-                          } as any}
                         >
                           {isActive ? '✓' : ''}
                         </div>
@@ -582,7 +572,6 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                             {isActive && (
                               <span
                                 className="text-[9px] px-2 py-0.5 rounded font-bold uppercase tracking-widest theme-active-badge"
-                                style={{ '--theme-primary': theme.primary } as any}
                               >
                                 ACTIVE
                               </span>
@@ -593,7 +582,6 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                         {/* Gradient swatch */}
                         <div
                           className="w-14 h-8 rounded-md flex-shrink-0 border border-white/5 theme-swatch"
-                          style={{ '--theme-primary': theme.primary, '--theme-accent': theme.accent } as any}
                         />
                       </button>
                     );
@@ -644,12 +632,26 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
           </button>
         </div>
 
-        {/* Scrollbar style */}
+        {/* Scrollbar and Theme style */}
         <style>{`
           .custom-settings-scroll::-webkit-scrollbar { width: 4px; }
           .custom-settings-scroll::-webkit-scrollbar-track { background: transparent; }
           .custom-settings-scroll::-webkit-scrollbar-thumb { background: rgba(var(--neon-rgb), 0.2); border-radius: 4px; }
           .custom-settings-scroll::-webkit-scrollbar-thumb:hover { background: rgba(var(--neon-rgb), 0.4); }
+
+          ${THEMES.map(t => `
+            .theme-btn-${t.name} {
+              --theme-primary: ${t.primary};
+              --theme-accent: ${t.accent};
+            }
+            .theme-btn-${t.name}.is-active {
+              border-color: ${t.primary}60 !important;
+              background: ${t.primary}10 !important;
+            }
+            .theme-btn-${t.name}.is-active .theme-preview-circle {
+              box-shadow: 0 0 20px ${t.primary}80 !important;
+            }
+          `).join('')}
         `}</style>
       </div>
     </div>

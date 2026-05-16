@@ -106,8 +106,8 @@ body {
 /* ─── Modern Glass Panel ─────────────────────────────────────── */
 .glass-panel {
     background: var(--surface);
-    backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border-default);
     border-radius: 16px;
     box-shadow: 
@@ -251,8 +251,10 @@ body {
 }
 
 .theme-active-badge {
+    background: transparent;
     background: color-mix(in srgb, var(--theme-primary), transparent 80%);
     color: var(--theme-primary);
+    border: 1px solid var(--theme-primary);
     border: 1px solid color-mix(in srgb, var(--theme-primary), transparent 60%);
 }
 
