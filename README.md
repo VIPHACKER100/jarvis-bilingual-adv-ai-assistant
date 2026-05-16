@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-3.8.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-3.9.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,22 +20,23 @@
 
 ---
 
-## 🌟 Modern Capabilities (v3.8.0)
+## 🌟 Modern Capabilities (v3.9.0)
 
-- ⚡ **Contextual Intelligence API** - New proactive analysis layer that suggests next actions based on system state and history.
-- ⌨️ **Quick Responses UI** - Dynamic interaction bar in the HUD for rapid command execution and proactive suggestions.
-- 🚀 **Event Loop Optimization** - 50% reduction in system latency by offloading monitoring probes to background tasks.
-- 🛡️ **Self-Healing Database** - Proactive schema validation that automatically repairs missing tables during initialization.
-- 📡 **WebSocket Serialization Hardening** - Standardized `jsonable_encoder` implementation for 100% crash-resilient broadcasts.
-- 📱 **Mobile Synchronization Core** - Secure device pairing and real-time status syncing for the upcoming JARVIS Mobile app.
-- 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models for compile-time safety.
+- 🎙️ **Local Voice Activation** - "Hey JARVIS" wake-word detection using `openwakeword` for a hands-free experience.
+- 📱 **Mobile Companion Ecosystem** - Secure pairing and real-time remote control via the new JARVIS Mobile app.
+- 📡 **mDNS Auto-Discovery** - Zero-configuration network discovery for seamless mobile-to-backend connections.
+- ⚡ **Contextual Intelligence API** - Proactive analysis layer that suggests next actions based on system state.
+- 🚀 **Event Loop Optimization** - 50% reduction in latency by offloading hardware probes to background threads.
+- 🛡️ **Self-Healing Database** - Proactive schema validation that automatically repairs missing tables.
+- 📱 **Haptic Feedback Sync** - Real-time tactile confirmation on mobile devices for voice triggers.
+- 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models.
 
-### 🚀 **What's New? (v3.8.0)**
+### 🚀 **What's New? (v3.9.0)**
 
-- ✨ **Proactive Suggestions** - JARVIS now anticipates your needs with context-aware action prompts.
-- 🎹 **Quick Response Bar** - Execute complex commands with a single click from the new HUD overlay.
-- 🛠️ **Infrastructure Hardening** - Resolved WebSocket serialization crashes and database "table not found" errors.
-- 📊 **Dashboard Stability** - Hardened stats rendering with division-by-zero protection and safer data access.
+- ✨ **Voice Activation** - Hands-free "Hey JARVIS" trigger with offline ONNX-powered detection.
+- 📱 **Mobile Pairing** - Secure TTL-based 6-digit sync for remote system monitoring.
+- 🛰️ **Auto-Discovery** - Automatic backend detection on local networks via ZeroConf/mDNS.
+- 🛠️ **Infrastructure Hardening** - Resolved PyInstaller bundling issues for `numpy` and `openwakeword`.
 
 ---
 

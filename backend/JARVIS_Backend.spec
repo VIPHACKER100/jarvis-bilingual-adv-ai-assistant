@@ -3,6 +3,7 @@
 import sys
 import os
 from pathlib import Path
+from PyInstaller.utils.hooks import collect_submodules, collect_data_files, collect_dynamic_libs
 
 # Get the project root directory using SPECPATH which is provided by PyInstaller
 project_root = Path(SPECPATH).parent
@@ -98,8 +99,22 @@ hidden_imports = [
     # Utilities
     'utils.platform_utils',
     'utils.logger',
+    'utils.mdns',
     'config',
+    'numpy',
+    'scipy',
+    'pandas',
+    'openwakeword',
+    'onnxruntime',
+    'modules.wake_word',
 ]
+
+# Ensure all binary extensions and submodules for ML libraries are collected
+hidden_imports += collect_submodules('scipy')
+hidden_imports += collect_submodules('numpy')
+hidden_imports += collect_submodules('openwakeword')
+hidden_imports += collect_submodules('onnxruntime')
+hidden_imports += collect_submodules('sklearn')
 
 # Collect all data files
 data_files = [
@@ -112,6 +127,21 @@ data_files = [
     (str(backend_dir / 'migrations'), 'migrations'),
 ]
 
+# Ensure machine learning models and config files are collected
+data_files += collect_data_files('scipy')
+data_files += collect_data_files('numpy')
+data_files += collect_data_files('openwakeword')
+data_files += collect_data_files('onnxruntime')
+data_files += collect_data_files('sklearn')
+
+# Ensure native C/C++ DLLs are collected
+extra_binaries = []
+extra_binaries += collect_dynamic_libs('scipy')
+extra_binaries += collect_dynamic_libs('numpy')
+extra_binaries += collect_dynamic_libs('openwakeword')
+extra_binaries += collect_dynamic_libs('onnxruntime')
+extra_binaries += collect_dynamic_libs('sklearn')
+
 # Add data directory structure
 data_dir = backend_dir / 'data'
 logs_dir = backend_dir / 'logs'
@@ -121,7 +151,7 @@ logs_dir.mkdir(exist_ok=True)
 a = Analysis(
     [str(backend_dir / 'entry_point.py')],
     pathex=[str(backend_dir)],
-    binaries=[],
+    binaries=extra_binaries,
     datas=data_files,
     hiddenimports=hidden_imports,
     hookspath=[],
@@ -129,10 +159,6 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[
         'matplotlib',
-        'numpy',
-        'pandas',
-        'scipy',
-        'sklearn',
         'tensorflow',
         'torch',
         'pytest',

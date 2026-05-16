@@ -22,10 +22,10 @@ def get_version():
         pkg_json = PROJECT_ROOT / 'package.json'
         if pkg_json.exists():
             with open(pkg_json, 'r', encoding='utf-8') as f:
-                return json.load(f).get('version', '3.7.0')
+                return json.load(f).get('version', '3.9.0')
     except Exception:
         pass
-    return '3.7.0'
+    return '3.9.0'
 
 VERSION = get_version()
 
@@ -339,8 +339,6 @@ def filter_build_warnings(warning_file):
             "missing module named trove_classifiers",
             
             # Optional dependencies
-            "missing module named numpy",
-            "missing module named pandas",
             "missing module named cv2",
             "missing module named AppKit",
             "missing module named Foundation",
@@ -381,13 +379,6 @@ def filter_build_warnings(warning_file):
             
             # PyInstaller/runtime specific
             "missing module named pyimod02_importers",
-            "missing module named ctypes._FuncPointer",
-            "missing module named ctypes._CDataType",
-            "missing module named ctypes._CArgObject",
-            "missing module named pkg_resources",
-            "missing module named ctypes._CData",
-            "missing module named 'numpy.ctypeslib'",
-            "excluded module named numpy",
             "missing module named 'win32com.gen_py'",
             "missing module named 'IPython.core'",
             
@@ -408,7 +399,6 @@ def filter_build_warnings(warning_file):
             "missing module named 'pkg_resources.extern.jaraco'",
             "missing module named 'rich.",
             "missing module named pygments.",
-            "missing module named 'numpy.typing'",
             "missing module named ctags",
             
             # Warning file header text (to completely hide the warning file content)
