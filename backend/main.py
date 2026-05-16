@@ -96,13 +96,13 @@ async def lifespan(app: FastAPI):
     if MDNS_ENABLED:
         mdns_broadcaster.port = BACKEND_PORT
         mdns_broadcaster.service_name = MDNS_SERVICE_NAME or "JARVIS-CORE"
-        mdns_broadcaster.start()
+        await mdns_broadcaster.start()
     
     yield
     
     # Cleanup
     if MDNS_ENABLED:
-        mdns_broadcaster.stop()
+        await mdns_broadcaster.stop()
         
     status_broadcast_task.cancel()
     lag_monitor_task.cancel()

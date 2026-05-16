@@ -82,7 +82,7 @@ function hexToRgb(hex: string): string {
     : '94, 106, 210';
 }
 
-function applyTheme(theme: any) {
+function applyTheme(theme: JarvisTheme | { primary?: string; accent?: string }) {
   const root = document.documentElement;
   const accentHex = theme.accent || theme.primary;
   const accentRgb = hexToRgb(accentHex);

@@ -35,6 +35,10 @@ import type {
   ApiKeyUpdatePayload,
   ApiKeyUpdateResponse,
   SuccessResponse,
+  QuickAction,
+  QuickActionListResponse,
+  SuggestionResponse,
+  PairedDevicesResponse,
 } from '../types/api';
 
 const API_KEY = import.meta.env.VITE_JARVIS_API_KEY || "";
@@ -562,12 +566,7 @@ class ApiClient {
   // --- Context & Quick Actions ---
 
   /** Get a context-aware proactive suggestion on demand */
-  async getSuggestion(language: 'en' | 'hi' = 'en'): Promise<{
-    success: boolean;
-    suggestion: string;
-    topic?: string;
-    mood?: string;
-  }> {
+  async getSuggestion(language: 'en' | 'hi' = 'en'): Promise<SuggestionResponse> {
     const response = await fetch(`${this.baseUrl}/context/suggestion?language=${language}`, {
       headers: this.getHeaders()
     });
@@ -576,10 +575,7 @@ class ApiClient {
   }
 
   /** Get list of user-configured quick actions */
-  async getQuickActions(): Promise<{
-    success: boolean;
-    actions: any[];
-  }> {
+  async getQuickActions(): Promise<QuickActionListResponse> {
     const response = await fetch(`${this.baseUrl}/context/quick-actions`, {
       headers: this.getHeaders()
     });
@@ -588,10 +584,7 @@ class ApiClient {
   }
 
   /** Update user-configured quick actions */
-  async updateQuickActions(actions: any[]): Promise<{
-    success: boolean;
-    message: string;
-  }> {
+  async updateQuickActions(actions: QuickAction[]): Promise<SuccessResponse> {
     const response = await fetch(`${this.baseUrl}/context/quick-actions`, {
       method: 'POST',
       headers: this.getHeaders(),
@@ -615,11 +608,7 @@ class ApiClient {
   }
 
   /** Get list of all paired devices */
-  async getPairedDevices(): Promise<{
-    success: boolean;
-    devices: any[];
-    count: number;
-  }> {
+  async getPairedDevices(): Promise<PairedDevicesResponse> {
     const response = await fetch(`${this.baseUrl}/sync/devices`, {
       headers: this.getHeaders()
     });

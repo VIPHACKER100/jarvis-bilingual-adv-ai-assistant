@@ -1,5 +1,6 @@
 import socket
-from zeroconf import IPVersion, ServiceInfo, Zeroconf
+from zeroconf.asyncio import AsyncZeroconf
+from zeroconf import IPVersion, ServiceInfo
 from utils.logger import logger
 import os
 
@@ -14,7 +15,7 @@ class mDNSBroadcaster:
         self.zeroconf = None
         self.service_info = None
 
-    def start(self):
+    async def start(self):
         """Start the mDNS broadcast"""
         try:
             # Get local IP address
@@ -39,19 +40,21 @@ class mDNSBroadcaster:
                 server=f"{self.service_name.lower()}.local.",
             )
 
-            self.zeroconf = Zeroconf(ip_version=IPVersion.V4Only)
-            self.zeroconf.register_service(self.service_info)
+            self.zeroconf = AsyncZeroconf(ip_version=IPVersion.V4Only)
+            await self.zeroconf.async_register_service(self.service_info)
             
             logger.info(f"mDNS Broadcaster started: {self.service_name} at {ip_address}:{self.port}")
         except Exception as e:
+            import traceback
             logger.error(f"Failed to start mDNS Broadcaster: {e}")
+            logger.error(traceback.format_exc())
 
-    def stop(self):
+    async def stop(self):
         """Stop the mDNS broadcast"""
         if self.zeroconf:
             try:
-                self.zeroconf.unregister_service(self.service_info)
-                self.zeroconf.close()
+                await self.zeroconf.async_unregister_service(self.service_info)
+                await self.zeroconf.async_close()
                 logger.info("mDNS Broadcaster stopped.")
             except Exception as e:
                 logger.error(f"Error stopping mDNS Broadcaster: {e}")

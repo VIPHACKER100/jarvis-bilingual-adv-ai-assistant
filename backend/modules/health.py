@@ -29,8 +29,17 @@ class HealthMonitor:
         memory = await asyncio.to_thread(psutil.virtual_memory)
         memory_usage = memory.percent
         
+        # Trigger garbage collection if memory is high (>80%)
+        if memory_usage > 80:
+            import gc
+            gc.collect()
+            logger.info(f"High memory detected ({memory_usage}%). Garbage collection triggered.")
+            # Refresh memory stats after GC
+            memory = await asyncio.to_thread(psutil.virtual_memory)
+            memory_usage = memory.percent
+        
         return {
-            "status": "healthy",
+            "status": "healthy" if memory_usage < 90 else "degraded",
             "version": VERSION,
             "uptime_seconds": round(uptime, 2),
             "timestamp": time.time(),

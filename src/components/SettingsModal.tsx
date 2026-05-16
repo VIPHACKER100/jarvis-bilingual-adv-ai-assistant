@@ -1,12 +1,9 @@
-import { FC, useState, useEffect, useRef } from 'react';
-import { apiClient } from '../services/apiClient';
-import { THEMES, ThemeName, useTheme } from '../hooks/useTheme';
-import { MobileSync } from './MobileSync';
+import { JarvisSettings } from '../types/api';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSettingsUpdated?: (settings: any) => void;
+  onSettingsUpdated?: (settings: JarvisSettings) => void;
 }
 
 type SettingsTab = 'general' | 'ai' | 'security' | 'appearance' | 'audio' | 'mobile';
@@ -54,7 +51,7 @@ const Toggle: FC<{ id: string; checked: boolean; onChange: (v: boolean) => void;
 const inputClass = "w-full bg-[#0d141d] border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-[var(--neon-blue)]/60 transition-colors placeholder-gray-600 text-sm";
 
 export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSettingsUpdated }) => {
-  const [settings, setSettings] = useState<any>(null);
+  const [settings, setSettings] = useState<JarvisSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,8 +90,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
       if (response.success) {
         setSettings(response.settings);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load settings');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load settings');
     } finally {
       setLoading(false);
     }
@@ -132,8 +129,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
         if (onSettingsUpdated) onSettingsUpdated(response.settings);
         setTimeout(() => setSuccess(null), 3000);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to update settings');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update settings');
     } finally {
       setSaving(false);
     }
@@ -147,7 +144,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
     setKeySaving(true);
     setError(null);
     try {
-      const body: any = {};
+      const body: import('../types/api').ApiKeyUpdatePayload = {};
       if (nvidiaKey.trim()) body.nvidia_api_key = nvidiaKey.trim();
       if (openrouterKey.trim()) body.openrouter_api_key = openrouterKey.trim();
 
@@ -158,8 +155,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
         setOpenrouterKey('');
         setTimeout(() => setSuccess(null), 5000);
       }
-    } catch (err: any) {
-      setError(err.message || 'Backend unreachable. Keys not saved.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Backend unreachable. Keys not saved.');
     } finally {
       setKeySaving(false);
     }
@@ -176,8 +173,8 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
     setTimeout(() => setSuccess(null), 2500);
   };
 
-  const handleChange = (key: string, value: any) => {
-    setSettings((prev: any) => ({ ...prev, [key]: value }));
+  const handleChange = <K extends keyof JarvisSettings>(key: K, value: JarvisSettings[K]) => {
+    setSettings((prev) => prev ? ({ ...prev, [key]: value }) : null);
   };
 
   const TABS: { id: SettingsTab; label: string; icon: string }[] = [

@@ -425,10 +425,33 @@ export interface PairedDevicesResponse {
   count: number;
 }
 
+// ─── Context & Suggestions ───────────────────────────────────────────────────
+
+export interface QuickAction {
+  id: string;
+  label: string;
+  icon: string;
+  command: string;
+  color?: string;
+}
+
+export interface QuickActionListResponse {
+  success: boolean;
+  actions: QuickAction[];
+}
+
+export interface SuggestionResponse {
+  success: boolean;
+  suggestion: string;
+  topic?: string;
+  mood?: string;
+}
+
 // ─── Generic Responses ───────────────────────────────────────────────────────
 
 export interface SuccessResponse {
   success: boolean;
+  message?: string;
 }
 
 export interface MessageResponse {

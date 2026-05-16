@@ -83,8 +83,8 @@ export interface ConfirmationRequest {
 }
 
 export interface WebSocketMessage {
-  type: 'command_response' | 'system_status' | 'confirmation_request' | 'error' | 'pong' | 'notification' | 'macro_update' | 'proactive_suggestion';
-  data?: any;
+  type: 'command_response' | 'system_status' | 'confirmation_request' | 'error' | 'pong' | 'notification' | 'macro_update' | 'proactive_suggestion' | 'wake_detected';
+  data?: CommandResponse | SystemStatus | ConfirmationRequest | Record<string, any> | string | number | null;
   message?: string;
   timestamp?: string;
 }

@@ -115,6 +115,8 @@ hidden_imports += collect_submodules('numpy')
 hidden_imports += collect_submodules('openwakeword')
 hidden_imports += collect_submodules('onnxruntime')
 hidden_imports += collect_submodules('sklearn')
+hidden_imports += collect_submodules('zeroconf')
+hidden_imports += collect_submodules('ifaddr')
 
 # Collect all data files
 data_files = [
@@ -133,6 +135,8 @@ data_files += collect_data_files('numpy')
 data_files += collect_data_files('openwakeword')
 data_files += collect_data_files('onnxruntime')
 data_files += collect_data_files('sklearn')
+data_files += collect_data_files('zeroconf')
+data_files += collect_data_files('ifaddr')
 
 # Ensure native C/C++ DLLs are collected
 extra_binaries = []
@@ -141,6 +145,8 @@ extra_binaries += collect_dynamic_libs('numpy')
 extra_binaries += collect_dynamic_libs('openwakeword')
 extra_binaries += collect_dynamic_libs('onnxruntime')
 extra_binaries += collect_dynamic_libs('sklearn')
+extra_binaries += collect_dynamic_libs('zeroconf')
+extra_binaries += collect_dynamic_libs('ifaddr')
 
 # Add data directory structure
 data_dir = backend_dir / 'data'

@@ -5,7 +5,7 @@ import { sfx } from '../utils/audioUtils';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
 
-export const useVoiceController = (sendCommand: any) => {
+export const useVoiceController = (sendCommand: (text: string, language: 'en' | 'hi' | 'hinglish') => void) => {
   const { 
     mode, setMode, 
     language, 

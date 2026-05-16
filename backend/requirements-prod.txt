@@ -73,3 +73,14 @@ aiofiles==23.2.1
 
 # Utilities
 PyYAML==6.0.1
+
+# Voice Activation & Wake Word (v3.9.0)
+openwakeword==0.6.0
+onnxruntime==1.17.0
+numpy==1.26.4
+scipy==1.17.1
+scikit-learn==1.8.0
+
+# Network Discovery (v3.9.0)
+zeroconf==0.132.0
+ifaddr==0.2.0
