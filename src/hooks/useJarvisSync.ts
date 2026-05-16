@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
 import { sfx } from '../utils/audioUtils';
-import { AppMode, Language } from '../types';
-import { voiceService } from '../services/voiceService';
+import { AppMode } from '../types';
 
 export const useJarvisSync = () => {
   const { 
@@ -14,8 +13,6 @@ export const useJarvisSync = () => {
     addToHistory,
     transcript, setTranscript,
     setMode,
-    isActive,
-    language
   } = useJarvisStore();
   
   const { addNotification } = useNotifications();
@@ -74,12 +71,10 @@ export const useJarvisSync = () => {
         timestamp: Date.now()
       });
 
-      // Speak
-      setMode(AppMode.SPEAKING);
-      voiceService.speak(lastResponse.response, lastResponse.language);
-
-      // We handle the resume logic in the voice controller or here
-      // App.tsx had a setTimeout for 2000ms
+      // TTS + resume listening handled in App.tsx (after utterance ends)
+      if (lastResponse.response?.trim()) {
+        setMode(AppMode.SPEAKING);
+      }
     }
-  }, [lastResponse]);
+  }, [lastResponse, setTranscript, addToHistory, volume, setVolume, setVisionData, setCurrentSuggestion, transcript, setMode]);
 };

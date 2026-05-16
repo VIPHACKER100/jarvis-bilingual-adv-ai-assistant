@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { AppMode } from './types';
+import { AppMode, Language } from './types';
 import { useTheme } from './hooks/useTheme';
 import { useJarvisStore } from './store/jarvisStore';
 import { useJarvisBridge } from './hooks/useJarvisBridge';
@@ -111,17 +111,32 @@ const App: FC = () => {
     voiceService.setLanguage(language);
   }, [language]);
 
-  // Handle resume after speaking
+  // Resume listening after TTS finishes (not a fixed delay — avoids mic picking up JARVIS voice)
   useEffect(() => {
-    if (lastResponse) {
-      const timer = setTimeout(() => {
-        processingRef.current = false;
-        if (isActive) startListening();
-        else setMode(AppMode.IDLE);
-      }, 2000);
-      return () => clearTimeout(timer);
+    if (!lastResponse?.response?.trim()) {
+      processingRef.current = false;
+      return;
     }
-  }, [lastResponse, isActive, startListening, setMode]);
+
+    const speakLang =
+      language === Language.HINGLISH
+        ? 'hinglish'
+        : language === Language.HINDI
+          ? 'hi'
+          : lastResponse.language === 'hi'
+            ? 'hi'
+            : 'en';
+
+    voiceService.speak(lastResponse.response, speakLang, () => {
+      processingRef.current = false;
+      if (isActive) {
+        setMode(AppMode.LISTENING);
+        startListening();
+      } else {
+        setMode(AppMode.IDLE);
+      }
+    });
+  }, [lastResponse, isActive, startListening, setMode, language]);
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden select-none">

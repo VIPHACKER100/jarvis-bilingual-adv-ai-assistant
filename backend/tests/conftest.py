@@ -185,6 +185,8 @@ def mock_memory():
         "failure_patterns": [],
         "period_days": 30
     })
+    memory.get_neural_context = AsyncMock(return_value="")
+    memory.list_nodes = AsyncMock(return_value=[])
     memory.save_performance_metric = AsyncMock(return_value=True)
     memory.neural = MagicMock()
     memory.neural.get_neural_context = AsyncMock(return_value="")

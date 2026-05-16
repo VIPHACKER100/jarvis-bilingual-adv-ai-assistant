@@ -1,0 +1,632 @@
+[
+  {
+    "key": "shutdown",
+    "sample": "shutdown",
+    "parsed": "shutdown",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "restart",
+    "sample": "restart",
+    "parsed": "restart",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "sleep",
+    "sample": "sleep",
+    "parsed": "sleep",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "volume_up",
+    "sample": "volume up",
+    "parsed": "volume_up",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "volume_down",
+    "sample": "volume down",
+    "parsed": "volume_down",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "mute",
+    "sample": "mute",
+    "parsed": "mute",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "time",
+    "sample": "time",
+    "parsed": "time",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "date",
+    "sample": "date",
+    "parsed": "date",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "battery",
+    "sample": "battery",
+    "parsed": "battery",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "system_status",
+    "sample": "system status",
+    "parsed": "system_status",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_app",
+    "sample": "open",
+    "parsed": "open_app",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "close_app",
+    "sample": "close",
+    "parsed": "close_app",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "minimize",
+    "sample": "minimize",
+    "parsed": "minimize",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "maximize",
+    "sample": "maximize",
+    "parsed": "maximize",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "close_window",
+    "sample": "close window",
+    "parsed": "close_window",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "whatsapp_message",
+    "sample": "whatsapp",
+    "parsed": "whatsapp_message",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "whatsapp_call",
+    "sample": "call",
+    "parsed": "whatsapp_call",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "whatsapp_draft_reply",
+    "sample": "draft a reply",
+    "parsed": "whatsapp_draft_reply",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "move_cursor",
+    "sample": "move cursor",
+    "parsed": "move_cursor",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "click",
+    "sample": "click",
+    "parsed": "click",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "double_click",
+    "sample": "double click",
+    "parsed": "double_click",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "right_click",
+    "sample": "right click",
+    "parsed": "right_click",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "scroll_up",
+    "sample": "scroll up",
+    "parsed": "scroll_up",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "scroll_down",
+    "sample": "scroll down",
+    "parsed": "scroll_down",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "type_text",
+    "sample": "type",
+    "parsed": "type_text",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "press_key",
+    "sample": "press",
+    "parsed": "press_key",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "hotkey",
+    "sample": "hotkey",
+    "parsed": "hotkey",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "show_desktop",
+    "sample": "show desktop",
+    "parsed": "show_desktop",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "snap_left",
+    "sample": "snap left",
+    "parsed": "snap_left",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "snap_right",
+    "sample": "snap right",
+    "parsed": "snap_right",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_folder",
+    "sample": "open folder",
+    "parsed": "open_folder",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_downloads",
+    "sample": "open downloads",
+    "parsed": "open_downloads",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_documents",
+    "sample": "open documents",
+    "parsed": "open_documents",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_desktop",
+    "sample": "open desktop",
+    "parsed": "open_desktop",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_pictures",
+    "sample": "open pictures",
+    "parsed": "open_pictures",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_videos",
+    "sample": "open videos",
+    "parsed": "open_videos",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_music",
+    "sample": "open music",
+    "parsed": "open_music",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_home",
+    "sample": "open home",
+    "parsed": "open_home",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "search_files",
+    "sample": "search file",
+    "parsed": "search_files",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "create_folder",
+    "sample": "create folder",
+    "parsed": "create_folder",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "delete_file",
+    "sample": "delete file",
+    "parsed": "delete_file",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "copy_file",
+    "sample": "copy file",
+    "parsed": "copy_file",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "move_file",
+    "sample": "move file",
+    "parsed": "move_file",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "rename_file",
+    "sample": "rename file",
+    "parsed": "rename_file",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "ocr_image",
+    "sample": "extract text from image",
+    "parsed": "ocr_image",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "ocr_pdf",
+    "sample": "extract text from pdf",
+    "parsed": "ocr_pdf",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "extract_text",
+    "sample": "extract text",
+    "parsed": "extract_text",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "convert_image",
+    "sample": "convert image",
+    "parsed": "convert_image",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "resize_image",
+    "sample": "resize image",
+    "parsed": "resize_image",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "compress_image",
+    "sample": "compress image",
+    "parsed": "compress_image",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "merge_pdfs",
+    "sample": "merge pdfs",
+    "parsed": "merge_pdfs",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "pdf_to_images",
+    "sample": "pdf to images",
+    "parsed": "pdf_to_images",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "images_to_pdf",
+    "sample": "images to pdf",
+    "parsed": "images_to_pdf",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "take_screenshot",
+    "sample": "take screenshot",
+    "parsed": "take_screenshot",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "get_clipboard",
+    "sample": "get clipboard",
+    "parsed": "get_clipboard",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "set_clipboard",
+    "sample": "set clipboard",
+    "parsed": "set_clipboard",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "media_play",
+    "sample": "play media",
+    "parsed": "media_play",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "media_next",
+    "sample": "next track",
+    "parsed": "media_next",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "media_previous",
+    "sample": "previous track",
+    "parsed": "media_previous",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "change_wallpaper",
+    "sample": "change wallpaper",
+    "parsed": "change_wallpaper",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "empty_recycle_bin",
+    "sample": "empty recycle bin",
+    "parsed": "empty_recycle_bin",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "toggle_taskbar",
+    "sample": "toggle taskbar",
+    "parsed": "toggle_taskbar",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "zoom_in",
+    "sample": "zoom in",
+    "parsed": "zoom_in",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "zoom_out",
+    "sample": "zoom out",
+    "parsed": "zoom_out",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "batch_pdf",
+    "sample": "batch images to pdf",
+    "parsed": "batch_pdf",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "scan_folder",
+    "sample": "scan folder",
+    "parsed": "scan_folder",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "make_drawing",
+    "sample": "make drawing",
+    "parsed": "make_drawing",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "get_selected_text",
+    "sample": "get selected text",
+    "parsed": "get_selected_text",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "google_search",
+    "sample": "search",
+    "parsed": "google_search",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "open_browser",
+    "sample": "open browser",
+    "parsed": "open_browser",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "set_personality",
+    "sample": "set personality",
+    "parsed": "set_personality",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "command_insights",
+    "sample": "command insights",
+    "parsed": "command_insights",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "ip_address",
+    "sample": "ip address",
+    "parsed": "ip_address",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "uptime",
+    "sample": "uptime",
+    "parsed": "uptime",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "weather",
+    "sample": "weather",
+    "parsed": "weather",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "brightness_up",
+    "sample": "brightness up",
+    "parsed": "brightness_up",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "brightness_down",
+    "sample": "brightness down",
+    "parsed": "brightness_down",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "new_tab",
+    "sample": "new tab",
+    "parsed": "new_tab",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "close_tab",
+    "sample": "close tab",
+    "parsed": "close_tab",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "new_window",
+    "sample": "new window",
+    "parsed": "new_window",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "find",
+    "sample": "find on page",
+    "parsed": "find",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "copy",
+    "sample": "copy",
+    "parsed": "copy",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "paste",
+    "sample": "paste",
+    "parsed": "paste",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "select_all",
+    "sample": "select all",
+    "parsed": "select_all",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "undo",
+    "sample": "undo",
+    "parsed": "undo",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "save",
+    "sample": "save",
+    "parsed": "save",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "stop_media",
+    "sample": "stop music",
+    "parsed": "stop_media",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "narrate_screen",
+    "sample": "narrate screen",
+    "parsed": "narrate_screen",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "get_screen_summary",
+    "sample": "screen summary",
+    "parsed": "get_screen_summary",
+    "ok": true,
+    "dispatch": true
+  },
+  {
+    "key": "analyze_screen",
+    "sample": "analyze screen",
+    "parsed": "analyze_screen",
+    "ok": true,
+    "dispatch": true
+  }
+]

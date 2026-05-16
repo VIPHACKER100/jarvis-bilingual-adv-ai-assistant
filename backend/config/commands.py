@@ -59,7 +59,7 @@ HINDI_COMMANDS = {
     
     # Input
     'move_cursor': ['move cursor', 'cursor move', 'mouse move', 'pointer move', 'कर्सर मूव', 'माउस मूव', 'कर्सर घुमाओ'],
-    'click': ['click', 'press', 'select', 'choose', 'click karo', 'क्लिक', 'दबाओ', 'चुनो'],
+    'click': ['click', 'select', 'choose', 'click karo', 'क्लिक', 'चुनो'],
     'double_click': ['double click', 'do bar click', 'double press', 'डबल क्लिक', 'दो बार क्लिक', 'दो बार दबाएं', 'दो बार दबाओ'],
     'right_click': ['right click', 'context menu', 'options', 'right click karo', 'राइट क्लिक', 'ऑप्शंस दिखाओ'],
     'scroll_up': ['scroll up', 'upar scroll', 'up scroll', 'upar karo', 'ऊपर स्क्रॉल', 'ऊपर जाओ'],
@@ -76,7 +76,7 @@ HINDI_COMMANDS = {
     # Phase 3: File Manager
     'open_folder': ['open folder', 'folder kholo', 'directory kholo', 'explore', 'folder open karo', 'folder chalao', 'फोल्डर खोलो', 'फ़ोल्डर खोलो', 'डायरेक्टरी खोलो', 'फोल्डर ओपन करो'],
     'open_downloads': ['open downloads', 'open download', 'downloads kholo', 'download folder', 'downloads', 'download', 'download dikhao', 'डाउनलोड ओपन करो', 'डाउनलोड्स खोलो', 'डाउनलोड'] ,
-    'open_documents': ['open downloads', 'open document', 'documents kholo', 'docs kholo', 'documents', 'document', 'docs', 'डॉक्युमेंट्स खोलो', 'डॉक्यूमेंट ओपन करो'],
+    'open_documents': ['open documents', 'open document', 'documents kholo', 'docs kholo', 'documents', 'document', 'docs', 'डॉक्युमेंट्स खोलो', 'डॉक्यूमेंट ओपन करो'],
     'open_desktop': ['open desktop', 'desktop kholo', 'desktop', 'desktop foldero', 'डेस्कटॉप खोलो', 'डेस्कटॉप'],
     'open_pictures': ['open pictures', 'open picture', 'pictures kholo', 'photos kholo', 'pictures', 'picture', 'photos', 'photo', 'पिक्चर्स खोलो', 'फोटो खोलो'],
     'open_videos': ['open videos', 'open video', 'videos kholo', 'movies kholo', 'videos', 'video', 'movies', 'movie', 'वीडियो खोलो', 'मूवी खोलो'],
@@ -129,14 +129,14 @@ HINDI_COMMANDS = {
     'zoom_out': ['zoom out', 'screen zoom kam karo', 'chhota dikhao', 'zoom ghatao', 'zoom kam karo', 'ज़ूम आउट', 'ज़ूम कम करो', 'छोटा दिखाओ'],
     
     # Advanced Media
-    'batch_pdf': ['images to pdf', 'sare photo pdf banao', 'folder pdf banao', 'batch pdf', 'sabka pdf banao', 'सारी फोटो पीडीएफ बनाओ', 'फोल्डर पीडीएफ बनाओ', 'सभी इमेज की पीडीएफ बनाओ'],
+    'batch_pdf': ['batch images to pdf', 'sare photo pdf banao', 'folder pdf banao', 'batch pdf', 'sabka pdf banao', 'सारी फोटो पीडीएफ बनाओ', 'फोल्डर पीडीएफ बनाओ', 'सभी इमेज की पीडीएफ बनाओ'],
     'scan_folder': ['scan folder', 'folder scan karo', 'file dhoondo folder mein', 'folder dekho', 'फोल्डर स्कैन करो', 'फोल्डर में ढूंढो'],
     'make_drawing': ['make drawing', 'drawing banao', 'paint kholo', 'sketch banao', 'paint chalao', 'ड्राइंग बनाओ', 'पेंट खोलो', 'स्केच बनाओ'],
     'get_selected_text': ['get selected text', 'select kiya hua text', 'selected text padho', 'text copy karo selection se', 'kya select kiya', 'सेलेक्ट किया हुआ टेक्स्ट', 'चुना हुआ टेक्स्ट पढ़ो', 'सेलेक्टेड टेक्स्ट'],
     
     # Search & Browser
     'google_search': ['search', 'google search', 'dhoondo', 'dhundo', 'pata karo', 'khojo', 'search karo', 'baar mein batao', 'सर्च', 'गूगल सर्च', 'ढूंढो', 'पता करो', 'खोजो', 'सर्च करो'],
-    'open_browser': ['open browser', 'browser kholo', 'open new', 'new tab', 'naya tab', 'internet kholo', 'chrome kholo', 'edge kholo', 'ब्राउज़र खोलो', 'ब्राउज़र खोलो', 'नया टैब', 'नया टैब खोलो', 'इंटरनेट खोलो'],
+    'open_browser': ['open browser', 'browser kholo', 'open new', 'internet kholo', 'chrome kholo', 'edge kholo', 'ब्राउज़र खोलो', 'ब्राउज़र खोलो', 'इंटरनेट खोलो'],
 
     # Phase 13+: Personality & Analytics (v3.7.0)
     'set_personality': [

@@ -96,9 +96,12 @@ class TestCommandExecution:
 
     @pytest.mark.asyncio
     async def test_unknown_command_returns_gracefully(self, mock_llm, mock_memory):
-        """Unknown commands should fall back to LLM, not crash."""
+        """Unknown commands should fall back to agent, not crash."""
+        mock_agent = AsyncMock()
+        mock_agent.run_loop = AsyncMock(return_value="I could not find a direct command for that, Sir.")
         with patch("handlers.command_handler.llm_module", mock_llm), \
-             patch("handlers.command_handler.memory_manager", mock_memory):
+             patch("handlers.command_handler.memory_manager", mock_memory), \
+             patch("modules.agent.agent_controller", mock_agent):
             from handlers.command_handler import handle_command
 
             result = await handle_command(None, "some random text", "en", None)

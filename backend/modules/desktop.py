@@ -32,7 +32,7 @@ class DesktopManager:
             language: str = 'en') -> Dict:
         """Take full screenshot"""
         try:
-            screenshot = await safe_automation.run_gui_action(pyautogui.screenshot)
+            screenshot = await safe_automation.capture_screenshot()
 
             # Convert to base64 for sending to frontend
             buffered = io.BytesIO()
@@ -76,7 +76,8 @@ class DesktopManager:
             language: str = 'en') -> Dict:
         """Take screenshot of specific region"""
         try:
-            screenshot = await safe_automation.run_gui_action(pyautogui.screenshot, region=(x, y, width, height))
+            screenshot = await safe_automation.capture_screenshot(
+                region=(x, y, width, height))
 
             # Convert to base64
             buffered = io.BytesIO()

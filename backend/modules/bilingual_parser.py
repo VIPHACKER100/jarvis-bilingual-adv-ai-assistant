@@ -18,8 +18,20 @@ class BilingualParser:
         mapping = {}
         for command_key, phrases in HINDI_COMMANDS.items():
             for phrase in phrases:
-                mapping[phrase.lower()] = command_key
+                key = phrase.lower().strip()
+                if key and key not in mapping:
+                    mapping[key] = command_key
         return mapping
+
+    def _phrase_matches(self, phrase: str, text_lower: str) -> bool:
+        """Match phrase with word boundaries for single-token triggers."""
+        if text_lower == phrase:
+            return True
+        if " " in phrase:
+            return phrase in text_lower
+        return bool(
+            re.search(r"(?<!\w)" + re.escape(phrase) + r"(?!\w)", text_lower)
+        )
 
     def detect_language(self, text: str) -> str:
         """Detect if text is Hindi or English"""
@@ -109,21 +121,30 @@ class BilingualParser:
         best_match = None
         best_score = 0
         best_phrase = ""
-        
+
+        # Phase 1: longest exact phrase wins (avoids fuzzy stealing short inputs)
         for phrase, cmd_key in sorted_phrases:
-            # First try exact match (fastest)
-            if phrase in text_lower:
-                score = 100
-            else:
-                # Fallback to fuzzy substring match
-                score = fuzz.partial_ratio(phrase, text_lower)
-                
-            if score > best_score and score >= 85: # 85% threshold for fuzzy match
-                best_score = score
+            if self._phrase_matches(phrase, text_lower) and len(phrase) > len(best_phrase):
+                best_score = 100
                 best_match = cmd_key
                 best_phrase = phrase
-                if score == 100:
-                    break # Perfect match found
+
+        # Phase 2: fuzzy only if no exact match
+        if not best_match:
+            for phrase, cmd_key in sorted_phrases:
+                if len(phrase) >= 8:
+                    if " " in phrase and " " not in text_lower:
+                        score = 0
+                    elif len(text_lower) >= len(phrase) * 0.45:
+                        score = fuzz.partial_ratio(phrase, text_lower)
+                    else:
+                        score = 0
+                else:
+                    score = 0
+                if score > best_score and score >= 85:
+                    best_score = score
+                    best_match = cmd_key
+                    best_phrase = phrase
         
         if best_match:
             command_key = best_match
@@ -257,15 +278,13 @@ class BilingualParser:
     def get_response(self, response_key: str, lang: str, *args) -> str:
         """Get response text in the appropriate language with random variety support"""
         import random
-        responses = RESPONSES.get(lang, RESPONSES['en'])
-        template = responses.get(
-            response_key, RESPONSES['en'].get(
-                response_key, 'Unknown response'))
-        
-        # Select randomly if it's a list
+        lang_key = 'hi' if lang in ('hi', 'hi-IN') else 'en'
+        entry = RESPONSES.get(response_key, {})
+        template = entry.get(lang_key, entry.get('en', 'Unknown response'))
+
         if isinstance(template, list):
             template = random.choice(template)
-            
+
         return template.format(*args) if args else template
 
 

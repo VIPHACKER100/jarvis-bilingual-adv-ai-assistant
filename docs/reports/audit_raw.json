@@ -1,0 +1,1161 @@
+{
+  "generated_at": "2026-05-16T16:30:56.404291+00:00",
+  "platform": "win32",
+  "python": "3.11.6",
+  "parser_matrix": [
+    {
+      "command_key": "shutdown",
+      "sample": "shutdown",
+      "sample_type": "en_sample",
+      "parsed_key": "shutdown",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "restart",
+      "sample": "restart",
+      "sample_type": "en_sample",
+      "parsed_key": "restart",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "sleep",
+      "sample": "sleep",
+      "sample_type": "en_sample",
+      "parsed_key": "sleep",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "volume_up",
+      "sample": "volume up",
+      "sample_type": "en_sample",
+      "parsed_key": "volume_up",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "volume_down",
+      "sample": "volume down",
+      "sample_type": "en_sample",
+      "parsed_key": "volume_down",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "mute",
+      "sample": "mute",
+      "sample_type": "en_sample",
+      "parsed_key": "mute",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "time",
+      "sample": "time",
+      "sample_type": "en_sample",
+      "parsed_key": "uptime",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "date",
+      "sample": "date",
+      "sample_type": "en_sample",
+      "parsed_key": "date",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "battery",
+      "sample": "battery",
+      "sample_type": "en_sample",
+      "parsed_key": "battery",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "system_status",
+      "sample": "system status",
+      "sample_type": "en_sample",
+      "parsed_key": "system_status",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_app",
+      "sample": "open",
+      "sample_type": "en_sample",
+      "parsed_key": "open_folder",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "close_app",
+      "sample": "close",
+      "sample_type": "en_sample",
+      "parsed_key": "close_window",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "minimize",
+      "sample": "minimize",
+      "sample_type": "en_sample",
+      "parsed_key": "minimize",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "maximize",
+      "sample": "maximize",
+      "sample_type": "en_sample",
+      "parsed_key": "maximize",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "close_window",
+      "sample": "close window",
+      "sample_type": "en_sample",
+      "parsed_key": "close_window",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "whatsapp_message",
+      "sample": "whatsapp",
+      "sample_type": "en_sample",
+      "parsed_key": "whatsapp_message",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "whatsapp_call",
+      "sample": "call",
+      "sample_type": "en_sample",
+      "parsed_key": "whatsapp_call",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "whatsapp_draft_reply",
+      "sample": "draft a reply",
+      "sample_type": "en_sample",
+      "parsed_key": "whatsapp_draft_reply",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "move_cursor",
+      "sample": "move cursor",
+      "sample_type": "en_sample",
+      "parsed_key": "move_cursor",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "click",
+      "sample": "click",
+      "sample_type": "en_sample",
+      "parsed_key": "right_click",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "double_click",
+      "sample": "double click",
+      "sample_type": "en_sample",
+      "parsed_key": "double_click",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "right_click",
+      "sample": "right click",
+      "sample_type": "en_sample",
+      "parsed_key": "right_click",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "scroll_up",
+      "sample": "scroll up",
+      "sample_type": "en_sample",
+      "parsed_key": "scroll_up",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "scroll_down",
+      "sample": "scroll down",
+      "sample_type": "en_sample",
+      "parsed_key": "scroll_down",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "type_text",
+      "sample": "type",
+      "sample_type": "en_sample",
+      "parsed_key": "type_text",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "press_key",
+      "sample": "press",
+      "sample_type": "en_sample",
+      "parsed_key": "compress_image",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "hotkey",
+      "sample": "hotkey",
+      "sample_type": "en_sample",
+      "parsed_key": "hotkey",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "show_desktop",
+      "sample": "show desktop",
+      "sample_type": "en_sample",
+      "parsed_key": "show_desktop",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "snap_left",
+      "sample": "snap left",
+      "sample_type": "en_sample",
+      "parsed_key": "snap_left",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "snap_right",
+      "sample": "snap right",
+      "sample_type": "en_sample",
+      "parsed_key": "snap_right",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_folder",
+      "sample": "open folder",
+      "sample_type": "en_sample",
+      "parsed_key": "open_folder",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_downloads",
+      "sample": "open downloads",
+      "sample_type": "en_sample",
+      "parsed_key": "open_documents",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "open_documents",
+      "sample": "open downloads",
+      "sample_type": "en_sample",
+      "parsed_key": "open_documents",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_desktop",
+      "sample": "open desktop",
+      "sample_type": "en_sample",
+      "parsed_key": "open_desktop",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_pictures",
+      "sample": "open pictures",
+      "sample_type": "en_sample",
+      "parsed_key": "open_pictures",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_videos",
+      "sample": "open videos",
+      "sample_type": "en_sample",
+      "parsed_key": "open_videos",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_music",
+      "sample": "open music",
+      "sample_type": "en_sample",
+      "parsed_key": "open_music",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_home",
+      "sample": "open home",
+      "sample_type": "en_sample",
+      "parsed_key": "open_home",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "search_files",
+      "sample": "search file",
+      "sample_type": "en_sample",
+      "parsed_key": "search_files",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "create_folder",
+      "sample": "create folder",
+      "sample_type": "en_sample",
+      "parsed_key": "create_folder",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "delete_file",
+      "sample": "delete file",
+      "sample_type": "en_sample",
+      "parsed_key": "delete_file",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "copy_file",
+      "sample": "copy file",
+      "sample_type": "en_sample",
+      "parsed_key": "copy_file",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "move_file",
+      "sample": "move file",
+      "sample_type": "en_sample",
+      "parsed_key": "delete_file",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "rename_file",
+      "sample": "rename file",
+      "sample_type": "en_sample",
+      "parsed_key": "rename_file",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "ocr_image",
+      "sample": "extract text from image",
+      "sample_type": "en_sample",
+      "parsed_key": "ocr_image",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "ocr_pdf",
+      "sample": "extract text from pdf",
+      "sample_type": "en_sample",
+      "parsed_key": "ocr_pdf",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "extract_text",
+      "sample": "extract text",
+      "sample_type": "en_sample",
+      "parsed_key": "ocr_image",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "convert_image",
+      "sample": "convert image",
+      "sample_type": "en_sample",
+      "parsed_key": "convert_image",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "resize_image",
+      "sample": "resize image",
+      "sample_type": "en_sample",
+      "parsed_key": "resize_image",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "compress_image",
+      "sample": "compress image",
+      "sample_type": "en_sample",
+      "parsed_key": "compress_image",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "merge_pdfs",
+      "sample": "merge pdfs",
+      "sample_type": "en_sample",
+      "parsed_key": "merge_pdfs",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "pdf_to_images",
+      "sample": "pdf to images",
+      "sample_type": "en_sample",
+      "parsed_key": "pdf_to_images",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "images_to_pdf",
+      "sample": "images to pdf",
+      "sample_type": "en_sample",
+      "parsed_key": "batch_pdf",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "take_screenshot",
+      "sample": "take screenshot",
+      "sample_type": "en_sample",
+      "parsed_key": "take_screenshot",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "get_clipboard",
+      "sample": "get clipboard",
+      "sample_type": "en_sample",
+      "parsed_key": "get_clipboard",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "set_clipboard",
+      "sample": "set clipboard",
+      "sample_type": "en_sample",
+      "parsed_key": "set_clipboard",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "media_play",
+      "sample": "play media",
+      "sample_type": "en_sample",
+      "parsed_key": "media_play",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "media_next",
+      "sample": "next track",
+      "sample_type": "en_sample",
+      "parsed_key": "media_next",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "media_previous",
+      "sample": "previous track",
+      "sample_type": "en_sample",
+      "parsed_key": "media_previous",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "change_wallpaper",
+      "sample": "change wallpaper",
+      "sample_type": "en_sample",
+      "parsed_key": "change_wallpaper",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "empty_recycle_bin",
+      "sample": "empty recycle bin",
+      "sample_type": "en_sample",
+      "parsed_key": "empty_recycle_bin",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "toggle_taskbar",
+      "sample": "toggle taskbar",
+      "sample_type": "en_sample",
+      "parsed_key": "toggle_taskbar",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "zoom_in",
+      "sample": "zoom in",
+      "sample_type": "en_sample",
+      "parsed_key": "zoom_in",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "zoom_out",
+      "sample": "zoom out",
+      "sample_type": "en_sample",
+      "parsed_key": "zoom_out",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "batch_pdf",
+      "sample": "images to pdf",
+      "sample_type": "en_sample",
+      "parsed_key": "batch_pdf",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "scan_folder",
+      "sample": "scan folder",
+      "sample_type": "en_sample",
+      "parsed_key": "scan_folder",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "make_drawing",
+      "sample": "make drawing",
+      "sample_type": "en_sample",
+      "parsed_key": "make_drawing",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "get_selected_text",
+      "sample": "get selected text",
+      "sample_type": "en_sample",
+      "parsed_key": "get_selected_text",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "google_search",
+      "sample": "search",
+      "sample_type": "en_sample",
+      "parsed_key": "google_search",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "open_browser",
+      "sample": "open browser",
+      "sample_type": "en_sample",
+      "parsed_key": "open_browser",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "set_personality",
+      "sample": "set personality",
+      "sample_type": "en_sample",
+      "parsed_key": "set_personality",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "command_insights",
+      "sample": "command insights",
+      "sample_type": "en_sample",
+      "parsed_key": "command_insights",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": false,
+      "status": "PARSE_OK_NO_DISPATCH"
+    },
+    {
+      "command_key": "ip_address",
+      "sample": "ip address",
+      "sample_type": "en_sample",
+      "parsed_key": "ip_address",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "uptime",
+      "sample": "uptime",
+      "sample_type": "en_sample",
+      "parsed_key": "uptime",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "weather",
+      "sample": "weather",
+      "sample_type": "en_sample",
+      "parsed_key": "weather",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "brightness_up",
+      "sample": "brightness up",
+      "sample_type": "en_sample",
+      "parsed_key": "brightness_up",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "brightness_down",
+      "sample": "brightness down",
+      "sample_type": "en_sample",
+      "parsed_key": "brightness_down",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "new_tab",
+      "sample": "new tab",
+      "sample_type": "en_sample",
+      "parsed_key": "new_tab",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "close_tab",
+      "sample": "close tab",
+      "sample_type": "en_sample",
+      "parsed_key": "close_tab",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "new_window",
+      "sample": "new window",
+      "sample_type": "en_sample",
+      "parsed_key": "new_window",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "find",
+      "sample": "find on page",
+      "sample_type": "en_sample",
+      "parsed_key": "find",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "copy",
+      "sample": "copy",
+      "sample_type": "en_sample",
+      "parsed_key": "get_selected_text",
+      "parsed_ok": false,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "PARSE_MISMATCH"
+    },
+    {
+      "command_key": "paste",
+      "sample": "paste",
+      "sample_type": "en_sample",
+      "parsed_key": "paste",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "select_all",
+      "sample": "select all",
+      "sample_type": "en_sample",
+      "parsed_key": "select_all",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "undo",
+      "sample": "undo",
+      "sample_type": "en_sample",
+      "parsed_key": "undo",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "save",
+      "sample": "save",
+      "sample_type": "en_sample",
+      "parsed_key": "save",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "stop_media",
+      "sample": "stop music",
+      "sample_type": "en_sample",
+      "parsed_key": "stop_media",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "narrate_screen",
+      "sample": "narrate screen",
+      "sample_type": "en_sample",
+      "parsed_key": "narrate_screen",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "get_screen_summary",
+      "sample": "screen summary",
+      "sample_type": "en_sample",
+      "parsed_key": "get_screen_summary",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    },
+    {
+      "command_key": "analyze_screen",
+      "sample": "analyze screen",
+      "sample_type": "en_sample",
+      "parsed_key": "analyze_screen",
+      "parsed_ok": true,
+      "language": "en",
+      "has_params": false,
+      "in_dispatch": true,
+      "status": "OK"
+    }
+  ],
+  "module_imports": [
+    {
+      "module": "modules.agent",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.automation",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.bilingual_parser",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.context",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.desktop",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.file_manager",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.health",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.input_control",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.llm",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.media",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.memory",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.personalities",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.proactive",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.security",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.system",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.tools",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.wake_word",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.whatsapp",
+      "import_ok": true,
+      "error": null
+    },
+    {
+      "module": "modules.window_manager",
+      "import_ok": true,
+      "error": null
+    }
+  ],
+  "tesseract": {
+    "tesseract_ready": false
+  },
+  "env_keys": {
+    "OPENROUTER_API_KEY": false,
+    "NVIDIA_API_KEY": false,
+    "OPENAI_API_KEY": false,
+    "JARVIS_API_KEY": false
+  },
+  "smoke_dispatch": [
+    {
+      "command_key": "time",
+      "success": false,
+      "action_type": "EXCEPTION",
+      "error": "'en'"
+    },
+    {
+      "command_key": "date",
+      "success": false,
+      "action_type": "EXCEPTION",
+      "error": "'en'"
+    },
+    {
+      "command_key": "battery",
+      "success": false,
+      "action_type": "EXCEPTION",
+      "error": "'BatteryResponse' object has no attribute 'get'"
+    },
+    {
+      "command_key": "system_status",
+      "success": false,
+      "action_type": "EXCEPTION",
+      "error": "'SystemStatusResponse' object has no attribute 'get'"
+    },
+    {
+      "command_key": "open_downloads",
+      "success": false,
+      "action_type": "OPEN_FOLDER",
+      "error": "'en'"
+    },
+    {
+      "command_key": "take_screenshot",
+      "success": false,
+      "action_type": "SCREENSHOT",
+      "error": "'dict' object has no attribute 'save'"
+    },
+    {
+      "command_key": "get_clipboard",
+      "success": true,
+      "action_type": "CLIPBOARD_GET_TEXT",
+      "error": null
+    },
+    {
+      "command_key": "list_memories",
+      "success": false,
+      "action_type": "EXCEPTION",
+      "error": "'MemoryManager' object has no attribute 'list_nodes'"
+    }
+  ],
+  "pytest": {
+    "exit_code": 0,
+    "timed_out": false,
+    "stdout_tail": ".........                                                                [100%]\n9 passed in 0.77s",
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0
+  }
+}

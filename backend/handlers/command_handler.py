@@ -320,6 +320,33 @@ async def dispatch_command(command_key: str, params: Any, current_lang: str,
         result = {'success': True, 'action_type': 'MEMORY_LIST', 
                   'response': f"Here are the memory nodes I have: {names}" if names else "My neural memory is currently empty.",
                   'data': nodes}
+    elif command_key == 'command_insights':
+        days = 30
+        if params:
+            nums = re.findall(r'\d+', str(params))
+            if nums:
+                days = min(int(nums[0]), 365)
+        data = await memory_manager.get_command_insights(days)
+        top = data.get('top_commands') or []
+        if top:
+            summary = ", ".join(f"{c['command_type']} ({c['count']})" for c in top[:3])
+            response = (
+                f"Your top commands in the last {days} days: {summary}."
+                if current_lang == 'en'
+                else f"पिछले {days} दिनों में सबसे ज़्यादा: {summary}।"
+            )
+        else:
+            response = (
+                "No command usage data yet, Sir."
+                if current_lang == 'en'
+                else "अभी कोई कमांड डेटा नहीं है, सर।"
+            )
+        result = {
+            'success': True,
+            'action_type': 'COMMAND_INSIGHTS',
+            'response': response,
+            'data': data,
+        }
 
     # Fallback if no specific handler found
     if not result:
@@ -335,10 +362,9 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
     Primary entry point for executing commands.
     Parses intent and routes to either direct dispatch or autonomous agent.
     """
-    current_lang = language or parser.detect_language(command)
-    
     # Extract intent and parameters
-    command_key, params = parser.parse(command, current_lang)
+    command_key, detected_lang, params = parser.parse_command(command)
+    current_lang = language or detected_lang
     
     # Override params if provided (e.g., from Agent)
     if override_params:

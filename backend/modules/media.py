@@ -2,6 +2,7 @@ import os
 import io
 import base64
 import asyncio
+import shutil
 import subprocess
 import pyperclip
 from pathlib import Path
@@ -20,17 +21,51 @@ from utils.logger import logger, log_command
 class MediaProcessor:
     """OCR, PDF, and Image processing tools"""
 
+    _TESSERACT_INSTALL_HINT = (
+        "Install Tesseract OCR and add it to PATH "
+        "(Windows: https://github.com/UB-Mannheim/tesseract/wiki, "
+        "then add C:\\Program Files\\Tesseract-OCR)."
+    )
+
     def __init__(self):
-        # Configure tesseract path for Windows
+        self._tesseract_ready = self._configure_tesseract()
+
+    def _configure_tesseract(self) -> bool:
+        """Locate tesseract binary and verify it runs."""
+        candidates = []
         if is_windows():
-            possible_tesseract_paths = [
+            candidates.extend([
                 r'C:\Program Files\Tesseract-OCR\tesseract.exe',
                 r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
-            ]
-            for path in possible_tesseract_paths:
-                if os.path.exists(path):
-                    pytesseract.pytesseract.tesseract_cmd = path
-                    break
+            ])
+        which_path = shutil.which('tesseract')
+        if which_path:
+            candidates.append(which_path)
+
+        for path in candidates:
+            if path and os.path.isfile(path):
+                pytesseract.pytesseract.tesseract_cmd = path
+                break
+
+        try:
+            pytesseract.get_tesseract_version()
+            return True
+        except Exception:
+            return False
+
+    def _tesseract_unavailable_response(self, action_type: str, language: str = 'en') -> Dict:
+        msg_en = f"Tesseract OCR is not installed. {self._TESSERACT_INSTALL_HINT}"
+        msg_hi = (
+            "Tesseract OCR install nahi hai. "
+            "Windows par install karke PATH mein add karein "
+            "(C:\\Program Files\\Tesseract-OCR)."
+        )
+        return {
+            'success': False,
+            'action_type': action_type,
+            'error': 'tesseract_not_found',
+            'response': msg_hi if language == 'hi' else msg_en,
+        }
 
     # ==================== OCR FUNCTIONS ====================
 
@@ -39,6 +74,8 @@ class MediaProcessor:
             image_path: str,
             language: str = 'en') -> Dict:
         """Extract text from image file"""
+        if not self._tesseract_ready:
+            return self._tesseract_unavailable_response('OCR_IMAGE', language)
         try:
             path = Path(image_path).expanduser().resolve()
 
@@ -130,6 +167,9 @@ class MediaProcessor:
             except BaseException:
                 pass  # Fall through to OCR
 
+            if not self._tesseract_ready:
+                return self._tesseract_unavailable_response('OCR_PDF', language)
+
             # Use OCR for scanned PDFs asynchronously
             def convert_pdf():
                 return convert_from_path(
@@ -174,6 +214,8 @@ class MediaProcessor:
 
     async def extract_text_from_screenshot(self, language: str = 'en') -> Dict:
         """Take screenshot, extract text, and categorize content"""
+        if not self._tesseract_ready:
+            return self._tesseract_unavailable_response('OCR_SCREENSHOT', language)
         try:
             # Take screenshot asynchronously
             screenshot = await asyncio.to_thread(pyautogui.screenshot)

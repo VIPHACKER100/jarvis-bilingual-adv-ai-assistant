@@ -58,3 +58,38 @@ class TestBilingualParsing:
             for phrase, key in parser.command_map.items():
                 assert key in parser.commands, \
                     f"Hindi phrase '{phrase}' maps to unknown key '{key}'"
+
+    def test_get_response_english(self):
+        from modules.bilingual_parser import BilingualParser
+        parser = BilingualParser()
+        text = parser.get_response('time_is', 'en', '10:00 AM')
+        assert '10:00 AM' in text
+
+    def test_get_response_hindi(self):
+        from modules.bilingual_parser import BilingualParser
+        parser = BilingualParser()
+        text = parser.get_response('time_is', 'hi', '10:00')
+        assert '10:00' in text
+
+    def test_parser_collision_fixes(self):
+        """Short phrases must not match inside longer words (e.g. time vs uptime)."""
+        from modules.bilingual_parser import BilingualParser
+        parser = BilingualParser()
+        cases = [
+            ("time", "time"),
+            ("what time is it", "time"),
+            ("uptime", "uptime"),
+            ("open", "open_app"),
+            ("open downloads", "open_downloads"),
+            ("open documents", "open_documents"),
+            ("click", "click"),
+            ("right click", "right_click"),
+            ("press", "press_key"),
+            ("copy", "copy"),
+            ("move file", "move_file"),
+            ("images to pdf", "images_to_pdf"),
+            ("extract text", "extract_text"),
+        ]
+        for text, expected_key in cases:
+            key, _, _ = parser.parse_command(text)
+            assert key == expected_key, f"'{text}' -> '{key}', expected '{expected_key}'"

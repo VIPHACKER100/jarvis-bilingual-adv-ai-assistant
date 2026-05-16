@@ -89,5 +89,15 @@ class SafeAutomation:
     async def screenshot(self, region: Optional[Tuple[int, int, int, int]] = None):
         return await self.run_gui_action(pyautogui.screenshot, region=region)
 
+    async def capture_screenshot(self, region: Optional[Tuple[int, int, int, int]] = None):
+        """Return a PIL Image from pyautogui.screenshot, or raise on failure."""
+        if region:
+            result = await self.run_gui_action(pyautogui.screenshot, region=region)
+        else:
+            result = await self.run_gui_action(pyautogui.screenshot)
+        if not result.get("success"):
+            raise RuntimeError(result.get("error", "Screenshot failed"))
+        return result["result"]
+
 # Singleton instance
 safe_automation = SafeAutomation()
