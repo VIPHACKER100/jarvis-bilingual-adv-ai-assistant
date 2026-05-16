@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { Brain, Cpu, Wifi, Shield, Settings as SettingsIcon } from 'lucide-react-native';
 
 import ArcReactor from './src/components/ArcReactor';
+import CommandTerminal from './src/components/CommandTerminal';
 import PairingScreen from './src/screens/PairingScreen';
 
 import { useWebSocket } from './src/hooks/useWebSocket';
@@ -30,7 +31,11 @@ export default function App() {
   const { isConnected, isPaired, resetPairing } = useConnectionStore();
   const [agentStatus, setAgentStatus] = useState<string | null>(null);
   
-  const { sendMessage, systemStatus, isAgentThinking, agentThought } = useWebSocket({
+  const { 
+    sendMessage, systemStatus, isAgentThinking, 
+    agentThought, lastResponse, pendingConfirmation, confirmAction,
+    proactiveSuggestion
+  } = useWebSocket({
     onWake: () => {
       setIsActive(true);
       Vibration.vibrate([0, 100, 50, 100]); // Pulse pattern
@@ -77,18 +82,28 @@ export default function App() {
     <StyledView className="flex-1 bg-background-deep items-center justify-between py-12">
       <StatusBar style="light" />
       
-      {/* Header Area */}
-      <StyledView className="w-full px-8 flex-row justify-between items-center">
+      {/* Header / Connectivity */}
+      <StyledView className="w-full flex-row justify-between items-center px-6 mt-4">
         <StyledView className="flex-row items-center">
-          <StyledView className={`w-2 h-2 rounded-full ${statusColor} mr-2 animate-pulse`} />
-          <StyledText className="text-foreground-subtle text-xs uppercase tracking-widest font-bold">
-            System {connectionStatus}
+          <StyledView className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <StyledText className="text-foreground-subtle text-xs font-bold tracking-widest uppercase">
+            {isConnected ? "Linked" : "Offline"}
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacity className="flex-row gap-4" onPress={handleLogout}>
+        <StyledTouchableOpacity onPress={resetPairing}>
           <SettingsIcon size={20} color="#8A8F98" />
         </StyledTouchableOpacity>
       </StyledView>
+
+      {/* Proactive Suggestion Banner */}
+      {proactiveSuggestion && (
+        <StyledView className="mx-6 mt-4 bg-accent/20 border border-accent/40 px-4 py-3 rounded-2xl flex-row items-center">
+          <Brain size={16} color="#00E5FF" className="mr-3" />
+          <StyledText className="text-cyan-100 text-[11px] font-medium flex-1">
+            {proactiveSuggestion}
+          </StyledText>
+        </StyledView>
+      )}
 
       {/* Main HUD */}
       <StyledView className="items-center justify-center">
@@ -102,11 +117,22 @@ export default function App() {
               Thought: {agentThought}
             </StyledText>
           )}
+          {!isAgentThinking && lastResponse && (
+            <StyledText className="text-foreground-subtle text-xs mt-3 text-center px-8 italic border-t border-border-default/20 pt-2">
+              JARVIS: "{lastResponse}"
+            </StyledText>
+          )}
           <StyledText className="text-accent text-xs mt-1 tracking-widest font-bold uppercase">
             Protocol V3.9.0
           </StyledText>
         </StyledView>
       </StyledView>
+
+      {/* Remote Command Terminal */}
+      <CommandTerminal 
+        isConnected={isConnected} 
+        onSendCommand={(cmd) => sendMessage({ type: 'command', data: { command: cmd, language: 'en' } })}
+      />
 
       {/* Quick Stats Panel */}
       <StyledView className="w-full px-6 gap-3">
@@ -140,6 +166,38 @@ export default function App() {
           <Wifi size={20} color={isConnected ? "#5E6AD2" : "#8A8F98"} />
         </StyledView>
       </StyledView>
+
+      {/* Security Confirmation Modal Overlay */}
+      {pendingConfirmation && (
+        <StyledView className="absolute inset-0 bg-background/90 items-center justify-center px-10 z-50">
+          <Shield size={64} color="#FACC15" className="mb-6" />
+          <StyledText className="text-foreground text-xl font-bold text-center mb-2">
+            SECURITY PROTOCOL
+          </StyledText>
+          <StyledText className="text-foreground-subtle text-center mb-8">
+            JARVIS is requesting permission for: {"\n"}
+            <StyledText className="text-accent font-bold">
+              {pendingConfirmation.command_key?.replace('_', ' ').toUpperCase()}
+            </StyledText>
+          </StyledText>
+          
+          <StyledView className="flex-row gap-4 w-full">
+            <StyledTouchableOpacity 
+              onPress={() => confirmAction(false)}
+              className="flex-1 bg-surface border border-border-default py-4 rounded-2xl items-center"
+            >
+              <StyledText className="text-foreground font-bold">CANCEL</StyledText>
+            </StyledTouchableOpacity>
+            
+            <StyledTouchableOpacity 
+              onPress={() => confirmAction(true)}
+              className="flex-1 bg-yellow-500 py-4 rounded-2xl items-center"
+            >
+              <StyledText className="text-background font-bold">APPROVE</StyledText>
+            </StyledTouchableOpacity>
+          </StyledView>
+        </StyledView>
+      )}
 
       {/* Decorative Grid Lines (Simulated) */}
       <StyledView className="absolute inset-0 z-[-1] opacity-10">

@@ -78,6 +78,23 @@ async def websocket_endpoint(
 
                 asyncio.create_task(execute_task(message, cid))
             
+            elif msg_type == "confirmation":
+                from modules.security import security
+                conf_data = message.data
+                if isinstance(conf_data, dict):
+                    cid_to_confirm = conf_data.get("confirmation_id")
+                    approved = conf_data.get("approved", False)
+                    if cid_to_confirm:
+                        success = security.confirm_command(cid_to_confirm, approved)
+                        await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
+                            type="notification",
+                            data={
+                                "title": "Security Protocol",
+                                "message": "Action approved" if approved else "Action cancelled",
+                                "type": "success" if success else "error"
+                            }
+                        )), cid)
+            
             elif msg_type == "ping":
                 await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
                     type="pong"

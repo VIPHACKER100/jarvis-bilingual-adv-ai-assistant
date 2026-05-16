@@ -10,7 +10,11 @@ export const useWebSocket = (options?: WebSocketOptions) => {
   const [systemStatus, setSystemStatus] = useState<any>(null);
   const [isAgentThinking, setIsAgentThinking] = useState(false);
   const [agentThought, setAgentThought] = useState<string | null>(null);
+  const [lastResponse, setLastResponse] = useState<string | null>(null);
+  const [pendingConfirmation, setPendingConfirmation] = useState<any>(null);
+  const [proactiveSuggestion, setProactiveSuggestion] = useState<string | null>(null);
   const ws = useRef<WebSocket | null>(null);
+  const suggestionTimeout = useRef<any>(null);
 
   const connect = useCallback(() => {
     if (ws.current?.readyState === WebSocket.OPEN) return;
@@ -70,20 +74,55 @@ export const useWebSocket = (options?: WebSocketOptions) => {
         setIsAgentThinking(false);
         setAgentThought(null);
         break;
+      case 'command_result':
+        if (message.data?.requires_confirmation) {
+          setPendingConfirmation(message.data);
+        }
+        if (message.data?.response) {
+          setLastResponse(message.data.response);
+        }
+        break;
+      case 'proactive_suggestion':
+        if (message.data?.text) {
+          setProactiveSuggestion(message.data.text);
+          if (suggestionTimeout.current) clearTimeout(suggestionTimeout.current);
+          suggestionTimeout.current = setTimeout(() => setProactiveSuggestion(null), 10000);
+        }
+        break;
       default:
         break;
     }
   };
 
+  const confirmAction = useCallback((approved: boolean) => {
+    if (pendingConfirmation && ws.current) {
+      ws.current.send(JSON.stringify({
+        type: 'confirmation',
+        data: {
+          confirmation_id: pendingConfirmation.confirmation_id,
+          approved
+        }
+      }));
+      setPendingConfirmation(null);
+    }
+  }, [pendingConfirmation]);
+
   useEffect(() => {
     connect();
-    return () => ws.current?.close();
+    return () => {
+      ws.current?.close();
+      if (suggestionTimeout.current) clearTimeout(suggestionTimeout.current);
+    };
   }, [connect]);
 
   return {
     sendMessage: (msg: any) => ws.current?.send(JSON.stringify(msg)),
     systemStatus,
     isAgentThinking,
-    agentThought
+    agentThought,
+    lastResponse,
+    pendingConfirmation,
+    confirmAction,
+    proactiveSuggestion
   };
 };

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, X } from 'lucide-react';
 import { AppMode, Language } from '../types';
 import { useJarvisStore } from '../store/jarvisStore';
+import { useJarvisBridge } from '../hooks/useJarvisBridge';
 import { ArcReactor } from './ArcReactor';
 import { QuickResponses } from './QuickResponses';
 
@@ -18,8 +19,11 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
     transcript,
     systemStatus,
     isAgentThinking,
-    agentThought
+    agentThought,
+    pendingConfirmation
   } = useJarvisStore();
+  
+  const { confirmCommand } = useJarvisBridge();
 
   return (
     <main className="relative z-10 flex flex-col items-center w-full max-w-4xl space-y-10 md:space-y-16 px-4 py-6">
@@ -172,25 +176,59 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
 
       {/* Transcript display */}
       <div className="w-full max-w-2xl text-center min-h-[100px] px-4 md:px-0 z-20 flex items-center justify-center">
-        <AnimatePresence mode="wait">
-          {transcript && (
-            <motion.div 
-              key={transcript}
-              initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              exit={{ opacity: 0, scale: 1.02, filter: "blur(4px)" }}
-              className="relative px-8 py-6"
-            >
-              <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-accent/40" />
-              <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-accent/40" />
-              
-              <p className="text-xl md:text-3xl text-foreground font-medium tracking-tight font-sans leading-tight">
-                {transcript}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* ... (existing transcript) */}
       </div>
+
+      {/* Security Protocol Confirmation Modal */}
+      <AnimatePresence>
+        {pendingConfirmation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-md glass-panel p-8 border-2 border-yellow-500/30 bg-yellow-500/5 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent animate-pulse" />
+              
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center mb-6 border border-yellow-500/20">
+                  <Activity className="w-8 h-8 text-yellow-500 animate-pulse" />
+                </div>
+                
+                <h2 className="text-xl font-bold text-foreground tracking-tight mb-2 uppercase">Security Protocol Violation</h2>
+                <p className="text-foreground-muted text-sm mb-8 leading-relaxed">
+                  JARVIS has intercepted an autonomous request for a protected system action. 
+                  Please authorize the following command:
+                  <span className="block mt-4 p-3 bg-yellow-500/10 rounded-lg text-yellow-200 font-mono text-xs border border-yellow-500/10">
+                    {pendingConfirmation.command_key.replace(/_/g, ' ').toUpperCase()}
+                  </span>
+                </p>
+                
+                <div className="flex gap-4 w-full">
+                  <button
+                    onClick={() => confirmCommand(false)}
+                    className="flex-1 px-6 py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all text-sm font-bold uppercase tracking-wider"
+                  >
+                    Abort
+                  </button>
+                  <button
+                    onClick={() => confirmCommand(true)}
+                    className="flex-1 px-6 py-3 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-background transition-all text-sm font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+                  >
+                    Authorize
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 };

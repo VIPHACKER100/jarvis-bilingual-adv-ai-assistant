@@ -33,7 +33,7 @@ export function useJarvisBridge() {
         }
         break;
 
-      case 'command_response':
+      case 'command_result':
         if (message.data) {
           const response = message.data as CommandResponse;
           setLastResponse(response);
