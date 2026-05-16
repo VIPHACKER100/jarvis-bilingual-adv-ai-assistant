@@ -1,4 +1,4 @@
-# JARVIS API Documentation (v3.8.0)
+# JARVIS API Documentation (v3.9.0)
 
 Complete API reference for JARVIS Backend.
 
@@ -1097,9 +1097,44 @@ ws.send(JSON.stringify({
 
 Currently no rate limiting for local usage. Future versions may implement limits for remote access.
 
+## Mobile Sync (v3.9.0)
+
+### Pair Device
+```http
+POST /api/v1/sync/pair
+Content-Type: application/json
+
+{
+  "client_id": "mobile-1234",
+  "client_secret": "secure-secret"
+}
+```
+
+### Send Telemetry
+```http
+POST /api/v1/sync/telemetry
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "batteryLevel": 85.5,
+  "isCharging": true,
+  "networkType": "wifi",
+  "isInternetReachable": true
+}
+```
+
 ---
 
 ## Changelog
+
+### v3.9.0
+
+- **Mobile Telemetry Sync**: Real-time polling of mobile device battery and network state.
+- **Autonomous Agentic Loop**: Implemented ReAct framework for autonomous multi-step reasoning.
+- **Agent Trace Auditing**: Persisting autonomous AI thought processes to memory.
+- **Neural Feedback Loop**: Agent records security decisions to proactively suppress rejected operations.
+
 
 ### v3.7.0
 

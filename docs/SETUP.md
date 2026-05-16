@@ -132,7 +132,19 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 4: Environment Configuration
+### Step 4: Setup Mobile Companion App (v3.9.0+)
+
+The mobile app provides a remote telemetry and control dashboard.
+
+```bash
+cd mobile
+npm install
+# Start Expo development server
+npx expo start
+```
+You can scan the QR code with the Expo Go app on iOS or Android.
+
+### Step 5: Environment Configuration
 
 Create `.env` file in `backend/` directory:
 
@@ -166,7 +178,7 @@ GEMINI_API_KEY=
 OPENROUTER_API_KEY=
 ```
 
-### Step 5: Verify Installation
+### Step 6: Verify Installation
 
 #### Test Backend
 
@@ -207,7 +219,7 @@ You should see:
   ➜  Network: use --host to expose
 ```
 
-### Step 6: First Run
+### Step 7: First Run
 
 1. Open browser to: `http://localhost:5173`
 2. Allow microphone permissions when prompted

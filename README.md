@@ -37,6 +37,8 @@
 - ✨ **Voice Activation** - Hands-free "Hey JARVIS" trigger with offline ONNX-powered detection.
 - 📱 **Mobile Pairing** - Secure TTL-based 6-digit sync for remote system monitoring.
 - 🛰️ **Auto-Discovery** - Automatic backend detection on local networks via ZeroConf/mDNS.
+- 🧠 **Autonomous Agentic Loop** - ReAct framework allowing the assistant to reason and use tools autonomously for complex queries.
+- 📜 **Agent Trace Auditing** - Full visibility into the LLM's thought process logged locally to `memory/agent_traces.md`.
 - 🛠️ **Infrastructure Hardening** - Resolved PyInstaller bundling issues for `numpy` and `openwakeword`.
 
 ---

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 3.8.0 |
+| **Version** | 3.9.0 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
 | **Last Updated** | 2026-05-16 |
 | **Status** | Active Development |
@@ -38,9 +38,10 @@ flowchart TB
         WS_S[websocket router]
         CMD[command_handler]
         ROUTERS[19 API Routers]
-        MOD[16 Domain Modules]
+        MOD[17 Domain Modules]
         LLM[llm.py]
         PRO[proactive.py]
+        AGN[agent.py]
     end
 
     subgraph Data["Persistence"]
@@ -69,6 +70,8 @@ flowchart TB
     LLM --> NV
     LLM --> OL
     PRO --> LLM
+    AGN --> LLM
+    AGN --> CMD
     MOD --> REDIS
 ```
 
@@ -110,7 +113,7 @@ flowchart TB
 | CI/CD | GitHub Actions (`.github/workflows/ci.yml`) |
 | Containers | Docker Compose |
 | Env config | python-dotenv, `.env` |
-| Version source | `backend/config/environment.py` → `VERSION = "3.8.0"` |
+| Version source | `backend/config/environment.py` → `VERSION = "3.9.0"` |
 
 ---
 
@@ -211,12 +214,13 @@ jarvis-bilingual-adv-ai-assistant/
 | `memory.py` | SQLite persistence, semantic retrieval |
 | `bilingual_parser.py` | Hindi→English command normalization |
 | `whatsapp.py` | WhatsApp automation + smart reply |
-| `proactive.py` | Background situational analysis |
+| `proactive.py` | Background situational analysis & feedback loop |
 | `automation.py` | Macros and schedulers |
-| `security.py` | Process guardian, network scan |
+| `security.py` | Process guardian, network scan, confirmation gating |
 | `personalities.py` | Dynamic persona prompts |
-| `context.py` | Window/context extraction for LLM |
+| `context.py` | Window/context extraction & mobile telemetry |
 | `health.py` | Backend health probes |
+| `agent.py` | Autonomous ReAct Loop Controller |
 
 ### 6.4 Command Dispatch Flow
 
@@ -266,8 +270,15 @@ sequenceDiagram
 
 - Background asyncio loop started in `lifespan`.
 - Reads active window title / context via `context.py`.
-- LLM heuristics generate suggestions.
+- **Neural Feedback**: Routinely scans `memory/decisions.md` to suppress suggesting previously rejected actions.
 - Broadcasts via WebSocket to populate `QuickResponses` UI.
+
+### 6.7 Autonomous Agent (`modules/agent.py`)
+
+- Implements the ReAct (Reasoning and Acting) loop.
+- Features exponential back-off for LLM rate-limit protection.
+- Orchestrates multi-step queries by recursively invoking `command_handler`.
+- **Trace Auditing**: Full Thought -> Action -> Observation flow is persisted to `memory/agent_traces.md`.
 
 ---
 
@@ -658,6 +669,7 @@ flowchart LR
 | 3.6.0 | Semantic memory retrieval (rapidfuzz) |
 | 3.7.1 | 90-command routing parity, bilingual keys |
 | 3.8.0 | Typed API client, DB pooling, CI pipeline, dashboard hardening |
+| 3.9.0 | Autonomous Agentic Loop, Mobile Telemetry, Neural Feedback Loop, Trace Auditing |
 
 ---
 

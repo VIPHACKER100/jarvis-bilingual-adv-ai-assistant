@@ -6,10 +6,10 @@ The JARVIS Advanced AI Assistant team is committed to addressing security vulner
 
 | Version | Supported          | Notes |
 | ------- | ------------------ | ----- |
-| 3.8.x   | :white_check_mark: | Latest stable production release |
-| 3.7.x   | :white_check_mark: | Maintained |
-| 3.4.x   | :x:                | Deprecated |
-| < 3.4   | :x:                | Deprecated |
+| 3.9.x   | :white_check_mark: | Latest stable production release |
+| 3.8.x   | :white_check_mark: | Maintained |
+| 3.7.x   | :x:                | Deprecated |
+| < 3.7   | :x:                | Deprecated |
 
 ## Reporting a Vulnerability
 
@@ -23,7 +23,7 @@ Please provide the following details in your report:
 * Description of the vulnerability
 * Steps to reproduce the vulnerability
 * Potential impact of the vulnerability
-* Your JARVIS version (e.g., `3.8.0`) and operating system
+* Your JARVIS version (e.g., `3.9.0`) and operating system
 
 ### Response Time
 You can expect an initial acknowledgement within 48 hours. We will keep you updated as we investigate and develop a remediation plan.

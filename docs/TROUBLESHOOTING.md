@@ -60,6 +60,16 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 
 ---
 
+## 📱 Mobile Companion & Sync (v3.9.0)
+
+### Mobile app cannot connect to backend
+
+- **Network**: Ensure both the PC running the backend and the mobile device are on the exact same Wi-Fi network.
+- **Firewall**: Windows Firewall may block the WebSocket connections or mDNS discovery. You may need to allow Python/Node through the firewall on private networks.
+- **Pairing Code Expired**: Sync codes expire every 5 minutes. Generate a new code from the desktop HUD and try again.
+
+---
+
 ## 📦 Build & Frontend Issues
 
 ### Vite Build/Dev Failures (v3.7.1)

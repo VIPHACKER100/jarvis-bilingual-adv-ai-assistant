@@ -451,7 +451,8 @@ Commands marked with ⚠️ require confirmation:
 | WhatsApp | 5 | 5 | 10 |
 | Analytics | 5 | 5 | 10 |
 | Persona | 5 | 5 | 10 |
-| **Total** | **110** | **110** | **220+** |
+| Mobile Sync | 7 | 7 | 14 |
+| **Total** | **117** | **117** | **234+** |
 
 ---
 

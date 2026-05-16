@@ -370,14 +370,17 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 ---
 
-## 14. Release Criteria (v3.8.0)
+## 14. Release Criteria (v3.9.0)
 
 - [ ] All 90+ commands route without `command_handler` exceptions.
 - [ ] CI pipeline green (backend tests, frontend build, type check).
 - [ ] Dashboard components handle empty/undefined API payloads.
 - [ ] WebSocket broadcasts use `jsonable_encoder` (no serialization crashes).
-- [ ] Version `3.8.0` consistent in `environment.py`, `package.json`, README.
+- [ ] Version `3.9.0` consistent in `environment.py`, `package.json`, README.
 - [ ] Documentation: SETUP, COMMANDS, API_DOCUMENTATION, TROUBLESHOOTING current.
+- [ ] ReAct Agentic Loop functions autonomously and parses complex queries.
+- [ ] Mobile Telemetry pipeline reliably updates backend context.
+- [ ] Neural Feedback Loop actively logs rejections and alters proactive LLM context.
 
 ---
 
