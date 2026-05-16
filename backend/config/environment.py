@@ -9,8 +9,10 @@ load_dotenv()
 # Base paths
 if getattr(sys, 'frozen', False):
     # Running in a PyInstaller bundle
+    # sys._MEIPASS is the temporary folder where PyInstaller extracts bundled data
+    BASE_DIR = Path(sys._MEIPASS)
+    # PROJECT_ROOT should remain the directory containing the executable for persistent data
     PROJECT_ROOT = Path(sys.executable).parent.parent
-    BASE_DIR = PROJECT_ROOT / "backend"
 else:
     # Running in development
     BASE_DIR = Path(__file__).parent.parent
@@ -35,6 +37,13 @@ PLATFORM = platform.system().lower()  # 'windows', 'darwin', 'linux'
 # Wake word
 WAKE_WORD_ENABLED = os.getenv("WAKE_WORD_ENABLED", "false").lower() == "true"
 WAKE_WORD_PHRASE = os.getenv("WAKE_WORD_PHRASE", "jarvis")
+WAKE_WORD_MODEL = os.getenv("WAKE_WORD_MODEL", "hey_jarvis")
+WAKE_WORD_THRESHOLD = float(os.getenv("WAKE_WORD_THRESHOLD", 0.5))
+
+# Mobile Sync & Auto-Discovery
+MDNS_ENABLED = os.getenv("MDNS_ENABLED", "true").lower() == "true"
+MDNS_SERVICE_NAME = os.getenv("MDNS_SERVICE_NAME", "JARVIS-CORE")
+PAIRING_SECRET = os.getenv("PAIRING_SECRET", "JARVIS-SECRET-KEY")
 
 # Version
-VERSION = "3.8.0"
+VERSION = "3.9.0"

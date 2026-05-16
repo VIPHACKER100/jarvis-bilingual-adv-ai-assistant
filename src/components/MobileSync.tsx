@@ -7,7 +7,7 @@ import { apiClient } from '../services/apiClient';
 import { API_BASE_URL } from '../config';
 
 export const MobileSync: FC = () => {
-  const [pairingCode, setPairingCode] = useState('JARVIS-SYNC');
+  const [pairingCode, setPairingCode] = useState('------');
   const [showQR, setShowQR] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [devices, setDevices] = useState<any[]>([]);
@@ -22,37 +22,52 @@ export const MobileSync: FC = () => {
 
   const fetchDevices = async () => {
     try {
-      const response = await apiClient.getSyncStatus();
+      const response = await apiClient.getPairedDevices();
       if (response?.success) {
-        setDevices([]);
+        setDevices(response.devices);
       }
     } catch (error) {
-      console.error('Error fetching sync status:', error);
-      setDevices([]);
+      console.error('Error fetching paired devices:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const fetchNewCode = async () => {
+    setIsRefreshing(true);
+    try {
+      const response = await apiClient.getPairingCode();
+      if (response?.success) {
+        setPairingCode(response.code);
+      }
+    } catch (error) {
+      console.error('Error fetching pairing code:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     fetchDevices();
+    fetchNewCode();
+    
+    // Refresh devices every 10 seconds
     const interval = setInterval(fetchDevices, 10000);
     return () => clearInterval(interval);
   }, []);
 
   const handleRefreshCode = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setPairingCode('JARVIS-' + Math.random().toString(36).substring(7).toUpperCase());
-      setIsRefreshing(false);
-    }, 800);
+    fetchNewCode();
   };
 
   const handleUnpair = async (deviceId: string) => {
     if (!confirm('Are you sure you want to unpair this device?')) return;
     
     try {
-      setDevices(prev => prev.filter(d => d.id !== deviceId));
+      const response = await apiClient.unpairDevice(deviceId);
+      if (response.success) {
+        setDevices(prev => prev.filter(d => d.id !== deviceId));
+      }
     } catch (error) {
       console.error('Error unpairing device:', error);
     }

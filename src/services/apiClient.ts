@@ -601,20 +601,39 @@ class ApiClient {
     return response.json();
   }
 
-  // --- Mobile Sync ---
-
-  /** Get sync status and paired devices count */
-  async getSyncStatus(): Promise<{
+  /** Get a new dynamic pairing code for mobile linking */
+  async getPairingCode(): Promise<{
     success: boolean;
-    device_name: string;
-    paired_devices_count: number;
-    system_status: Record<string, unknown>;
-    last_updated: string;
+    code: string;
+    expires_in: number;
   }> {
-    const response = await fetch(`${this.baseUrl}/sync/status`, {
+    const response = await fetch(`${this.baseUrl}/sync/pairing-code`, {
       headers: this.getHeaders()
     });
-    if (!response.ok) throw new Error('Failed to get sync status');
+    if (!response.ok) throw new Error('Failed to get pairing code');
+    return response.json();
+  }
+
+  /** Get list of all paired devices */
+  async getPairedDevices(): Promise<{
+    success: boolean;
+    devices: any[];
+    count: number;
+  }> {
+    const response = await fetch(`${this.baseUrl}/sync/devices`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get paired devices');
+    return response.json();
+  }
+
+  /** Unpair a mobile device */
+  async unpairDevice(deviceId: string): Promise<SuccessResponse> {
+    const response = await fetch(`${this.baseUrl}/sync/devices/${deviceId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to unpair device');
     return response.json();
   }
 }

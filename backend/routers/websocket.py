@@ -12,11 +12,27 @@ from utils.websocket_manager import manager
 router = APIRouter(tags=["WebSocket"])
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = None):
-    """Real-time bidirectional communication"""
+async def websocket_endpoint(
+    websocket: WebSocket, 
+    client_id: Optional[str] = None,
+    token: Optional[str] = None,
+    device_id: Optional[str] = None
+):
+    """Real-time bidirectional communication with authentication"""
     from handlers.command_handler import handle_command
+    from modules.memory import memory_manager
     
-    cid = client_id or f"client_{id(websocket)}"
+    # Simple auth check for mobile devices
+    if device_id and token:
+        devices = await memory_manager.get_setting("paired_devices", [])
+        is_valid = any(d["id"] == device_id and d["token"] == token for d in devices)
+        
+        if not is_valid:
+            logger.warning(f"Unauthorized WebSocket connection attempt: {device_id}")
+            await websocket.close(code=1008) # Policy Violation
+            return
+            
+    cid = client_id or device_id or f"client_{id(websocket)}"
     await manager.connect(websocket, cid)
     
     try:

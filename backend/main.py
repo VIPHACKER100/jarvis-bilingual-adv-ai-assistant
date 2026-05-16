@@ -35,6 +35,7 @@ from routers import (
 from modules.memory import memory_manager
 from modules.whatsapp import whatsapp_manager
 from modules.proactive import proactive_manager
+from modules.wake_word import wake_word_engine
 
 # Security
 BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
@@ -61,17 +62,54 @@ async def lifespan(app: FastAPI):
     await automation_manager.start()
     await proactive_manager.start()
     
+    # Initialize and start Wake-Word Engine if enabled
+    from config import WAKE_WORD_ENABLED
+    logger.info(f"DEBUG: WAKE_WORD_ENABLED is {WAKE_WORD_ENABLED}")
+    if WAKE_WORD_ENABLED:
+        try:
+            wake_word_engine.initialize()
+            
+            def on_wake(model, score):
+                # Broadcast wake event to all WebSocket clients
+                from utils.websocket_manager import manager
+                asyncio.run_coroutine_threadsafe(
+                    manager.broadcast({
+                        "type": "wake_detected",
+                        "data": {"model": model, "score": score},
+                        "timestamp": datetime.now().isoformat()
+                    }),
+                    asyncio.get_event_loop()
+                )
+                logger.info("Wake event broadcasted to clients.")
+
+            wake_word_engine.start(callback=on_wake)
+        except Exception as e:
+            logger.error(f"Failed to start Wake-Word Engine: {e}")
+    
     # Start background tasks
     status_broadcast_task = asyncio.create_task(broadcast_system_status())
     lag_monitor_task = asyncio.create_task(monitor_event_loop_lag())
     
+    # Start mDNS Broadcaster
+    from utils.mdns import mdns_broadcaster
+    from config import MDNS_ENABLED, MDNS_SERVICE_NAME
+    if MDNS_ENABLED:
+        mdns_broadcaster.port = BACKEND_PORT
+        mdns_broadcaster.service_name = MDNS_SERVICE_NAME or "JARVIS-CORE"
+        mdns_broadcaster.start()
+    
     yield
     
     # Cleanup
+    if MDNS_ENABLED:
+        mdns_broadcaster.stop()
+        
     status_broadcast_task.cancel()
     lag_monitor_task.cancel()
     await automation_manager.stop()
     await proactive_manager.stop()
+    if WAKE_WORD_ENABLED:
+        wake_word_engine.stop()
     logger.info("JARVIS Backend shutting down...")
     log_system_event("SHUTDOWN", {})
 

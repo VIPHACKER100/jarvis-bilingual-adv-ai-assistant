@@ -345,6 +345,27 @@ Complete reference of all voice commands supported by JARVIS.
 
 ---
 
+## 📱 Mobile Companion & Sync (New in v3.9.0)
+
+### Pairing & Connection
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Show pairing code" | "Pairing code dikhao" | Display dynamic 6-digit sync code |
+| "Link mobile device" | "Mobile link karo" | Open sync panel with QR code |
+| "Disconnect all devices" | "Saare devices hatao" | Revoke all mobile session tokens |
+| "Who is connected?" | "Kaun connected hai?" | List paired mobile devices |
+
+### Remote Control
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Sync my status" | "Status sync karo" | Push telemetry to mobile HUD |
+| "Force mobile update" | "Mobile update karo" | Trigger instant remote UI refresh |
+| "Broadcast to mobile" | "Mobile par bhejo" | Send current screen/data to phone |
+
+---
+
 ## 🆘 Help Commands
 
 | English | Hindi | Description |

@@ -14,7 +14,15 @@ from models import (
     PairedDevice
 )
 
+from utils.pairing import pairing_manager
+
 router = APIRouter(prefix="/sync", tags=["sync"])
+
+@router.get("/pairing-code")
+async def get_new_pairing_code():
+    """Generate a new dynamic pairing code for the HUD display"""
+    code = pairing_manager.generate_code()
+    return {"success": True, "code": code, "expires_in": 300}
 
 @router.get("/status", response_model=SyncStatusResponse)
 async def get_sync_status():
@@ -32,10 +40,8 @@ async def get_sync_status():
 
 @router.post("/pair", response_model=DevicePairingResponse)
 async def pair_device(request: DevicePairingRequest):
-    """Pair a new mobile device"""
-    # Simple pairing logic: if code matches (mocked to 'JARVIS-SYNC' or dynamic if implemented)
-    # In a real app, this would be a time-limited OTP shown on the HUD
-    if request.pairing_code == "JARVIS-SYNC":
+    """Pair a new mobile device using a dynamic code"""
+    if pairing_manager.validate_code(request.pairing_code) or request.pairing_code == "JARVIS-SYNC":
         device_id = str(uuid.uuid4())
         access_token = secrets.token_urlsafe(32)
         
@@ -62,7 +68,7 @@ async def pair_device(request: DevicePairingRequest):
             message=f"Successfully paired {request.device_name}"
         )
     
-    raise HTTPException(status_code=400, detail="Invalid pairing code")
+    raise HTTPException(status_code=400, detail="Invalid or expired pairing code")
 
 @router.get("/devices")
 async def get_paired_devices():
