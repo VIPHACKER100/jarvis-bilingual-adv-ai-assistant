@@ -75,6 +75,10 @@ interface JarvisState {
   
   agentThought: string | null;
   setAgentThought: (thought: string | null) => void;
+
+  neuralLogs: import('../types/api').NeuralLogEntry[];
+  setNeuralLogs: (logs: import('../types/api').NeuralLogEntry[]) => void;
+  addNeuralLog: (log: import('../types/api').NeuralLogEntry) => void;
 }
 
 export const useJarvisStore = create<JarvisState>()(

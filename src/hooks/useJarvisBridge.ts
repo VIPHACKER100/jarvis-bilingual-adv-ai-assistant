@@ -188,10 +188,38 @@ export function useJarvisBridge() {
     setTimeout(() => websocketService.connect(), 100);
   }, [setBridgeError]);
 
+  // --- New Tactical Actions ---
+
+  const getNeuralLogs = useCallback(async (limit?: number) => {
+    return await apiClient.getNeuralLogs(limit);
+  }, []);
+
+  const getVoiceProfiles = useCallback(async () => {
+    return await apiClient.getVoiceProfiles();
+  }, []);
+
+  const updateVoiceProfile = useCallback(async (id: string, profile: any) => {
+    return await apiClient.updateVoiceProfile(id, profile);
+  }, []);
+
+  const trainVoiceProfile = useCallback(async (id: string) => {
+    return await apiClient.trainVoiceProfile(id);
+  }, []);
+
+  const getPairedDevices = useCallback(async () => {
+    return await apiClient.getPairedDevices();
+  }, []);
+
   return {
     sendCommand,
     confirmCommand,
     reconnect,
     requestStatus: () => websocketService.requestStatus(),
+    // Tactical
+    getNeuralLogs,
+    getVoiceProfiles,
+    updateVoiceProfile,
+    trainVoiceProfile,
+    getPairedDevices
   };
 }

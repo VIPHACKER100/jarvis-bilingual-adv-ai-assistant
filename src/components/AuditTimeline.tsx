@@ -5,49 +5,33 @@ import { NeuralLogEntry, LogLevel } from '../types/api';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 
+import { useJarvisBridge } from '../hooks/useJarvisBridge';
+
 export const AuditTimeline: FC = () => {
+  const { getNeuralLogs } = useJarvisBridge();
   const [logs, setLogs] = useState<NeuralLogEntry[]>([]);
   const [filter, setFilter] = useState<LogLevel | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data for demonstration - in production this comes from useJarvisBridge
-  useEffect(() => {
-    const mockLogs: NeuralLogEntry[] = [
-      {
-        id: '1',
-        timestamp: new Date().toISOString(),
-        level: 'STABLE',
-        module: 'KERNEL',
-        message: 'Neural engine synchronization complete. 128 clusters active.',
-        trace_id: 'TR-9901'
-      },
-      {
-        id: '2',
-        timestamp: new Date(Date.now() - 5000).toISOString(),
-        level: 'PROCESSING',
-        module: 'LLM_CONTROLLER',
-        message: 'Parsing high-entropy input stream from mobile_node_01.',
-        trace_id: 'TR-9902'
-      },
-      {
-        id: '3',
-        timestamp: new Date(Date.now() - 15000).toISOString(),
-        level: 'ALERT',
-        module: 'SECURITY_NEXUS',
-        message: 'Unauthorized API handshake detected. Perimeter hardening active.',
-        trace_id: 'TR-9903'
-      },
-      {
-        id: '4',
-        timestamp: new Date(Date.now() - 45000).toISOString(),
-        level: 'SYNC',
-        module: 'DEVICE_BRIDGE',
-        message: 'Cross-platform state replication successful (Tablet_Pro_X).',
-        trace_id: 'TR-9904'
+  const fetchLogs = async () => {
+    try {
+      const res = await getNeuralLogs(50);
+      if (res.success) {
+        setLogs(res.logs);
       }
-    ];
-    setLogs(mockLogs);
-  }, []);
+    } catch (err) {
+      console.error('Failed to fetch neural logs:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+    const interval = setInterval(fetchLogs, 5000); // Poll every 5s
+    return () => clearInterval(interval);
+  }, [getNeuralLogs]);
 
   const getLevelColor = (level: LogLevel) => {
     switch (level) {

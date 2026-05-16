@@ -6,35 +6,31 @@ import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 
+import { useJarvisBridge } from '../hooks/useJarvisBridge';
+
 export const DeviceSyncHub: FC = () => {
+  const { getPairedDevices } = useJarvisBridge();
   const [devices, setDevices] = useState<PairedDevice[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchDevices = async () => {
+    try {
+      const res = await getPairedDevices();
+      if (res.success) {
+        setDevices(res.devices);
+      }
+    } catch (err) {
+      console.error('Failed to fetch paired devices:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const mockDevices: PairedDevice[] = [
-      {
-        id: 'dev-01',
-        name: 'Neural_Phone_15',
-        type: 'MOBILE',
-        paired_at: '2026-05-10T14:30:00Z',
-        last_seen: new Date().toISOString()
-      },
-      {
-        id: 'dev-02',
-        name: 'Workstation_Alpha',
-        type: 'DESKTOP',
-        paired_at: '2026-04-22T09:15:00Z',
-        last_seen: new Date(Date.now() - 3600000).toISOString()
-      },
-      {
-        id: 'dev-03',
-        name: 'Neural_Tablet_X',
-        type: 'TABLET',
-        paired_at: '2026-05-15T18:00:00Z',
-        last_seen: new Date().toISOString()
-      }
-    ];
-    setDevices(mockDevices);
-  }, []);
+    fetchDevices();
+    const interval = setInterval(fetchDevices, 10000); // Poll every 10s
+    return () => clearInterval(interval);
+  }, [getPairedDevices]);
 
   const getDeviceIcon = (type: string) => {
     switch (type) {

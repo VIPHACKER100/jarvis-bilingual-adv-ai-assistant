@@ -625,6 +625,47 @@ class ApiClient {
     if (!response.ok) throw new Error('Failed to unpair device');
     return response.json();
   }
+
+  // --- Neural Logs & Training ---
+
+  /** Get high-density neural trace logs */
+  async getNeuralLogs(limit: number = 100): Promise<import('../types/api').NeuralLogListResponse> {
+    const response = await fetch(`${this.baseUrl}/system/neural/logs?limit=${limit}`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get neural logs');
+    return response.json();
+  }
+
+  /** Get all available voice profiles */
+  async getVoiceProfiles(): Promise<import('../types/api').VoiceProfileListResponse> {
+    const response = await fetch(`${this.baseUrl}/neural/voice/profiles`, {
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to get voice profiles');
+    return response.json();
+  }
+
+  /** Update voice profile parameters */
+  async updateVoiceProfile(id: string, profile: Partial<import('../types/api').VoiceProfile>): Promise<SuccessResponse> {
+    const response = await fetch(`${this.baseUrl}/neural/voice/profiles/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify(profile)
+    });
+    if (!response.ok) throw new Error(`Failed to update voice profile ${id}`);
+    return response.json();
+  }
+
+  /** Initiate neural training for a voice profile */
+  async trainVoiceProfile(id: string): Promise<SuccessResponse> {
+    const response = await fetch(`${this.baseUrl}/neural/voice/profiles/${id}/train`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    if (!response.ok) throw new Error(`Failed to initiate training for profile ${id}`);
+    return response.json();
+  }
 }
 
 // Export singleton instance
