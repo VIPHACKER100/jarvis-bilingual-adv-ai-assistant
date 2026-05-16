@@ -363,7 +363,7 @@ export const AutomationDashboard: FC<AutomationDashboardProps> = ({ isOpen, onCl
         isOpen={isEditorOpen} 
         onClose={() => setIsEditorOpen(false)}
         type={editorType}
-        item={editingItem}
+        item={editingItem || undefined}
         onSave={fetchData}
       />
 

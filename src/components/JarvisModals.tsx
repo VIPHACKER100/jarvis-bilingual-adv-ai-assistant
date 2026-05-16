@@ -51,7 +51,7 @@ export const JarvisModals: FC = () => {
       <SettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
-        onSettingsUpdated={(updated) => {
+        onSettingsUpdated={(updated: any) => {
           setSettings(updated);
           if (updated.language === 'en') setLanguage(Language.ENGLISH);
           else if (updated.language === 'hi') setLanguage(Language.HINDI);

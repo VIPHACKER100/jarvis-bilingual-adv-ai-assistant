@@ -85,7 +85,7 @@ async def websocket_endpoint(
                     cid_to_confirm = conf_data.get("confirmation_id")
                     approved = conf_data.get("approved", False)
                     if cid_to_confirm:
-                        success = security.confirm_command(cid_to_confirm, approved)
+                        success = await security.confirm_command(cid_to_confirm, approved)
                         await manager.send_personal_message(jsonable_encoder(WebSocketResponse(
                             type="notification",
                             data={

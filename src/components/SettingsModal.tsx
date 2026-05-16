@@ -1,4 +1,13 @@
+import React, { FC, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  X, Save, Shield, Cpu, Layout, Volume2, Globe, Sparkles, 
+  Terminal, Database, Lock, Eye, EyeOff, Smartphone, RefreshCw 
+} from 'lucide-react';
 import { JarvisSettings } from '../types/api';
+import { apiClient } from '../services/apiClient';
+import { useTheme, THEMES, ThemeName } from '../hooks/useTheme';
+import { MobileSync } from './MobileSync';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -123,6 +132,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
     setError(null);
     setSuccess(null);
     try {
+      if (!settings) return;
       const response = await apiClient.updateSettings(settings);
       if (response.success) {
         setSuccess('Configuration saved successfully');
@@ -384,7 +394,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                       />
                       <button
                         type="button"
-                        onClick={() => setShowNvidiaKey(v => !v)}
+                        onClick={() => setShowNvidiaKey((v: boolean) => !v)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors text-xs"
                       >
                         {showNvidiaKey ? '🙈' : '👁️'}
@@ -403,7 +413,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                       />
                       <button
                         type="button"
-                        onClick={() => setShowOpenrouterKey(v => !v)}
+                        onClick={() => setShowOpenrouterKey((v: boolean) => !v)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors text-xs"
                       >
                         {showOpenrouterKey ? '🙈' : '👁️'}
@@ -546,7 +556,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
                   Choose the reactor color that powers your JARVIS interface. Changes apply instantly.
                 </p>
                 <div className="grid grid-cols-1 gap-3">
-                  {THEMES.map(theme => {
+                  {THEMES.map((theme: any) => {
                     const isActive = themeName === theme.name;
                     return (
                       <button

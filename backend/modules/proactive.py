@@ -17,6 +17,9 @@ class ProactiveManager:
         self.is_running = False
         self.analysis_interval = 15  # Seconds between heavy analysis
         self._lock = asyncio.Lock()
+        # Track rejected patterns so we don't keep suggesting them
+        self._rejected_keywords: List[str] = []
+        self._decision_refresh_counter = 0
 
     async def start(self):
         """Start the proactive analysis loop"""
@@ -75,13 +78,54 @@ class ProactiveManager:
                 logger.error(f"Error in proactive analysis loop: {e}")
                 await asyncio.sleep(self.analysis_interval)
 
+    async def _refresh_rejected_keywords(self) -> None:
+        """Re-index what the user has historically rejected so we stop repeating them"""
+        try:
+            from modules.memory import memory_manager
+            node = await memory_manager.get_memory_node("decisions")
+            if not node:
+                return
+            
+            rejected: List[str] = []
+            for line in node.splitlines():
+                if "REJECTED" in line.upper() or "TIMEOUT" in line.upper():
+                    # Extract the command key (usually the first quoted word)
+                    match = __import__('re').search(r"'([\w_]+)'", line)
+                    if match:
+                        rejected.append(match.group(1).lower())
+            
+            self._rejected_keywords = list(set(rejected))
+            logger.debug(f"Proactive engine refreshed reject list: {self._rejected_keywords}")
+        except Exception as e:
+            logger.debug(f"Could not refresh reject list: {e}")
+
     async def _analyze_situation(self, title: str, screen_context: str = "") -> Optional[str]:
         """Use LLM to determine if a proactive suggestion is helpful"""
+
+        # 0. Check for urgent mobile alerts — highest priority, no LLM needed
+        try:
+            from modules.context import context_manager
+            mobile_alert = context_manager.get_context_variable('urgent_mobile_alert')
+            if mobile_alert:
+                context_manager.set_context_variable('urgent_mobile_alert', None)
+                return mobile_alert
+        except Exception:
+            pass
         
         # Heuristics to avoid calling LLM for everything
         interests = ["github", "stackoverflow", "youtube", "whatsapp", "mail", "outlook", "excel", "vscode", "terminal", "error", "issue", "plan"]
         if not any(x in title.lower() for x in interests) and not screen_context:
             return None
+
+        # Refresh rejected keywords every 5 cycles
+        self._decision_refresh_counter += 1
+        if self._decision_refresh_counter % 5 == 0:
+            await self._refresh_rejected_keywords()
+
+        # Build rejection context string for the prompt
+        reject_context = ""
+        if self._rejected_keywords:
+            reject_context = f"\nDo NOT suggest actions related to: {', '.join(self._rejected_keywords)}. The user has previously rejected these."
 
         prompt = f"""
         You are JARVIS, an advanced AI assistant. 
@@ -90,6 +134,9 @@ class ProactiveManager:
         
         if screen_context:
             prompt += f"\nDeep Context (from Screen OCR): {screen_context}\n"
+
+        if reject_context:
+            prompt += reject_context + "\n"
         
         prompt += """
         Based on this situational awareness, suggest a helpful proactive action I can take.

@@ -402,3 +402,15 @@ class SyncStatusResponse(BaseResponse):
     paired_devices_count: int
     system_status: Dict[str, Any]
     last_updated: str
+
+class MobileTelemetryRequest(BaseModel):
+    device_id: str
+    access_token: str
+    battery: Optional[Dict[str, Any]] = None
+    network: Optional[Dict[str, Any]] = None
+    location: Optional[Dict[str, Any]] = None
+    device_name: Optional[str] = "Mobile Device"
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
+class MobileTelemetryResponse(BaseResponse):
+    accepted: bool = True

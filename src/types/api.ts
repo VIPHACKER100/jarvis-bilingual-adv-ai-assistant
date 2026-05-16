@@ -279,8 +279,13 @@ export interface AutomationStatusResponse {
   success: boolean;
   status: {
     scheduler_running: boolean;
+    running: boolean; // Alias for scheduler_running used in UI
     active_tasks: number;
+    enabled_tasks: number;
+    total_tasks: number;
+    enabled_macros: number;
     total_macros: number;
+    scheduled_jobs: number;
   };
 }
 
@@ -385,6 +390,10 @@ export interface BroadcastNotificationResponse {
 
 export interface JarvisSettings {
   llm_provider: string;
+  nvidia_model?: string;
+  openrouter_model?: string;
+  ollama_url?: string;
+  ollama_model?: string;
   enable_dangerous_commands: boolean;
   confirmation_timeout: number;
   wake_word_enabled: boolean;
@@ -392,6 +401,7 @@ export interface JarvisSettings {
   proactive_enabled: boolean;
   tts_enabled: boolean;
   language: string;
+  log_level?: string;
 }
 
 export interface SettingsResponse {

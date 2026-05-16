@@ -29,6 +29,7 @@
 - 🚀 **Event Loop Optimization** - 50% reduction in latency by offloading hardware probes to background threads.
 - 🛡️ **Self-Healing Database** - Proactive schema validation that automatically repairs missing tables.
 - 📱 **Haptic Feedback Sync** - Real-time tactile confirmation on mobile devices for voice triggers.
+- 🧠 **Neural Feedback Loop** - Autonomous agent learns from user rejections and timeout decisions to refine future proactive suggestions.
 - 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models.
 
 ### 🚀 **What's New? (v3.9.0)**

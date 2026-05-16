@@ -11,16 +11,20 @@ import CommandTerminal from './src/components/CommandTerminal';
 import PairingScreen from './src/screens/PairingScreen';
 
 import { useWebSocket } from './src/hooks/useWebSocket';
+import { useTelemetry } from './src/hooks/useTelemetry';
 import { useConnectionStore } from './src/store/useConnectionStore';
 import { registerForPushNotificationsAsync } from './src/utils/notifications';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
+const StyledTouchableOpacity = styled(TouchableOpacity);
 
 // Setup Notifications
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -43,6 +47,9 @@ export default function App() {
       setTimeout(() => setIsActive(false), 10000);
     }
   });
+
+  // Sync device sensor data with the backend proactive engine
+  useTelemetry();
 
   useEffect(() => {
     if (isAgentThinking) {
@@ -98,7 +105,7 @@ export default function App() {
       {/* Proactive Suggestion Banner */}
       {proactiveSuggestion && (
         <StyledView className="mx-6 mt-4 bg-accent/20 border border-accent/40 px-4 py-3 rounded-2xl flex-row items-center">
-          <Brain size={16} color="#00E5FF" className="mr-3" />
+          <Brain size={16} color="#00E5FF" />
           <StyledText className="text-cyan-100 text-[11px] font-medium flex-1">
             {proactiveSuggestion}
           </StyledText>
@@ -131,7 +138,7 @@ export default function App() {
       {/* Remote Command Terminal */}
       <CommandTerminal 
         isConnected={isConnected} 
-        onSendCommand={(cmd) => sendMessage({ type: 'command', data: { command: cmd, language: 'en' } })}
+        onSendCommand={(cmd) => sendMessage({ type: 'command', command: cmd, language: 'en' })}
       />
 
       {/* Quick Stats Panel */}
@@ -170,7 +177,7 @@ export default function App() {
       {/* Security Confirmation Modal Overlay */}
       {pendingConfirmation && (
         <StyledView className="absolute inset-0 bg-background/90 items-center justify-center px-10 z-50">
-          <Shield size={64} color="#FACC15" className="mb-6" />
+          <Shield size={64} color="#FACC15" />
           <StyledText className="text-foreground text-xl font-bold text-center mb-2">
             SECURITY PROTOCOL
           </StyledText>

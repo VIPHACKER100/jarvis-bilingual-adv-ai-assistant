@@ -154,6 +154,28 @@ class ContextManager:
 
         logger.info(f"Context updated: topic={self.current_context.active_topic}, mood={self.current_context.user_mood}")
 
+    async def update_mobile_context(self, device_id: str, data: Dict[str, Any]) -> None:
+        """Update context with mobile sensor data (battery, network, etc.)"""
+        await self._ensure_initialized()
+        
+        mobile_data = self.get_context_variable('mobile_devices') or {}
+        mobile_data[device_id] = {
+            'last_sync': datetime.now().isoformat(),
+            'battery': data.get('battery'),
+            'network': data.get('network'),
+            'location': data.get('location'),
+            'device_name': data.get('device_name')
+        }
+        
+        self.set_context_variable('mobile_devices', mobile_data)
+        logger.info(f"Mobile context updated for device: {device_id}")
+        
+        # Check for immediate proactive alerts (e.g. low battery)
+        battery = data.get('battery', {})
+        if battery.get('level') and battery.get('level') < 15 and not battery.get('is_charging'):
+            # This will be picked up by the proactive suggestion loop
+            self.set_context_variable('urgent_mobile_alert', f"Your phone '{data.get('device_name', 'Mobile')}' is at {battery['level']}% battery. You should plug it in soon, Sir.")
+
     def analyze_intent(
             self,
             user_input: str,
@@ -420,6 +442,13 @@ class ContextManager:
     async def get_proactive_suggestions(self) -> Optional[str]:
         """Generate proactive suggestions based on active window and system state"""
         try:
+            # 0. Check for urgent mobile alerts
+            urgent_alert = self.get_context_variable('urgent_mobile_alert')
+            if urgent_alert:
+                # Clear after using so it doesn't repeat forever
+                self.set_context_variable('urgent_mobile_alert', None)
+                return urgent_alert
+
             from modules.window_manager import window_manager
             active_win = await window_manager.get_active_window()
             

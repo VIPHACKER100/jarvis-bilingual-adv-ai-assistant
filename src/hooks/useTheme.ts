@@ -84,13 +84,14 @@ function hexToRgb(hex: string): string {
 
 function applyTheme(theme: JarvisTheme | { primary?: string; accent?: string }) {
   const root = document.documentElement;
-  const accentHex = theme.accent || theme.primary;
+  const primaryHex = theme.primary || '#06b6d4';
+  const accentHex = theme.accent || primaryHex;
   const accentRgb = hexToRgb(accentHex);
   
   root.style.setProperty('--accent', accentHex);
   root.style.setProperty('--accent-rgb', accentRgb);
   root.style.setProperty('--neon-rgb', accentRgb);
-  root.style.setProperty('--neon-blue', theme.primary || accentHex);
+  root.style.setProperty('--neon-blue', primaryHex);
 }
 
 export function useTheme() {

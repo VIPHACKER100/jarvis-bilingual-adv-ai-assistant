@@ -77,9 +77,10 @@ export function useJarvisBridge() {
 
       case 'macro_update':
         if (message.data) {
+          const macroData = message.data as any;
           addNotification({
             title: 'Macro Progress',
-            message: `Executed: ${message.data.command || 'Step'}`,
+            message: `Executed: ${macroData.command || 'Step'}`,
             type: 'system',
             duration: 2000
           });
@@ -87,21 +88,26 @@ export function useJarvisBridge() {
         break;
 
       case 'proactive_suggestion':
-        if (message.data && message.data.text) {
-          const currentStatus = getStoreState().systemStatus;
-          if (currentStatus) {
-            setSystemStatus({
-              ...currentStatus,
-              context_suggestion: message.data.text
-            });
+        if (message.data) {
+          const suggestionData = message.data as any;
+          const text = suggestionData.text || (typeof message.data === 'string' ? message.data : '');
+          if (text) {
+            const currentStatus = getStoreState().systemStatus;
+            if (currentStatus) {
+              setSystemStatus({
+                ...currentStatus,
+                context_suggestion: text
+              });
+            }
           }
         }
         break;
 
       case 'agent_thinking':
         getStoreState().setAgentThinking(true);
-        if (message.data?.thought) {
-          getStoreState().setAgentThought(message.data.thought);
+        const thinkingData = message.data as any;
+        if (thinkingData?.thought) {
+          getStoreState().setAgentThought(thinkingData.thought);
         }
         break;
 

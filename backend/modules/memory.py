@@ -99,6 +99,26 @@ class NeuralMemoryManager:
             return nodes
         
         return await asyncio.to_thread(_list_task)
+    
+    async def log_decision(self, command: str, action: str, result: str, reason: str = ""):
+        """Log a user decision (Approval/Rejection) to decisions.md"""
+        node_name = "decisions.md"
+        content = await self.get_node(node_name) or "# Decision Log\n\nTracked approvals and rejections of dangerous commands.\n\n"
+        
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        entry = f"### [{timestamp}] {command}\n"
+        entry += f"- **Action**: {action}\n"
+        entry += f"- **Result**: {result}\n"
+        if reason:
+            entry += f"- **Reason**: {reason}\n"
+        entry += "\n"
+        
+        # Append to the end
+        new_content = content + entry
+        await self.update_node(node_name, new_content)
+        
+        # Also sync vectors so the agent 'learns' immediately
+        asyncio.create_task(self.sync_vectors())
 
     async def get_node_with_metadata(self, name: str) -> Dict[str, Any]:
         """Read content and parse metadata of a memory node"""

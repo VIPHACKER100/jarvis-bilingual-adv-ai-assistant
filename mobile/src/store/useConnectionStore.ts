@@ -1,3 +1,4 @@
+import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -21,9 +22,9 @@ export const useConnectionStore = create<ConnectionState>()(
       serverUrl: 'http://localhost:3000',
       accessToken: null,
       deviceId: null,
-      setConnected: (status) => set({ isConnected: status }),
-      setServerUrl: (url) => set({ serverUrl: url }),
-      setPairingData: (token, deviceId) => set({ 
+      setConnected: (status: boolean) => set({ isConnected: status }),
+      setServerUrl: (url: string) => set({ serverUrl: url }),
+      setPairingData: (token: string, deviceId: string) => set({ 
         accessToken: token, 
         deviceId, 
         isPaired: true 

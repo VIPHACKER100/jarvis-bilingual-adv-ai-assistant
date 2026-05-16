@@ -53,9 +53,9 @@ export default function PairingScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-background-deep"
+      style={{ flex: 1, backgroundColor: '#0A0B0E' }}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <StyledView className="flex-1 px-8 py-20 justify-between">

@@ -27,7 +27,7 @@ async def confirm_command(confirmation_id: str, data: ConfirmationRequest):
     from modules.security import security
     
     approved = data.approved
-    result = security.confirm_command(confirmation_id, approved)
+    result = await security.confirm_command(confirmation_id, approved)
     return {
         "success": result, 
         "response": "Action confirmed" if approved else "Action cancelled"

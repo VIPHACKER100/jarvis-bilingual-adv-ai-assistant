@@ -4,14 +4,7 @@ import { Zap, Shield, Terminal, Globe, Sparkles } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { apiClient } from '../services/apiClient';
 import { AppMode } from '../types';
-
-interface QuickAction {
-  id: string;
-  label: string;
-  command: string;
-  icon: string;
-  color: string;
-}
+import { QuickAction } from '../types/api';
 
 const ICON_MAP: Record<string, any> = {
   Zap, Shield, Terminal, Globe, Sparkles

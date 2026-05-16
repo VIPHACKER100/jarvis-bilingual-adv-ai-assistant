@@ -35,18 +35,26 @@ class AgentController:
         
         history = []
         iteration = 0
+        backoff = 1  # seconds — doubles on each LLM failure
         
         while iteration < self.MAX_ITERATIONS:
             iteration += 1
             
-            # 1. Ask LLM for the next step
-            response = await llm_client.get_agent_response(
-                query=query,
-                tools_context=self.tools_context,
-                neural_context=memory_context,
-                history=history,
-                language=language
-            )
+            # 1. Ask LLM for the next step (with back-off retry)
+            try:
+                response = await llm_client.get_agent_response(
+                    query=query,
+                    tools_context=self.tools_context,
+                    neural_context=memory_context,
+                    history=history,
+                    language=language
+                )
+                backoff = 1  # reset on success
+            except Exception as llm_err:
+                logger.warning(f"LLM call failed (iteration {iteration}), retrying in {backoff}s: {llm_err}")
+                await asyncio.sleep(backoff)
+                backoff = min(backoff * 2, 30)  # cap at 30s
+                continue
             
             logger.debug(f"Agent Iteration {iteration} Response: {response}")
             
@@ -60,6 +68,7 @@ class AgentController:
             
             if final_answer and not action_json:
                 logger.info("Agent reached Final Answer.")
+                await self._log_trace_to_memory(query, history, final_answer)
                 return final_answer
             
             if not action_json:
@@ -93,7 +102,32 @@ class AgentController:
                 })
 
         logger.warning("Agent reached maximum iterations.")
-        return "I've tried multiple steps but couldn't reach a final conclusion. Here is what I found so far: " + str(history[-1].get("observation", ""))
+        final_answer = "I've tried multiple steps but couldn't reach a final conclusion. Here is what I found so far: " + str(history[-1].get("observation", ""))
+        
+        # Persist the full trace to neural memory for future debugging
+        await self._log_trace_to_memory(query, history, final_answer)
+        return final_answer
+
+    async def _log_trace_to_memory(self, query: str, history: List[Dict], final_answer: str) -> None:
+        """Write the complete ReAct trace to memory/agent_traces.md for auditability."""
+        try:
+            import aiofiles
+            from datetime import datetime
+            trace_path = "memory/agent_traces.md"
+            
+            lines = [f"\n## [{datetime.now().isoformat()}] Query: {query[:80]}\n"]
+            for i, step in enumerate(history, 1):
+                lines.append(f"**Step {i}**")
+                lines.append(f"- Thought: {step.get('thought', '')}")
+                lines.append(f"- Action: {step.get('action', '')}")
+                lines.append(f"- Observation: {step.get('observation', '')}")
+            lines.append(f"\n**Final Answer**: {final_answer}\n")
+            lines.append("---")
+            
+            async with aiofiles.open(trace_path, "a", encoding="utf-8") as f:
+                await f.write("\n".join(lines))
+        except Exception as e:
+            logger.debug(f"Could not write agent trace: {e}")
 
     async def _execute_action(self, name: str, params: Dict[str, Any], language: str, session_id: str) -> Any:
         """Invoke the system tools via the direct dispatcher with safety checks."""

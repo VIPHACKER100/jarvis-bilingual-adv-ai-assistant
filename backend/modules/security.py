@@ -56,6 +56,7 @@ class SecurityManager:
     async def _handle_timeout(self, confirmation_id: str):
         """Handle confirmation timeout"""
         await asyncio.sleep(CONFIRMATION_TIMEOUT)
+        from modules.memory import memory_manager
 
         if confirmation_id in self.pending_confirmations:
             confirmation = self.pending_confirmations[confirmation_id]
@@ -66,13 +67,21 @@ class SecurityManager:
                     'confirmation_id': confirmation_id,
                     'command': confirmation['command_key']
                 })
+                
+                # Log to neural memory as undesirable (timed out)
+                await memory_manager.neural.log_decision(
+                    command=confirmation['command_text'],
+                    action=confirmation['command_key'],
+                    result="REJECTED",
+                    reason="Handshake timeout - user did not respond."
+                )
 
                 # Notify via callback if registered
                 if confirmation_id in self.confirmation_callbacks:
                     callback = self.confirmation_callbacks[confirmation_id]
                     await callback(confirmation_id, False, "timeout")
 
-    def confirm_command(self, confirmation_id: str, approved: bool) -> bool:
+    async def confirm_command(self, confirmation_id: str, approved: bool) -> bool:
         """User confirms or rejects command"""
         if confirmation_id not in self.pending_confirmations:
             return False
@@ -95,6 +104,15 @@ class SecurityManager:
             confirmation['command_key'],
             success=approved,
             details={'confirmed': approved, 'confirmation_id': confirmation_id}
+        )
+        
+        # Log to neural memory for long-term learning
+        from modules.memory import memory_manager
+        await memory_manager.neural.log_decision(
+            command=confirmation['command_text'],
+            action=confirmation['command_key'],
+            result="APPROVED" if approved else "REJECTED",
+            reason="Explicit user interaction."
         )
 
         return True

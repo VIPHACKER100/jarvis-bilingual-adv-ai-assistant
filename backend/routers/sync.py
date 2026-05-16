@@ -11,7 +11,9 @@ from models import (
     DevicePairingRequest, 
     DevicePairingResponse, 
     SyncStatusResponse, 
-    PairedDevice
+    PairedDevice,
+    MobileTelemetryRequest,
+    MobileTelemetryResponse,
 )
 
 from utils.pairing import pairing_manager
@@ -96,3 +98,30 @@ async def unpair_device(device_id: str):
         
     await memory_manager.save_setting("paired_devices", filtered)
     return {"success": True, "message": "Device unpaired"}
+
+@router.post("/telemetry", response_model=MobileTelemetryResponse)
+async def update_telemetry(request: MobileTelemetryRequest):
+    """Update mobile sensor data for proactive intelligence"""
+    from modules.context import context_manager
+    
+    # Simple auth check
+    devices = await memory_manager.get_setting("paired_devices", [])
+    device = next((d for d in devices if d["id"] == request.device_id and d["token"] == request.access_token), None)
+    
+    if not device:
+        raise HTTPException(status_code=401, detail="Unauthorized device")
+    
+    # Update last seen
+    device["last_seen"] = datetime.now().isoformat()
+    await memory_manager.save_setting("paired_devices", devices)
+    
+    # Update context manager with new data
+    telemetry_data = {
+        "battery": request.battery,
+        "network": request.network,
+        "location": request.location,
+        "device_name": request.device_name or device["name"]
+    }
+    await context_manager.update_mobile_context(request.device_id, telemetry_data)
+    
+    return MobileTelemetryResponse(success=True, accepted=True)
