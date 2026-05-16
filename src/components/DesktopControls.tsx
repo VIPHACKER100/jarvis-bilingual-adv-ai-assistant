@@ -42,7 +42,7 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
             placeholder: 'इमेज पथ...',
             show: 'दिखाओ',
             hide: 'छुपाओ',
-            in: 'बड़ा',
+            in: 'बड़ा',
             out: 'छोटा',
             theme: 'सिस्टम थीम',
             dark: 'डार्क',
@@ -54,27 +54,32 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
 
     const t = labels[language];
 
+    const inputStyle = "w-full bg-surface border border-border-default text-foreground px-3 py-1.5 rounded-lg focus:border-accent/60 outline-none transition-colors text-xs";
+    const btnStyle = "bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover text-foreground-muted hover:text-foreground py-1.5 rounded-lg transition-all text-[10px] uppercase tracking-wide";
+    const btnAccent = "bg-accent/15 hover:bg-accent/25 text-accent px-3 py-1.5 rounded-lg border border-accent/30 hover:border-accent/50 transition-all text-xs font-bold";
+
     return (
-        <div className="border border-cyan-500/30 bg-slate-900/60 p-4 w-full text-xs font-mono rounded-sm backdrop-blur-sm mt-4">
-            <div className="text-cyan-400 uppercase tracking-wider mb-3 pb-2 border-b border-cyan-500/20">
+        <div className="glass-card w-full text-xs font-mono">
+            <div className="text-accent uppercase tracking-[0.2em] text-[10px] font-bold mb-4 pb-2 border-b border-border-default flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent"></span>
                 {t.title}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Wallpaper */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-slate-400 text-[10px] uppercase">{t.wallpaper}</span>
+                    <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.wallpaper}</span>
                     <div className="flex gap-2">
                         <input
                             type="text"
                             value={wallpaperPath}
                             onChange={(e) => setWallpaperPath(e.target.value)}
                             placeholder={t.placeholder}
-                            className="bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded w-full focus:border-cyan-500 outline-none"
+                            className={inputStyle}
                         />
                         <button
                             onClick={() => send(`change wallpaper to ${wallpaperPath}`)}
-                            className="bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-400 px-3 py-1 rounded border border-cyan-500/50"
+                            className={btnAccent}
                         >
                             GO
                         </button>
@@ -84,27 +89,27 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
                 {/* Theme & Icons */}
                 <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-1">
-                        <span className="text-slate-400 text-[10px] uppercase">{t.theme}</span>
+                        <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.theme}</span>
                         <div className="flex gap-1">
                             <button
                                 onClick={() => send('set theme to dark')}
-                                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-1 rounded border border-slate-700"
+                                className={`flex-1 ${btnStyle}`}
                             >
                                 🌙 {t.dark}
                             </button>
                             <button
                                 onClick={() => send('set theme to light')}
-                                className="flex-1 bg-slate-800 hover:bg-slate-700 text-yellow-400 py-1 rounded border border-slate-700"
+                                className={`flex-1 ${btnStyle} hover:text-yellow-400`}
                             >
                                 ☀️ {t.light}
                             </button>
                         </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <span className="text-slate-400 text-[10px] uppercase">{t.icons}</span>
+                        <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.icons}</span>
                         <button
                             onClick={() => send('toggle desktop icons')}
-                            className="bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-slate-700 h-full"
+                            className={`${btnStyle} h-full text-accent`}
                         >
                             🖥️ TOGGLE
                         </button>
@@ -115,17 +120,17 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4">
                 {/* Taskbar */}
                 <div className="flex flex-col gap-1">
-                    <span className="text-slate-400 text-[10px] uppercase">{t.taskbar}</span>
+                    <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.taskbar}</span>
                     <div className="flex gap-1">
                         <button
                             onClick={() => send(language === 'hi' ? 'taskbar dikhao' : 'show taskbar')}
-                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-slate-700"
+                            className={`flex-1 ${btnStyle} text-accent`}
                         >
                             {t.show}
                         </button>
                         <button
                             onClick={() => send(language === 'hi' ? 'taskbar chhupao' : 'hide taskbar')}
-                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-1 rounded border border-slate-700"
+                            className={`flex-1 ${btnStyle}`}
                         >
                             {t.hide}
                         </button>
@@ -134,17 +139,17 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
 
                 {/* Zoom */}
                 <div className="flex flex-col gap-1">
-                    <span className="text-slate-400 text-[10px] uppercase">{t.zoom}</span>
+                    <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.zoom}</span>
                     <div className="flex gap-2">
                         <button
                             onClick={() => send('zoom in')}
-                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-green-400 py-1 rounded border border-slate-700"
+                            className={`flex-1 ${btnStyle} hover:text-green-400`}
                         >
                             🔍+ {t.in}
                         </button>
                         <button
                             onClick={() => send('zoom out')}
-                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-orange-400 py-1 rounded border border-slate-700"
+                            className={`flex-1 ${btnStyle} hover:text-orange-400`}
                         >
                             🔍- {t.out}
                         </button>
@@ -153,10 +158,10 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
 
                 {/* Center Window */}
                 <div className="flex flex-col gap-1">
-                    <span className="text-slate-400 text-[10px] uppercase">Window</span>
+                    <span className="text-foreground-muted text-[10px] uppercase tracking-wide">Window</span>
                     <button
                         onClick={() => send('center window')}
-                        className="bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-slate-700 h-full"
+                        className={`${btnStyle} h-full text-accent`}
                     >
                         🎯 {t.center}
                     </button>
@@ -164,10 +169,10 @@ export const DesktopControls: React.FC<DesktopControlsProps> = ({ language }) =>
             </div>
 
             {/* Recycle Bin */}
-            <div className="mt-4 pt-3 border-t border-slate-800/50">
+            <div className="mt-4 pt-3 border-t border-border-default">
                 <button
                     onClick={() => send(language === 'hi' ? 'recycle bin khali karo' : 'empty recycle bin')}
-                    className="w-full bg-red-500/10 hover:bg-red-500/30 text-red-400 px-2 py-2 rounded border border-red-500/30 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2 py-2 rounded-lg border border-red-500/20 hover:border-red-500/40 transition-all flex items-center justify-center gap-2"
                 >
                     🗑️ {t.recycleConfirm}
                 </button>

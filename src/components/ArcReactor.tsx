@@ -1,4 +1,4 @@
-import { useEffect, useState, FC } from 'react';
+import { FC } from 'react';
 import { sfx } from '../utils/audioUtils';
 
 interface ArcReactorProps {
@@ -9,25 +9,12 @@ interface ArcReactorProps {
 }
 
 export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language, eventLoopLag = 0 }) => {
-  const [rotation, setRotation] = useState(0);
-
   const isLagging = eventLoopLag > 10;
   const isCritical = eventLoopLag > 50;
 
-  // Simple rotation effect for interaction
-  useEffect(() => {
-    let interval: any;
-    if (isActive) {
-      interval = setInterval(() => {
-        setRotation(r => (r + 1) % 360);
-      }, 50);
-    }
-    return () => clearInterval(interval);
-  }, [isActive]);
-
   const handleClick = () => {
     if (!isActive) {
-      sfx.playActivation(); // Play cool sound
+      sfx.playActivation();
     } else {
       sfx.playDeactivation();
     }
@@ -69,14 +56,16 @@ export const ArcReactor: FC<ArcReactorProps> = ({ isActive, onClick, language, e
 
       {/* --- Core Button Interface --- */}
       <button
+        aria-label={isActive ? 'Deactivate JARVIS' : 'Activate JARVIS'}
         className={`
           relative z-10 w-36 h-36 md:w-48 md:h-48 rounded-full 
           flex flex-col items-center justify-center
           transition-all duration-300 transform group-hover:scale-105 group-active:scale-95
           overflow-hidden backdrop-blur-md
+          focus-visible:outline-accent focus-visible:outline-2 focus-visible:outline-offset-4
           ${isActive
             ? 'bg-accent/10 border-2 border-accent/50 shadow-[inset_0_0_40px_rgba(94,106,210,0.4)]'
-            : 'bg-white/5 border border-white/10 shadow-none'
+            : 'bg-white/5 border border-white/10 shadow-none animate-border-pulse'
           }
         `}
       >

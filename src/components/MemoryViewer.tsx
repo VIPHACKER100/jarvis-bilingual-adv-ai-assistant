@@ -1,5 +1,9 @@
 import { useState, useEffect, FC, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  History, Brain, BarChart3, Network, Shield, Search, X, 
+  Plus, Edit, Save, Trash2, Download, RefreshCw, ChevronLeft 
+} from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { SecurityDashboard } from './SecurityDashboard';
 
@@ -223,91 +227,94 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-cyan-500/50 rounded-lg w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden shadow-2xl shadow-cyan-500/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
+      <div className="glass-card border-accent/30 w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl shadow-accent/20">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-950 to-blue-950 p-4 border-b border-white/10 flex justify-between items-center shrink-0 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-px neon-glow-line" />
+        <div className="bg-gradient-to-r from-background-deep to-accent/10 p-5 border-b border-white/5 flex justify-between items-center shrink-0 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-px neon-glow-line opacity-50" />
           <div className="relative z-10">
-            <h2 className="text-xl font-bold tracking-widest text-white flex items-center gap-3">
-              <span className="text-2xl animate-pulse neon-text">🧠</span>
+            <h2 className="text-xl font-bold tracking-widest text-foreground flex items-center gap-3">
+              <Brain className="w-6 h-6 text-accent animate-pulse" />
               NEURAL ARCHIVE EXPLORER
             </h2>
-            <p className="text-cyan-400 text-[10px] uppercase tracking-[0.3em] font-mono">Archive Protocol 7-Beta // Memory Analytics</p>
+            <p className="text-accent text-[10px] uppercase tracking-[0.3em] font-mono opacity-70">Archive Protocol 7-Beta // Memory Analytics</p>
           </div>
           <button
             onClick={onClose}
             title="Close Neural Archive"
             aria-label="Close Neural Archive"
-            className="text-slate-600 hover:text-white transition-all hover:rotate-90 p-2"
+            className="text-foreground-muted hover:text-foreground transition-all hover:rotate-90 p-2"
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex bg-slate-800/30 p-1 border-b border-slate-700 shrink-0">
+        <div className="flex bg-white/5 p-1 border-b border-white/5 shrink-0">
           <button
             onClick={() => setViewMode('history')}
-            className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'history'
-              ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'history'
+              ? 'bg-accent/20 text-accent border border-accent/30'
+              : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
               }`}
           >
-            History Log
+            <History className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">History Log</span>
           </button>
           <button
             onClick={() => setViewMode('memories')}
-            className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'memories'
-              ? 'bg-orange-600/20 text-orange-400 border border-orange-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'memories'
+              ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+              : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
               }`}
           >
-            Core Memories
+            <Brain className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Core Memories</span>
           </button>
           <button
             onClick={() => setViewMode('analytics')}
-            className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'analytics'
-              ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'analytics'
+              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+              : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
               }`}
           >
-            Analytics Dashboard
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Analytics</span>
           </button>
           <button
             onClick={() => setViewMode('map')}
-            className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'map'
-              ? 'bg-green-600/20 text-green-400 border border-green-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'map'
+              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+              : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
               }`}
           >
-            Memory Map
+            <Network className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Neural Map</span>
           </button>
           <button
             onClick={() => setViewMode('security')}
-            className={`flex-1 py-2 text-sm font-medium rounded transition-all ${viewMode === 'security'
-              ? 'bg-red-600/20 text-red-400 border border-red-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'security'
+              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+              : 'text-foreground-muted hover:text-foreground hover:bg-white/5'
               }`}
           >
-            Security & Network
+            <Shield className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Security</span>
           </button>
         </div>
 
         {/* Search (Only in history or memories mode) */}
         {viewMode !== 'analytics' && viewMode !== 'map' && (
-          <div className="p-4 border-b border-slate-700 shrink-0">
+          <div className="p-4 border-b border-white/5 bg-white/[0.02] shrink-0">
             <div className="relative">
               <input
                 type="text"
                 placeholder={viewMode === 'history' ? "Search by input, response, or command type..." : "Search core memories..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded px-10 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none transition-all"
+                className="w-full bg-surface border border-border-default rounded-xl px-10 py-2 text-foreground placeholder-foreground-muted focus:border-accent focus:ring-1 focus:ring-accent focus:outline-none transition-all text-sm"
               />
-              <span className="absolute left-3 top-2.5 text-slate-500">🔍</span>
+              <Search className="absolute left-3 top-2.5 text-foreground-muted w-4 h-4" />
             </div>
           </div>
         )}
@@ -317,56 +324,56 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
           {viewMode === 'history' ? (
             <div className="overflow-y-auto flex-1 custom-scrollbar">
               {loading ? (
-                <div className="h-full flex flex-col items-center justify-center text-cyan-400 p-8">
-                  <div className="animate-spin inline-block w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full mb-4"></div>
-                  <p className="animate-pulse tracking-widest uppercase text-xs">Retrieving neural links...</p>
+                <div className="h-full flex flex-col items-center justify-center text-accent p-8">
+                  <RefreshCw className="w-10 h-10 animate-spin mb-4 opacity-50" />
+                  <p className="animate-pulse tracking-widest uppercase text-[10px] font-mono">Retrieving neural links...</p>
                 </div>
               ) : filteredConversations.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-slate-500 p-8 opacity-60">
-                  <p className="text-6xl mb-4">📔</p>
-                  <p className="text-lg font-medium">No records found</p>
-                  <p className="text-sm mt-1">Start a conversation with JARVIS to populate the database.</p>
+                <div className="h-full flex flex-col items-center justify-center text-foreground-muted p-8 opacity-40">
+                  <History className="w-16 h-16 mb-4" />
+                  <p className="text-sm font-bold uppercase tracking-widest">No records found</p>
+                  <p className="text-[10px] mt-1 font-mono">Start a conversation to populate the archive.</p>
                 </div>
               ) : (
-                <div className="divide-y divide-slate-800">
+                <div className="divide-y divide-white/5">
                   {filteredConversations.map((conv, idx) => (
                     <div
                       key={conv.id}
-                      className={`p-5 hover:bg-slate-800/30 transition-all border-l-2 animate-in delay-${idx % 5} ${conv.success ? 'border-transparent' : 'border-red-500/50 bg-red-900/5'
+                      className={`p-6 hover:bg-white/[0.03] transition-all border-l-2 animate-in ${conv.success ? 'border-transparent' : 'border-red-500/50 bg-red-500/5'
                         }`}
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="text-[9px] font-mono text-foreground-muted uppercase tracking-wider">
                           REC ID: {conv.id} // {formatTimestamp(conv.timestamp)}
                         </span>
                         <div className="flex gap-2">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${conv.success
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${conv.success
                             ? 'bg-green-500/10 text-green-400 border-green-500/20'
                             : 'bg-red-500/10 text-red-400 border-red-500/20'
                             }`}>
                             {conv.success ? 'VALID' : 'FAILED'}
                           </span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase">
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/20 uppercase tracking-tighter">
                             {conv.language}
                           </span>
                           {conv.command_type && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase">
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 uppercase tracking-tighter">
                               {conv.command_type}
                             </span>
                           )}
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <div className="bg-slate-900/50 rounded p-3 border border-slate-800">
-                          <div className="flex gap-3">
-                            <span className="text-cyan-500 font-mono text-xs uppercase shrink-0 pt-1">User &gt;</span>
-                            <span className="text-slate-200 text-sm leading-relaxed">{conv.user_input}</span>
+                        <div className="bg-background-deep/40 rounded-xl p-4 border border-white/5">
+                          <div className="flex gap-4">
+                            <span className="text-accent font-black font-mono text-[10px] uppercase shrink-0 pt-0.5 tracking-widest">USER_INPUT &gt;</span>
+                            <span className="text-foreground text-sm leading-relaxed">{conv.user_input}</span>
                           </div>
                         </div>
-                        <div className="bg-cyan-900/10 rounded p-3 border border-cyan-500/10">
-                          <div className="flex gap-3">
-                            <span className="text-orange-400 font-mono text-xs uppercase shrink-0 pt-1">JARVIS &gt;</span>
-                            <span className="text-cyan-200/90 text-sm leading-relaxed italic">{conv.jarvis_response}</span>
+                        <div className="bg-accent/5 rounded-xl p-4 border border-accent/10">
+                          <div className="flex gap-4">
+                            <span className="text-orange-400 font-black font-mono text-[10px] uppercase shrink-0 pt-0.5 tracking-widest">JARVIS_LOG &gt;</span>
+                            <span className="text-foreground text-sm leading-relaxed italic opacity-90">{conv.jarvis_response}</span>
                           </div>
                         </div>
                       </div>
@@ -376,80 +383,90 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
               )}
             </div>
           ) : viewMode === 'memories' ? (
-            <div className="overflow-y-auto flex-1 custom-scrollbar p-5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Global Memory Bank</h3>
+            <div className="overflow-y-auto flex-1 custom-scrollbar p-6">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-xs font-bold text-foreground-muted uppercase tracking-[0.3em]">Neural Core Memories</h3>
                 <button 
                   onClick={() => setIsAddingFact(!isAddingFact)}
-                  className="text-[10px] font-bold px-3 py-1.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 transition-all uppercase"
+                  className="text-[10px] font-bold px-4 py-2 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/30 hover:bg-orange-500/20 transition-all uppercase tracking-widest flex items-center gap-2"
                 >
-                  {isAddingFact ? 'Cancel Input' : '+ Manual Override'}
+                  {isAddingFact ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                  {isAddingFact ? 'Cancel Injection' : 'Manual Memory Injection'}
                 </button>
               </div>
 
               {isAddingFact && (
-                <form onSubmit={handleAddFact} className="bg-slate-800/60 border border-orange-500/30 rounded-xl p-4 mb-6 animate-in slide-in-from-top-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input 
-                      type="text" 
-                      placeholder="Fact Key (e.g. coffee_preference)" 
-                      className="bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:border-orange-500/50 outline-none"
-                      value={newFact.key}
-                      onChange={e => setNewFact({...newFact, key: e.target.value.toLowerCase().replace(/\s+/g, '_')})}
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Fact Value (e.g. black with no sugar)" 
-                      className="bg-black/50 border border-white/10 rounded px-3 py-2 text-xs text-white focus:border-orange-500/50 outline-none"
-                      value={newFact.value}
-                      onChange={e => setNewFact({...newFact, value: e.target.value})}
-                    />
-                    <button type="submit" className="bg-orange-600 hover:bg-orange-500 text-white font-bold text-[10px] uppercase rounded tracking-widest transition-all">
-                      Inject Memory
-                    </button>
+                <form onSubmit={handleAddFact} className="glass-panel border-orange-500/30 p-6 mb-8 animate-fade-in-scale">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-orange-400 uppercase tracking-widest ml-1">Fact Key</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. coffee_preference" 
+                        className="w-full bg-surface border border-border-default rounded-xl px-4 py-2 text-xs text-foreground focus:border-orange-500/50 outline-none transition-all"
+                        value={newFact.key}
+                        onChange={e => setNewFact({...newFact, key: e.target.value.toLowerCase().replace(/\s+/g, '_')})}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono text-orange-400 uppercase tracking-widest ml-1">Fact Value</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g. black with no sugar" 
+                        className="w-full bg-surface border border-border-default rounded-xl px-4 py-2 text-xs text-foreground focus:border-orange-500/50 outline-none transition-all"
+                        value={newFact.value}
+                        onChange={e => setNewFact({...newFact, value: e.target.value})}
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <button type="submit" className="w-full h-[34px] bg-orange-600 hover:bg-orange-500 text-white font-bold text-[10px] uppercase rounded-xl tracking-[0.2em] transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2">
+                        <Save className="w-3.5 h-3.5" />
+                        Inject Memory
+                      </button>
+                    </div>
                   </div>
                 </form>
               )}
 
               {loading ? (
                 <div className="h-full flex flex-col items-center justify-center text-orange-400">
-                  <div className="animate-bounce mb-4 text-4xl">💾</div>
-                  <p className="animate-pulse tracking-widest uppercase text-[10px]">Accessing biometric database...</p>
+                  <Brain className="w-12 h-12 animate-pulse mb-4 opacity-50" />
+                  <p className="animate-pulse tracking-widest uppercase text-[9px] font-mono">Accessing biometric database...</p>
                 </div>
               ) : filteredFacts.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-60">
-                  <p className="text-6xl mb-4">🧩</p>
-                  <p className="text-lg font-medium">No core memories established</p>
-                  <p className="text-sm mt-1">Tell JARVIS facts about yourself to store them here.</p>
+                <div className="h-full flex flex-col items-center justify-center text-foreground-muted opacity-40 py-20">
+                  <Brain className="w-16 h-16 mb-4" />
+                  <p className="text-sm font-bold uppercase tracking-widest">No core memories established</p>
+                  <p className="text-[10px] mt-1 font-mono">Tell JARVIS facts about yourself to store them here.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {filteredFacts.map((fact, idx) => (
-                    <div key={idx} className="bg-slate-950/60 border border-white/5 rounded-xl p-4 hover:border-orange-500/30 transition-all group relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-orange-500/5 to-transparent pointer-none" />
+                    <div key={idx} className="glass-panel border-white/5 p-5 hover:border-orange-500/30 transition-all group relative overflow-hidden bg-white/[0.01]">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-orange-500/[0.03] to-transparent pointer-events-none" />
                       
-                      <div className="flex justify-between items-start mb-3">
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 uppercase tracking-widest">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20 uppercase tracking-[0.2em]">
                           {fact.category}
                         </span>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[9px] font-mono text-slate-600 uppercase">
-                              Updated: {fact.timestamp ? new Date(fact.timestamp).toLocaleDateString() : 'N/A'}
+                          <div className="flex items-center gap-4">
+                            <span className="text-[8px] font-mono text-foreground-muted uppercase tracking-tighter opacity-60">
+                              Synced: {fact.timestamp ? new Date(fact.timestamp).toLocaleDateString() : 'N/A'}
                             </span>
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEditFact(fact)}
-                              className="text-slate-600 hover:text-cyan-400 transition-colors"
+                              className="text-foreground-muted hover:text-accent transition-colors p-1"
                               title="Edit record"
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                              <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => {if(confirm('Delete memory?')) handleDeleteFact(fact.id!)}}
-                              className="text-slate-600 hover:text-red-400 transition-colors"
+                              className="text-foreground-muted hover:text-red-400 transition-colors p-1"
                               title="Purge record"
                             >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>
@@ -497,32 +514,32 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
               )}
             </div>
           ) : viewMode === 'analytics' ? (
-            <div className="overflow-y-auto flex-1 p-6 space-y-8 custom-scrollbar">
+            <div className="overflow-y-auto flex-1 p-8 space-y-10 custom-scrollbar">
               {loading ? (
                 <div className="h-full flex items-center justify-center">
-                  <div className="animate-pulse text-purple-400">Processing analytics...</div>
+                  <RefreshCw className="w-8 h-8 animate-spin text-purple-400 opacity-50" />
                 </div>
               ) : stats ? (
                 <>
                   {/* High Level Stats Cards */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex flex-col items-center">
-                      <span className="text-slate-500 text-[10px] uppercase font-bold mb-1">Total Signals</span>
-                      <span className="text-2xl font-bold text-white">{stats.total_conversations}</span>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                    <div className="bg-white/[0.02] p-5 rounded-xl border border-white/5 flex flex-col items-center">
+                      <span className="text-foreground-muted text-[9px] uppercase font-bold mb-2 tracking-widest">Total Signals</span>
+                      <span className="text-3xl font-black text-foreground">{stats.total_conversations}</span>
                     </div>
-                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex flex-col items-center">
-                      <span className="text-slate-500 text-[10px] uppercase font-bold mb-1">Integrity Rate</span>
-                      <span className={`text-2xl font-bold ${stats.success_rate > 90 ? 'text-green-400' : 'text-yellow-400'}`}>
+                    <div className="bg-white/[0.02] p-5 rounded-xl border border-white/5 flex flex-col items-center">
+                      <span className="text-foreground-muted text-[9px] uppercase font-bold mb-2 tracking-widest">Integrity Rate</span>
+                      <span className={`text-3xl font-black ${stats.success_rate > 90 ? 'text-green-400' : 'text-yellow-400'}`}>
                         {stats.success_rate?.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex flex-col items-center">
-                      <span className="text-slate-500 text-[10px] uppercase font-bold mb-1">Multi-Lang Link</span>
-                      <span className="text-2xl font-bold text-orange-400">{Object.keys(stats.languages || {}).length}</span>
+                    <div className="bg-white/[0.02] p-5 rounded-xl border border-white/5 flex flex-col items-center">
+                      <span className="text-foreground-muted text-[9px] uppercase font-bold mb-2 tracking-widest">Multi-Lang Link</span>
+                      <span className="text-3xl font-black text-orange-400">{Object.keys(stats.languages || {}).length}</span>
                     </div>
-                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700 flex flex-col items-center">
-                      <span className="text-slate-500 text-[10px] uppercase font-bold mb-1">Time Horizon</span>
-                      <span className="text-2xl font-bold text-blue-400">{stats.period_days}d</span>
+                    <div className="bg-white/[0.02] p-5 rounded-xl border border-white/5 flex flex-col items-center">
+                      <span className="text-foreground-muted text-[9px] uppercase font-bold mb-2 tracking-widest">Time Horizon</span>
+                      <span className="text-3xl font-black text-accent">{stats.period_days}d</span>
                     </div>
                   </div>
 
@@ -588,28 +605,26 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
           ) : viewMode === 'map' ? (
             <div className="flex-1 flex bg-slate-950 overflow-hidden relative">
               {/* Left Panel: Node List */}
-              <div className="w-64 border-r border-slate-800 flex flex-col shrink-0">
-                <div className="p-4 border-b border-slate-800 bg-slate-900/40">
-                  <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Neural Nodes</h3>
+              <div className="w-72 border-r border-white/5 flex flex-col shrink-0 bg-background-deep/20">
+                <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                  <h3 className="text-[9px] font-bold text-foreground-muted uppercase tracking-[0.2em]">Neural Memory Nodes</h3>
                 </div>
-                <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
                   {memoryNodes.map(node => (
                     <button
                       key={node.name}
                       onClick={() => handleSelectNode(node.name)}
-                      className={`w-full text-left p-3 rounded-lg text-xs transition-all border flex flex-col gap-1 ${
+                      className={`w-full text-left p-4 rounded-xl text-xs transition-all border flex flex-col gap-1.5 ${
                         selectedNode === node.name
-                          ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-100 shadow-[0_0_10px_rgba(6,182,212,0.1)]'
-                          : 'bg-slate-900/50 border-slate-800 text-slate-400 hover:bg-slate-800 hover:border-slate-700'
+                          ? 'bg-accent/10 border-accent/50 text-foreground shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)]'
+                          : 'bg-white/[0.02] border-white/5 text-foreground-muted hover:bg-white/5 hover:border-white/10'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <span className={node.is_core ? 'text-cyan-400' : 'text-slate-500'}>
-                          {node.is_core ? '🧠' : '📄'}
-                        </span>
-                        <span className="font-mono">{node.name}</span>
+                      <div className="flex items-center gap-2.5">
+                        {node.is_core ? <Brain className="w-3.5 h-3.5 text-accent" /> : <Save className="w-3.5 h-3.5 text-foreground-muted" />}
+                        <span className="font-mono font-bold tracking-tight">{node.name}</span>
                       </div>
-                      <span className="text-[9px] text-slate-500 uppercase tracking-tighter">
+                      <span className="text-[8px] text-foreground-muted uppercase tracking-wider opacity-60">
                         Last sync: {new Date(node.updated_at).toLocaleDateString()}
                       </span>
                     </button>
@@ -620,23 +635,25 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
               {/* Main Content: Node Editor or Visualization */}
               <div className="flex-1 relative flex flex-col overflow-hidden">
                 {isEditingNode ? (
-                  <div className="flex-1 flex flex-col animate-in">
-                    <div className="p-4 border-b border-slate-800 bg-slate-900/40 flex justify-between items-center">
-                      <div className="flex items-center gap-3">
+                  <div className="flex-1 flex flex-col animate-fade-in">
+                    <div className="p-4 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                      <div className="flex items-center gap-4">
                         <button 
                           onClick={() => setIsEditingNode(false)}
-                          className="p-1 hover:bg-slate-800 rounded text-slate-400 transition-colors"
+                          className="p-1.5 hover:bg-white/5 rounded-lg text-foreground-muted transition-colors"
+                          aria-label="Back to nodes"
                         >
-                          ←
+                          <ChevronLeft className="w-4 h-4" />
                         </button>
-                        <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest">{selectedNode}</span>
+                        <span className="text-[10px] font-mono text-accent uppercase font-bold tracking-[0.2em]">{selectedNode}</span>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={handleSaveNode}
                           disabled={isSavingNode}
-                          className="px-4 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-[10px] transition-all font-bold uppercase tracking-widest disabled:opacity-50"
+                          className="px-5 py-1.5 bg-accent hover:bg-accent/80 text-white rounded-xl text-[10px] transition-all font-bold uppercase tracking-widest disabled:opacity-50 shadow-lg shadow-accent/20 flex items-center gap-2"
                         >
+                          {isSavingNode ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                           {isSavingNode ? 'SYNCING...' : 'SYNC CHANGES'}
                         </button>
                       </div>
@@ -692,36 +709,37 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="bg-slate-800/50 p-4 border-t border-slate-700 flex justify-between items-center shrink-0">
-          <span className="text-slate-500 text-xs font-mono">
+        <div className="bg-background-deep/40 p-5 border-t border-white/5 flex justify-between items-center shrink-0">
+          <span className="text-foreground-muted text-[10px] font-mono tracking-widest opacity-60">
             REC_COUNT: {viewMode === 'history' ? filteredConversations.length : 'N/A'} // STATS_HORIZON: 7D
           </span>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             {viewMode === 'history' && conversations.length > 0 && (
               <>
                 <button
                   onClick={exportHistory}
-                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded text-[10px] transition-all border border-slate-600 flex items-center gap-1"
+                  className="px-4 py-2 bg-surface hover:bg-surface-hover text-foreground-muted hover:text-foreground rounded-xl text-[10px] transition-all border border-border-default flex items-center gap-2 font-bold uppercase tracking-widest"
                 >
-                  <span>📥</span> EXPORT
+                  <Download className="w-3.5 h-3.5" /> EXPORT
                 </button>
                 <button
                   onClick={handleClearHistory}
-                  className="px-3 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded text-[10px] transition-all border border-red-500/30 flex items-center gap-1"
+                  className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-[10px] transition-all border border-red-500/30 flex items-center gap-2 font-bold uppercase tracking-widest"
                 >
-                  <span>🗑️</span> WIPE LOGS
+                  <Trash2 className="w-3.5 h-3.5" /> WIPE LOGS
                 </button>
               </>
             )}
             <button
               onClick={loadData}
-              className="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded text-xs transition-all border border-slate-600"
+              className="px-5 py-2 bg-surface hover:bg-surface-hover text-foreground rounded-xl text-[10px] transition-all border border-border-default font-bold uppercase tracking-widest flex items-center gap-2"
             >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               SYNC SYSTEM
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-1.5 bg-cyan-700 hover:bg-cyan-600 text-white rounded text-xs transition-all border border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+              className="px-5 py-2 bg-accent hover:bg-accent/80 text-white rounded-xl text-[10px] transition-all border border-accent/50 shadow-lg shadow-accent/20 font-bold uppercase tracking-widest"
             >
               EXIT VIEWER
             </button>

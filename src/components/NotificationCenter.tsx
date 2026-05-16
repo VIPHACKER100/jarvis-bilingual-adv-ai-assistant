@@ -1,14 +1,29 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useMemo } from 'react';
 import { useNotifications, NotificationType } from '../context/NotificationContext';
+
+const MAX_VISIBLE = 3;
 
 export const NotificationCenter: FC = () => {
   const { notifications, removeNotification } = useNotifications();
 
-  if (notifications.length === 0) return null;
+  // Deduplicate: if same title+type exists, show only the latest
+  const deduped = useMemo(() => {
+    const seen = new Map<string, typeof notifications[0]>();
+    for (const n of notifications) {
+      const key = `${n.type}:${n.title}`;
+      seen.set(key, n); // last wins — keeps the most recent timestamp
+    }
+    return Array.from(seen.values());
+  }, [notifications]);
+
+  // Show only the most recent MAX_VISIBLE
+  const visible = deduped.slice(-MAX_VISIBLE);
+
+  if (visible.length === 0) return null;
 
   return (
     <div className="fixed top-4 right-4 z-[200] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
-      {notifications.map((n, idx) => (
+      {visible.map((n, idx) => (
         <NotificationItem
           key={n.id}
           notification={n}
@@ -28,9 +43,10 @@ const NotificationItem: FC<{
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 10);
+    // Stagger entrance based on index
+    const timer = setTimeout(() => setIsVisible(true), 10 + index * 80);
     return () => clearTimeout(timer);
-  }, []);
+  }, [index]);
 
   const getTypeStyles = (type: NotificationType) => {
     switch (type) {

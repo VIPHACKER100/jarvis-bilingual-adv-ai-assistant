@@ -51,27 +51,32 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
 
     const t = labels[language];
 
+    const inputStyle = "w-full bg-surface border border-border-default text-foreground px-3 py-1.5 rounded-lg focus:border-accent/60 outline-none transition-colors text-xs";
+    const btnStyle = "bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover text-foreground-muted hover:text-foreground py-1.5 rounded-lg transition-all text-[10px] uppercase tracking-wide";
+    const btnAccent = "bg-accent/15 hover:bg-accent/25 text-accent px-3 py-1.5 rounded-lg border border-accent/30 hover:border-accent/50 transition-all";
+
     return (
-        <div className="border border-purple-500/30 bg-slate-900/60 p-4 w-full text-xs font-mono rounded-sm backdrop-blur-sm mt-4">
-            <div className="text-purple-400 uppercase tracking-wider mb-3 pb-2 border-b border-purple-500/20">
+        <div className="glass-card w-full text-xs font-mono">
+            <div className="text-accent uppercase tracking-[0.2em] text-[10px] font-bold mb-4 pb-2 border-b border-border-default flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
                 {t.title}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Batch PDF */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-slate-400 text-[10px] uppercase">{t.batchPdf}</span>
+                    <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.batchPdf}</span>
                     <div className="flex gap-2">
                         <input
                             type="text"
                             value={folderPath}
                             onChange={(e) => setFolderPath(e.target.value)}
                             placeholder={t.placeholder}
-                            className="bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded w-full focus:border-purple-500 outline-none"
+                            className={inputStyle}
                         />
                         <button
                             onClick={() => send(`convert images in ${folderPath} to pdf`)}
-                            className="bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 px-3 py-1 rounded border border-purple-500/50"
+                            className={btnAccent}
                         >
                             📄
                         </button>
@@ -80,12 +85,12 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
 
                 {/* Read PDF */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-slate-400 text-[10px] uppercase">{t.readPdf}</span>
+                    <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.readPdf}</span>
                     <div className="flex gap-2">
                         <input
                             type="text"
                             placeholder="PDF Path..."
-                            className="bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded w-full focus:border-purple-500 outline-none"
+                            className={inputStyle}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     send(`read pdf ${e.currentTarget.value}`);
@@ -97,7 +102,7 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
                                 const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                                 send(`read pdf ${input.value}`);
                             }}
-                            className="bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 px-3 py-1 rounded border border-purple-500/50"
+                            className={btnAccent}
                         >
                             🔊
                         </button>
@@ -106,13 +111,13 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
 
                 {/* Scan Folder */}
                 <div className="flex flex-col gap-2">
-                    <span className="text-slate-400 text-[10px] uppercase">{t.scanFolder}</span>
+                    <span className="text-foreground-muted text-[10px] uppercase tracking-wide">{t.scanFolder}</span>
                     <div className="flex gap-2">
                         <select
                             value={scanType}
                             onChange={(e) => setScanType(e.target.value)}
                             title={t.type}
-                            className="bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded w-1/3 focus:border-purple-500 outline-none"
+                            className={`${inputStyle} w-1/3`}
                         >
                             <option value="all">All</option>
                             <option value="media">Media</option>
@@ -122,7 +127,7 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
                         <input
                             type="text"
                             placeholder={t.scanPlaceholder}
-                            className="bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded w-2/3 focus:border-purple-500 outline-none"
+                            className={`${inputStyle} w-2/3`}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     send(`scan folder ${e.currentTarget.value} for ${scanType}`);
@@ -136,13 +141,13 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
                 <div className="grid grid-cols-2 gap-2 mt-auto">
                     <button
                         onClick={() => send('narrate screen')}
-                        className="bg-slate-800 hover:bg-slate-700 text-cyan-400 py-1 rounded border border-cyan-500/30 text-[10px]"
+                        className={`${btnStyle} text-accent`}
                     >
                         🎤 {t.narrate}
                     </button>
                     <button
                         onClick={() => send('screen summary')}
-                        className="bg-slate-800 hover:bg-slate-700 text-purple-400 py-1 rounded border border-purple-500/30 text-[10px]"
+                        className={`${btnStyle} hover:text-purple-400`}
                     >
                         📝 {t.summary}
                     </button>
@@ -150,10 +155,10 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
             </div>
 
             {/* Quick Tools */}
-            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800/50">
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border-default">
                 <button
                     onClick={() => send('make drawing')}
-                    className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-yellow-400 p-2 rounded border border-yellow-500/30 transition-all hover:scale-105"
+                    className={`flex flex-col items-center justify-center gap-1 ${btnStyle} p-2.5 hover:text-yellow-400 hover:border-yellow-500/30`}
                 >
                     <span className="text-xl">🎨</span>
                     <span className="text-[9px] uppercase">{t.drawing}</span>
@@ -161,7 +166,7 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
 
                 <button
                     onClick={() => send('get selected text')}
-                    className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 p-2 rounded border border-cyan-500/30 transition-all hover:scale-105"
+                    className={`flex flex-col items-center justify-center gap-1 ${btnStyle} p-2.5 text-accent`}
                 >
                     <span className="text-xl">📋</span>
                     <span className="text-[9px] uppercase">{t.selection}</span>
@@ -169,7 +174,7 @@ export const MediaTools: React.FC<MediaToolsProps> = ({ language }) => {
 
                 <button
                     onClick={() => send('ocr image')}
-                    className="flex flex-col items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-green-400 p-2 rounded border border-green-500/30 transition-all hover:scale-105"
+                    className={`flex flex-col items-center justify-center gap-1 ${btnStyle} p-2.5 hover:text-green-400 hover:border-green-500/30`}
                 >
                     <span className="text-xl">👁️</span>
                     <span className="text-[9px] uppercase">{t.ocr}</span>

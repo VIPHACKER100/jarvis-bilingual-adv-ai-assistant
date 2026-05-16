@@ -1,4 +1,9 @@
 import { useState, FC, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  X, Save, Plus, Trash2, Clock, Terminal, 
+  Calendar, Layers, ShieldCheck, AlertCircle, RefreshCw
+} from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 
 interface AutomationEditorProps {
@@ -114,213 +119,230 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-cyan-500/50 rounded-xl w-full max-w-2xl shadow-2xl shadow-cyan-500/20 max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-cyan-500/30 flex justify-between items-center bg-slate-800/50">
-          <h2 className="text-xl font-bold text-white">
-            {item ? 'Edit' : 'Create'} {type === 'task' ? 'Scheduled Task' : 'Macro'}
-          </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white text-2xl">×</button>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in overflow-y-auto">
+      <div className="glass-card border-accent/30 w-full max-w-2xl shadow-2xl shadow-accent/20 flex flex-col max-h-[90vh]">
+        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-background-deep to-accent/5 relative overflow-hidden shrink-0">
+          <div className="absolute top-0 left-0 right-0 h-px neon-glow-line opacity-50" />
+          <div className="relative z-10">
+            <h2 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-3">
+              {type === 'task' ? <Calendar className="w-5 h-5 text-accent" /> : <Layers className="w-5 h-5 text-purple-400" />}
+              {item ? 'EDIT' : 'INITIALIZE'} {type === 'task' ? 'SCHEDULED TASK' : 'MACRO SEQUENCE'}
+            </h2>
+            <p className="text-foreground-muted text-[9px] uppercase tracking-[0.3em] font-mono mt-0.5">Automated Execution Protocol</p>
+          </div>
+          <button onClick={onClose} className="text-foreground-muted hover:text-foreground transition-all hover:rotate-90 relative z-10 p-2">
+            <X className="w-7 h-7" />
+          </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
-          {error && <div className="p-3 bg-red-500/20 border border-red-500/50 text-red-400 rounded-lg text-sm">{error}</div>}
+        <div className="p-8 overflow-y-auto flex-1 space-y-6 custom-scrollbar bg-white/[0.01]">
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] font-mono uppercase tracking-widest flex items-center gap-3 animate-shake">
+              <AlertCircle className="w-4 h-4" />
+              {error}
+            </div>
+          )}
 
           {type === 'task' ? (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Task Name</label>
-                <input 
-                  value={taskName} onChange={e => setTaskName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none"
-                  placeholder="e.g. Morning Briefing"
-                />
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1">Identity & Purpose</label>
+                <div className="space-y-3">
+                  <input 
+                    value={taskName} onChange={e => setTaskName(e.target.value)}
+                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all"
+                    placeholder="Task Name (e.g., Morning Briefing)"
+                  />
+                  <textarea 
+                    value={taskDesc} onChange={e => setTaskDesc(e.target.value)}
+                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent focus:ring-1 focus:ring-accent outline-none h-24 transition-all resize-none"
+                    placeholder="Describe the objective of this automation..."
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Description</label>
-                <textarea 
-                  value={taskDesc} onChange={e => setTaskDesc(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none h-20"
-                  placeholder="What does this task do?"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Command to Execute</label>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                  <Terminal className="w-3 h-3 text-accent" /> Execution String
+                </label>
                 <input 
                   value={taskCommand} onChange={e => setTaskCommand(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none font-mono"
-                  placeholder="e.g. system_status"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3 text-sm text-accent font-mono focus:border-accent outline-none transition-all shadow-inner"
+                  placeholder="system_status --verbose"
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Schedule Type</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1">Temporal Pattern</label>
                   <select 
                     value={scheduleType} onChange={e => setScheduleType(e.target.value as 'once' | 'interval' | 'cron')}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none"
+                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none appearance-none transition-all"
                     title="Select schedule frequency"
                   >
-                    <option value="once">Once</option>
-                    <option value="interval">Interval</option>
-                    <option value="cron">Cron</option>
+                    <option value="once">One-time Trigger</option>
+                    <option value="interval">Recurring Interval</option>
+                    <option value="cron">Complex (Cron)</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">
-                    {scheduleType === 'interval' ? 'Minutes' : 'Time (HH:MM)'}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                    <Clock className="w-3 h-3 text-accent" /> 
+                    {scheduleType === 'interval' ? 'Interval (Min)' : 'Target Time'}
                   </label>
                   <input 
                     type={scheduleType === 'interval' ? 'number' : 'text'}
                     value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none"
+                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none transition-all"
                     placeholder={scheduleType === 'interval' ? '30' : '08:00'}
                   />
                 </div>
               </div>
 
-              {false && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-2">Days</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                      <button
-                        key={day}
-                        onClick={() => toggleDay(day)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
-                          selectedDays.includes(day) 
-                            ? 'bg-cyan-500 text-slate-900' 
-                            : 'bg-slate-800 text-slate-400 border border-slate-700'
-                        }`}
-                      >
-                        {day.slice(0, 3)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Execution Condition (Optional)</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                  <ShieldCheck className="w-3 h-3 text-accent" /> Conditional Logic (Optional)
+                </label>
                 <input 
                   value={taskCondition} onChange={e => setTaskCondition(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none font-mono text-sm"
-                  placeholder="e.g. battery < 20 or cpu > 80"
+                  className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground font-mono focus:border-accent outline-none transition-all"
+                  placeholder="battery < 20 or cpu > 80"
                 />
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Task will only run if this condition is met.
+                <p className="text-[9px] text-foreground-muted/60 uppercase tracking-widest font-mono ml-1">
+                  Task will only execute if the logic evaluates to TRUE.
                 </p>
               </div>
-            </>
+            </div>
           ) : (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Macro Name</label>
-                <input 
-                  value={macroName} onChange={e => setMacroName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none"
-                  placeholder="e.g. Work Mode"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Trigger Type</label>
-                <select 
-                  value={macroTrigger} onChange={e => setMacroTrigger(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none"
-                  title="Select what triggers this macro"
-                >
-                  <option value="manual">Manual Only</option>
-                  <option value="voice">Voice Trigger</option>
-                </select>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1">Macro Definition</label>
+                <div className="space-y-3">
+                  <input 
+                    value={macroName} onChange={e => setMacroName(e.target.value)}
+                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none transition-all"
+                    placeholder="Macro Name (e.g., Focus Mode)"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <select 
+                      value={macroTrigger} onChange={e => setMacroTrigger(e.target.value)}
+                      className="bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none appearance-none transition-all"
+                      title="Select what triggers this macro"
+                    >
+                      <option value="manual">Manual Trigger Only</option>
+                      <option value="voice">Vocal Activation</option>
+                    </select>
+                    {macroTrigger === 'voice' && (
+                      <input 
+                        value={triggerPhrase} onChange={e => setTriggerPhrase(e.target.value)}
+                        className="bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-purple-400 focus:border-purple-500 outline-none transition-all font-bold"
+                        placeholder="Trigger phrase..."
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
               
-              {macroTrigger === 'voice' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Trigger Phrase</label>
-                  <input 
-                    value={triggerPhrase} onChange={e => setTriggerPhrase(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none"
-                    placeholder="e.g. activate work mode"
-                  />
-                </div>
-              )}
-
-              <div className="border-t border-slate-700 pt-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-bold text-cyan-400 tracking-wider uppercase">Sequence Steps</h3>
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold text-accent uppercase tracking-[0.3em] flex items-center gap-2">
+                    <Layers className="w-3.5 h-3.5" /> Operational Sequence
+                  </label>
                   <button 
                     onClick={addMacroCommand}
-                    className="text-xs px-3 py-1 bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-600/40 transition-colors"
+                    className="text-[9px] font-black uppercase tracking-widest px-4 py-2 bg-accent/10 text-accent border border-accent/20 rounded-xl hover:bg-accent/20 transition-all flex items-center gap-2"
                   >
-                    + Add Step
+                    <Plus className="w-3 h-3" /> Add Step
                   </button>
                 </div>
                 
                 <div className="space-y-3">
-                  {macroCommands.map((cmd, idx) => (
-                    <div key={idx} className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 relative group">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <div className="md:col-span-2">
-                          <label className="text-[10px] uppercase text-slate-500 mb-1 block">Command</label>
-                          <input 
-                            value={cmd.command} onChange={e => updateMacroCommand(idx, 'command', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-xs text-white"
-                            placeholder="e.g. open_app"
-                          />
+                  <AnimatePresence mode="popLayout">
+                    {macroCommands.map((cmd, idx) => (
+                      <motion.div 
+                        key={idx}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="glass-panel p-4 relative group hover:bg-white/[0.02] transition-all flex items-center gap-4"
+                      >
+                        <div className="text-xs font-mono text-foreground-muted w-6 flex-shrink-0">
+                          {idx + 1}.
                         </div>
-                        <div>
-                          <label className="text-[10px] uppercase text-slate-500 mb-1 block">Delay (sec)</label>
-                          <input 
-                            type="number"
-                            value={cmd.delay} onChange={e => updateMacroCommand(idx, 'delay', parseInt(e.target.value))}
-                            className="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1.5 text-xs text-white"
-                            title="Delay in seconds before this step"
-                            min="0"
-                          />
-                        </div>
-                        <div className="flex items-end">
+                        <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div className="md:col-span-2">
+                            <input 
+                              value={cmd.command} onChange={e => updateMacroCommand(idx, 'command', e.target.value)}
+                              className="w-full bg-black/20 border border-white/5 rounded-lg px-3 py-2 text-xs text-foreground font-mono focus:border-accent outline-none"
+                              placeholder="Action command..."
+                            />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 bg-black/20 border border-white/5 rounded-lg px-3 py-2">
+                              <Clock className="w-3 h-3 text-foreground-muted" />
+                              <input 
+                                type="number"
+                                value={cmd.delay} onChange={e => updateMacroCommand(idx, 'delay', parseInt(e.target.value))}
+                                className="w-full bg-transparent text-xs text-foreground outline-none"
+                                title="Delay in seconds"
+                                min="0"
+                              />
+                              <span className="text-[8px] text-foreground-muted uppercase">s</span>
+                            </div>
+                          </div>
                           <button 
                             onClick={() => removeMacroCommand(idx)}
-                            className="w-full py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/20"
+                            className="p-2 text-foreground-muted hover:text-red-400 transition-all opacity-0 group-hover:opacity-100"
+                            title="Purge Step"
                           >
-                            Remove
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  
                   {macroCommands.length === 0 && (
-                    <div className="text-center py-6 text-slate-600 text-sm border-2 border-dashed border-slate-800 rounded-xl">
-                      No steps added. Macros run multiple commands in sequence.
+                    <div className="text-center py-10 text-foreground-muted/30 border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center gap-3">
+                      <Layers className="w-8 h-8" />
+                      <p className="text-[10px] font-mono uppercase tracking-widest">No steps in sequence</p>
                     </div>
                   )}
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
 
-        <div className="p-4 border-t border-slate-700 flex justify-end gap-3 bg-slate-800/30">
-          <button 
-            onClick={onClose}
-            className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleSave}
-            disabled={saving}
-            className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save Automation'}
-          </button>
+        <div className="p-6 border-t border-white/5 flex justify-between items-center bg-background-deep/40 relative shrink-0">
+          <div className="text-[8px] text-foreground-muted uppercase tracking-[0.4em] font-mono hidden sm:block">
+            Bypass Safety: OFF // Protocol Alpha
+          </div>
+          <div className="flex gap-4 ml-auto">
+            <button 
+              onClick={onClose}
+              className="text-[10px] font-bold text-foreground-muted hover:text-foreground uppercase tracking-widest transition-all px-4"
+            >
+              Abort
+            </button>
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              className="px-8 py-3 bg-accent text-white text-[11px] font-black rounded-xl hover:brightness-110 transition-all disabled:opacity-50 uppercase tracking-[0.2em] shadow-lg shadow-accent/20 flex items-center gap-2"
+            >
+              {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? 'SYNCHRONIZING...' : 'COMMIT AUTOMATION'}
+            </button>
+          </div>
         </div>
       </div>
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.2); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.4); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(var(--accent-rgb), 0.4); }
       `}</style>
     </div>
   );

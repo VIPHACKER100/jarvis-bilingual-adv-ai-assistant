@@ -192,9 +192,10 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div
         className="bg-[#080d14] border border-white/10 rounded-2xl w-full max-w-2xl mx-auto shadow-2xl relative overflow-hidden hud-panel-shadow"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Top glow line */}
         <div className="absolute top-0 left-0 right-0 h-px neon-glow-line" />
@@ -621,7 +622,7 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
 
         {/* Footer */}
         <div className="p-5 border-t border-white/5 flex justify-between items-center bg-black/20">
-          <span className="text-[10px] font-mono text-gray-700 uppercase tracking-widest">JARVIS CONFIG v3.7.0</span>
+          <span className="text-[10px] font-mono text-gray-700 uppercase tracking-widest">JARVIS CONFIG v3.8.0</span>
 
           <button
             type="button"
@@ -632,27 +633,6 @@ export const SettingsModal: FC<SettingsModalProps> = ({ isOpen, onClose, onSetti
           </button>
         </div>
 
-        {/* Scrollbar and Theme style */}
-        <style>{`
-          .custom-settings-scroll::-webkit-scrollbar { width: 4px; }
-          .custom-settings-scroll::-webkit-scrollbar-track { background: transparent; }
-          .custom-settings-scroll::-webkit-scrollbar-thumb { background: rgba(var(--neon-rgb), 0.2); border-radius: 4px; }
-          .custom-settings-scroll::-webkit-scrollbar-thumb:hover { background: rgba(var(--neon-rgb), 0.4); }
-
-          ${THEMES.map(t => `
-            .theme-btn-${t.name} {
-              --theme-primary: ${t.primary};
-              --theme-accent: ${t.accent};
-            }
-            .theme-btn-${t.name}.is-active {
-              border-color: ${t.primary}60 !important;
-              background: ${t.primary}10 !important;
-            }
-            .theme-btn-${t.name}.is-active .theme-preview-circle {
-              box-shadow: 0 0 20px ${t.primary}80 !important;
-            }
-          `).join('')}
-        `}</style>
       </div>
     </div>
   );

@@ -41,6 +41,7 @@ export const Header: FC = () => {
               onClick={() => { sfx.playSelect(); setShowSettings(true); }}
               className="p-2 rounded-lg bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover transition-all group"
               title="System Settings"
+              aria-label="Open system settings"
             >
               <Settings className="w-4 h-4 text-foreground-muted group-hover:text-foreground group-hover:rotate-45 transition-transform" />
             </button>
@@ -48,13 +49,15 @@ export const Header: FC = () => {
             <button
               onClick={() => { sfx.playSelect(); toggleLanguage(); }}
               className="flex items-center gap-3 px-4 py-2 rounded-lg bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover transition-all group"
+              aria-label="Toggle language"
+              title="Toggle language"
             >
               <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-tighter">
                 <span className={language === Language.ENGLISH ? "text-accent font-bold" : "text-foreground-muted"}>EN</span>
                 <span className="text-border-default">/</span>
                 <span className={language === Language.HINDI ? "text-accent font-bold" : "text-foreground-muted"}>HI</span>
                 <span className="text-border-default">/</span>
-                <span className={language === Language.HINGLISH ? "text-accent font-bold" : "text-foreground-muted"}>HE</span>
+                <span className={language === Language.HINGLISH ? "text-accent font-bold" : "text-foreground-muted"}>HG</span>
               </div>
               <Globe className="w-3.5 h-3.5 text-foreground-muted group-hover:text-accent transition-colors" />
             </button>
