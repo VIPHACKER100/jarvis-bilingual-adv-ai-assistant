@@ -1,4 +1,5 @@
 import React, { FC, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AppMode, Language } from './types';
 import { useTheme } from './hooks/useTheme';
 import { useJarvisStore } from './store/jarvisStore';
@@ -8,6 +9,8 @@ import { useJarvisSync } from './hooks/useJarvisSync';
 import { useNotifications } from './context/NotificationContext';
 import { voiceService } from './services/voiceService';
 import { apiClient } from './services/apiClient';
+
+// Components
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { MainHUD } from './components/MainHUD';
@@ -16,37 +19,19 @@ import { AdvancedTools } from './components/AdvancedTools';
 import { QuickAccess } from './components/QuickAccess';
 import { JarvisModals } from './components/JarvisModals';
 import { NotificationCenter } from './components/NotificationCenter';
+import { CommandPalette } from './components/CommandPalette';
+import { NeuralNetwork } from './components/NeuralNetwork';
 
 const App: FC = () => {
   useTheme();
   useJarvisSync();
 
   const {
-    isConnected, connectionStatus, lastResponse, bridgeError
+    isConnected, connectionStatus, lastResponse, mode, isActive, language, setLanguage,
+    addToHistory, setShowPermission, setSettings, setMode, isAgentThinking
   } = useJarvisStore();
 
-  const {
-    sendCommand,
-    confirmCommand,
-    reconnect,
-    requestStatus
-  } = useJarvisBridge();
-  
-  const { 
-    toggleActivation, 
-    startListening,
-    processingRef 
-  } = useVoiceController(sendCommand);
-
-  const { 
-    language, setLanguage,
-    addToHistory,
-    setShowPermission,
-    setSettings,
-    setMode,
-    isActive
-  } = useJarvisStore();
-
+  const { sendCommand, toggleActivation } = useVoiceController(useJarvisBridge().sendCommand);
   const { addNotification } = useNotifications();
 
   // Connection notifications
@@ -55,106 +40,85 @@ const App: FC = () => {
       addNotification({
         type: 'success',
         title: 'System Online',
-        message: 'Neural bridge established with JARVIS backend.',
+        message: 'Neural bridge established with JARVIS v3.9.0 backend.',
         duration: 4000
       });
     } else if (connectionStatus === 'disconnected') {
       addNotification({
         type: 'error',
         title: 'System Offline',
-        message: 'Backend connection lost. Retrying...',
+        message: 'Backend link interrupted. Re-syncing...',
         duration: 0
       });
     }
-  }, [isConnected, connectionStatus, addNotification]);
+  }, [isConnected, connectionStatus]);
 
   // Initial setup
   useEffect(() => {
-    // Permission check
-    if (navigator.permissions?.query) {
-      navigator.permissions.query({ name: 'microphone' as PermissionName })
-        .then((ps) => {
-          if (ps.state === 'denied') {
-            setShowPermission(true);
-            addNotification({
-              type: 'error',
-              title: 'Permission Denied',
-              message: 'Microphone access is restricted.',
-              duration: 8000
-            });
-          }
-        });
-    }
-
     // Init log
     addToHistory({
-      transcript: "System Init...",
-      response: "JARVIS Online. Waiting for activation.",
+      transcript: "System Booting...",
+      response: "JARVIS Neural Interface v3.9.0 Loaded. Calibration complete.",
       actionType: "SYSTEM",
       language: 'en',
       timestamp: Date.now(),
       isSystemMessage: true
     });
 
-    // Load settings
     apiClient.getSettings().then(res => {
       if (res.success) setSettings(res.settings);
     });
 
     voiceService.setLanguage(language);
-
     return () => voiceService.stopListening();
   }, []);
 
-  // Sync language with voice service
-  useEffect(() => {
-    voiceService.setLanguage(language);
-  }, [language]);
-
-  // Resume listening after TTS finishes (not a fixed delay — avoids mic picking up JARVIS voice)
-  useEffect(() => {
-    if (!lastResponse?.response?.trim()) {
-      processingRef.current = false;
-      return;
-    }
-
-    const speakLang =
-      language === Language.HINGLISH
-        ? 'hinglish'
-        : language === Language.HINDI
-          ? 'hi'
-          : lastResponse.language === 'hi'
-            ? 'hi'
-            : 'en';
-
-    voiceService.speak(lastResponse.response, speakLang, () => {
-      processingRef.current = false;
-      if (isActive) {
-        setMode(AppMode.LISTENING);
-        startListening();
-      } else {
-        setMode(AppMode.IDLE);
-      }
-    });
-  }, [lastResponse, isActive, startListening, setMode, language]);
-
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden select-none">
+    <div className="relative min-h-screen w-full flex flex-col items-center overflow-x-hidden bg-background-base">
+      {/* Global UI Layers */}
       <NotificationCenter />
+      <CommandPalette />
       
-      <div className="linear-bg"></div>
-      <div className="grid-overlay"></div>
-      <div className="ambient-blob w-[800px] h-[800px] bg-accent/20 top-[-200px] left-1/2 -translate-x-1/2 blur-[150px]"></div>
-      <div className="ambient-blob w-[600px] h-[600px] bg-purple-500/10 bottom-[-100px] right-[-100px] blur-[120px] delay-neg-5s"></div>
+      {/* Ambient Background System */}
+      <div className="linear-bg" />
+      <div className="grid-overlay" />
+      <NeuralNetwork isActive={isAgentThinking || mode !== AppMode.IDLE} />
+      
+      {/* Animated Blobs */}
+      <motion.div 
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.2, 0.1],
+          x: [0, 50, 0]
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className="ambient-blob w-[800px] h-[800px] bg-accent top-[-200px] left-1/2 -translate-x-1/2 blur-[160px]" 
+      />
+      <motion.div 
+        animate={{ 
+          scale: [1, 1.3, 1],
+          opacity: [0.05, 0.15, 0.05],
+          x: [0, -40, 0]
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="ambient-blob w-[600px] h-[600px] bg-secondary bottom-[-100px] right-[-100px] blur-[140px]" 
+      />
 
       <Header />
 
-      <MainHUD onToggleActivation={toggleActivation} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="w-full flex flex-col items-center pt-24 pb-32"
+      >
+        <MainHUD onToggleActivation={toggleActivation} />
 
-      <div className="flex flex-col gap-16 w-full max-w-4xl px-4 py-6">
-        <StatusPanels />
-        <AdvancedTools />
-      </div>
+        <div className="w-full max-w-6xl px-6 space-y-24 mt-12">
+          <StatusPanels />
+          <AdvancedTools />
+        </div>
+      </motion.div>
 
       <QuickAccess />
       <Footer />

@@ -1,46 +1,96 @@
 import React, { FC } from 'react';
-import { AppMode } from '../types';
-import { useJarvisStore } from '../store/jarvisStore';
-import { HistoryLog } from './HistoryLog';
-import { VolumeControl } from './VolumeControl';
-import { SystemDiagnostics } from './SystemDiagnostics';
+import { motion } from 'framer-motion';
+import { ActivityFeed } from './ActivityFeed';
+import { SystemMetricsWidget } from './SystemMetricsWidget';
+import { Card } from './ui/Card';
+import { Badge } from './ui/Badge';
+import { Activity, LayoutDashboard, Database } from 'lucide-react';
 
 export const StatusPanels: FC = () => {
-  const { mode, history, volume, systemStatus } = useJarvisStore();
-
   return (
-    <div className="flex flex-col md:flex-row gap-8 w-full items-stretch justify-center">
-      {/* Left: Event Stream */}
-      <HistoryLog history={history} />
-
-      {/* Right: Status & Controls */}
-      <div className="flex flex-col space-y-6 w-full md:w-auto items-center md:items-start">
-        <VolumeControl level={volume} />
-
-        {systemStatus && systemStatus.success ? (
-          <SystemDiagnostics systemStatus={systemStatus} />
-        ) : (
-          /* Fallback stats card with shimmer loading effect */
-          <div className="glass-panel p-4 w-full md:w-64 text-[10px] sm:text-xs font-mono grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl shimmer-loading">
-            <div className="flex justify-between border-b border-border-default pb-1.5">
-              <span className="text-foreground-muted">CPU</span>
-              <span className="text-accent font-bold">--%</span>
-            </div>
-            <div className="flex justify-between border-b border-border-default pb-1.5">
-              <span className="text-foreground-muted">MEM</span>
-              <span className="text-accent font-bold">--%</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-foreground-muted">NET</span>
-              <span className="text-green-400 uppercase font-bold drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]">Online</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-foreground-muted">MIC</span>
-              <span className={mode !== AppMode.IDLE ? "text-pink-500 animate-pulse font-bold drop-shadow-[0_0_5px_rgba(236,72,153,0.5)]" : "text-foreground-muted/50"}>{mode !== AppMode.IDLE ? "ACTIVE" : "OFFLINE"}</span>
-            </div>
+    <section className="w-full space-y-12">
+      {/* Metrics Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <LayoutDashboard className="w-5 h-5 text-accent" />
+            <h2 className="text-xl font-bold tracking-tight text-display gradient-text">System_Intelligence // Dashboard</h2>
           </div>
-        )}
+          <Badge variant="ghost" className="border-border-subtle bg-surface-low">Realtime_Telemetry</Badge>
+        </div>
+        
+        <SystemMetricsWidget />
       </div>
-    </div>
+
+      {/* Main Grid: Activity & Extended Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left 2/3: Activity Feed */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex items-center gap-3">
+            <Activity className="w-5 h-5 text-secondary" />
+            <h2 className="text-xl font-bold tracking-tight text-display gradient-text">Session_Log</h2>
+          </div>
+          <ActivityFeed />
+        </div>
+
+        {/* Right 1/3: Extended Modules / Info */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <Database className="w-5 h-5 text-info" />
+            <h2 className="text-xl font-bold tracking-tight text-display gradient-text">Module_Manifest</h2>
+          </div>
+          
+          <div className="space-y-4">
+            <ModuleCard 
+              name="Vision_Overlay_v4" 
+              status="Online" 
+              uptime="2h 45m"
+              color="var(--info)"
+            />
+            <ModuleCard 
+              name="Bilingual_Parser_v2" 
+              status="Optimized" 
+              uptime="14h 12m"
+              color="var(--success)"
+            />
+            <ModuleCard 
+              name="Mobile_Sync_Service" 
+              status="Connected" 
+              uptime="32m"
+              color="var(--accent)"
+            />
+            <ModuleCard 
+              name="Autonomous_Agent" 
+              status="Standby" 
+              uptime="0m"
+              color="var(--secondary)"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
+
+const ModuleCard: FC<{ name: string, status: string, uptime: string, color: string }> = ({ name, status, uptime, color }) => (
+  <Card elevation="mid" interactive className="border-border-subtle group">
+    <div className="flex justify-between items-center">
+      <div className="flex flex-col">
+        <span className="text-xs font-bold text-foreground group-hover:text-accent transition-colors">{name}</span>
+        <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-widest mt-1">Uptime: {uptime}</span>
+      </div>
+      <div className="flex flex-col items-end gap-1">
+        <span className="text-[9px] font-mono font-bold uppercase tracking-widest" style={{ color }}>{status}</span>
+        <div className="w-8 h-1 bg-surface-high rounded-full overflow-hidden">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="h-full"
+            style={{ backgroundColor: color }}
+          />
+        </div>
+      </div>
+    </div>
+  </Card>
+);

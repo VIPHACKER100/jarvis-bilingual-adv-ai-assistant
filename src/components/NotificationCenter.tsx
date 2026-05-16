@@ -1,36 +1,37 @@
 import { FC, useEffect, useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications, NotificationType, Notification } from '../context/NotificationContext';
+import { ShieldCheck, AlertCircle, Info, Zap, X, Bell } from 'lucide-react';
 
 const MAX_VISIBLE = 3;
 
 export const NotificationCenter: FC = () => {
   const { notifications, removeNotification } = useNotifications();
 
-  // Deduplicate: if same title+type exists, show only the latest
-  const deduped = useMemo(() => {
+  // Deduplicate and filter recent
+  const visible = useMemo(() => {
     const seen = new Map<string, Notification>();
     for (const n of notifications) {
       const key = `${n.type}:${n.title}`;
-      seen.set(key, n); // last wins — keeps the most recent timestamp
+      seen.set(key, n);
     }
-    return Array.from(seen.values());
+    return Array.from(seen.values()).slice(-MAX_VISIBLE);
   }, [notifications]);
-
-  // Show only the most recent MAX_VISIBLE
-  const visible = deduped.slice(-MAX_VISIBLE);
 
   if (visible.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[200] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
-      {visible.map((n, idx) => (
-        <NotificationItem
-          key={n.id}
-          notification={n}
-          index={idx}
-          onRemove={() => removeNotification(n.id)}
-        />
-      ))}
+    <div className="fixed top-24 right-6 z-[200] flex flex-col gap-4 w-full max-w-sm pointer-events-none">
+      <AnimatePresence initial={false}>
+        {visible.map((n, idx) => (
+          <NotificationItem
+            key={n.id}
+            notification={n}
+            index={visible.length - 1 - idx}
+            onRemove={() => removeNotification(n.id)}
+          />
+        ))}
+      </AnimatePresence>
     </div>
   );
 };
@@ -40,102 +41,83 @@ const NotificationItem: FC<{
   index: number;
   onRemove: () => void;
 }> = ({ notification, index, onRemove }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Stagger entrance based on index
-    const timer = setTimeout(() => setIsVisible(true), 10 + index * 80);
-    return () => clearTimeout(timer);
-  }, [index]);
-
-  const getTypeStyles = (type: NotificationType) => {
+  const getTypeConfig = (type: NotificationType) => {
     switch (type) {
-      case 'success': return { colorClass: 'cyan-500', icon: '⚡', borderColor: 'rgba(6,182,212,0.3)', textColor: '#22d3ee' };
-      case 'error': return { colorClass: 'red-500', icon: '⚠️', borderColor: 'rgba(239,68,68,0.3)', textColor: '#f87171' };
-      case 'warning': return { colorClass: 'amber-500', icon: '🔔', borderColor: 'rgba(245,158,11,0.3)', textColor: '#fbbf24' };
-      case 'system': return { colorClass: 'purple-500', icon: '🤖', borderColor: 'rgba(var(--neon-rgb),0.3)', textColor: 'var(--neon-blue)' };
-      default: return { colorClass: 'slate-400', icon: 'ℹ️', borderColor: 'rgba(var(--neon-rgb),0.2)', textColor: 'var(--neon-blue)' };
+      case 'success': return { icon: <ShieldCheck className="w-4 h-4" />, color: '#10B981', label: 'Security_Success' };
+      case 'error': return { icon: <AlertCircle className="w-4 h-4" />, color: '#EF4444', label: 'System_Error' };
+      case 'warning': return { icon: <AlertCircle className="w-4 h-4" />, color: '#F59E0B', label: 'Protocol_Alert' };
+      case 'system': return { icon: <Zap className="w-4 h-4" />, color: '#5E6AD2', label: 'Neural_Event' };
+      default: return { icon: <Info className="w-4 h-4" />, color: '#0EA5E9', label: 'Info_Packet' };
     }
   };
 
-  const { colorClass, icon, borderColor, textColor } = getTypeStyles(notification.type);
+  const { icon, color, label } = getTypeConfig(notification.type);
 
   return (
-    <div
-      className={`relative p-4 rounded-lg transform transition-all duration-500 pointer-events-auto shadow-2xl backdrop-blur-md overflow-hidden group
-        ${isVisible ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-[120%] opacity-0 scale-95'}
-        bg-[#080d14]/90
-      `}
-      style={{
-        border: `1px solid ${borderColor}`,
-        boxShadow: `0 10px 30px rgba(0,0,0,0.5), inset 0 0 10px rgba(var(--neon-rgb), 0.05)`,
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: 50, scale: 0.9 }}
+      animate={{ 
+        opacity: 1 - (index * 0.15), 
+        x: 0, 
+        scale: 1 - (index * 0.04),
+        y: index * 12,
         zIndex: 100 - index
       }}
+      exit={{ opacity: 0, scale: 0.9, x: 20 }}
+      className="relative pointer-events-auto"
     >
-      {/* HUD corner accents */}
       <div 
-        className="absolute top-0 left-0 w-2 h-2 border-t border-l opacity-50 transition-colors"
-        style={{ borderColor: textColor }}
-      ></div>
-      <div 
-        className="absolute bottom-0 right-0 w-2 h-2 border-b border-r opacity-50 transition-colors"
-        style={{ borderColor: textColor }}
-      ></div>
-
-      {/* Progress bar background */}
-      <div className="absolute bottom-0 left-0 h-0.5 bg-slate-800 w-full opacity-30"></div>
-      
-      {/* Animated underline */}
-      <div 
-        className="absolute bottom-0 left-0 h-0.5 transition-all duration-500"
-        style={{
-          backgroundColor: textColor.startsWith('var') ? 'var(--neon-blue)' : textColor,
-          width: isVisible ? '100%' : '0%',
-          transition: `width ${notification.duration || 5000}ms linear`
-        }}
-      ></div>
-
-      <div className="flex items-start gap-4">
-        <div 
-          className="flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center text-sm shadow-inner transition-colors"
-          style={{ 
-            borderColor: borderColor,
-            backgroundColor: `rgba(var(--neon-rgb), 0.05)`,
-            color: textColor 
-          }}
-        >
-          {icon}
+        className="glass-panel--high p-4 flex gap-4 border-l-4 overflow-hidden"
+        style={{ borderLeftColor: color }}
+      >
+        {/* Icon & Progress Ring Overlay */}
+        <div className="relative flex-shrink-0 w-10 h-10 rounded-xl bg-surface-mid flex items-center justify-center">
+          <div className="text-foreground" style={{ color }}>
+            {icon}
+          </div>
+          {/* Progress SVG Ring */}
+          <svg className="absolute inset-0 w-full h-full -rotate-90">
+            <motion.circle
+              cx="20" cy="20" r="18"
+              fill="transparent"
+              stroke={color}
+              strokeWidth="1.5"
+              strokeDasharray="113"
+              initial={{ strokeDashoffset: 0 }}
+              animate={{ strokeDashoffset: 113 }}
+              transition={{ duration: (notification.duration || 5000) / 1000, ease: "linear" }}
+              className="opacity-30"
+            />
+          </svg>
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start">
-            <h4 
-              className="text-xs font-bold uppercase tracking-[0.2em] mb-1 truncate pr-4"
-              style={{ color: textColor }}
-            >
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 pr-6">
+          <div className="flex flex-col">
+            <span className="text-[8px] font-mono uppercase tracking-[0.2em] mb-1 opacity-50" style={{ color }}>
+              {label}
+            </span>
+            <h4 className="text-xs font-bold text-foreground truncate mb-1">
               {notification.title}
             </h4>
-            <button
-              onClick={onRemove}
-              className="text-slate-600 hover:text-white transition-colors absolute top-3 right-3 p-1 leading-none text-xl"
-              aria-label="Dismiss"
-            >
-              ×
-            </button>
-          </div>
-          <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
-            {notification.message}
-          </p>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-[8px] text-slate-600 font-mono flex items-center gap-1 uppercase tracking-tighter">
-              <span 
-                className="w-1 h-1 rounded-full animate-pulse"
-                style={{ backgroundColor: textColor }}
-              ></span>
-              {new Date(notification.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </span>
+            <p className="text-[10px] text-foreground-muted leading-relaxed line-clamp-2 font-medium">
+              {notification.message}
+            </p>
           </div>
         </div>
+
+        {/* Close Button */}
+        <button
+          onClick={onRemove}
+          className="absolute top-2 right-2 p-1.5 rounded-lg hover:bg-surface-high text-foreground-subtle transition-colors"
+        >
+          <X className="w-3 h-3" />
+        </button>
+
+        {/* HUD Ambient Scanline */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent pointer-events-none animate-shimmer" />
       </div>
-    </div>
+    </motion.div>
   );
 };

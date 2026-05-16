@@ -5,6 +5,7 @@ import { useJarvisStore } from '../store/jarvisStore';
 import { apiClient } from '../services/apiClient';
 import { AppMode } from '../types';
 import { QuickAction } from '../types/api';
+import { Badge } from './ui/Badge';
 
 const ICON_MAP: Record<string, any> = {
   Zap, Shield, Terminal, Globe, Sparkles
@@ -58,9 +59,8 @@ export const QuickResponses: FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 mt-6 w-full max-w-2xl px-4">
-      {/* Quick Action Buttons */}
-      <div className="flex flex-wrap gap-2 justify-center">
+    <div className="flex flex-col gap-6 w-full max-w-3xl items-center">
+      <div className="flex flex-wrap gap-3 justify-center">
         <AnimatePresence>
           {actions.map((action, index) => {
             const Icon = ICON_MAP[action.icon] || Zap;
@@ -73,10 +73,10 @@ export const QuickResponses: FC = () => {
                 whileHover={{ scale: 1.05, translateY: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleAction(action.command)}
-                className="glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 border border-border-default hover:border-accent/30 transition-all group"
+                className="group flex items-center gap-2.5 px-4 py-2 rounded-full glass-panel border border-border-default hover:border-accent/40 hover:bg-accent/5 transition-all"
               >
                 <Icon className={`w-3.5 h-3.5 ${action.color || 'text-accent'} group-hover:scale-110 transition-transform`} />
-                <span className="text-[10px] uppercase tracking-widest font-mono text-foreground-muted group-hover:text-foreground transition-colors">
+                <span className="text-[10px] uppercase tracking-[0.2em] font-mono font-bold text-foreground-subtle group-hover:text-foreground">
                   {action.label}
                 </span>
               </motion.button>
@@ -84,7 +84,6 @@ export const QuickResponses: FC = () => {
           })}
         </AnimatePresence>
 
-        {/* Dynamic Suggestion Trigger */}
         <motion.button
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -92,12 +91,11 @@ export const QuickResponses: FC = () => {
           whileTap={{ scale: 0.95 }}
           onClick={getDynamicSuggestion}
           disabled={isGettingSuggestion}
-          aria-label="Get AI suggestion"
-          className="glass-panel px-3 py-1.5 rounded-full border border-accent/30 hover:border-accent/50 hover:bg-accent/10 transition-all group flex items-center gap-2"
+          className="flex items-center gap-2.5 px-4 py-2 rounded-full glass-panel border border-accent/40 hover:bg-accent/10 transition-all group"
         >
           <Sparkles className={`w-3.5 h-3.5 text-accent ${isGettingSuggestion ? 'animate-spin' : 'group-hover:rotate-12'}`} />
-          <span className="text-[10px] font-bold text-accent uppercase tracking-widest">
-            {isGettingSuggestion ? 'Analyzing...' : 'Suggest Action'}
+          <span className="text-[10px] font-bold text-accent uppercase tracking-[0.2em]">
+            {isGettingSuggestion ? 'Neural_Sync...' : 'Quick_Suggestion'}
           </span>
         </motion.button>
       </div>

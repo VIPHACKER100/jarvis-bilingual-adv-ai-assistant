@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
-import { motion } from 'framer-motion';
-import { Settings, Globe } from 'lucide-react';
+import React, { FC, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Settings, Globe, Activity, Cpu, Zap, Command } from 'lucide-react';
 import { Language } from '../../types';
 import { useJarvisStore } from '../../store/jarvisStore';
 import { APP_VERSION } from '../../config';
@@ -11,62 +11,112 @@ export const Header: FC = () => {
     isConnected, 
     language, 
     toggleLanguage, 
-    setShowSettings 
+    setShowSettings,
+    systemStatus 
   } = useJarvisStore();
+
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <motion.header 
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative z-20 w-full max-w-6xl flex justify-between items-center mb-8 px-4"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6 py-4 flex justify-center ${
+        scrolled ? 'bg-background-overlay blur-bg-heavy border-b border-border-subtle shadow-lg' : 'bg-transparent'
+      }`}
     >
-      <div className="flex flex-col">
-        <h1 className="text-3xl md:text-5xl font-bold tracking-tight gradient-text-linear">
-          JARVIS <span className="accent-text-linear text-2xl md:text-4xl ml-2">{APP_VERSION}</span>
-        </h1>
-        <p className="text-[10px] md:text-xs font-mono text-foreground-muted tracking-widest uppercase mt-2">
-          Neural Interface // Active_Status: Online
-        </p>
-      </div>
-
-      <div className="flex flex-col items-center md:items-end gap-3">
-        <div className="flex items-center gap-4">
-          <div className={`flex items-center gap-2 text-[10px] font-mono tracking-widest px-3 py-1.5 rounded-full border border-border-default bg-surface ${isConnected ? 'text-green-400' : 'text-red-400 animate-pulse'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]' : 'bg-red-400'}`}></span>
-            <span>{isConnected ? 'Neural_Link: Active' : 'Neural_Link: Offline'}</span>
+      <div className="w-full max-w-7xl flex justify-between items-center">
+        {/* Left Side: Logo & System Meta */}
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-2">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-display gradient-text">
+                JARVIS
+              </h1>
+              <span className="text-xs font-bold text-accent px-1.5 py-0.5 rounded bg-accent-soft border border-border-accent">
+                {APP_VERSION}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+              <span className="text-[9px] font-mono text-foreground-subtle uppercase tracking-[0.2em]">
+                Neural_Interface // Node_01
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => { sfx.playSelect(); setShowSettings(true); }}
-              className="p-2 rounded-lg bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover transition-all group"
-              title="System Settings"
-              aria-label="Open system settings"
-            >
-              <Settings className="w-4 h-4 text-foreground-muted group-hover:text-foreground group-hover:rotate-45 transition-transform" />
-            </button>
-            
-            <button
-              onClick={() => { sfx.playSelect(); toggleLanguage(); }}
-              className="flex items-center gap-3 px-4 py-2 rounded-lg bg-surface border border-border-default hover:bg-surface-hover hover:border-border-hover transition-all group"
-              aria-label="Toggle language"
-              title="Toggle language"
-            >
-              <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-tighter">
-                <span className={language === Language.ENGLISH ? "text-accent font-bold" : "text-foreground-muted"}>EN</span>
-                <span className="text-border-default">/</span>
-                <span className={language === Language.HINDI ? "text-accent font-bold" : "text-foreground-muted"}>HI</span>
-                <span className="text-border-default">/</span>
-                <span className={language === Language.HINGLISH ? "text-accent font-bold" : "text-foreground-muted"}>HG</span>
-              </div>
-              <Globe className="w-3.5 h-3.5 text-foreground-muted group-hover:text-accent transition-colors" />
-            </button>
+          {/* System Health Indicators (Visible on Desktop) */}
+          <div className="hidden lg:flex items-center gap-4 px-4 border-l border-border-subtle">
+            <HealthIndicator 
+              icon={<Cpu className="w-3 h-3" />} 
+              label="CPU" 
+              value={systemStatus?.cpu_usage ? `${Math.round(systemStatus.cpu_usage)}%` : '8%'} 
+            />
+            <HealthIndicator 
+              icon={<Zap className="w-3 h-3" />} 
+              label="LAT" 
+              value={systemStatus?.event_loop_lag ? `${Math.round(systemStatus.event_loop_lag)}ms` : '12ms'} 
+            />
           </div>
         </div>
-        <div className="text-[9px] font-mono text-foreground-muted uppercase tracking-[0.2em] opacity-60">
-          Node_Identifier: {language === Language.HINGLISH ? 'HI_EN_PARSER' : language === Language.HINDI ? 'NATIVE_HINDI_v2' : 'UNIVERSAL_ENGLISH'}
+
+        {/* Right Side: Controls & Status */}
+        <div className="flex items-center gap-4">
+          {/* Connection Status Badge */}
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel border border-border-default transition-all ${
+            isConnected ? 'text-success' : 'text-danger'
+          }`}>
+            <Activity className={`w-3.5 h-3.5 ${isConnected ? 'animate-pulse' : ''}`} />
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest hidden sm:inline">
+              {isConnected ? 'Link_Established' : 'Link_Lost'}
+            </span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { sfx.playSelect(); toggleLanguage(); }}
+              className="group flex items-center gap-2 px-3 py-1.5 rounded-lg glass-panel hover:glass-panel--high transition-all"
+              title="Change Language"
+            >
+              <Globe className="w-4 h-4 text-foreground-muted group-hover:text-accent transition-colors" />
+              <div className="flex items-center gap-1 font-mono text-[10px] font-bold">
+                <span className={language === Language.ENGLISH ? "text-accent" : "text-foreground-subtle"}>EN</span>
+                <span className="text-border-default">/</span>
+                <span className={language === Language.HINDI ? "text-accent" : "text-foreground-subtle"}>HI</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { sfx.playSelect(); setShowSettings(true); }}
+              className="p-2 rounded-lg glass-panel hover:glass-panel--high group transition-all"
+              title="System Configuration"
+            >
+              <Settings className="w-4 h-4 text-foreground-muted group-hover:text-foreground group-hover:rotate-90 transition-all duration-500" />
+            </button>
+
+            <div className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle">
+              <Command className="w-3 h-3" />
+            </div>
+          </div>
         </div>
       </div>
     </motion.header>
   );
 };
+
+const HealthIndicator: FC<{ icon: React.ReactNode, label: string, value: string }> = ({ icon, label, value }) => (
+  <div className="flex flex-col gap-0.5">
+    <div className="flex items-center gap-1.5 text-foreground-subtle">
+      {icon}
+      <span className="text-[8px] font-mono uppercase tracking-tighter">{label}</span>
+    </div>
+    <span className="text-[10px] font-mono font-bold text-foreground tabular-nums">{value}</span>
+  </div>
+);
