@@ -6,60 +6,65 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-    /* --- Core Palette (Deep Space) --- */
-    --background-deep: #020203;
-    --background-base: #050508;
-    --background-elevated: #0a0a0f;
-    --background-overlay: rgba(5, 5, 8, 0.85);
+    /* --- Core Palette (Cyber Space) --- */
+    --background-deep: #020204;
+    --background-base: #05060b;
+    --background-elevated: #0d0e14;
+    --background-overlay: rgba(2, 2, 4, 0.9);
     
-    --foreground: #F5F5F7;
-    --foreground-muted: #8E9196;
-    --foreground-subtle: rgba(245, 245, 247, 0.4);
+    --foreground: #f0f4f8;
+    --foreground-muted: #94a3b8;
+    --foreground-subtle: rgba(240, 244, 248, 0.4);
     
-    /* --- Brand & Accents --- */
-    --accent: #5E6AD2;
-    --accent-bright: #7C87EA;
-    --accent-soft: rgba(94, 106, 210, 0.15);
-    --accent-glow: rgba(94, 106, 210, 0.4);
-    --accent-rgb: 94, 106, 210;
+    /* --- JARVIS v3.9.0 Tactical Accents --- */
+    --cyber-cyan: #06b6d4;      /* Main HUD & Comm Channels */
+    --neural-purple: #a855f7;   /* Logic & AI Reasoning */
+    --security-rose: #f43f5e;   /* Alerts & Threat Detection */
+    --sync-amber: #f59e0b;      /* Cross-device telemetry */
     
-    --secondary: #A855F7; /* Purple */
+    --accent: var(--cyber-cyan);
+    --accent-bright: #22d3ee;
+    --accent-soft: rgba(6, 182, 212, 0.1);
+    --accent-glow: rgba(6, 182, 212, 0.4);
+    --accent-rgb: 6, 182, 212;
+    
+    --secondary: var(--neural-purple);
     --secondary-rgb: 168, 85, 247;
     
-    --success: #10B981;
-    --warning: #F59E0B;
-    --danger: #EF4444;
-    --info: #0EA5E9;
+    /* --- Semantic States --- */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #f43f5e;
+    --info: #06b6d4;
 
-    /* --- Surfaces & Borders --- */
-    --surface-low: rgba(255, 255, 255, 0.03);
-    --surface-mid: rgba(255, 255, 255, 0.06);
-    --surface-high: rgba(255, 255, 255, 0.1);
+    /* --- HUD Surfaces & Borders --- */
+    --surface-low: rgba(13, 14, 20, 0.4);
+    --surface-mid: rgba(13, 14, 20, 0.7);
+    --surface-high: rgba(13, 14, 20, 0.9);
     
-    --border-subtle: rgba(255, 255, 255, 0.04);
-    --border-default: rgba(255, 255, 255, 0.08);
-    --border-bright: rgba(255, 255, 255, 0.15);
-    --border-accent: rgba(94, 106, 210, 0.3);
+    --border-subtle: rgba(255, 255, 255, 0.03);
+    --border-default: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(255, 255, 255, 0.12);
+    --border-accent: rgba(6, 182, 212, 0.25);
 
-    /* --- Effects --- */
-    --glass-blur: blur(24px) saturate(1.6);
-    --glass-blur-heavy: blur(40px) saturate(2);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
-    --shadow-accent: 0 0 30px rgba(94, 106, 210, 0.15);
+    /* --- HUD Effects --- */
+    --glass-blur: blur(12px) saturate(1.8);
+    --glass-blur-heavy: blur(20px) saturate(2);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.8);
+    --shadow-accent: 0 0 40px rgba(6, 182, 212, 0.1);
 
-    /* --- Typography Scale (Responsive) --- */
+    /* --- Typography (High Density) --- */
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
     --font-display: 'Rajdhani', sans-serif;
 
-    /* --- Animation Timings --- */
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-    --transition-fast: 150ms var(--ease-out);
-    --transition-base: 300ms var(--ease-out);
-    --transition-slow: 500ms var(--ease-out);
+    /* --- Timings --- */
+    --ease-hud: cubic-bezier(0.19, 1, 0.22, 1);
+    --transition-fast: 200ms var(--ease-hud);
+    --transition-base: 400ms var(--ease-hud);
+    --transition-slow: 700ms var(--ease-hud);
 }
 
 /* --- Base Styles --- */

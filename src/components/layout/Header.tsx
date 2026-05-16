@@ -12,7 +12,9 @@ export const Header: FC = () => {
     language, 
     toggleLanguage, 
     setShowSettings,
-    systemStatus 
+    systemStatus,
+    activeTacticalView,
+    setActiveTacticalView
   } = useJarvisStore();
 
   const [scrolled, setScrolled] = useState(false);
@@ -65,6 +67,34 @@ export const Header: FC = () => {
             />
           </div>
         </div>
+
+        {/* Center: Tactical Navigation */}
+        <nav className="hidden xl:flex items-center gap-1 p-1 bg-background-base/50 border border-border-default rounded-xl backdrop-blur-md">
+          <NavButton 
+            active={activeTacticalView === 'HUD'} 
+            onClick={() => setActiveTacticalView('HUD')}
+            icon={<Cpu className="w-3.5 h-3.5" />}
+            label="Tactical_HUD"
+          />
+          <NavButton 
+            active={activeTacticalView === 'TIMELINE'} 
+            onClick={() => setActiveTacticalView('TIMELINE')}
+            icon={<Activity className="w-3.5 h-3.5" />}
+            label="Audit_Timeline"
+          />
+          <NavButton 
+            active={activeTacticalView === 'SYNC'} 
+            onClick={() => setActiveTacticalView('SYNC')}
+            icon={<Zap className="w-3.5 h-3.5" />}
+            label="Device_Sync"
+          />
+          <NavButton 
+            active={activeTacticalView === 'TRAINING'} 
+            onClick={() => setActiveTacticalView('TRAINING')}
+            icon={<Settings className="w-3.5 h-3.5" />}
+            label="Neural_Training"
+          />
+        </nav>
 
         {/* Right Side: Controls & Status */}
         <div className="flex items-center gap-4">
@@ -119,4 +149,18 @@ const HealthIndicator: FC<{ icon: React.ReactNode, label: string, value: string 
     </div>
     <span className="text-[10px] font-mono font-bold text-foreground tabular-nums">{value}</span>
   </div>
+);
+
+const NavButton: FC<{ active: boolean, onClick: () => void, icon: React.ReactNode, label: string }> = ({ active, onClick, icon, label }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+      active 
+      ? 'bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]' 
+      : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent'
+    }`}
+  >
+    {icon}
+    <span className="text-[10px] font-mono font-bold uppercase tracking-[0.1em]">{label}</span>
+  </button>
 );

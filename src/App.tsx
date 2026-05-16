@@ -22,13 +22,19 @@ import { NotificationCenter } from './components/NotificationCenter';
 import { CommandPalette } from './components/CommandPalette';
 import { NeuralNetwork } from './components/NeuralNetwork';
 
+// Tactical Views
+import { AuditTimeline } from './components/AuditTimeline';
+import { DeviceSyncHub } from './components/DeviceSyncHub';
+import { NeuralTraining } from './components/NeuralTraining';
+
 const App: FC = () => {
   useTheme();
   useJarvisSync();
 
   const {
     isConnected, connectionStatus, lastResponse, mode, isActive, language, setLanguage,
-    addToHistory, setShowPermission, setSettings, setMode, isAgentThinking
+    addToHistory, setShowPermission, setSettings, setMode, isAgentThinking,
+    activeTacticalView
   } = useJarvisStore();
 
   const { sendCommand, toggleActivation } = useVoiceController(useJarvisBridge().sendCommand);
@@ -92,7 +98,7 @@ const App: FC = () => {
           x: [0, 50, 0]
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="ambient-blob w-[800px] h-[800px] bg-accent top-[-200px] left-1/2 -translate-x-1/2 blur-[160px]" 
+        className="ambient-blob w-[800px] h-[800px] bg-cyber-cyan top-[-200px] left-1/2 -translate-x-1/2 blur-[160px]" 
       />
       <motion.div 
         animate={{ 
@@ -101,23 +107,31 @@ const App: FC = () => {
           x: [0, -40, 0]
         }}
         transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="ambient-blob w-[600px] h-[600px] bg-secondary bottom-[-100px] right-[-100px] blur-[140px]" 
+        className="ambient-blob w-[600px] h-[600px] bg-neural-purple bottom-[-100px] right-[-100px] blur-[140px]" 
       />
 
       <Header />
 
       <motion.div
+        key={activeTacticalView}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
         className="w-full flex flex-col items-center pt-24 pb-32"
       >
-        <MainHUD onToggleActivation={toggleActivation} />
+        {activeTacticalView === 'HUD' && (
+          <>
+            <MainHUD onToggleActivation={toggleActivation} />
+            <div className="w-full max-w-6xl px-6 space-y-24 mt-12">
+              <StatusPanels />
+              <AdvancedTools />
+            </div>
+          </>
+        )}
 
-        <div className="w-full max-w-6xl px-6 space-y-24 mt-12">
-          <StatusPanels />
-          <AdvancedTools />
-        </div>
+        {activeTacticalView === 'TIMELINE' && <AuditTimeline />}
+        {activeTacticalView === 'SYNC' && <DeviceSyncHub />}
+        {activeTacticalView === 'TRAINING' && <NeuralTraining />}
       </motion.div>
 
       <QuickAccess />

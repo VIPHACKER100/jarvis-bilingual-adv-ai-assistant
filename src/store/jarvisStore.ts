@@ -63,9 +63,12 @@ interface JarvisState {
   showAutomation: boolean;
   setShowAutomation: (show: boolean) => void;
   showAdvanced: boolean;
-  setShowAdvanced: (show: boolean) => void;
+  setShowAdvanced: (show) => void;
   showPermission: boolean;
-  setShowPermission: (show: boolean) => void;
+  setShowPermission: (show) => void;
+  
+  activeTacticalView: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING';
+  setActiveTacticalView: (view: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING') => void;
   
   isAgentThinking: boolean;
   setAgentThinking: (thinking: boolean) => void;
@@ -137,6 +140,9 @@ export const useJarvisStore = create<JarvisState>()(
   setShowAdvanced: (showAdvanced) => set({ showAdvanced }),
   showPermission: false,
   setShowPermission: (showPermission) => set({ showPermission }),
+  
+  activeTacticalView: 'HUD',
+  setActiveTacticalView: (view) => set({ activeTacticalView: view }),
   
   isAgentThinking: false,
   setAgentThinking: (isAgentThinking) => set({ isAgentThinking }),

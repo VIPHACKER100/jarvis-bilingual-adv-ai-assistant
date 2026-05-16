@@ -51,7 +51,8 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
     <main className="relative z-10 flex flex-col items-center w-full max-w-5xl space-y-12 md:space-y-16 px-4 py-12 md:py-20">
       
       {/* Dynamic Status Indicator */}
-      <div className="min-h-[32px] flex items-center justify-center">
+      <div className="min-h-[32px] flex items-center justify-center gap-4">
+        <div className="hidden md:block h-px w-8 bg-cyber-cyan/30" />
         <AnimatePresence mode="wait">
           <motion.div
             key={mode + (isAgentThinking ? '-thinking' : '')}
@@ -63,6 +64,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
             <StatusBadge mode={mode} isThinking={isAgentThinking} />
           </motion.div>
         </AnimatePresence>
+        <div className="hidden md:block h-px w-8 bg-cyber-cyan/30" />
       </div>
 
       {/* Main Interaction Hub */}
@@ -230,7 +232,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
 const StatusBadge: FC<{ mode: AppMode, isThinking: boolean }> = ({ mode, isThinking }) => {
   if (isThinking) {
     return (
-      <Badge variant="accent" pulse className="px-4 py-1.5 border-accent/50 bg-accent/10">
+      <Badge variant="accent" pulse className="px-4 py-1.5 border-cyber-cyan/50 bg-cyber-cyan/10">
         Autonomous_Analysis_v3.9.0
       </Badge>
     );
@@ -239,7 +241,7 @@ const StatusBadge: FC<{ mode: AppMode, isThinking: boolean }> = ({ mode, isThink
   switch (mode) {
     case AppMode.LISTENING:
       return (
-        <Badge variant="info" pulse className="px-4 py-1.5 border-info/50 bg-info/10">
+        <Badge variant="info" pulse className="px-4 py-1.5 border-cyber-cyan/50 bg-cyber-cyan/10">
           Listening_Neural_Buffer
         </Badge>
       );

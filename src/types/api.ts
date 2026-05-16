@@ -479,14 +479,50 @@ export interface SuggestionResponse {
   mood?: string;
 }
 
-// ─── Generic Responses ───────────────────────────────────────────────────────
+// ─── Neural Logs & Timeline ──────────────────────────────────────────────────
 
-export interface SuccessResponse {
-  success: boolean;
-  message?: string;
+export type LogLevel = 'STABLE' | 'PROCESSING' | 'ALERT' | 'INFO' | 'SYNC';
+
+export interface NeuralLogEntry {
+  id: string;
+  timestamp: string;
+  level: LogLevel;
+  module: string;
+  message: string;
+  details?: Record<string, unknown>;
+  trace_id?: string;
 }
 
-export interface MessageResponse {
+export interface NeuralLogListResponse {
   success: boolean;
-  response: string;
+  logs: NeuralLogEntry[];
+  count: number;
+}
+
+// ─── Neural Training & Voice ─────────────────────────────────────────────────
+
+export interface VoiceProfile {
+  id: string;
+  name: string;
+  gender: 'MALE' | 'FEMALE' | 'NEUTRAL';
+  base_model: string;
+  pitch: number;
+  rate: number;
+  emotion_weight: number;
+  logic_weight: number;
+  last_trained?: string;
+  is_active: boolean;
+}
+
+export interface VoiceProfileListResponse {
+  success: boolean;
+  profiles: VoiceProfile[];
+}
+
+export interface TrainingProgress {
+  step: number;
+  total_steps: number;
+  loss: number;
+  accuracy: number;
+  current_epoch: number;
 }
