@@ -216,6 +216,14 @@ export function useJarvisBridge() {
     return await apiClient.getPairedDevices();
   }, []);
 
+  const getPairingCode = useCallback(async () => {
+    return await apiClient.getPairingCode();
+  }, []);
+
+  const unpairDevice = useCallback(async (id: string) => {
+    return await apiClient.unpairDevice(id);
+  }, []);
+
   return {
     sendCommand,
     confirmCommand,
@@ -226,6 +234,8 @@ export function useJarvisBridge() {
     getVoiceProfiles,
     updateVoiceProfile,
     trainVoiceProfile,
-    getPairedDevices
+    getPairedDevices,
+    getPairingCode,
+    unpairDevice
   };
 }

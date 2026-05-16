@@ -39,7 +39,7 @@ describe('ApiClient', () => {
     it('should return health status on success', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ status: 'ok', name: 'JARVIS', version: '3.8.0' }),
+        json: async () => ({ status: 'ok', name: 'JARVIS', version: '3.9.0' }),
       });
 
       const result = await client.healthCheck();
@@ -201,7 +201,7 @@ describe('ApiClient', () => {
     it('should include API key in X-API-Key header', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ status: 'ok', name: 'JARVIS', version: '3.8.0' }),
+        json: async () => ({ status: 'ok', name: 'JARVIS', version: '3.9.0' }),
       });
 
       await client.getSystemStatus();
