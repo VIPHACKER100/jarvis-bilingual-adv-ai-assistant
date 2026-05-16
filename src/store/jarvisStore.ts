@@ -153,6 +153,12 @@ export const useJarvisStore = create<JarvisState>()(
   
   agentThought: null,
   setAgentThought: (agentThought) => set({ agentThought }),
+
+  neuralLogs: [],
+  setNeuralLogs: (neuralLogs) => set({ neuralLogs }),
+  addNeuralLog: (log) => set((state) => ({
+    neuralLogs: [log, ...state.neuralLogs].slice(0, 100) // Keep last 100 logs
+  })),
       }),
       {
         name: 'jarvis-storage',

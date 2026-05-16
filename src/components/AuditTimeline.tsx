@@ -7,9 +7,11 @@ import { Badge } from './ui/Badge';
 
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
 
+import { useJarvisStore } from '../store/jarvisStore';
+
 export const AuditTimeline: FC = () => {
   const { getNeuralLogs } = useJarvisBridge();
-  const [logs, setLogs] = useState<NeuralLogEntry[]>([]);
+  const { neuralLogs, setNeuralLogs } = useJarvisStore();
   const [filter, setFilter] = useState<LogLevel | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -18,7 +20,7 @@ export const AuditTimeline: FC = () => {
     try {
       const res = await getNeuralLogs(50);
       if (res.success) {
-        setLogs(res.logs);
+        setNeuralLogs(res.logs);
       }
     } catch (err) {
       console.error('Failed to fetch neural logs:', err);
@@ -28,10 +30,12 @@ export const AuditTimeline: FC = () => {
   };
 
   useEffect(() => {
-    fetchLogs();
-    const interval = setInterval(fetchLogs, 5000); // Poll every 5s
-    return () => clearInterval(interval);
-  }, [getNeuralLogs]);
+    if (neuralLogs.length === 0) {
+      fetchLogs();
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
 
   const getLevelColor = (level: LogLevel) => {
     switch (level) {
@@ -43,11 +47,12 @@ export const AuditTimeline: FC = () => {
     }
   };
 
-  const filteredLogs = logs.filter(log => 
-    (filter === 'ALL' || log.level === filter) &&
-    (log.message.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     log.module.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredLogs = neuralLogs.filter(log => {
+    const matchesFilter = filter === 'ALL' || log.level === filter;
+    const matchesSearch = log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         log.module.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div className="flex flex-col h-full max-w-6xl mx-auto p-6 space-y-8">
@@ -65,11 +70,17 @@ export const AuditTimeline: FC = () => {
 
         <div className="flex flex-wrap gap-3">
           <Badge variant="ghost" className="bg-cyber-cyan/5 border-cyber-cyan/20 text-cyber-cyan">
-            Active_Traces: {logs.length}
+            Active_Traces: {neuralLogs.length}
           </Badge>
           <Badge variant="ghost" className="bg-security-rose/5 border-security-rose/20 text-security-rose">
-            Alerts_Logged: {logs.filter(l => l.level === 'ALERT').length}
+            Alerts_Logged: {neuralLogs.filter(l => l.level === 'ALERT').length}
           </Badge>
+          {isLoading && (
+            <div className="flex items-center gap-2 ml-2">
+              <RefreshCw className="w-3 h-3 text-cyber-cyan animate-spin" />
+              <span className="text-[10px] font-mono text-cyber-cyan animate-pulse">SYNCING...</span>
+            </div>
+          )}
         </div>
       </div>
 

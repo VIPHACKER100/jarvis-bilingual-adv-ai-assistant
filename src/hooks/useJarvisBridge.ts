@@ -116,6 +116,12 @@ export function useJarvisBridge() {
         getStoreState().setAgentThought(null);
         break;
 
+      case 'neural_log':
+        if (message.data) {
+          getStoreState().addNeuralLog(message.data as any);
+        }
+        break;
+
       case 'pong':
         break;
     }

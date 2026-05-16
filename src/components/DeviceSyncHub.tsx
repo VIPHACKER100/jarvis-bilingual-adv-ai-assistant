@@ -9,9 +9,12 @@ import { Button } from './ui/Button';
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
 
 export const DeviceSyncHub: FC = () => {
-  const { getPairedDevices } = useJarvisBridge();
+  const { getPairedDevices, getPairingCode, unpairDevice } = useJarvisBridge();
   const [devices, setDevices] = useState<PairedDevice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pairingCode, setPairingCode] = useState<string | null>(null);
+  const [pairingExpiry, setPairingExpiry] = useState<number>(0);
+  const [showPairing, setShowPairing] = useState(false);
 
   const fetchDevices = async () => {
     try {
@@ -26,11 +29,53 @@ export const DeviceSyncHub: FC = () => {
     }
   };
 
+  const generateCode = async () => {
+    try {
+      const res = await getPairingCode();
+      if (res.success) {
+        setPairingCode(res.code);
+        setPairingExpiry(res.expires_in);
+        setShowPairing(true);
+      }
+    } catch (err) {
+      console.error('Failed to generate pairing code:', err);
+    }
+  };
+
+  const handleUnpair = async (id: string) => {
+    if (confirm(`Are you sure you want to unpair device ${id}?`)) {
+      try {
+        const res = await unpairDevice(id);
+        if (res.success) {
+          setDevices(prev => prev.filter(d => d.id !== id));
+        }
+      } catch (err) {
+        console.error('Failed to unpair device:', err);
+      }
+    }
+  };
+
   useEffect(() => {
     fetchDevices();
     const interval = setInterval(fetchDevices, 10000); // Poll every 10s
     return () => clearInterval(interval);
   }, [getPairedDevices]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showPairing && pairingExpiry > 0) {
+      timer = setInterval(() => {
+        setPairingExpiry(prev => {
+          if (prev <= 1) {
+            setShowPairing(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [showPairing, pairingExpiry]);
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
@@ -57,16 +102,45 @@ export const DeviceSyncHub: FC = () => {
             voice profiles, and secure command history across all authorized nodes.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Button variant="neon" className="gap-2">
+            <Button variant="neon" className="gap-2" onClick={generateCode}>
               <Link className="w-4 h-4" />
               Pair_New_Device
             </Button>
-            <Button variant="secondary" className="gap-2">
-              <Zap className="w-4 h-4" />
-              Force_Global_Sync
+            <Button variant="secondary" className="gap-2" onClick={fetchDevices}>
+              <RefreshCw className="w-4 h-4" />
+              Sync_Ecosystem
             </Button>
           </div>
         </div>
+
+        {/* Pairing Code Overlay */}
+        <AnimatePresence>
+          {showPairing && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="absolute inset-0 z-20 bg-background-base/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
+            >
+              <h3 className="text-2xl font-bold font-display uppercase tracking-widest text-cyber-cyan mb-2">Neural_Handshake_Initiated</h3>
+              <p className="text-foreground-muted mb-8 text-sm">Enter this code on your mobile device to establish the neural link.</p>
+              
+              <div className="bg-background-deep border border-cyber-cyan/30 rounded-2xl p-8 mb-6 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
+                <span className="text-5xl font-bold font-mono tracking-[0.5em] text-foreground pl-[0.5em]">
+                  {pairingCode}
+                </span>
+              </div>
+              
+              <p className="text-[10px] font-mono text-foreground-subtle uppercase mb-8">
+                Code expires in {Math.floor(pairingExpiry / 60)}m {pairingExpiry % 60}s
+              </p>
+              
+              <Button variant="ghost" onClick={() => setShowPairing(false)} className="text-danger border border-danger/20">
+                Abort_Pairing
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Decorative Background Elements */}
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
@@ -94,7 +168,11 @@ export const DeviceSyncHub: FC = () => {
                   }`}>
                     {getDeviceIcon(device.type)}
                   </div>
-                  <button className="text-foreground-subtle hover:text-foreground transition-colors">
+                  <button 
+                    onClick={() => handleUnpair(device.id)}
+                    className="text-foreground-subtle hover:text-danger transition-colors"
+                    title="Unpair Device"
+                  >
                     <MoreHorizontal className="w-5 h-5" />
                   </button>
                 </div>
@@ -132,7 +210,7 @@ export const DeviceSyncHub: FC = () => {
                   <Button variant="ghost" className="flex-1 text-xs py-2 bg-background-base/50">
                     Diagnostics
                   </Button>
-                  <Button variant="secondary" className="flex-1 text-xs py-2">
+                  <Button variant="secondary" className="flex-1 text-xs py-2" onClick={() => fetchDevices()}>
                     Resync
                   </Button>
                 </div>
