@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ArcReactorProps {
@@ -11,7 +11,6 @@ interface ArcReactorProps {
 export const ArcReactor: FC<ArcReactorProps> = ({ 
   isActive, 
   onClick, 
-  language,
   eventLoopLag = 0 
 }) => {
   // Dynamic glow color based on system health (lag)

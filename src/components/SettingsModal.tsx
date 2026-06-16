@@ -1,8 +1,8 @@
 import React, { FC, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Settings, User, Shield, Zap, Volume2, Globe, Palette, 
-  Smartphone, Bell, Save, RotateCcw, Check, Sparkles
+  Settings, Shield, Zap, Volume2, Globe, 
+  Save, RotateCcw, Check, Sparkles
 } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
@@ -11,15 +11,13 @@ import { Modal } from './ui/Modal';
 import { Tabs } from './ui/Tabs';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-import { Badge } from './ui/Badge';
-import { Card } from './ui/Card';
+
 import { JarvisSettings } from '../types/api';
 
 export const SettingsModal: FC = () => {
   const { 
     showSettings, setShowSettings, 
     settings, setSettings,
-    language 
   } = useJarvisStore();
   const { addNotification } = useNotifications();
   

@@ -1,6 +1,6 @@
 import { useState, useEffect, FC } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Calendar, Layers, Plus, X, RefreshCw, Play, Pause, Edit2, Trash2, ShieldCheck, Activity } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Zap, Calendar, Layers, Plus, X, RefreshCw, Play, Pause, Edit2, Trash2, ShieldCheck } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { AutomationEditor } from './AutomationEditor';
 import { useNotifications } from '../context/NotificationContext';

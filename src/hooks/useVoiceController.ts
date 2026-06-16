@@ -9,13 +9,11 @@ export const useVoiceController = (
   sendCommand: (text: string, language: 'en' | 'hi' | 'hinglish') => void
 ) => {
   const {
-    mode,
     setMode,
     language,
     setTranscript,
     addToHistory,
     settings,
-    isActive,
     setIsActive,
     setShowPermission,
   } = useJarvisStore();

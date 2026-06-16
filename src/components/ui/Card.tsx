@@ -10,6 +10,20 @@ interface CardProps extends HTMLMotionProps<'div'> {
   children: React.ReactNode;
 }
 
+const elevationStyles: Record<CardElevation, string> = {
+  low: 'hud-panel',
+  mid: 'hud-panel bg-surface-mid border-border-bright',
+  high: 'hud-panel border-accent/40 shadow-accent',
+};
+
+const statusStyles: Record<string, string> = {
+  none: '',
+  success: 'border-l-[3px] border-l-success',
+  warning: 'border-l-[3px] border-l-warning',
+  danger: 'border-l-[3px] border-l-danger',
+  accent: 'border-l-[3px] border-l-accent',
+};
+
 export const Card: FC<CardProps> = ({
   elevation = 'low',
   interactive = false,
@@ -17,41 +31,13 @@ export const Card: FC<CardProps> = ({
   children,
   className = '',
   ...props
-}) => {
-  const elevationStyles = {
-    low: 'hud-panel',
-    mid: 'hud-panel bg-surface-mid border-border-bright',
-    high: 'hud-panel border-accent/40 shadow-accent'
-  };
-
-  const statusStyles = {
-    none: '',
-    success: 'border-l-4 border-l-success',
-    warning: 'border-l-4 border-l-warning',
-    danger: 'border-l-4 border-l-danger',
-    accent: 'border-l-4 border-l-accent'
-  };
-
-  return (
-    <motion.div
-      whileHover={interactive ? { translateY: -4, scale: 1.01, boxShadow: 'var(--shadow-lg)' } : {}}
-      className={`relative overflow-hidden ${elevationStyles[elevation]} ${statusStyles[statusBorder]} ${className} ${
-        interactive ? 'cursor-pointer' : ''
-      }`}
-      {...props}
-    >
-      {/* Decorative HUD Corner (Top-Right) */}
-      <div className="absolute top-0 right-0 w-8 h-8 opacity-20 pointer-events-none">
-        <div className="absolute top-0 right-0 w-px h-full bg-foreground" />
-        <div className="absolute top-0 right-0 h-px w-full bg-foreground" />
-      </div>
-
-      <div className="p-5">
-        {children}
-      </div>
-      
-      {/* Subtle Scanline Animation (optional layer) */}
-      {elevation === 'high' && <div className="scanline" />}
-    </motion.div>
-  );
-};
+}) => (
+  <motion.div
+    whileHover={interactive ? { translateY: -4, scale: 1.01 } : {}}
+    className={`relative overflow-hidden ${elevationStyles[elevation]} ${statusStyles[statusBorder]} ${className}`}
+    {...props}
+  >
+    {elevation === 'high' && <div className="scanline" />}
+    <div className="p-5">{children}</div>
+  </motion.div>
+);

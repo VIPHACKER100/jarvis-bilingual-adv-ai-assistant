@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Zap } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';

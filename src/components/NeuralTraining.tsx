@@ -1,6 +1,6 @@
-import React, { FC, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Mic2, Save, Play, Settings2, BarChart3, Binary, Waves } from 'lucide-react';
+import { FC, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Brain, Mic2, Save, Play, BarChart3, Binary, Waves } from 'lucide-react';
 import { VoiceProfile } from '../types/api';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';

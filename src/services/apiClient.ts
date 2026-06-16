@@ -1,9 +1,7 @@
-import { SystemStatus, CommandResponse, CommandRequest } from '../types';
+import { SystemStatus, CommandResponse } from '../types';
 import { API_BASE_URL } from '../config';
 import type {
   HealthCheckResponse,
-  PerformanceHistoryResponse,
-  CommandInsightsResponse,
   ConversationListResponse,
   ConversationEntry as ConversationEntryApi,
   ConversationSaveResponse,
@@ -13,8 +11,7 @@ import type {
   FactUpdateResponse,
   FactDeleteResponse,
   MemoryNodeListResponse,
-  MemoryNodeContentResponse,
-  MemoryNodeUpdateResponse,
+
   AutomationStatusResponse,
   TaskListResponse,
   TaskCreateResponse,
@@ -121,17 +118,6 @@ class ApiClient {
     return response.json();
   }
 
-  // Get performance history
-  async getPerformanceHistory(limit: number = 60): Promise<PerformanceHistoryResponse> {
-    const response = await fetch(`${this.baseUrl}/system/performance/history?limit=${limit}`, {
-      headers: this.getHeaders()
-    });
-    if (!response.ok) {
-      throw new Error('Failed to get performance history');
-    }
-    return response.json();
-  }
-
   // Execute command
   async executeCommand(command: string, language: 'en' | 'hi' = 'en'): Promise<CommandResponse> {
     const response = await fetch(`${this.baseUrl}/command`, {
@@ -196,17 +182,6 @@ class ApiClient {
     });
     if (!response.ok) {
       throw new Error('Failed to get memory stats');
-    }
-    return response.json();
-  }
-
-  // Get command insights
-  async getCommandInsights(days: number = 30): Promise<CommandInsightsResponse> {
-    const response = await fetch(`${this.baseUrl}/system/command-insights?days=${days}`, {
-      headers: this.getHeaders()
-    });
-    if (!response.ok) {
-      throw new Error('Failed to get command insights');
     }
     return response.json();
   }

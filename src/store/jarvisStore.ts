@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import { AppMode, Language, CommandResult } from '../types';
 import { SystemStatus, CommandResponse, ConfirmationRequest, ConnectionStatus } from '../types/bridge';
-import { JarvisSettings } from '../types/api';
+import { JarvisSettings, NeuralLogEntry } from '../types/api';
 import { INITIAL_VOLUME } from '../constants';
 
 /** Vision overlay state */
@@ -76,15 +76,15 @@ interface JarvisState {
   agentThought: string | null;
   setAgentThought: (thought: string | null) => void;
 
-  neuralLogs: import('../types/api').NeuralLogEntry[];
-  setNeuralLogs: (logs: import('../types/api').NeuralLogEntry[]) => void;
-  addNeuralLog: (log: import('../types/api').NeuralLogEntry) => void;
+  neuralLogs: NeuralLogEntry[];
+  setNeuralLogs: (logs: NeuralLogEntry[]) => void;
+  addNeuralLog: (log: NeuralLogEntry) => void;
 }
 
 export const useJarvisStore = create<JarvisState>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set) => ({
   mode: AppMode.IDLE,
   setMode: (mode) => set({ mode }),
   

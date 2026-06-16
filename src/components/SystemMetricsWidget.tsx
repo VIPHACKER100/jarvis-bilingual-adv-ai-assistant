@@ -1,6 +1,6 @@
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Cpu, Zap, Database, Activity } from 'lucide-react';
+import { Cpu, Zap, Database } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { Card } from './ui/Card';
 

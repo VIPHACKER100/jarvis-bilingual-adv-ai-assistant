@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Language } from '../types';
 import { useJarvisStore } from '../store/jarvisStore';

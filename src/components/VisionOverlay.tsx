@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Copy, X, Target, Zap, ShieldCheck } from 'lucide-react';
 
 export interface VisionMetadata {
@@ -30,6 +30,7 @@ export const VisionOverlay: FC<VisionOverlayProps> = ({ isOpen, content, onClose
       }, 10);
       return () => clearInterval(interval);
     }
+    return;
   }, [isOpen, content]);
 
   useEffect(() => {

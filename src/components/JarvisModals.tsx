@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
 import { PermissionModal } from './PermissionModal';
@@ -11,14 +11,12 @@ import { Language } from '../types';
 
 export const JarvisModals: FC = () => {
   const { 
-    language, setLanguage,
-    showSettings, setShowSettings,
+    language,
     showMemory, setShowMemory,
     showAutomation, setShowAutomation,
     showPermission, setShowPermission,
     pendingConfirmation,
     visionData, setVisionData,
-    setSettings
   } = useJarvisStore();
   
   const { confirmCommand } = useJarvisBridge();

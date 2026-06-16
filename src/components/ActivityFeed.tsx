@@ -1,9 +1,8 @@
-import React, { FC, useRef, useEffect } from 'react';
+import { FC, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, MessageSquare, Zap, Shield, AlertTriangle, Clock } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
-import { Card } from './ui/Card';
-import { Badge } from './ui/Badge';
+
 
 export const ActivityFeed: FC = () => {
   const { history } = useJarvisStore();

@@ -152,7 +152,7 @@ class ProactiveManager:
         try:
             async with self._lock:
                 # Use a very small token limit for speed
-                response = await llm_client.generate_response(prompt, max_tokens=30)
+                response = await llm_client.get_response(prompt, max_tokens=30)
                 
                 if "NONE" in response.upper() or len(response) < 5:
                     return None

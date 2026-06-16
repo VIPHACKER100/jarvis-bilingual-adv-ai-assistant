@@ -1,6 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Activity, Network, AlertTriangle, Zap, Search, ShieldAlert, X, Terminal, Lock } from 'lucide-react';
+import { Network, Zap, ShieldAlert, X, Terminal, Lock } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 
 interface NetworkConnection {
@@ -14,7 +14,6 @@ interface NetworkConnection {
 
 export const SecurityDashboard: FC = () => {
   const [connections, setConnections] = useState<NetworkConnection[]>([]);
-  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'network' | 'processes'>('network');
   const [quarantining, setQuarantining] = useState<number | null>(null);
 

@@ -1,19 +1,25 @@
-import { FC, useEffect, useState, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNotifications, NotificationType, Notification } from '../context/NotificationContext';
-import { ShieldCheck, AlertCircle, Info, Zap, X, Bell } from 'lucide-react';
+import { ShieldCheck, AlertCircle, Info, Zap, X } from 'lucide-react';
 
 const MAX_VISIBLE = 3;
+
+const typeConfig: Record<NotificationType, { icon: React.ReactNode; color: string; label: string }> = {
+  success: { icon: <ShieldCheck className="w-4 h-4" />, color: '#10B981', label: 'Success' },
+  error: { icon: <AlertCircle className="w-4 h-4" />, color: '#F43F5E', label: 'Error' },
+  warning: { icon: <AlertCircle className="w-4 h-4" />, color: '#F59E0B', label: 'Warning' },
+  system: { icon: <Zap className="w-4 h-4" />, color: 'var(--accent)', label: 'System' },
+  info: { icon: <Info className="w-4 h-4" />, color: '#06B6D4', label: 'Info' },
+};
 
 export const NotificationCenter: FC = () => {
   const { notifications, removeNotification } = useNotifications();
 
-  // Deduplicate and filter recent
   const visible = useMemo(() => {
     const seen = new Map<string, Notification>();
     for (const n of notifications) {
-      const key = `${n.type}:${n.title}`;
-      seen.set(key, n);
+      seen.set(`${n.type}:${n.title}`, n);
     }
     return Array.from(seen.values()).slice(-MAX_VISIBLE);
   }, [notifications]);
@@ -21,13 +27,12 @@ export const NotificationCenter: FC = () => {
   if (visible.length === 0) return null;
 
   return (
-    <div className="fixed top-24 right-6 z-[200] flex flex-col gap-4 w-full max-w-sm pointer-events-none">
+    <div className="fixed top-20 right-4 z-[200] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
       <AnimatePresence initial={false}>
-        {visible.map((n, idx) => (
+        {visible.map((n) => (
           <NotificationItem
             key={n.id}
             notification={n}
-            index={visible.length - 1 - idx}
             onRemove={() => removeNotification(n.id)}
           />
         ))}
@@ -38,85 +43,52 @@ export const NotificationCenter: FC = () => {
 
 const NotificationItem: FC<{
   notification: Notification;
-  index: number;
   onRemove: () => void;
-}> = ({ notification, index, onRemove }) => {
-  const getTypeConfig = (type: NotificationType) => {
-    switch (type) {
-      case 'success': return { icon: <ShieldCheck className="w-4 h-4" />, color: '#10B981', label: 'Security_Success' };
-      case 'error': return { icon: <AlertCircle className="w-4 h-4" />, color: '#EF4444', label: 'System_Error' };
-      case 'warning': return { icon: <AlertCircle className="w-4 h-4" />, color: '#F59E0B', label: 'Protocol_Alert' };
-      case 'system': return { icon: <Zap className="w-4 h-4" />, color: '#5E6AD2', label: 'Neural_Event' };
-      default: return { icon: <Info className="w-4 h-4" />, color: '#0EA5E9', label: 'Info_Packet' };
-    }
-  };
-
-  const { icon, color, label } = getTypeConfig(notification.type);
+}> = ({ notification, onRemove }) => {
+  const config = typeConfig[notification.type];
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, x: 50, scale: 0.9 }}
-      animate={{ 
-        opacity: 1 - (index * 0.15), 
-        x: 0, 
-        scale: 1 - (index * 0.04),
-        y: index * 12,
-        zIndex: 100 - index
-      }}
-      exit={{ opacity: 0, scale: 0.9, x: 20 }}
-      className="relative pointer-events-auto"
+      initial={{ opacity: 0, x: 40, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 20, scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      className="pointer-events-auto"
     >
-      <div 
-        className="glass-panel--high p-4 flex gap-4 border-l-4 overflow-hidden"
-        style={{ borderLeftColor: color }}
-      >
-        {/* Icon & Progress Ring Overlay */}
-        <div className="relative flex-shrink-0 w-10 h-10 rounded-xl bg-surface-mid flex items-center justify-center">
-          <div className="text-foreground" style={{ color }}>
-            {icon}
+      <div className="relative glass-panel--high overflow-hidden border-l-[3px] p-4 pl-3" style={{ borderLeftColor: config.color }}>
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 mt-0.5" style={{ color: config.color }}>
+            {config.icon}
           </div>
-          {/* Progress SVG Ring */}
-          <svg className="absolute inset-0 w-full h-full -rotate-90">
-            <motion.circle
-              cx="20" cy="20" r="18"
-              fill="transparent"
-              stroke={color}
-              strokeWidth="1.5"
-              strokeDasharray="113"
-              initial={{ strokeDashoffset: 0 }}
-              animate={{ strokeDashoffset: 113 }}
-              transition={{ duration: (notification.duration || 5000) / 1000, ease: "linear" }}
-              className="opacity-30"
-            />
-          </svg>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0 pr-6">
-          <div className="flex flex-col">
-            <span className="text-[8px] font-mono uppercase tracking-[0.2em] mb-1 opacity-50" style={{ color }}>
-              {label}
-            </span>
-            <h4 className="text-xs font-bold text-foreground truncate mb-1">
-              {notification.title}
-            </h4>
-            <p className="text-[10px] text-foreground-muted leading-relaxed line-clamp-2 font-medium">
-              {notification.message}
-            </p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider" style={{ color: config.color }}>
+                {config.label}
+              </span>
+            </div>
+            <p className="text-sm font-medium text-foreground">{notification.title}</p>
+            {notification.message && (
+              <p className="text-xs text-foreground-muted mt-0.5 line-clamp-2">{notification.message}</p>
+            )}
           </div>
+          <button
+            onClick={onRemove}
+            className="flex-shrink-0 p-1 rounded-md hover:bg-surface-high text-foreground-subtle hover:text-foreground transition-colors"
+            aria-label="Dismiss"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
-
-        {/* Close Button */}
-        <button
-          onClick={onRemove}
-          className="absolute top-2 right-2 p-1.5 rounded-lg hover:bg-surface-high text-foreground-subtle transition-colors"
-        >
-          <X className="w-3 h-3" />
-        </button>
-
-        {/* HUD Ambient Scanline */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent pointer-events-none animate-shimmer" />
+        {notification.duration !== 0 && (
+          <motion.div
+            initial={{ scaleX: 1 }}
+            animate={{ scaleX: 0 }}
+            transition={{ duration: (notification.duration || 5000) / 1000, ease: 'linear' }}
+            className="absolute bottom-0 left-0 right-0 h-[2px] origin-left"
+            style={{ backgroundColor: config.color, opacity: 0.3 }}
+          />
+        )}
       </div>
     </motion.div>
   );

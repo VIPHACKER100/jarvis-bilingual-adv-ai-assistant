@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 export const NeuralNetwork: FC<{ isActive?: boolean }> = ({ isActive = false }) => {

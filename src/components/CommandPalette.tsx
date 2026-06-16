@@ -1,15 +1,14 @@
-import React, { FC, useState, useEffect, useMemo } from 'react';
+import { FC, useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Command, Zap, History, Settings, User, Terminal, X } from 'lucide-react';
+import { Search, Zap, History, Settings, User, Terminal } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
-import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 
 export const CommandPalette: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const { history, setShowSettings } = useJarvisStore();
+  const { setShowSettings } = useJarvisStore();
   const { sendCommand } = useJarvisBridge();
 
   // Shortcut listener

@@ -1,9 +1,8 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Shield, Cpu, RefreshCw, Terminal, Search, Filter, ArrowRight } from 'lucide-react';
-import { NeuralLogEntry, LogLevel } from '../types/api';
+import { LogLevel } from '../types/api';
 import { Card } from './ui/Card';
-import { Badge } from './ui/Badge';
 
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
 

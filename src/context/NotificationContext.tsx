@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, FC, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, FC, ReactNode } from 'react';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'system';
 
@@ -20,28 +20,45 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
+let nextId = 0;
+const generateId = () => `notif-${++nextId}-${Date.now()}`;
+
 export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  const addNotification = useCallback((n: Omit<Notification, 'id' | 'timestamp'>) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    const timestamp = Date.now();
-    const newNotification = { ...n, id, timestamp };
-
-    setNotifications(prev => [newNotification, ...prev].slice(0, 5)); // Keep last 5
-
-    if (n.duration !== 0) {
-      setTimeout(() => {
-        removeNotification(id);
-      }, n.duration || 5000);
-    }
-  }, []);
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   }, []);
 
+  const addNotification = useCallback(
+    (n: Omit<Notification, 'id' | 'timestamp'>) => {
+      const id = generateId();
+      const timestamp = Date.now();
+      const notif: Notification = { ...n, id, timestamp };
+
+      setNotifications((prev) => [notif, ...prev].slice(0, 5));
+
+      if (n.duration !== 0) {
+        const timer = setTimeout(() => {
+          removeNotification(id);
+        }, n.duration || 5000);
+        timersRef.current.set(id, timer);
+      }
+
+      return id;
+    },
+    [removeNotification]
+  );
+
   const clearAll = useCallback(() => {
+    timersRef.current.forEach((timer) => clearTimeout(timer));
+    timersRef.current.clear();
     setNotifications([]);
   }, []);
 

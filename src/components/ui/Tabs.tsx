@@ -20,37 +20,45 @@ export const Tabs: FC<TabsProps> = ({
   activeTab,
   onChange,
   className = '',
-  variant = 'underline'
+  variant = 'underline',
 }) => {
+  if (tabs.length === 0) return null;
+
   return (
-    <div className={`flex items-center gap-1 border-b border-border-subtle mb-6 ${className}`}>
+    <div
+      className={`flex items-center gap-1 ${
+        variant === 'underline' ? 'border-b border-border-subtle' : ''
+      } ${className}`}
+      role="tablist"
+    >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
-        
         return (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={isActive}
             onClick={() => onChange(tab.id)}
-            className={`relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${
+            className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-[-2px] ${
               isActive ? 'text-accent' : 'text-foreground-subtle hover:text-foreground'
             }`}
           >
             {tab.icon && <span className="flex-shrink-0">{tab.icon}</span>}
-            <span className="uppercase tracking-widest text-[10px] font-mono">{tab.label}</span>
-            
+            <span className="text-[10px] font-mono font-bold uppercase tracking-[0.08em]">
+              {tab.label}
+            </span>
             {isActive && variant === 'underline' && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-accent shadow-[0_0_8px_rgba(94,106,210,0.5)]"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-accent shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]"
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               />
             )}
-            
             {isActive && variant === 'pill' && (
               <motion.div
-                layoutId="activeTab"
+                layoutId="activeTabPill"
                 className="absolute inset-0 bg-accent/10 rounded-lg -z-10"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               />
             )}
           </button>

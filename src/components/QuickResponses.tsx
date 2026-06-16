@@ -1,11 +1,11 @@
-import React, { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Shield, Terminal, Globe, Sparkles } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { apiClient } from '../services/apiClient';
 import { AppMode } from '../types';
 import { QuickAction } from '../types/api';
-import { Badge } from './ui/Badge';
+
 
 const ICON_MAP: Record<string, any> = {
   Zap, Shield, Terminal, Globe, Sparkles
@@ -14,7 +14,7 @@ const ICON_MAP: Record<string, any> = {
 export const QuickResponses: FC = () => {
   const { setTranscript, setMode, setCurrentSuggestion } = useJarvisStore();
   const [actions, setActions] = useState<QuickAction[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [isGettingSuggestion, setIsGettingSuggestion] = useState(false);
 
   useEffect(() => {

@@ -12,9 +12,9 @@ import { useJarvisStore } from '../store/jarvisStore';
 export function useJarvisBridge() {
   const {
     isConnected, setConnected,
-    connectionStatus, setConnectionStatus,
+    setConnectionStatus,
     setSystemStatus,
-    lastResponse, setLastResponse,
+    setLastResponse,
     pendingConfirmation, setPendingConfirmation,
     setBridgeError
   } = useJarvisStore();

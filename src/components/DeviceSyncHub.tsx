@@ -1,8 +1,7 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Tablet, Monitor, Link, ShieldCheck, Zap, Globe, MoreHorizontal, RefreshCw, X } from 'lucide-react';
+import { Smartphone, Tablet, Monitor, Link, ShieldCheck, Globe, RefreshCw, X } from 'lucide-react';
 import { PairedDevice } from '../types/api';
-import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 
@@ -11,7 +10,7 @@ import { useJarvisBridge } from '../hooks/useJarvisBridge';
 export const DeviceSyncHub: FC = () => {
   const { getPairedDevices, getPairingCode, unpairDevice } = useJarvisBridge();
   const [devices, setDevices] = useState<PairedDevice[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   const [pairingCode, setPairingCode] = useState<string | null>(null);
   const [pairingExpiry, setPairingExpiry] = useState<number>(0);
   const [showPairing, setShowPairing] = useState(false);

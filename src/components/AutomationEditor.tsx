@@ -19,7 +19,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
   const [taskCommand, setTaskCommand] = useState('');
   const [scheduleType, setScheduleType] = useState<'once' | 'interval' | 'cron'>('once');
   const [scheduleTime, setScheduleTime] = useState('08:00');
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [, setSelectedDays] = useState<string[]>([]);
   const [taskCondition, setTaskCondition] = useState('');
 
   // Macro state
@@ -106,14 +106,6 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
 
   const removeMacroCommand = (index: number) => {
     setMacroCommands(macroCommands.filter((_, i) => i !== index));
-  };
-
-  const toggleDay = (day: string) => {
-    if (selectedDays.includes(day)) {
-      setSelectedDays(selectedDays.filter(d => d !== day));
-    } else {
-      setSelectedDays([...selectedDays, day]);
-    }
   };
 
   if (!isOpen) return null;

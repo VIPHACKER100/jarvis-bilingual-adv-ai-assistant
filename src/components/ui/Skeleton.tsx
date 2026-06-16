@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 
 interface SkeletonProps {
   width?: string | number;
@@ -11,9 +11,13 @@ export const Skeleton: FC<SkeletonProps> = ({
   width = '100%',
   height = '1rem',
   variant = 'rectangle',
-  className = ''
+  className = '',
 }) => {
-  const borderRadius = variant === 'circle' ? '50%' : variant === 'text' ? '4px' : '8px';
+  const borderRadiusMap: Record<string, string> = {
+    circle: '50%',
+    text: '4px',
+    rectangle: 'var(--radius-md)',
+  };
 
   return (
     <div
@@ -21,7 +25,7 @@ export const Skeleton: FC<SkeletonProps> = ({
       style={{
         width: typeof width === 'number' ? `${width}px` : width,
         height: typeof height === 'number' ? `${height}px` : height,
-        borderRadius
+        borderRadius: borderRadiusMap[variant],
       }}
     />
   );

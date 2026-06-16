@@ -114,10 +114,6 @@ class NetworkInfoResponse(BaseResponse):
     ip: str
     interfaces: List[Dict[str, str]]
 
-class NetworkScanResponse(BaseResponse):
-    connections: List[Dict[str, Any]]
-    count: int
-
 # --- Window & App Models ---
 
 class WindowInfo(BaseModel):

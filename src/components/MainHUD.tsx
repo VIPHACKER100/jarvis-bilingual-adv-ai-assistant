@@ -1,12 +1,11 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, X, ShieldAlert, Cpu, MessageSquare, Sparkles } from 'lucide-react';
+import { Activity, X, ShieldAlert, MessageSquare, Sparkles } from 'lucide-react';
 import { AppMode, Language } from '../types';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
 import { ArcReactor } from './ArcReactor';
 import { QuickResponses } from './QuickResponses';
-import { Badge } from './ui/Badge';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
@@ -44,6 +43,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
       return () => clearInterval(interval);
     } else {
       setTypedThought('');
+      return;
     }
   }, [agentThought]);
 

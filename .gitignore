@@ -1,4 +1,5 @@
 # Virtual Environments
+.venv/
 backend/venv/
 backend/.venv/
 env/
@@ -26,7 +27,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
-nul
 
 # Logs & Cache
 logs/
@@ -38,7 +38,14 @@ pnpm-debug.log*
 lerna-debug.log*
 .pytest_cache/
 __pycache__/
+.ruff_cache/
 .cache/
+
+# Coverage
+coverage/
+htmlcov/
+*.coverage
+*.coverage.*
 
 # Large files
 *.zip
@@ -55,3 +62,4 @@ CLAUDE.md
 # Scratch / debug scripts (not for production)
 scratch/
 backend/scratch/
+nul

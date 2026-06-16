@@ -1,5 +1,5 @@
-import { useState, useEffect, FC, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, FC } from 'react';
+import { motion } from 'framer-motion';
 import { History, Brain, BarChart3, Network, Shield, Search, X, Plus, Edit, Save, Trash2, Download, RefreshCw, ChevronLeft } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { SecurityDashboard } from './SecurityDashboard';
@@ -181,29 +181,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
     return date.toLocaleString();
   };
 
-  const mapData = useMemo(() => {
-    interface MapNode { id: string; label: string; type: string; color: string }
-    interface MapEdge { source: string; target: string }
-    const nodes: MapNode[] = [{ id: 'core', label: 'JARVIS CORE', type: 'core', color: '#06b6d4' }];
-    const edges: MapEdge[] = [];
-    
-    // Extract unique categories
-    const categories = Array.from(new Set(facts.map(f => f.category)));
-    
-    // Add category nodes
-    categories.forEach((cat, i) => {
-      nodes.push({ id: `cat_${cat}`, label: cat.toUpperCase(), type: 'category', color: '#f97316' });
-      edges.push({ source: 'core', target: `cat_${cat}` });
-    });
-    
-    // Add fact nodes
-    facts.forEach((fact, i) => {
-      nodes.push({ id: `fact_${fact.id}`, label: fact.key.replace(/_/g, ' '), type: 'fact', color: '#64748b' });
-      edges.push({ source: `cat_${fact.category}`, target: `fact_${fact.id}` });
-    });
-    
-    return { nodes, edges, categories };
-  }, [facts]);
+
 
   if (!isOpen) return null;
 
@@ -317,7 +295,7 @@ export const MemoryViewer: FC<MemoryViewerProps> = ({ isOpen, onClose }) => {
                 </div>
               ) : (
                 <div className="divide-y divide-white/5">
-                  {filteredConversations.map((conv, idx) => (
+                  {filteredConversations.map((conv, _) => (
                     <div
                       key={conv.id}
                       className={`p-6 hover:bg-white/[0.03] transition-all border-l-2 animate-in ${conv.success ? 'border-transparent' : 'border-red-500/50 bg-red-500/5'

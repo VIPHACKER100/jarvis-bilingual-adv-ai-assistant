@@ -1,4 +1,4 @@
-import React, { FC, ButtonHTMLAttributes } from 'react';
+import React, { FC } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
@@ -14,6 +14,21 @@ interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   children?: React.ReactNode;
 }
 
+const variantStyles: Record<ButtonVariant, string> = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  ghost: 'btn-ghost',
+  danger: 'btn-danger',
+  neon: 'btn-neon',
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+  sm: 'px-3 py-1.5 text-xs rounded-[8px]',
+  md: 'px-4 py-2.5 text-sm rounded-[10px]',
+  lg: 'px-6 py-3 text-base rounded-[12px]',
+  icon: 'p-2.5 rounded-[10px]',
+};
+
 export const Button: FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
@@ -25,31 +40,15 @@ export const Button: FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = 'btn';
-  
-  const variantStyles = {
-    primary: 'bg-accent text-background-deep font-bold hover:shadow-[0_0_20px_rgba(var(--accent-rgb),0.4)]',
-    secondary: 'bg-surface-high border border-border-default hover:border-border-bright text-foreground',
-    ghost: 'bg-transparent text-foreground-muted hover:text-foreground hover:bg-white/5',
-    danger: 'bg-security-rose/10 text-security-rose border border-security-rose/20 hover:bg-security-rose/20',
-    neon: 'bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20 hover:border-accent shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] hover:shadow-[0_0_25px_rgba(var(--accent-rgb),0.2)]'
-  };
-
-  const sizeStyles = {
-    sm: 'px-3 py-1.5 text-xs',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-    icon: 'p-2'
-  };
+  const isDisabled = disabled || isLoading;
 
   return (
     <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      disabled={disabled || isLoading}
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className} ${
-        (disabled || isLoading) ? 'opacity-50 cursor-not-allowed grayscale' : ''
-      }`}
+      whileHover={isDisabled ? {} : { scale: 1.02 }}
+      whileTap={isDisabled ? {} : { scale: 0.98 }}
+      disabled={isDisabled}
+      className={`btn ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      aria-disabled={isDisabled}
       {...props}
     >
       {isLoading ? (

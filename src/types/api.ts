@@ -71,54 +71,6 @@ export interface ActiveWindowInfo {
 
 // ─── Performance Metrics ─────────────────────────────────────────────────────
 
-export interface PerformanceMetric {
-  timestamp: string;
-  event_loop_lag: number;
-  cpu_percent: number;
-  memory_percent: number;
-}
-
-export interface PerformanceHistoryResponse {
-  success: boolean;
-  data: PerformanceMetric[];
-}
-
-// ─── Command Insights ────────────────────────────────────────────────────────
-
-export interface TopCommand {
-  command_type: string;
-  count: number;
-}
-
-export interface DayActivity {
-  day: string;
-  count: number;
-}
-
-export interface PeakHour {
-  hour: number | null;
-  count: number;
-}
-
-export interface FailurePattern {
-  command_type: string;
-  failures: number;
-  total: number;
-}
-
-export interface CommandInsightsData {
-  top_commands: TopCommand[];
-  daily_activity: DayActivity[];
-  peak_hour: PeakHour;
-  failure_patterns: FailurePattern[];
-  period_days: number;
-}
-
-export interface CommandInsightsResponse {
-  success: boolean;
-  data: CommandInsightsData;
-}
-
 // ─── Health Check ────────────────────────────────────────────────────────────
 
 export interface HealthCheckResponse {

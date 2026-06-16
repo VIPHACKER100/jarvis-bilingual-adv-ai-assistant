@@ -1,4 +1,4 @@
-import { WebSocketMessage, CommandResponse, SystemStatus, ConnectionStatus } from '../types/bridge';
+import { WebSocketMessage, ConnectionStatus } from '../types/bridge';
 import { WS_BASE_URL, API_BASE_URL } from '../config';
 
 type MessageHandler = (message: WebSocketMessage) => void;
