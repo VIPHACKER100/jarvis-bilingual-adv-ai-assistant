@@ -37,25 +37,31 @@ class SystemModule:
 
         start = now
         try:
-            # CPU (non-blocking call to get current usage since last call)
-            # Use interval=None to get non-blocking CPU percent
             cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=None)
             
-            # CPU count is static, no need to call every time
             if not hasattr(self, '_cpu_count'):
                 self._cpu_count = await asyncio.to_thread(psutil.cpu_count)
 
-            # Parallelize metric collection to reduce total duration
-            metric_results = await asyncio.gather(
+            results = await asyncio.gather(
                 asyncio.to_thread(psutil.sensors_battery),
                 asyncio.to_thread(psutil.virtual_memory),
                 asyncio.to_thread(psutil.disk_usage, '/'),
                 asyncio.to_thread(psutil.net_io_counters),
                 asyncio.to_thread(psutil.boot_time),
-                get_volume()
+                get_volume(),
+                return_exceptions=True
             )
-            
-            battery, memory, disk, net_io, boot_time, current_volume = metric_results
+
+            def _r(val, default=None):
+                return val if not isinstance(val, BaseException) else default
+
+            battery, memory, disk, net_io, boot_time, current_volume = [
+                _r(v) for v in results
+            ]
+            if boot_time is None:
+                boot_time = time.time()
+            if current_volume is None:
+                current_volume = 50
 
             battery_info = BatteryInfo(
                 percent=int(battery.percent) if battery else None,
@@ -69,30 +75,29 @@ class SystemModule:
             )
 
             memory_info = MemoryInfo(
-                total=memory.total,
-                used=memory.used,
-                percent=memory.percent,
-                available=memory.available
+                total=memory.total if memory else 0,
+                used=memory.used if memory else 0,
+                percent=memory.percent if memory else 0,
+                available=memory.available if memory else 0
             )
 
             disk_info = DiskInfo(
-                total=disk.total,
-                used=disk.used,
-                free=disk.free,
-                percent=(disk.used / disk.total) * 100
+                total=disk.total if disk else 0,
+                used=disk.used if disk else 0,
+                free=disk.free if disk else 0,
+                percent=(disk.used / disk.total) * 100 if disk else 0
             )
 
             network_info = NetworkIOInfo(
-                bytes_sent=net_io.bytes_sent,
-                bytes_recv=net_io.bytes_recv,
-                packets_sent=net_io.packets_sent,
-                packets_recv=net_io.packets_recv
+                bytes_sent=net_io.bytes_sent if net_io else 0,
+                bytes_recv=net_io.bytes_recv if net_io else 0,
+                packets_sent=net_io.packets_sent if net_io else 0,
+                packets_recv=net_io.packets_recv if net_io else 0
             )
 
-            uptime_seconds = time.time() - boot_time
+            uptime_seconds = time.time() - (boot_time or time.time())
             platform_name = 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux'
 
-            # Contextual info (Optional, try-except)
             active_window = None
             context_suggestion = None
             try:
@@ -107,7 +112,7 @@ class SystemModule:
                     }
                 
                 context_suggestion = await context_manager.suggest_next_action()
-            except:
+            except Exception:
                 pass
 
             status = SystemStatusResponse(

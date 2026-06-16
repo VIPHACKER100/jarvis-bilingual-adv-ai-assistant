@@ -5,6 +5,12 @@ All notable changes to the JARVIS AI Assistant will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9.1] - 2026-06-16
+
+### Fixed
+- Fixed `test_api_system_status` CI failure caused by `asyncio.gather` coroutine leaks. Changed to `return_exceptions=True` so all coroutines complete independently — prevents `CancelledError` from triggering unraisable hook and subsequent `RecursionError` in `tokenize.open`.
+- Replaced bare `except:` with `except Exception:` in `system.py` to avoid swallowing `BaseException` subtypes like `CancelledError`.
+
 ## [3.9.0] - 2026-05-16
 ### Added
 - **Mobile Ecosystem Finalization**: Secure mobile-to-backend pairing with TTL-based OTPs.
