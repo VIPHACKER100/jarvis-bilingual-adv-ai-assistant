@@ -119,145 +119,173 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in overflow-y-auto">
-      <div className="glass-card border-accent/30 w-full max-w-2xl shadow-2xl shadow-accent/20 flex flex-col max-h-[90vh]">
-        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-background-deep to-accent/5 relative overflow-hidden shrink-0">
-          <div className="absolute top-0 left-0 right-0 h-px neon-glow-line opacity-50" />
-          <div className="relative z-10">
-            <h2 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-3">
-              {type === 'task' ? <Calendar className="w-5 h-5 text-accent" /> : <Layers className="w-5 h-5 text-purple-400" />}
-              {item ? 'EDIT' : 'INITIALIZE'} {type === 'task' ? 'SCHEDULED TASK' : 'MACRO SEQUENCE'}
-            </h2>
-            <p className="text-foreground-muted text-[9px] uppercase tracking-[0.3em] font-mono mt-0.5">Automated Execution Protocol</p>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-fade-in overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="hud-panel w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col relative"
+      >
+        <div className="scanline-overlay" />
+        
+        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02] relative overflow-hidden shrink-0">
+          <div className="flex items-center gap-4 relative z-10">
+            <div className={`p-3 rounded-lg border ${type === 'task' ? 'bg-accent/10 border-accent/20 text-accent' : 'bg-purple-500/10 border-purple-500/20 text-purple-400'}`}>
+              {type === 'task' ? <Calendar className="w-5 h-5" /> : <Layers className="w-5 h-5" />}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-foreground label-caps tracking-widest flex items-center gap-2">
+                {item ? 'EDIT' : 'INITIALIZE'} {type === 'task' ? 'TASK' : 'MACRO'}
+              </h2>
+              <p className="text-foreground-muted text-[9px] uppercase tracking-[0.3em] font-mono opacity-70">Automated Execution Protocol</p>
+            </div>
           </div>
-          <button onClick={onClose} className="text-foreground-muted hover:text-foreground transition-all hover:rotate-90 relative z-10 p-2">
-            <X className="w-7 h-7" />
+          <button 
+            onClick={onClose} 
+            className="p-2 rounded-lg hover:bg-white/5 text-foreground-muted hover:text-foreground transition-all relative z-10"
+          >
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="p-8 overflow-y-auto flex-1 space-y-6 custom-scrollbar bg-white/[0.01]">
+        <div className="p-8 overflow-y-auto flex-1 space-y-8 custom-scrollbar relative z-10">
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] font-mono uppercase tracking-widest flex items-center gap-3 animate-shake">
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-[10px] font-mono uppercase tracking-widest flex items-center gap-3"
+            >
               <AlertCircle className="w-4 h-4" />
               {error}
-            </div>
+            </motion.div>
           )}
 
           {type === 'task' ? (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1">Identity & Purpose</label>
-                <div className="space-y-3">
-                  <input 
-                    value={taskName} onChange={e => setTaskName(e.target.value)}
-                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all"
-                    placeholder="Task Name (e.g., Morning Briefing)"
-                  />
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-foreground-muted label-caps tracking-[0.2em] block">Identity & Purpose</label>
+                <div className="space-y-4">
+                  <div className="relative group">
+                    <input 
+                      value={taskName} onChange={e => setTaskName(e.target.value)}
+                      className="w-full bg-black/40 border border-white/10 rounded-lg px-5 py-4 text-sm text-foreground focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all font-mono"
+                      placeholder="TASK_NAME_ID"
+                    />
+                    <div className="absolute top-1/2 -translate-y-1/2 right-4 opacity-30 group-focus-within:opacity-100 transition-opacity">
+                      <Edit2 className="w-4 h-4 text-accent" />
+                    </div>
+                  </div>
                   <textarea 
                     value={taskDesc} onChange={e => setTaskDesc(e.target.value)}
-                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent focus:ring-1 focus:ring-accent outline-none h-24 transition-all resize-none"
-                    placeholder="Describe the objective of this automation..."
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-5 py-4 text-sm text-foreground focus:border-accent focus:ring-1 focus:ring-accent outline-none h-24 transition-all resize-none leading-relaxed"
+                    placeholder="PROTOCOL_DESCRIPTION..."
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                  <Terminal className="w-3 h-3 text-accent" /> Execution String
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-foreground-muted label-caps tracking-[0.2em] flex items-center gap-2">
+                  <Terminal className="w-3.5 h-3.5 text-accent" /> Execution String
                 </label>
-                <input 
-                  value={taskCommand} onChange={e => setTaskCommand(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3 text-sm text-accent font-mono focus:border-accent outline-none transition-all shadow-inner"
-                  placeholder="system_status --verbose"
-                />
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-accent font-mono text-xs">$</div>
+                  <input 
+                    value={taskCommand} onChange={e => setTaskCommand(e.target.value)}
+                    className="w-full bg-black/60 border border-white/10 rounded-lg pl-8 pr-5 py-4 text-sm text-accent font-mono focus:border-accent outline-none transition-all shadow-inner"
+                    placeholder="system_status --verbose"
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1">Temporal Pattern</label>
-                  <select 
-                    value={scheduleType} onChange={e => setScheduleType(e.target.value as 'once' | 'interval' | 'cron')}
-                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none appearance-none transition-all"
-                    title="Select schedule frequency"
-                  >
-                    <option value="once">One-time Trigger</option>
-                    <option value="interval">Recurring Interval</option>
-                    <option value="cron">Complex (Cron)</option>
-                  </select>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-foreground-muted label-caps tracking-[0.2em]">Temporal Pattern</label>
+                  <div className="relative">
+                    <select 
+                      value={scheduleType} onChange={e => setScheduleType(e.target.value as 'once' | 'interval' | 'cron')}
+                      className="w-full bg-black/40 border border-white/10 rounded-lg px-5 py-4 text-sm text-foreground focus:border-accent outline-none appearance-none transition-all font-mono"
+                    >
+                      <option value="once">ONE_TIME_TRIGGER</option>
+                      <option value="interval">RECURRING_INTERVAL</option>
+                      <option value="cron">CRON_SEQUENCE</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                      <Plus className="w-4 h-4" />
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-accent" /> 
-                    {scheduleType === 'interval' ? 'Interval (Min)' : 'Target Time'}
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-foreground-muted label-caps tracking-[0.2em] flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-accent" /> 
+                    {scheduleType === 'interval' ? 'INTERVAL_MIN' : 'TARGET_TIME'}
                   </label>
                   <input 
                     type={scheduleType === 'interval' ? 'number' : 'text'}
                     value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none transition-all"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-5 py-4 text-sm text-foreground focus:border-accent outline-none transition-all font-mono"
                     placeholder={scheduleType === 'interval' ? '30' : '08:00'}
                   />
                 </div>
               </div>
 
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                  <ShieldCheck className="w-3 h-3 text-accent" /> Conditional Logic (Optional)
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-foreground-muted label-caps tracking-[0.2em] flex items-center gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-accent" /> Conditional Logic
                 </label>
                 <input 
                   value={taskCondition} onChange={e => setTaskCondition(e.target.value)}
-                  className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground font-mono focus:border-accent outline-none transition-all"
+                  className="w-full bg-black/40 border border-white/10 rounded-lg px-5 py-4 text-sm text-foreground font-mono focus:border-accent outline-none transition-all"
                   placeholder="battery < 20 or cpu > 80"
                 />
-                <p className="text-[9px] text-foreground-muted/60 uppercase tracking-widest font-mono ml-1">
-                  Task will only execute if the logic evaluates to TRUE.
+                <p className="text-[8px] text-foreground-muted/60 uppercase tracking-[0.2em] font-mono ml-1">
+                  Task will only execute if the logic evaluates to <span className="text-green-400">TRUE</span>.
                 </p>
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-foreground-muted uppercase tracking-[0.2em] ml-1">Macro Definition</label>
-                <div className="space-y-3">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-foreground-muted label-caps tracking-[0.2em]">Macro Definition</label>
+                <div className="space-y-4">
                   <input 
                     value={macroName} onChange={e => setMacroName(e.target.value)}
-                    className="w-full bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none transition-all"
-                    placeholder="Macro Name (e.g., Focus Mode)"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-5 py-4 text-sm text-foreground focus:border-purple-500 outline-none transition-all font-mono"
+                    placeholder="MACRO_SEQUENCE_ID"
                   />
                   <div className="grid grid-cols-2 gap-4">
-                    <select 
-                      value={macroTrigger} onChange={e => setMacroTrigger(e.target.value)}
-                      className="bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-foreground focus:border-accent outline-none appearance-none transition-all"
-                      title="Select what triggers this macro"
-                    >
-                      <option value="manual">Manual Trigger Only</option>
-                      <option value="voice">Vocal Activation</option>
-                    </select>
+                    <div className="relative">
+                      <select 
+                        value={macroTrigger} onChange={e => setMacroTrigger(e.target.value)}
+                        className="w-full bg-black/40 border border-white/10 rounded-lg px-5 py-4 text-sm text-foreground focus:border-purple-500 outline-none appearance-none transition-all font-mono"
+                      >
+                        <option value="manual">MANUAL_TRIGGER</option>
+                        <option value="voice">VOCAL_ACTIVATION</option>
+                      </select>
+                    </div>
                     {macroTrigger === 'voice' && (
                       <input 
                         value={triggerPhrase} onChange={e => setTriggerPhrase(e.target.value)}
-                        className="bg-background-deep/60 border border-white/10 rounded-xl px-5 py-3 text-sm text-purple-400 focus:border-purple-500 outline-none transition-all font-bold"
-                        placeholder="Trigger phrase..."
+                        className="bg-purple-500/5 border border-purple-500/20 rounded-lg px-5 py-4 text-sm text-purple-400 focus:border-purple-500 outline-none transition-all font-mono font-bold"
+                        placeholder="PHRASE..."
                       />
                     )}
                   </div>
                 </div>
               </div>
               
-              <div className="space-y-4 pt-4 border-t border-white/5">
+              <div className="space-y-6 pt-6 border-t border-white/5">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold text-accent uppercase tracking-[0.3em] flex items-center gap-2">
-                    <Layers className="w-3.5 h-3.5" /> Operational Sequence
+                  <label className="text-[10px] font-bold text-purple-400 label-caps tracking-[0.3em] flex items-center gap-2">
+                    <Layers className="w-4 h-4" /> Operational Sequence
                   </label>
                   <button 
                     onClick={addMacroCommand}
-                    className="text-[9px] font-black uppercase tracking-widest px-4 py-2 bg-accent/10 text-accent border border-accent/20 rounded-xl hover:bg-accent/20 transition-all flex items-center gap-2"
+                    className="text-[9px] font-black label-caps tracking-widest px-4 py-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded hover:bg-purple-500/20 transition-all flex items-center gap-2"
                   >
-                    <Plus className="w-3 h-3" /> Add Step
+                    <Plus className="w-3 h-3" /> ADD STEP
                   </button>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <AnimatePresence mode="popLayout">
                     {macroCommands.map((cmd, idx) => (
                       <motion.div 
@@ -265,36 +293,34 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="glass-panel p-4 relative group hover:bg-white/[0.02] transition-all flex items-center gap-4"
+                        className="hud-panel p-4 relative group flex items-center gap-6"
                       >
-                        <div className="text-xs font-mono text-foreground-muted w-6 flex-shrink-0">
+                        <div className="text-[10px] font-mono text-foreground-muted w-6 flex-shrink-0 opacity-50">
                           {idx + 1}.
                         </div>
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div className="md:col-span-2">
                             <input 
                               value={cmd.command} onChange={e => updateMacroCommand(idx, 'command', e.target.value)}
-                              className="w-full bg-black/20 border border-white/5 rounded-lg px-3 py-2 text-xs text-foreground font-mono focus:border-accent outline-none"
-                              placeholder="Action command..."
+                              className="w-full bg-black/40 border border-white/5 rounded px-3 py-2 text-[10px] text-foreground font-mono focus:border-purple-500 outline-none"
+                              placeholder="ACTION_COMMAND"
                             />
                           </div>
                           <div>
-                            <div className="flex items-center gap-2 bg-black/20 border border-white/5 rounded-lg px-3 py-2">
-                              <Clock className="w-3 h-3 text-foreground-muted" />
+                            <div className="flex items-center gap-2 bg-black/40 border border-white/5 rounded px-3 py-2">
+                              <Clock className="w-3.5 h-3.5 text-foreground-muted opacity-50" />
                               <input 
                                 type="number"
                                 value={cmd.delay} onChange={e => updateMacroCommand(idx, 'delay', parseInt(e.target.value))}
-                                className="w-full bg-transparent text-xs text-foreground outline-none"
-                                title="Delay in seconds"
+                                className="w-full bg-transparent text-[10px] text-foreground outline-none font-mono"
                                 min="0"
                               />
-                              <span className="text-[8px] text-foreground-muted uppercase">s</span>
+                              <span className="text-[8px] text-foreground-muted label-caps">SEC</span>
                             </div>
                           </div>
                           <button 
                             onClick={() => removeMacroCommand(idx)}
-                            className="p-2 text-foreground-muted hover:text-red-400 transition-all opacity-0 group-hover:opacity-100"
-                            title="Purge Step"
+                            className="p-2 text-foreground-muted hover:text-red-400 transition-all flex justify-center"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -304,9 +330,9 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
                   </AnimatePresence>
                   
                   {macroCommands.length === 0 && (
-                    <div className="text-center py-10 text-foreground-muted/30 border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center gap-3">
-                      <Layers className="w-8 h-8" />
-                      <p className="text-[10px] font-mono uppercase tracking-widest">No steps in sequence</p>
+                    <div className="text-center py-12 text-foreground-muted/30 border border-dashed border-white/5 rounded-lg flex flex-col items-center gap-4 bg-white/[0.01]">
+                      <Layers className="w-10 h-10 opacity-20" />
+                      <p className="text-[10px] font-mono uppercase tracking-[0.4em]">NO STEPS IN SEQUENCE</p>
                     </div>
                   )}
                 </div>
@@ -315,28 +341,28 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
           )}
         </div>
 
-        <div className="p-6 border-t border-white/5 flex justify-between items-center bg-background-deep/40 relative shrink-0">
-          <div className="text-[8px] text-foreground-muted uppercase tracking-[0.4em] font-mono hidden sm:block">
-            Bypass Safety: OFF // Protocol Alpha
+        <div className="p-6 border-t border-white/5 flex justify-between items-center bg-white/[0.02] relative shrink-0">
+          <div className="text-[9px] text-foreground-muted label-caps tracking-[0.4em] font-mono hidden sm:block">
+            Bypass Safety: OFF // Alpha-Protocol
           </div>
-          <div className="flex gap-4 ml-auto">
+          <div className="flex gap-6 items-center">
             <button 
               onClick={onClose}
-              className="text-[10px] font-bold text-foreground-muted hover:text-foreground uppercase tracking-widest transition-all px-4"
+              className="text-[10px] font-bold text-foreground-muted hover:text-foreground label-caps tracking-[0.2em] transition-all px-4"
             >
               Abort
             </button>
             <button 
               onClick={handleSave}
               disabled={saving}
-              className="px-8 py-3 bg-accent text-white text-[11px] font-black rounded-xl hover:brightness-110 transition-all disabled:opacity-50 uppercase tracking-[0.2em] shadow-lg shadow-accent/20 flex items-center gap-2"
+              className={`px-10 py-4 ${type === 'task' ? 'bg-accent text-white shadow-accent/20' : 'bg-purple-600 text-white shadow-purple-500/20'} text-[11px] font-black rounded transition-all disabled:opacity-50 label-caps tracking-[0.3em] shadow-lg flex items-center gap-3 hover:scale-105 active:scale-95`}
             >
               {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saving ? 'SYNCHRONIZING...' : 'COMMIT AUTOMATION'}
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }

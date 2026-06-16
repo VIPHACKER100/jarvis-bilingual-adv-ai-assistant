@@ -75,6 +75,15 @@ class LLMModule:
             self.openai_client = OpenAI(api_key=self.openai_api_key)
         else:
             self.openai_client = None
+
+        # Initialize OpenAI client for OpenRouter
+        if self.openrouter_api_key:
+            self.openrouter_client = OpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=self.openrouter_api_key
+            )
+        else:
+            self.openrouter_client = None
         
         # Use models from config as primary, with fallbacks
         self.nvidia_model = NVIDIA_MODEL
@@ -318,25 +327,27 @@ class LLMModule:
             prompt: str = "Analyze this image and describe what you see.",
             language: str = 'en') -> Optional[str]:
         """Get a response from a vision-capable LLM based on an image"""
+        import base64
+
+        path = Path(image_path).expanduser().resolve()
+        if not path.exists():
+            logger.error(f"Image not found for vision analysis: {path}")
+            return None
+
+        def read_image():
+            with open(path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+
         try:
-            import base64
-            
-            path = Path(image_path).expanduser().resolve()
-            if not path.exists():
-                logger.error(f"Image not found for vision analysis: {path}")
-                return None
-
-            # Read and encode image asynchronously
-            def read_image():
-                with open(path, "rb") as image_file:
-                    return base64.b64encode(image_file.read()).decode('utf-8')
-            
             base64_image = await asyncio.to_thread(read_image)
+        except Exception as e:
+            logger.error(f"Error reading image file: {e}")
+            return None
 
-            if self.provider == "nvidia" and self.nvidia_api_key:
-                # Use a vision-capable model
-                model = "nvidia/llama-3.2-11b-vision-instruct" 
-                
+        if self.provider == "nvidia" and self.nvidia_api_key:
+            try:
+                model = "nvidia/llama-3.2-11b-vision-instruct"
+
                 def call_nvidia_vision():
                     completion = self.nvidia_client.chat.completions.create(
                         model=model,
@@ -358,17 +369,28 @@ class LLMModule:
                     return completion.choices[0].message.content.strip()
 
                 return await asyncio.to_thread(call_nvidia_vision)
-            
-            elif self.openrouter_api_key:
-                # Fallback to OpenRouter with a vision model
-                model = "google/gemini-2.0-flash-001"
-                headers = {
-                    "Authorization": f"Bearer {self.openrouter_api_key}",
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "https://aryanahirwar.in",
-                    "X-Title": "JARVIS AI Assistant"
-                }
-                
+            except Exception as e:
+                logger.error(f"NVIDIA vision analysis error: {e}")
+                if self.openrouter_api_key:
+                    logger.info("Falling back to OpenRouter for vision...")
+                else:
+                    return None
+
+        if self.openrouter_api_key:
+            vision_models = [
+                "google/gemini-2.0-flash-001",
+                "google/gemini-2.0-flash-exp",
+                "openai/gpt-4o",
+                "anthropic/claude-3.5-sonnet"
+            ]
+            headers = {
+                "Authorization": f"Bearer {self.openrouter_api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://aryanahirwar.in",
+                "X-Title": "JARVIS AI Assistant"
+            }
+
+            for model in vision_models:
                 payload = {
                     "model": model,
                     "messages": [
@@ -385,23 +407,33 @@ class LLMModule:
                     ]
                 }
 
-                async with httpx.AsyncClient() as client:
-                    response = await client.post(
-                        self.openrouter_url,
-                        headers=headers,
-                        json=payload,
-                        timeout=30.0)
+                try:
+                    async with httpx.AsyncClient() as client:
+                        response = await client.post(
+                            self.openrouter_url,
+                            headers=headers,
+                            json=payload,
+                            timeout=30.0)
 
-                if response.status_code == 200:
-                    data = response.json()
-                    if "choices" in data and len(data["choices"]) > 0:
-                        return data["choices"][0]["message"]["content"].strip()
-                
-            return None
+                    if response.status_code == 200:
+                        data = response.json()
+                        if "choices" in data and len(data["choices"]) > 0:
+                            return data["choices"][0]["message"]["content"].strip()
+                    else:
+                        error_body = response.text
+                        logger.error(f"OpenRouter Vision API Error {response.status_code} for model {model}: {error_body}")
+                        continue
+                except Exception as model_err:
+                    logger.error(f"Exception calling OpenRouter vision model {model}: {model_err}")
+                    continue
 
-        except Exception as e:
-            logger.error(f"Error in visual analysis: {e}")
-            return None
+            logger.error("All OpenRouter vision models failed. The model does not support image input or the API key lacks access.")
+            raise RuntimeError(
+                "Cannot read image — this model does not support image input. "
+                "Please check your OpenRouter API key has access to a vision-capable model."
+            )
+
+        return None
 
     async def _get_openrouter_response(self, text: str, system_prompt: str) -> Optional[str]:
         """Get response from OpenRouter API"""

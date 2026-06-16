@@ -23,7 +23,7 @@ Please provide the following details in your report:
 * Description of the vulnerability
 * Steps to reproduce the vulnerability
 * Potential impact of the vulnerability
-* Your JARVIS version (e.g., `3.9.0`) and operating system
+* Your JARVIS version (e.g., `3.9.1`) and operating system
 
 ### Response Time
 You can expect an initial acknowledgement within 48 hours. We will keep you updated as we investigate and develop a remediation plan.

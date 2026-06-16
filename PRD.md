@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 3.9.0 |
+| **Version** | 3.9.1 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
-| **Last Updated** | 2026-05-16 |
+| **Last Updated** | 2026-06-16 |
 | **Status** | Active Development |
 
 ---
@@ -78,7 +78,7 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 ## 6. Product Scope
 
-### 6.1 In Scope (Current — v3.9.0)
+### 6.1 In Scope (Current — v3.9.1)
 
 #### Voice & Language
 
@@ -370,17 +370,18 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 ---
 
-## 14. Release Criteria (v3.9.0)
+## 14. Release Criteria (v3.9.1)
 
 - [ ] All 90+ commands route without `command_handler` exceptions.
 - [ ] CI pipeline green (backend tests, frontend build, type check).
 - [ ] Dashboard components handle empty/undefined API payloads.
 - [ ] WebSocket broadcasts use `jsonable_encoder` (no serialization crashes).
-- [ ] Version `3.9.0` consistent in `environment.py`, `package.json`, README.
+- [ ] Version `3.9.1` consistent in `environment.py`, `package.json`, README.
 - [ ] Documentation: SETUP, COMMANDS, API_DOCUMENTATION, TROUBLESHOOTING current.
 - [ ] ReAct Agentic Loop functions autonomously and parses complex queries.
 - [ ] Mobile Telemetry pipeline reliably updates backend context.
 - [ ] Neural Feedback Loop actively logs rejections and alters proactive LLM context.
+- [ ] CodeQL SAST scan passes with zero high/medium findings.
 
 ---
 

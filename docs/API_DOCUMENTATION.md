@@ -1,4 +1,4 @@
-# JARVIS API Documentation (v3.9.0)
+# JARVIS API Documentation (v3.9.1)
 
 Complete API reference for JARVIS Backend.
 
@@ -1087,7 +1087,7 @@ ws.send(JSON.stringify({
 
 ```json
 {
-  "detail": "Error description"
+  "detail": "Internal server error"
 }
 ```
 
@@ -1127,6 +1127,12 @@ Authorization: Bearer <token>
 ---
 
 ## Changelog
+
+### v3.9.1
+
+- **Security hardening**: Fixed CodeQL SAST alerts — bad HTML filtering regexp replaced with robust tag stripping, incomplete sanitization made iterative with whitespace handling.
+- **Information exposure fix**: Error responses no longer leak internal exception details via `str(e)`. All backend routes return generic messages while logging verbosely server-side.
+- **Quality gate**: Zero high/medium CodeQL findings.
 
 ### v3.9.0
 

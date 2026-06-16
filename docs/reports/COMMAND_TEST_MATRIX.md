@@ -1,6 +1,6 @@
 # Command Test Matrix
 
-**Date:** 2026-05-16  
+**Date:** 2026-06-16  
 **Registry:** `backend/config/commands.py` → `HINDI_COMMANDS`  
 **Total command keys:** 90
 

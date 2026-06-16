@@ -19,9 +19,9 @@ export const Card: FC<CardProps> = ({
   ...props
 }) => {
   const elevationStyles = {
-    low: 'glass-panel',
-    mid: 'glass-panel bg-surface-mid border-border-bright',
-    high: 'glass-panel--high'
+    low: 'hud-panel',
+    mid: 'hud-panel bg-surface-mid border-border-bright',
+    high: 'hud-panel border-accent/40 shadow-accent'
   };
 
   const statusStyles = {

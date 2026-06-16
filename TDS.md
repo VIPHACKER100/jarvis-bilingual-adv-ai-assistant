@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 3.9.0 |
+| **Version** | 3.9.1 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
-| **Last Updated** | 2026-05-16 |
+| **Last Updated** | 2026-06-16 |
 | **Status** | Active Development |
 | **Companion** | [PRD.md](PRD.md) |
 
@@ -113,7 +113,7 @@ flowchart TB
 | CI/CD | GitHub Actions (`.github/workflows/ci.yml`) |
 | Containers | Docker Compose |
 | Env config | python-dotenv, `.env` |
-| Version source | `backend/config/environment.py` → `VERSION = "3.9.0"` |
+| Version source | `backend/config/environment.py` → `VERSION = "3.9.1"` |
 
 ---
 
@@ -513,7 +513,7 @@ Full template: [`.env.example`](.env.example).
 
 ```python
 # backend/config/environment.py
-VERSION = "3.8.0"
+VERSION = "3.9.1"
 ```
 
 Referenced by `main.py`, OpenAPI metadata, and frontend via `/api/health`.
@@ -670,6 +670,7 @@ flowchart LR
 | 3.7.1 | 90-command routing parity, bilingual keys |
 | 3.8.0 | Typed API client, DB pooling, CI pipeline, dashboard hardening |
 | 3.9.0 | Autonomous Agentic Loop, Mobile Telemetry, Neural Feedback Loop, Trace Auditing |
+| 3.9.1 | CodeQL SAST fix: bad HTML regex, incomplete sanitization, information exposure — zero high/medium findings |
 
 ---
 

@@ -28,11 +28,11 @@ export const Button: FC<ButtonProps> = ({
   const baseStyles = 'btn';
   
   const variantStyles = {
-    primary: 'btn-primary',
-    secondary: 'btn-secondary',
-    ghost: 'btn-ghost',
-    danger: 'bg-danger/10 text-danger border-danger/20 hover:bg-danger/20',
-    neon: 'btn-primary bg-gradient-to-r from-accent to-secondary border-none'
+    primary: 'bg-accent text-background-deep font-bold hover:shadow-[0_0_20px_rgba(var(--accent-rgb),0.4)]',
+    secondary: 'bg-surface-high border border-border-default hover:border-border-bright text-foreground',
+    ghost: 'bg-transparent text-foreground-muted hover:text-foreground hover:bg-white/5',
+    danger: 'bg-security-rose/10 text-security-rose border border-security-rose/20 hover:bg-security-rose/20',
+    neon: 'bg-accent/10 border border-accent/30 text-accent hover:bg-accent/20 hover:border-accent shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] hover:shadow-[0_0_25px_rgba(var(--accent-rgb),0.2)]'
   };
 
   const sizeStyles = {

@@ -1,10 +1,10 @@
-# JARVIS v3.7.1 - System Health & Error Analysis
+# JARVIS v3.9.1 - System Health & Error Analysis
 
 This report provides a comprehensive analysis of the project's current state, including potential errors, technical debt, and pending configurations.
 
 ## 📊 Summary Status: **OPTIMIZED (Active)**
 
-The system is now running on version **3.7.1**. The architecture has transitioned to a fully modular router-based system, and the Neural Proactivity Engine is fully integrated and operational.
+The system is now running on version **3.9.1**. The architecture has transitioned to a fully modular router-based system, the Neural Proactivity Engine is fully integrated, and all CodeQL SAST security findings have been resolved.
 
 ---
 
@@ -30,6 +30,11 @@ The system is now running on version **3.7.1**. The architecture has transitione
 - **File**: `backend/routers/*.py`, `backend/modules/*.py`
 - **Description**: Successfully migrated all legacy blocking I/O calls (OCR, File operations) to `asyncio.to_thread` wrappers.
 - **Impact**: Significant reduction in event loop lag (HUD is now 100% responsive).
+
+### 3. CodeQL SAST Security Fixes (v3.9.1)
+- **Status**: ✅ RESOLVED
+- **Description**: Three security issues detected by GitHub CodeQL were remediated: bad HTML filtering regexp replaced with robust tag stripping, incomplete multi-character sanitization made iterative with whitespace coverage, and information exposure through exceptions fixed across all backend error responses.
+- **Impact**: Zero high/medium CodeQL findings. Error responses no longer leak internal details.
 
 ### 2. Architecture Visualization
 - **Status**: ✅ NEW

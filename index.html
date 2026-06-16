@@ -15,7 +15,43 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'cyber-cyan': '#4cd7f6',
+              'neural-purple': '#a855f7',
+              'security-rose': '#f43f5e',
+              'background': {
+                DEFAULT: '#0e1416',
+                deep: '#090f11',
+                elevated: '#171d1e',
+              },
+              'surface': {
+                DEFAULT: '#0e1416',
+                low: '#171d1e',
+                mid: '#1b2122',
+                high: '#252b2d',
+                highest: '#303638',
+              },
+              'on-surface': '#dee3e6',
+              'on-surface-variant': '#bcc9cd',
+              'outline': '#869397',
+              'primary-container': '#06b6d4',
+              'secondary-container': '#6f00be',
+            },
+            fontFamily: {
+              'sans': ['Inter', 'sans-serif'],
+              'mono': ['JetBrains Mono', 'monospace'],
+              'display': ['Rajdhani', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
 
     <!-- Import Map (for ESM in dev) -->
     <script type="importmap">

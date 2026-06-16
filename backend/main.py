@@ -152,7 +152,7 @@ async def response_time_middleware(request: Request, call_next):
         logger.error(f"Error processing request {request.url.path}: {e}")
         return JSONResponse(
             status_code=500,
-            content={"success": False, "error": str(e)}
+            content={"success": False, "error": "Internal server error"}
         )
 
     process_time = round(time.time() - start_time, 4)

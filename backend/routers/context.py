@@ -19,7 +19,7 @@ async def get_suggestion(language: str = "en"):
         }
     except Exception as e:
         logger.error(f"Error getting suggestion: {e}")
-        return {"success": False, "error": str(e)}
+        return {"success": False, "error": "Failed to get suggestion"}
 
 @router.get("/quick-actions")
 async def get_quick_actions():
@@ -38,7 +38,7 @@ async def get_quick_actions():
         return {"success": True, "actions": actions}
     except Exception as e:
         logger.error(f"Error getting quick actions: {e}")
-        return {"success": False, "error": str(e)}
+        return {"success": False, "error": "Failed to get quick actions"}
 
 @router.post("/quick-actions")
 async def update_quick_actions(actions: List[Dict[str, Any]]):

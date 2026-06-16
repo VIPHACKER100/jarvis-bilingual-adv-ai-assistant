@@ -1,4 +1,4 @@
-# 📦 JARVIS Distribution Guide (v3.7.1)
+# 📦 JARVIS Distribution Guide (v3.9.1)
 
 Complete guide for packaging and distributing JARVIS AI Assistant with enhanced asset bundling.
 
@@ -45,7 +45,7 @@ python scripts/build.py
 ## 📁 Distribution Structure
 
 ```
-JARVIS_v3.7.1/
+JARVIS_v3.9.1/
 ├── START_JARVIS.bat          # One-click launcher
 ├── README.md                 # Project instructions
 ├── .env                      # Configuration file
@@ -69,7 +69,7 @@ JARVIS_v3.7.1/
 ```bash
 # Create zip archive
 cd release
-zip -r ../JARVIS_v3.7.1_Windows.zip .
+zip -r ../JARVIS_v3.9.1_Windows.zip .
 
 # Or on Windows:
 # Right-click release folder → Send to → Compressed folder
@@ -95,7 +95,7 @@ AppName=JARVIS AI Assistant
 AppVersion=2.2.0
 DefaultDirName={autopf}\JARVIS
 OutputDir=.
-OutputBaseFilename=JARVIS_v3.7.1_Setup
+OutputBaseFilename=JARVIS_v3.9.1_Setup
 
 [Files]
 Source: "release\*"; DestDir: "{app}"; Flags: recursesubdirs
@@ -307,7 +307,7 @@ npm ci --only=production
 ### GitHub Releases (Recommended)
 
 1. Create new release
-2. Upload JARVIS_v3.7.1_Windows.zip
+2. Upload JARVIS_v3.9.1_Windows.zip
 3. Add release notes
 4. Publish
 

@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-3.9.0-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-3.9.1-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,7 +20,7 @@
 
 ---
 
-## 🌟 Modern Capabilities (v3.9.0)
+## 🌟 Modern Capabilities (v3.9.1)
 
 - 🎙️ **Local Voice Activation** - "Hey JARVIS" wake-word detection using `openwakeword` for a hands-free experience.
 - 📱 **Mobile Companion Ecosystem** - Secure pairing and real-time remote control via the new JARVIS Mobile app.
@@ -31,6 +31,13 @@
 - 📱 **Haptic Feedback Sync** - Real-time tactile confirmation on mobile devices for voice triggers.
 - 🧠 **Neural Feedback Loop** - Autonomous agent learns from user rejections and timeout decisions to refine future proactive suggestions.
 - 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models.
+- 🛡️ **Security Hardening** - All CodeQL SAST findings resolved: bad HTML regex, incomplete sanitization, information exposure through exceptions.
+
+### 🚀 **What's New? (v3.9.1)**
+
+- 🛡️ **CodeQL Security Fixes** — Bad HTML filtering regexp replaced with robust tag stripper; incomplete multi-character sanitization made iterative with whitespace handling.
+- 🔒 **Information Exposure Fix** — All backend error responses return generic messages; full exception details logged server-side only.
+- ✅ **Zero High/Medium SAST Findings** — Clean CodeQL analysis across the entire codebase.
 
 ### 🚀 **What's New? (v3.9.0)**
 

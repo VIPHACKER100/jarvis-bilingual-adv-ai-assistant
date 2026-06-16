@@ -9,11 +9,14 @@ export const SecurityService = {
    */
   sanitizeCommand: (command: string): string => {
     if (!command) return "";
-    return command
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove scripts
-      .replace(/(?:javascript|data|vbscript):/gi, '') // Remove protocol handlers
-      .replace(/on\w+=/gi, '') // Remove event handlers
-      .trim();
+    let sanitized = command;
+    for (let i = 0; i < 3; i++) {
+      sanitized = sanitized
+        .replace(/<[^>]*>/g, '')
+        .replace(/\s*(?:javascript|data|vbscript)\s*:/gi, '')
+        .replace(/\s*on\w+\s*=\s*/gi, '');
+    }
+    return sanitized.trim();
   },
 
   /**

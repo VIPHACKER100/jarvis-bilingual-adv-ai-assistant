@@ -1,6 +1,6 @@
 # API & Frontend Coverage Report
 
-**Date:** 2026-05-16  
+**Date:** 2026-06-16  
 **Backend:** FastAPI (dual-mounted routes)  
 **Frontend:** React 19 + Vite + Zustand
 

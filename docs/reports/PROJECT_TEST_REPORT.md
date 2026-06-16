@@ -1,7 +1,7 @@
 # JARVIS Project Test Report
 
-**Date:** 2026-05-16  
-**Version:** 3.9.0  
+**Date:** 2026-06-16  
+**Version:** 3.9.1  
 **Environment:** Windows 10, Python 3.11, Node/Vitest 4.x  
 **Auditor:** Automated audit + pytest + vitest
 
@@ -179,6 +179,9 @@ OCR commands return a clear message when Tesseract is missing (graceful degradat
 |-------|-----|
 | `'BilingualParser' object has no attribute 'parse'` | `command_handler.py` now calls `parser.parse_command()` |
 | Tesseract ERROR spam | `media.py` pre-check + friendly response |
+| Bad HTML filtering regexp (CodeQL High) | Replaced with general `/<[^>]*>/g` tag stripper |
+| Incomplete multi-character sanitization (CodeQL High) | Iterative 3-pass sanitization with `\s*` coverage |
+| Information exposure via exception (CodeQL Medium) | All error responses return generic messages |
 
 ---
 

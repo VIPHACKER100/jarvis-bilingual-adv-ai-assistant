@@ -195,7 +195,7 @@ You should see:
 ```text
 INFO:     Started server process [xxxxx]
 INFO:     Waiting for application startup.
-INFO:     JARVIS Backend starting up (v3.7.1 - Modular Architecture)...
+    INFO:     JARVIS Backend starting up (v3.9.1 - Modular Architecture)...
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```

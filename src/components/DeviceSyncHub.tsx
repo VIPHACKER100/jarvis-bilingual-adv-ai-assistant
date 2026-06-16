@@ -87,152 +87,211 @@ export const DeviceSyncHub: FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-6xl mx-auto p-6 space-y-10">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl bg-background-elevated border border-border-default p-8 md:p-12">
-        <div className="relative z-10 max-w-2xl">
-          <Badge variant="accent" className="mb-4 bg-cyber-cyan/10 border-cyber-cyan/30 text-cyber-cyan px-3 py-1">
-            NETWORK_STATUS: OPTIMAL
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 tracking-tight uppercase italic">
-            Device_Sync_<span className="text-cyber-cyan">Nexus</span>
+    <div className="flex flex-col h-full max-w-7xl mx-auto p-6 space-y-12">
+      {/* Hero Section: Sync Nexus */}
+      <div className="hud-panel relative overflow-hidden p-8 md:p-16 border-accent/20 group">
+        {/* Scanning Line Effect */}
+        <div className="scanline opacity-10" />
+        
+        <div className="relative z-10 max-w-3xl">
+          <div className="flex items-center gap-3 mb-6">
+            <Badge variant="accent" className="bg-accent/10 border-accent/30 text-accent font-mono text-[10px] tracking-widest px-3 py-1">
+              SYSTEM_STATUS: OPTIMAL
+            </Badge>
+            <div className="h-px w-12 bg-border-subtle" />
+            <span className="label-caps opacity-50">NODE_INTERFACE // 0x4F2</span>
+          </div>
+
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tighter uppercase italic leading-none">
+            Sync_<span className="text-accent glow-text">Nexus</span>
           </h1>
-          <p className="text-foreground-muted text-lg leading-relaxed mb-8">
-            Manage your JARVIS mobile ecosystem. Synchronize neural weights, 
-            voice profiles, and secure command history across all authorized nodes.
+          
+          <p className="text-foreground-muted text-lg leading-relaxed mb-10 font-sans max-w-2xl border-l-2 border-accent/20 pl-6">
+            Manage the JARVIS autonomous ecosystem. Synchronize neural datasets, 
+            biometric profiles, and encrypted command telemetry across authorized mobile nodes.
           </p>
-          <div className="flex flex-wrap gap-4">
-            <Button variant="neon" className="gap-2" onClick={generateCode}>
+
+          <div className="flex flex-wrap gap-6">
+            <Button variant="neon" className="gap-3 px-8 py-4 text-xs font-bold uppercase tracking-widest" onClick={generateCode}>
               <Link className="w-4 h-4" />
-              Pair_New_Device
+              Initialize_Link
             </Button>
-            <Button variant="secondary" className="gap-2" onClick={fetchDevices}>
+            <Button variant="secondary" className="gap-3 px-8 py-4 text-xs font-bold uppercase tracking-widest border-border-default hover:border-accent/40" onClick={fetchDevices}>
               <RefreshCw className="w-4 h-4" />
-              Sync_Ecosystem
+              Refresh_Ecosystem
             </Button>
           </div>
         </div>
 
-        {/* Pairing Code Overlay */}
+        {/* Pairing Handshake Modal */}
         <AnimatePresence>
           {showPairing && (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="absolute inset-0 z-20 bg-background-base/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-20 bg-background-base/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center"
             >
-              <h3 className="text-2xl font-bold font-display uppercase tracking-widest text-cyber-cyan mb-2">Neural_Handshake_Initiated</h3>
-              <p className="text-foreground-muted mb-8 text-sm">Enter this code on your mobile device to establish the neural link.</p>
+              <div className="absolute inset-0 grid-overlay opacity-20" />
+              <div className="scanline opacity-30" />
               
-              <div className="bg-background-deep border border-cyber-cyan/30 rounded-2xl p-8 mb-6 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
-                <span className="text-5xl font-bold font-mono tracking-[0.5em] text-foreground pl-[0.5em]">
-                  {pairingCode}
-                </span>
-              </div>
-              
-              <p className="text-[10px] font-mono text-foreground-subtle uppercase mb-8">
-                Code expires in {Math.floor(pairingExpiry / 60)}m {pairingExpiry % 60}s
-              </p>
-              
-              <Button variant="ghost" onClick={() => setShowPairing(false)} className="text-danger border border-danger/20">
-                Abort_Pairing
-              </Button>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="relative z-10 flex flex-col items-center"
+              >
+                <div className="w-20 h-20 rounded-full border-2 border-accent flex items-center justify-center mb-8 relative">
+                  <div className="absolute inset-0 border-2 border-accent rounded-full animate-ping opacity-20" />
+                  <Link className="w-8 h-8 text-accent" />
+                </div>
+
+                <h3 className="text-2xl font-bold font-mono uppercase tracking-[0.3em] text-accent mb-2">Neural_Handshake</h3>
+                <p className="label-caps mb-12">Authorization Required // Secure Channel v3.9</p>
+                
+                <div className="bg-surface-lowest/50 border border-accent/40 rounded-sm p-10 mb-8 relative group overflow-hidden">
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-accent" />
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-accent" />
+                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-accent" />
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-accent" />
+                  
+                  <span className="text-5xl md:text-7xl font-bold font-mono tracking-[0.4em] text-foreground pl-[0.4em] relative z-10">
+                    {pairingCode}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="w-32 h-1 bg-surface-high rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: "100%" }}
+                      animate={{ width: "0%" }}
+                      transition={{ duration: pairingExpiry, ease: "linear" }}
+                      className="h-full bg-accent"
+                    />
+                  </div>
+                  <span className="text-[10px] font-mono text-accent uppercase tracking-widest">
+                    Expiring: {Math.floor(pairingExpiry / 60)}m {pairingExpiry % 60}s
+                  </span>
+                </div>
+                
+                <Button variant="ghost" onClick={() => setShowPairing(false)} className="text-security-rose hover:bg-security-rose/10 px-8">
+                  Abort_Protocol
+                </Button>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Decorative Background Elements */}
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-l from-cyber-cyan/40 to-transparent" />
-          <Globe className="absolute -right-20 -top-20 w-[400px] h-[400px] text-cyber-cyan animate-spin-slow" />
+        {/* HUD Decorative Elements */}
+        <div className="absolute -right-20 -bottom-20 w-[600px] h-[600px] opacity-[0.03] pointer-events-none group-hover:opacity-[0.05] transition-opacity duration-1000">
+          <Globe className="w-full h-full text-accent animate-spin-slow" />
         </div>
       </div>
 
-      {/* Device Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence>
-          {devices.map((device, index) => (
-            <motion.div
-              key={device.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="p-6 h-full flex flex-col hover:border-cyber-cyan/40 transition-all group">
-                <div className="flex justify-between items-start mb-6">
-                  <div className={`w-12 h-12 rounded-2xl bg-background-base border border-border-default flex items-center justify-center ${
-                    new Date(device.last_seen).getTime() > Date.now() - 300000 
-                    ? 'text-cyber-cyan' 
-                    : 'text-foreground-subtle'
-                  }`}>
-                    {getDeviceIcon(device.type)}
-                  </div>
-                  <button 
-                    onClick={() => handleUnpair(device.id)}
-                    className="text-foreground-subtle hover:text-danger transition-colors"
-                    title="Unpair Device"
-                  >
-                    <MoreHorizontal className="w-5 h-5" />
-                  </button>
-                </div>
+      {/* Authorized Node Registry */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold font-mono uppercase tracking-widest">Node_Registry</h2>
+            <div className="h-px w-24 bg-border-subtle" />
+            <span className="label-caps opacity-40">{devices.length}_Authorized</span>
+          </div>
+        </div>
 
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <h3 className="text-lg font-bold font-display uppercase tracking-wide group-hover:text-cyber-cyan transition-colors">
-                      {device.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className={`w-1.5 h-1.5 rounded-full ${
-                        new Date(device.last_seen).getTime() > Date.now() - 300000 
-                        ? 'bg-cyber-cyan animate-pulse' 
-                        : 'bg-foreground-subtle'
-                      }`} />
-                      <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
-                        {new Date(device.last_seen).getTime() > Date.now() - 300000 ? 'Online' : 'Last_Seen: ' + new Date(device.last_seen).toLocaleDateString()}
-                      </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <AnimatePresence>
+            {devices.map((device, index) => (
+              <motion.div
+                key={device.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="hud-panel p-6 hover:border-accent/40 transition-all group flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-8">
+                    <div className={`w-14 h-14 rounded-sm flex items-center justify-center relative ${
+                      new Date(device.last_seen).getTime() > Date.now() - 300000 
+                      ? 'text-accent' 
+                      : 'text-foreground-subtle'
+                    }`}>
+                      <div className="absolute inset-0 border border-current opacity-20" />
+                      <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-current" />
+                      {getDeviceIcon(device.type)}
+                    </div>
+                    
+                    <button 
+                      onClick={() => handleUnpair(device.id)}
+                      className="p-2 text-foreground-subtle hover:text-security-rose transition-colors rounded-sm hover:bg-security-rose/5"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 space-y-6">
+                    <div>
+                      <h3 className="text-lg font-bold font-mono uppercase tracking-tight group-hover:text-accent transition-colors">
+                        {device.name}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${
+                          new Date(device.last_seen).getTime() > Date.now() - 300000 
+                          ? 'bg-accent shadow-[0_0_8px_rgba(76,215,246,0.5)]' 
+                          : 'bg-surface-high'
+                        }`} />
+                        <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
+                          {new Date(device.last_seen).getTime() > Date.now() - 300000 ? 'Link_Active' : 'Offline // ' + new Date(device.last_seen).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-px bg-border-subtle p-px">
+                      <div className="bg-background-base p-3">
+                        <span className="label-caps text-[9px] opacity-60">Latency</span>
+                        <p className="text-sm font-bold font-mono text-accent mt-1">24ms</p>
+                      </div>
+                      <div className="bg-background-base p-3">
+                        <span className="label-caps text-[9px] opacity-60">Reliability</span>
+                        <p className="text-sm font-bold font-mono text-success mt-1">98.4%</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border-subtle">
-                    <div className="space-y-1">
-                      <span className="text-[9px] font-mono text-foreground-subtle uppercase tracking-tighter">Latency</span>
-                      <p className="text-xs font-bold font-mono text-cyber-cyan">24ms</p>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-[9px] font-mono text-foreground-subtle uppercase tracking-tighter">Sync_Health</span>
-                      <p className="text-xs font-bold font-mono text-success">98%</p>
-                    </div>
+                  <div className="mt-8 pt-6 border-t border-border-subtle flex gap-3">
+                    <Button variant="ghost" className="flex-1 text-[10px] font-mono uppercase tracking-widest py-2 hover:bg-accent/5">
+                      Diagnostics
+                    </Button>
+                    <Button variant="secondary" className="flex-1 text-[10px] font-mono uppercase tracking-widest py-2" onClick={() => fetchDevices()}>
+                      Re-Sync
+                    </Button>
                   </div>
                 </div>
-
-                <div className="mt-8 flex gap-2">
-                  <Button variant="ghost" className="flex-1 text-xs py-2 bg-background-base/50">
-                    Diagnostics
-                  </Button>
-                  <Button variant="secondary" className="flex-1 text-xs py-2" onClick={() => fetchDevices()}>
-                    Resync
-                  </Button>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* Security Banner */}
-      <div className="bg-cyber-cyan/5 border border-cyber-cyan/20 rounded-2xl p-6 flex items-center gap-6">
-        <div className="w-12 h-12 rounded-full bg-cyber-cyan/10 flex items-center justify-center flex-shrink-0">
-          <ShieldCheck className="w-6 h-6 text-cyber-cyan" />
-        </div>
-        <div>
-          <h4 className="font-bold text-cyber-cyan uppercase font-display tracking-wide">End-to-End Encryption Active</h4>
-          <p className="text-sm text-foreground-muted">
-            All data transmitted between your devices is secured with AES-256-GCM. 
-            Pairing uses a 2048-bit RSA handshake.
-          </p>
+      {/* Protocol Security Banner */}
+      <div className="hud-panel p-6 border-accent/20 bg-accent/[0.02]">
+        <div className="flex flex-col md:flex-row items-center gap-8">
+          <div className="w-16 h-16 rounded-sm bg-accent/5 flex items-center justify-center flex-shrink-0 border border-accent/20">
+            <ShieldCheck className="w-8 h-8 text-accent" />
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            <h4 className="font-bold text-accent font-mono uppercase tracking-[0.2em] mb-2">Neural_Encryption_v3.9_Active</h4>
+            <p className="text-sm text-foreground-muted font-sans leading-relaxed">
+              All telemetry packets are secured via <strong>AES-256-GCM</strong>. 
+              Neural handshakes utilize <strong>RSA-4096</strong> peer verification. 
+              Unauthorized access attempts are automatically logged and quarantined.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-background-deep border border-border-default rounded-sm">
+            <div className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_#10B981]" />
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest">Secure_Link</span>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default DeviceSyncHub;

@@ -302,7 +302,15 @@ class MediaProcessor:
                 prompt = query or "बताएं कि अभी मेरी स्क्रीन पर क्या है। खुले हुए विंडोज़, टेक्स्ट और यूआई एलिमेंट्स के बारे में विस्तार से बताएं।"
             
             # 3. Analyze with Vision LLM
-            analysis = await llm_module.get_visual_response(image_path, prompt, language)
+            try:
+                analysis = await llm_module.get_visual_response(image_path, prompt, language)
+            except RuntimeError as ve:
+                return {
+                    'success': False,
+                    'action_type': 'VISION_ANALYSIS',
+                    'error': str(ve),
+                    'response': str(ve)
+                }
             
             if not analysis:
                 return {

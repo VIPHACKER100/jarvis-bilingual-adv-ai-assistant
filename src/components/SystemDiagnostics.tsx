@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { motion } from 'framer-motion';
-import { Cpu, HardDrive, Battery, Network, Globe, Activity } from 'lucide-react';
+import { Cpu, HardDrive, Battery, Network, Globe, Activity, Zap, ShieldAlert } from 'lucide-react';
 import { PerformanceHistory } from './PerformanceHistory';
 import { CommandInsights } from './CommandInsights';
 import { PersonalitySwitcher } from './PersonalitySwitcher';
@@ -33,48 +33,59 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const Gauge = ({ percent, label, sublabel, index }: { percent: number; label: string; sublabel: string; index: number }) => {
+  const Gauge = ({ percent, label, sublabel, index, color = "var(--accent)" }: { percent: number; label: string; sublabel: string; index: number; color?: string }) => {
     const radius = 35;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percent / 100) * circumference;
 
     return (
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1, duration: 0.5 }}
-        className="flex flex-col items-center justify-center"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: index * 0.1 }}
+        className="flex flex-col items-center justify-center p-4 rounded-sm border border-white/5 bg-white/[0.01] relative overflow-hidden"
       >
-        <div className="relative w-20 h-20 flex items-center justify-center">
+        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20" />
+        <div className="relative w-24 h-24 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90">
             <circle
-              cx="40"
-              cy="40"
+              cx="48"
+              cy="48"
               r={radius}
-              stroke="var(--border-default)"
-              strokeWidth="3"
+              stroke="rgba(255,255,255,0.05)"
+              strokeWidth="4"
               fill="transparent"
             />
             <motion.circle
               initial={{ strokeDashoffset: circumference }}
               animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              cx="40"
-              cy="40"
+              transition={{ duration: 1.5, ease: "circOut" }}
+              cx="48"
+              cy="48"
               r={radius}
-              stroke="var(--accent)"
-              strokeWidth="3"
+              stroke={color}
+              strokeWidth="4"
               strokeDasharray={circumference}
               fill="transparent"
-              strokeLinecap="round"
+              strokeLinecap="butt"
+              className="drop-shadow-[0_0_8px_rgba(76,215,246,0.3)]"
             />
+            {/* Tick Markers */}
+            {[0, 90, 180, 270].map(angle => (
+              <line
+                key={angle}
+                x1="48" y1="8" x2="48" y2="12"
+                stroke="white" strokeOpacity="0.2" strokeWidth="1"
+                transform={`rotate(${angle} 48 48)`}
+              />
+            ))}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-sm font-bold text-foreground">{Math.round(percent)}%</span>
-            <span className="text-[7px] text-foreground-muted uppercase tracking-widest">{label}</span>
+            <span className="text-xl font-bold text-foreground font-mono tracking-tighter">{Math.round(percent)}<span className="text-[10px] opacity-40">%</span></span>
+            <span className="label-caps text-[8px] text-foreground-subtle mt-1">{label}</span>
           </div>
         </div>
-        <span className="text-[9px] text-foreground-muted font-mono mt-1 opacity-60">{sublabel}</span>
+        <span className="text-[9px] text-foreground-muted font-mono mt-3 opacity-60 tracking-wider bg-white/5 px-2 py-0.5 rounded-full">{sublabel}</span>
       </motion.div>
     );
   };
@@ -86,108 +97,124 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
       className="w-full flex flex-col gap-6"
     >
       {/* Header Badge */}
-      <div className="flex items-center gap-3">
-        <Activity className="w-4 h-4 text-accent" />
-        <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-foreground">Diagnostics</h3>
-        <div className="h-px flex-1 bg-border-default"></div>
+      <div className="flex items-center gap-4 px-2">
+        <div className="w-8 h-8 rounded-sm bg-accent/10 flex items-center justify-center border border-accent/30">
+          <Activity className="w-4 h-4 text-accent" />
+        </div>
+        <div className="flex flex-col">
+          <h3 className="label-caps text-xs font-bold text-foreground tracking-[0.2em]">Diagnostics_Terminal</h3>
+          <p className="text-[8px] font-mono text-foreground-muted opacity-50 uppercase">Session: {new Date().toISOString().split('T')[0]} // Kernel: V3.9.0</p>
+        </div>
+        <div className="h-px flex-1 bg-gradient-to-r from-accent/30 to-transparent ml-4"></div>
       </div>
 
       {/* Main Stats Card */}
-      <div className="glass-panel p-5 space-y-6">
-        <div className="flex justify-around items-center">
+      <div className="hud-panel p-6 space-y-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
+          <Zap className="w-16 h-16 text-accent" />
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
           <Gauge 
             percent={systemStatus.cpu.percent} 
-            label="CPU" 
-            sublabel={`${systemStatus.cpu.count} Cores`} 
+            label="CPU_LOAD" 
+            sublabel={`${systemStatus.cpu.count} CORES_ACTIVE`} 
             index={0}
           />
           <Gauge 
             percent={systemStatus.memory.percent} 
-            label="RAM" 
+            label="MEMORY_BUFFER" 
             sublabel={formatBytes(systemStatus.memory.used)} 
             index={1}
+            color="var(--neural-purple)"
           />
         </div>
 
         {/* List Stats */}
-        <div className="space-y-4 pt-4 border-t border-border-default">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
           {systemStatus.battery && (
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-[10px] font-mono">
-                <div className="flex items-center gap-2 text-foreground-muted">
-                  <Battery className="w-3 h-3" />
-                  <span>GRID_ENERGY</span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2 text-foreground-subtle">
+                  <Battery className="w-3.5 h-3.5 text-accent" />
+                  <span className="label-caps text-[9px] tracking-widest font-bold">ARC_CORE_CHARGE</span>
                 </div>
-                <span className={systemStatus.battery.is_charging ? "text-accent" : "text-foreground"}>
+                <span className={`font-mono text-xs ${systemStatus.battery.is_charging ? "text-accent animate-pulse" : "text-foreground"}`}>
                   {systemStatus.battery.percent}%
                 </span>
               </div>
-              <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${systemStatus.battery.percent || 0}%` }}
-                  className="h-full bg-accent shadow-[0_0_8px_var(--accent)]"
+                  className="h-full bg-accent shadow-[0_0_12px_rgba(76,215,246,0.5)] rounded-full"
                 />
               </div>
             </div>
           )}
 
           {systemStatus.disk && (
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-[10px] font-mono">
-                <div className="flex items-center gap-2 text-foreground-muted">
-                  <HardDrive className="w-3 h-3" />
-                  <span>MASS_STORAGE</span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2 text-foreground-subtle">
+                  <HardDrive className="w-3.5 h-3.5 text-neural-purple" />
+                  <span className="label-caps text-[9px] tracking-widest font-bold">DATAFRAME_STABILITY</span>
                 </div>
-                <span className="text-foreground">{systemStatus.disk.percent}%</span>
+                <span className="font-mono text-xs text-foreground">{systemStatus.disk.percent}%</span>
               </div>
-              <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${systemStatus.disk.percent}%` }}
-                  className="h-full bg-accent/60"
+                  className="h-full bg-neural-purple shadow-[0_0_12px_rgba(168,85,247,0.4)] rounded-full"
                 />
-              </div>
-            </div>
-          )}
-
-          {systemStatus.network && (
-            <div className="pt-2">
-              <div className="flex justify-between items-center text-[9px] font-mono text-foreground-muted uppercase tracking-tight">
-                <div className="flex items-center gap-4">
-                   <div className="flex flex-col">
-                      <span>Up: {formatBytes(systemStatus.network.bytes_sent)}</span>
-                   </div>
-                   <div className="flex flex-col">
-                      <span>Down: {formatBytes(systemStatus.network.bytes_recv)}</span>
-                   </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></div>
-                  <span>Uplink_Active</span>
-                </div>
               </div>
             </div>
           )}
         </div>
 
+        {systemStatus.network && (
+          <div className="pt-4 border-t border-white/5">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/[0.02] p-3 border border-white/5 rounded-sm">
+                <span className="label-caps text-[8px] text-foreground-muted block mb-2">Network_Inbound</span>
+                <div className="flex items-center justify-between">
+                  <Network className="w-3 h-3 text-accent opacity-50" />
+                  <span className="text-xs font-mono text-foreground">{formatBytes(systemStatus.network.bytes_recv)}</span>
+                </div>
+              </div>
+              <div className="bg-white/[0.02] p-3 border border-white/5 rounded-sm">
+                <span className="label-caps text-[8px] text-foreground-muted block mb-2">Network_Outbound</span>
+                <div className="flex items-center justify-between">
+                  <Globe className="w-3 h-3 text-neural-purple opacity-50" />
+                  <span className="text-xs font-mono text-foreground">{formatBytes(systemStatus.network.bytes_sent)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Loop Health Indicators */}
         {systemStatus.event_loop_lag !== undefined && (
-          <div className="pt-4 border-t border-border-default space-y-2">
-            <div className="flex justify-between items-center text-[10px] font-mono">
-              <div className="flex items-center gap-2 text-foreground-muted">
-                <Activity className={`w-3 h-3 ${systemStatus.event_loop_lag > 50 ? 'text-red-400 animate-pulse' : 'text-accent'}`} />
-                <span>CORE_LIFECYCLE</span>
+          <div className="pt-6 border-t border-white/5 space-y-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-sm ${systemStatus.event_loop_lag > 50 ? 'bg-security-rose/10 border border-security-rose/30' : 'bg-accent/10 border border-accent/30'}`}>
+                  <Activity className={`w-4 h-4 ${systemStatus.event_loop_lag > 50 ? 'text-security-rose animate-pulse' : 'text-accent'}`} />
+                </div>
+                <div>
+                  <span className="label-caps text-[10px] font-bold block">Kernel_Heartbeat</span>
+                  <span className="text-[8px] font-mono text-foreground-muted uppercase opacity-40">System_Event_Loop_Monitor</span>
+                </div>
               </div>
-              <span className={systemStatus.event_loop_lag > 50 ? "text-red-400" : "text-accent"}>
-                {systemStatus.event_loop_lag.toFixed(1)}ms
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-[8px] uppercase tracking-widest text-foreground-muted font-bold">
-              <span>Loop_Latency</span>
-              <span className={systemStatus.event_loop_lag < 20 ? "text-green-500" : (systemStatus.event_loop_lag < 100 ? "text-yellow-500" : "text-red-500")}>
-                {systemStatus.event_loop_lag < 20 ? "OPTIMAL" : (systemStatus.event_loop_lag < 100 ? "DEGRADED" : "CRITICAL")}
-              </span>
+              <div className="text-right">
+                <span className={`text-lg font-mono font-bold block leading-none ${systemStatus.event_loop_lag > 50 ? "text-security-rose" : "text-accent"}`}>
+                  {systemStatus.event_loop_lag.toFixed(1)}<span className="text-[10px] font-normal opacity-50 ml-1">ms</span>
+                </span>
+                <span className={`label-caps text-[8px] font-bold ${systemStatus.event_loop_lag < 20 ? "text-accent" : (systemStatus.event_loop_lag < 100 ? "text-yellow-500" : "text-security-rose")}`}>
+                  {systemStatus.event_loop_lag < 20 ? "STATUS: OPTIMAL" : (systemStatus.event_loop_lag < 100 ? "STATUS: DEGRADED" : "STATUS: CRITICAL")}
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -206,16 +233,19 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
       />
 
       {/* Platform & Context Information */}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {systemStatus.active_window && (
-          <div className="glass-panel p-3 bg-white/[0.02] border-l-2 border-accent/40">
-            <div className="flex flex-col gap-1">
-              <span className="text-[7px] text-accent uppercase tracking-widest font-bold">Active_Context</span>
-              <span className="text-[10px] text-foreground truncate font-mono">
+          <div className="hud-panel p-4 bg-accent/5 border-l-4 border-l-accent border-white/10">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="label-caps text-[9px] text-accent font-bold">Active_Runtime_Context</span>
+                <ShieldAlert className="w-3 h-3 text-accent/40" />
+              </div>
+              <span className="text-xs text-foreground truncate font-mono bg-black/20 p-2 rounded-sm border border-white/5">
                 {typeof systemStatus.active_window === 'object' ? systemStatus.active_window.title : systemStatus.active_window}
               </span>
-              <span className="text-[8px] text-foreground-muted uppercase tracking-tighter">
-                PID: {typeof systemStatus.active_window === 'object' ? systemStatus.active_window.process : 'N/A'}
+              <span className="text-[8px] text-foreground-muted uppercase tracking-widest font-mono opacity-40">
+                PROCES_ID: {typeof systemStatus.active_window === 'object' ? systemStatus.active_window.process : 'INTERNAL_KERNEL'}
               </span>
             </div>
           </div>
@@ -223,25 +253,33 @@ export const SystemDiagnostics: FC<SystemDiagnosticsProps> = ({ systemStatus }) 
 
         {systemStatus.context_suggestion && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="glass-panel p-3 bg-accent/5 border border-accent/20"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="hud-panel p-4 bg-neural-purple/[0.08] border-l-4 border-l-neural-purple border-white/10 relative overflow-hidden"
           >
-            <div className="flex flex-col gap-1">
-              <span className="text-[7px] text-accent uppercase tracking-widest font-bold animate-pulse">Proactive_Insight</span>
-              <p className="text-[10px] text-foreground leading-relaxed">
-                {systemStatus.context_suggestion}
+            <div className="absolute top-0 right-0 p-2 opacity-10">
+              <Activity className="w-8 h-8 text-neural-purple" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="label-caps text-[9px] text-neural-purple font-bold animate-pulse tracking-[0.2em]">Heuristic_Insight</span>
+              <p className="text-[10px] text-foreground leading-relaxed font-sans italic opacity-90">
+                "{systemStatus.context_suggestion}"
               </p>
             </div>
           </motion.div>
         )}
+      </div>
 
-        <div className="glass-panel p-3 flex justify-between items-center bg-white/[0.02]">
-          <div className="flex items-center gap-2">
-            <Globe className="w-3 h-3 text-foreground-muted" />
-            <span className="text-[9px] font-mono text-foreground-muted uppercase tracking-widest">{systemStatus.platform || 'LOCAL_HOST'}</span>
+      <div className="hud-panel p-4 flex justify-between items-center border-white/10 bg-white/[0.01]">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 rounded-sm bg-white/5 flex items-center justify-center border border-white/10">
+            <Globe className="w-3 h-3 text-foreground-subtle" />
           </div>
-          <span className="text-[9px] font-mono text-accent">STABLE</span>
+          <span className="label-caps text-[9px] font-bold text-foreground-muted tracking-widest">{systemStatus.platform || 'LOCAL_NEURAL_HOST'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_var(--accent)]" />
+          <span className="label-caps text-[9px] font-bold text-accent tracking-[0.2em]">CONNECTION: STABLE</span>
         </div>
       </div>
     </motion.div>

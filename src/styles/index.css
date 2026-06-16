@@ -6,27 +6,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-    /* --- Core Palette (Cyber Space) --- */
-    --background-deep: #020204;
-    --background-base: #05060b;
-    --background-elevated: #0d0e14;
-    --background-overlay: rgba(2, 2, 4, 0.9);
+    /* --- Cyber-Modern Palette (Stitch) --- */
+    --background-deep: #090f11;
+    --background-base: #0e1416;
+    --background-elevated: #171d1e;
+    --background-overlay: rgba(9, 15, 17, 0.9);
     
-    --foreground: #f0f4f8;
-    --foreground-muted: #94a3b8;
-    --foreground-subtle: rgba(240, 244, 248, 0.4);
+    --foreground: #dee3e6;
+    --foreground-muted: #bcc9cd;
+    --foreground-subtle: rgba(222, 227, 230, 0.3);
     
     /* --- JARVIS v3.9.0 Tactical Accents --- */
-    --cyber-cyan: #06b6d4;      /* Main HUD & Comm Channels */
-    --neural-purple: #a855f7;   /* Logic & AI Reasoning */
-    --security-rose: #f43f5e;   /* Alerts & Threat Detection */
-    --sync-amber: #f59e0b;      /* Cross-device telemetry */
+    --cyber-cyan: #4cd7f6;      /* Main HUD & Success States */
+    --neural-purple: #a855f7;   /* AI Reasoning & Accents */
+    --security-rose: #f43f5e;   /* Critical Alerts */
+    --sync-amber: #ffb2b7;      /* Secondary Data Stream */
     
     --accent: var(--cyber-cyan);
-    --accent-bright: #22d3ee;
-    --accent-soft: rgba(6, 182, 212, 0.1);
-    --accent-glow: rgba(6, 182, 212, 0.4);
-    --accent-rgb: 6, 182, 212;
+    --accent-bright: #acedff;
+    --accent-soft: rgba(76, 215, 246, 0.1);
+    --accent-glow: rgba(76, 215, 246, 0.4);
+    --accent-rgb: 76, 215, 246;
     
     --secondary: var(--neural-purple);
     --secondary-rgb: 168, 85, 247;
@@ -38,27 +38,27 @@
     --info: #06b6d4;
 
     /* --- HUD Surfaces & Borders --- */
-    --surface-low: rgba(13, 14, 20, 0.4);
-    --surface-mid: rgba(13, 14, 20, 0.7);
-    --surface-high: rgba(13, 14, 20, 0.9);
+    --surface-low: rgba(23, 29, 30, 0.4);
+    --surface-mid: rgba(27, 33, 34, 0.7);
+    --surface-high: rgba(37, 43, 45, 0.9);
     
-    --border-subtle: rgba(255, 255, 255, 0.03);
-    --border-default: rgba(255, 255, 255, 0.06);
-    --border-bright: rgba(255, 255, 255, 0.12);
-    --border-accent: rgba(6, 182, 212, 0.25);
+    --border-subtle: rgba(134, 147, 151, 0.1);
+    --border-default: rgba(134, 147, 151, 0.2);
+    --border-bright: rgba(134, 147, 151, 0.4);
+    --border-accent: rgba(76, 215, 246, 0.3);
 
     /* --- HUD Effects --- */
-    --glass-blur: blur(12px) saturate(1.8);
-    --glass-blur-heavy: blur(20px) saturate(2);
+    --glass-blur: blur(12px) saturate(1.5);
+    --glass-blur-heavy: blur(20px) saturate(1.8);
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
     --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.6);
     --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.8);
-    --shadow-accent: 0 0 40px rgba(6, 182, 212, 0.1);
+    --shadow-accent: 0 0 40px rgba(76, 215, 246, 0.15);
 
     /* --- Typography (High Density) --- */
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-    --font-display: 'Rajdhani', sans-serif;
+    --font-display: 'Inter', sans-serif;
 
     /* --- Timings --- */
     --ease-hud: cubic-bezier(0.19, 1, 0.22, 1);
@@ -156,6 +156,7 @@ body {
 }
 
 /* --- Component Foundations --- */
+/* --- HUD Component System --- */
 .glass-panel {
     background: var(--surface-low);
     backdrop-filter: var(--glass-blur);
@@ -172,10 +173,63 @@ body {
     box-shadow: var(--shadow-lg), var(--shadow-accent);
 }
 
+.hud-panel {
+    background: var(--surface-low);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.hud-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+    opacity: 0.5;
+}
+
+.hud-panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.label-caps {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--foreground-muted);
+}
+
+.neon-border {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 10px rgba(var(--accent-rgb), 0.2), 0 0 10px rgba(var(--accent-rgb), 0.2);
+}
+
+.scanline-overlay {
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 100% 4px;
+}
+
 .glass-panel:hover {
     background: var(--surface-mid);
     border-color: var(--border-bright);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--shadow-accent);
 }
 
 /* --- Buttons --- */

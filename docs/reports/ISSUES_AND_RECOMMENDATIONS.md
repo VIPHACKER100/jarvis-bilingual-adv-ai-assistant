@@ -1,11 +1,19 @@
 # Issues & Recommendations
 
-**Date:** 2026-05-16  
+**Date:** 2026-06-16  
 **Priority:** P0 (critical) → P3 (nice-to-have)
 
 ---
 
 ## P0 — Critical (fixed or blocking)
+
+### ✅ FIXED: Security — CodeQL SAST findings (v3.9.1)
+
+Three security issues detected by GitHub CodeQL have been remediated:
+
+- **Bad HTML filtering regexp (High)** — `securityService.ts` script tag regex replaced with general `/<[^>]*>/g` tag stripper
+- **Incomplete multi-character sanitization (High)** — Protocol/event handler removal made iterative (3 passes) with whitespace variant coverage
+- **Information exposure through an exception (Medium)** — `str(e)` removed from all error responses across `context.py` and `main.py`; exceptions are logged server-side only
 
 ### ✅ FIXED: `BilingualParser` has no attribute `parse`
 
@@ -28,6 +36,8 @@ winget install UB-Mannheim.TesseractOCR
 ---
 
 ## P1 — High (voice UX broken for some commands)
+
+> **v3.9.1**: Security SAST findings are fully resolved. See ✅ FIXED above.
 
 ### 1. Parser phrase collisions
 
@@ -170,6 +180,7 @@ Run with backend + frontend dev servers:
 5. Fix `test_api.py` path
 6. Add param normalizer for file commands
 7. Expand integration tests
+8. Run CodeQL analysis after any security-related changes
 
 ---
 
@@ -181,3 +192,6 @@ Run with backend + frontend dev servers:
 | `backend/modules/media.py` | Tesseract detection + graceful OCR errors |
 | `docs/reports/*` | This audit (new) |
 | `backend/scripts/quick_parser_audit.py` | Audit tooling (new) |
+| `backend/main.py` | CodeQL: information exposure fix (generic error responses) |
+| `backend/routers/context.py` | CodeQL: information exposure fix (generic error responses) |
+| `src/services/securityService.ts` | CodeQL: bad HTML regex & incomplete sanitization fixes |

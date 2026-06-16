@@ -36,7 +36,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "System status" | "System check karo" | Full system info |
 | "PC status" | "Computer status" | System overview |
 
-### Diagnostics & Weather (New in v3.7.1)
+### Diagnostics & Weather
 
 | English | Hindi | Description |
 | :--- | :--- | :--- |
@@ -234,7 +234,7 @@ Complete reference of all voice commands supported by JARVIS.
 | "Read PDF" | "PDF padho" | Extract PDF text |
 | "PDF to text" | "PDF ko text mein badlo" | Convert PDF to text |
 
-### Screenshot OCR & Analysis (v3.7.1)
+### Screenshot OCR & Analysis
 
 | English | Hindi | Description |
 | :--- | :--- | :--- |
@@ -345,7 +345,7 @@ Complete reference of all voice commands supported by JARVIS.
 
 ---
 
-## 📱 Mobile Companion & Sync (New in v3.9.0)
+## 📱 Mobile Companion & Sync
 
 ### Pairing & Connection
 

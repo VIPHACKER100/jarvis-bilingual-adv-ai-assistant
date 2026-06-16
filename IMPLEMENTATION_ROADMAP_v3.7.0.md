@@ -1,5 +1,7 @@
 # JARVIS Bilingual AI Assistant — Implementation Roadmap (v3.7.0)
 
+> **Note:** This is a historical document tracking the v3.7.0 release. Current version is **3.9.1**. See [TDS.md](TDS.md) for the latest technical specification.
+
 This roadmap documents the transition from a monolithic architecture (v2.1.0) to a modular, scalable router-based system (v2.2.1), the successful integration of the **Linear Precision Update** (v3.1.0), and the introduction of **Neural Chat Assist & Mobile Sync** (v3.4.0).
 
 ## Current Project Status: **v3.7.0 (Production Ready)**
@@ -124,6 +126,6 @@ This roadmap documents the transition from a monolithic architecture (v2.1.0) to
 ---
 
 **Lead Developer**: VIPHACKER100 (Aryan Ahirwar)  
-**Project Version**: 3.7.0
-**Status**: STABLE RELEASE (OPTIMIZED)
+**Project Version**: 3.7.0 (historical)
+**Status**: SUPERSEDED BY v3.9.1
 **Last Updated**: 2026-05-01

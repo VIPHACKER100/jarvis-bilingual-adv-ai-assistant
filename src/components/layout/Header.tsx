@@ -156,7 +156,7 @@ const NavButton: FC<{ active: boolean, onClick: () => void, icon: React.ReactNod
     onClick={onClick}
     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
       active 
-      ? 'bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]' 
+      ? 'bg-accent/10 text-accent border border-accent/20 shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)]' 
       : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent'
     }`}
   >

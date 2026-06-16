@@ -74,28 +74,48 @@ export const MobileSync: FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <Smartphone className="w-5 h-5 text-accent" />
-          <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">Mobile Synchronization</h3>
+    <div className="space-y-8 relative">
+      {/* Tactical Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20 shadow-[0_0_15px_rgba(76,215,246,0.1)]">
+            <Smartphone className="w-5 h-5 text-accent" />
+          </div>
+          <div>
+            <h3 className="label-caps text-sm tracking-[0.3em]">Mobile_Sync_Hub // v3.9.0</h3>
+            <p className="text-[10px] font-mono text-white/30 tracking-widest mt-0.5">Secure_Neural_Bridge_Active</p>
+          </div>
         </div>
-        {isLoading && <RefreshCw className="w-3 h-3 text-accent animate-spin" />}
+        {isLoading && (
+          <div className="flex items-center gap-2 px-3 py-1 bg-accent/5 rounded-full border border-accent/10">
+            <RefreshCw className="w-3 h-3 text-accent animate-spin" />
+            <span className="text-[9px] font-mono text-accent uppercase tracking-widest">Polling_Nodes...</span>
+          </div>
+        )}
       </div>
 
-      <div className="glass-panel p-6 border-accent/20 bg-accent/5 overflow-hidden relative">
-        {/* Background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-accent/10 blur-[60px] rounded-full pointer-events-none" />
+      {/* Hero Sync Panel */}
+      <div className="hud-panel p-8 relative overflow-hidden group">
+        {/* Scanline Overlay */}
+        <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.03] scanline-overlay" />
         
-        <div className="flex flex-col items-center text-center space-y-4 relative z-10">
-          <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/30 shadow-[0_0_20px_rgba(94,106,210,0.1)]">
-            <ShieldCheck className="w-8 h-8 text-accent" />
+        {/* Dynamic Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-accent/5 blur-[80px] rounded-full pointer-events-none transition-all duration-1000 group-hover:bg-accent/10 group-hover:w-64" />
+        
+        <div className="flex flex-col items-center text-center space-y-8 relative z-20">
+          <div className="relative">
+            <div className="absolute inset-0 bg-accent/20 blur-2xl rounded-full animate-pulse" />
+            <div className="relative w-20 h-20 rounded-2xl bg-black/40 flex items-center justify-center border border-accent/30 shadow-[0_0_30px_rgba(76,215,246,0.2)]">
+              <ShieldCheck className="w-10 h-10 text-accent" />
+            </div>
           </div>
           
-          <div className="space-y-1">
-            <h4 className="text-base font-bold text-foreground">Pair Your Device</h4>
-            <p className="text-[10px] text-foreground-muted max-w-[240px]">
-              {showQR ? "Scan this code with the JARVIS Mobile App" : "Scan the QR code or enter this pairing code on your mobile app to monitor JARVIS remotely."}
+          <div className="space-y-2">
+            <h4 className="label-caps text-lg tracking-[0.2em] text-white">Initialize_Neural_Handshake</h4>
+            <p className="text-[11px] font-medium text-white/40 max-w-[320px] leading-relaxed font-mono tracking-wider">
+              {showQR 
+                ? "DECRYPTING_VISUAL_PAYLOAD... SCAN_OPTICAL_HASH_WITH_MOBILE_UNIT" 
+                : "PENDING_AUTHORIZATION... ENTER_SECURE_TOKEN_ON_EXTERNAL_INTERFACE"}
             </p>
           </div>
 
@@ -103,23 +123,22 @@ export const MobileSync: FC = () => {
             {showQR ? (
               <motion.div 
                 key="qr"
-                initial={{ opacity: 0, scale: 0.8, rotateY: 90 }}
-                animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                exit={{ opacity: 0, scale: 0.8, rotateY: -90 }}
-                transition={{ type: "spring", damping: 12 }}
-                className="p-3 bg-white rounded-2xl border-4 border-accent/30 shadow-[0_0_40px_rgba(94,106,210,0.2)]"
+                initial={{ opacity: 0, scale: 0.8, rotateX: 45 }}
+                animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+                exit={{ opacity: 0, scale: 0.8, rotateX: -45 }}
+                transition={{ type: "spring", damping: 15 }}
+                className="p-5 bg-white rounded-2xl border-4 border-accent/20 shadow-[0_0_50px_rgba(76,215,246,0.3)] relative group/qr"
               >
+                <div className="absolute -inset-4 border border-accent/10 rounded-[2.5rem] pointer-events-none group-hover/qr:border-accent/30 transition-all duration-500" />
                 <QRCodeSVG 
                   value={qrData} 
-                  size={160}
+                  size={180}
                   level="H"
                   includeMargin={true}
                   imageSettings={{
                     src: "/favicon.ico",
-                    x: undefined,
-                    y: undefined,
-                    height: 30,
-                    width: 30,
+                    height: 36,
+                    width: 36,
                     excavate: true,
                   }}
                 />
@@ -127,97 +146,121 @@ export const MobileSync: FC = () => {
             ) : (
               <motion.div 
                 key="code"
-                initial={{ opacity: 0, scale: 0.8, rotateY: -90 }}
-                animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                exit={{ opacity: 0, scale: 0.8, rotateY: 90 }}
-                transition={{ type: "spring", damping: 12 }}
-                className="flex items-center gap-3 p-4 bg-black/40 rounded-xl border border-white/5 w-full max-w-[280px]"
+                initial={{ opacity: 0, scale: 0.8, rotateX: -45 }}
+                animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+                exit={{ opacity: 0, scale: 0.8, rotateX: 45 }}
+                transition={{ type: "spring", damping: 15 }}
+                className="w-full max-w-[320px] group/code"
               >
-                <span className="text-2xl font-mono font-black tracking-[0.2em] text-accent flex-1 text-center">
-                  {pairingCode}
-                </span>
-                <button 
-                  onClick={handleRefreshCode}
-                  disabled={isRefreshing}
-                  title="Refresh pairing code"
-                  aria-label="Refresh pairing code"
-                  className={`p-2 rounded-lg hover:bg-white/5 transition-colors ${isRefreshing ? 'animate-spin' : ''}`}
-                >
-                  <RefreshCw className="w-4 h-4 text-foreground-muted" />
-                </button>
+                <div className="relative p-6 bg-black/60 rounded-2xl border border-white/5 backdrop-blur-xl flex items-center justify-center gap-6 group-hover/code:border-accent/40 transition-all duration-500">
+                  <div className="absolute -top-3 left-6 px-3 py-1 bg-black border border-white/10 rounded-md">
+                    <span className="text-[8px] font-mono text-white/40 uppercase tracking-widest">Secure_Token</span>
+                  </div>
+                  <span className="text-3xl font-mono font-black tracking-[0.3em] text-accent drop-shadow-[0_0_15px_rgba(76,215,246,0.5)]">
+                    {pairingCode}
+                  </span>
+                  <button 
+                    onClick={handleRefreshCode}
+                    disabled={isRefreshing}
+                    className={`p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all ${isRefreshing ? 'animate-spin' : 'hover:scale-110 active:scale-95'}`}
+                  >
+                    <RefreshCw className="w-5 h-5 text-white/60" />
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-6 pt-4">
             <button 
               onClick={() => setShowQR(!showQR)}
-              className="flex items-center gap-2 text-[10px] font-bold text-accent hover:text-accent/80 transition-colors uppercase tracking-widest"
+              className="group flex items-center gap-3 px-4 py-2 rounded-full bg-accent/5 border border-accent/20 hover:bg-accent/10 transition-all active:scale-95"
             >
-              {showQR ? <Smartphone className="w-3 h-3" /> : <QrCode className="w-3 h-3" />}
-              {showQR ? "Show Pairing Code" : "Show QR Code"}
+              {showQR ? <Smartphone className="w-4 h-4 text-accent" /> : <QrCode className="w-4 h-4 text-accent" />}
+              <span className="label-caps text-[10px] tracking-[0.2em] text-accent">
+                {showQR ? "Switch_To_Code" : "Switch_To_QR"}
+              </span>
             </button>
             
-            <div className="w-px h-3 bg-white/10" />
+            <div className="w-px h-4 bg-white/10" />
 
             <Link 
               to="/mobile" 
-              className="flex items-center gap-2 text-[10px] font-bold text-foreground-muted hover:text-foreground transition-colors uppercase tracking-widest"
+              className="flex items-center gap-3 text-[10px] label-caps tracking-[0.2em] text-white/40 hover:text-white transition-all group"
             >
-              <ExternalLink className="w-3 h-3" />
-              Launch Preview
+              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              HUD_Simulator
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="space-y-3">
-        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-muted flex items-center gap-2">
-          Paired Devices
-          <div className="h-px flex-1 bg-white/5"></div>
-        </h4>
+      {/* Paired Devices Registry */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <h4 className="label-caps text-[10px] tracking-[0.3em] text-white/30 whitespace-nowrap">Neural_Registry_Nodes</h4>
+          <div className="h-px flex-1 bg-gradient-to-r from-white/5 to-transparent"></div>
+        </div>
 
-        <div className="space-y-2">
+        <div className="grid gap-3">
           <AnimatePresence mode="popLayout">
             {devices?.length > 0 ? (
               devices.map(device => (
                 <motion.div 
                   key={device.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="glass-panel p-3 flex justify-between items-center bg-white/[0.02] border-white/5 hover:border-accent/30 transition-colors group"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+                  className="hud-panel p-4 flex justify-between items-center group hover:bg-white/[0.02] transition-all"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                      <Smartphone className="w-4 h-4 text-accent" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-accent/5 flex items-center justify-center border border-accent/10 group-hover:border-accent/40 transition-all duration-500">
+                      <Smartphone className="w-6 h-6 text-accent/60 group-hover:text-accent group-hover:scale-110 transition-all duration-500" />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-[11px] font-bold text-foreground">{device.name}</span>
-                      <span className="text-[9px] text-foreground-muted font-mono">
-                        {device.type} • {device.last_seen ? new Date(device.last_seen).toLocaleTimeString() : 'N/A'}
-                      </span>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[12px] font-bold text-white tracking-wide">{device.name}</span>
+                        <div className="px-1.5 py-0.5 rounded-sm bg-accent/10 border border-accent/20">
+                          <span className="text-[8px] font-mono text-accent uppercase tracking-widest">{device.type}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
+                          <Wifi className="w-3 h-3 text-green-500/60" />
+                          <span className="text-[9px] font-mono text-white/30 uppercase tracking-widest">Signal_Nominal</span>
+                        </div>
+                        <span className="text-white/10">•</span>
+                        <span className="text-[9px] font-mono text-white/30 uppercase tracking-widest">
+                          Last_Seen: {device.last_seen ? new Date(device.last_seen).toLocaleTimeString([], { hour12: false }) : 'OFFLINE'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-2 py-1 bg-accent/10 rounded-full border border-accent/20">
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-black/40 border border-white/5 rounded-lg group-hover:border-accent/20 transition-all">
                       <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                      <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Registered: {devices?.length || 0} Nodes</span>
+                      <span className="text-[9px] font-mono text-white/40 uppercase tracking-widest">Secure_Node_ID: {device.id.substring(0, 8)}</span>
                     </div>
                     <button 
                       onClick={() => handleUnpair(device.id)}
-                      className="p-1.5 rounded-md hover:bg-red-500/10 text-foreground-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                      title="Unpair Device"
+                      className="p-2.5 rounded-xl hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-all border border-transparent hover:border-red-500/20 active:scale-95"
+                      title="Terminate Link"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </motion.div>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center space-y-2 opacity-50">
-                <WifiOff className="w-8 h-8 text-foreground-muted" />
-                <p className="text-[10px] uppercase tracking-widest text-foreground-muted font-bold">No Devices Paired</p>
+              <div className="hud-panel py-16 flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                <div className="p-5 rounded-full border border-dashed border-white/10">
+                  <WifiOff className="w-10 h-10 text-white/20" />
+                </div>
+                <div>
+                  <p className="label-caps text-[10px] tracking-[0.4em] text-white">No_Nodes_Connected</p>
+                  <p className="text-[9px] font-mono text-white/20 uppercase tracking-widest mt-1">Awaiting_Neural_Handshake</p>
+                </div>
               </div>
             )}
           </AnimatePresence>

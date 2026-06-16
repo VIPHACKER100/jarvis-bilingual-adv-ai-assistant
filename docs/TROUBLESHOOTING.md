@@ -86,6 +86,21 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 
 ---
 
+---
+## 🔒 Security & CodeQL
+
+### CodeQL security alerts (v3.9.1)
+
+All previously detected high/medium CodeQL issues have been resolved:
+
+- **Bad HTML filtering regexp (High)** — Replaced bypassable script-tag regex with general HTML tag stripper
+- **Incomplete multi-character sanitization (High)** — Made sanitization iterative (3 passes) with whitespace-variant coverage
+- **Information exposure through an exception (Medium)** — All backend error responses now return generic messages; full error details are logged server-side only
+
+If you run a new CodeQL analysis and find other alerts, verify they are not reintroduced by custom code changes.
+
+---
+
 ## 📞 Still need help?
 
 - Open an issue on [GitHub](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant/issues).
