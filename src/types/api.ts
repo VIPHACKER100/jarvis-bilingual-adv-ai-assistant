@@ -472,6 +472,11 @@ export interface QuickActionListResponse {
   actions: QuickAction[];
 }
 
+export interface SuccessResponse {
+  success: boolean;
+  message?: string;
+}
+
 export interface SuggestionResponse {
   success: boolean;
   suggestion: string;
@@ -506,6 +511,8 @@ export interface VoiceProfile {
   name: string;
   gender: 'MALE' | 'FEMALE' | 'NEUTRAL';
   base_model: string;
+  lang?: string;
+  accent?: string;
   pitch: number;
   rate: number;
   emotion_weight: number;

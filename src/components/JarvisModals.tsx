@@ -48,16 +48,7 @@ export const JarvisModals: FC = () => {
         onClose={() => setShowAutomation(false)}
       />
 
-      <SettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        onSettingsUpdated={(updated: any) => {
-          setSettings(updated);
-          if (updated.language === 'en') setLanguage(Language.ENGLISH);
-          else if (updated.language === 'hi') setLanguage(Language.HINDI);
-          else if (updated.language === 'hinglish') setLanguage(Language.HINGLISH);
-        }}
-      />
+      <SettingsModal />
 
       <VisionOverlay 
         isOpen={visionData.isOpen}

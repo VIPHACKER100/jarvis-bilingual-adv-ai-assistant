@@ -63,9 +63,9 @@ interface JarvisState {
   showAutomation: boolean;
   setShowAutomation: (show: boolean) => void;
   showAdvanced: boolean;
-  setShowAdvanced: (show) => void;
+  setShowAdvanced: (show: boolean) => void;
   showPermission: boolean;
-  setShowPermission: (show) => void;
+  setShowPermission: (show: boolean) => void;
   
   activeTacticalView: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING';
   setActiveTacticalView: (view: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING') => void;

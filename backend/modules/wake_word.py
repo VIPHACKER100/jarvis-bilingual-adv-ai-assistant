@@ -1,7 +1,6 @@
 import os
 import time
 import numpy as np
-import pyaudio
 import openwakeword
 from openwakeword.model import Model
 from typing import Callable, Optional
@@ -24,21 +23,23 @@ class WakeWordEngine:
         
         # Audio parameters
         self.CHUNK_SIZE = 1280  # Required by openWakeWord
-        self.FORMAT = pyaudio.paInt16
+        self.FORMAT = None  # Set lazily on initialize
         self.CHANNELS = 1
         self.RATE = 16000
         
-        self._audio: Optional[pyaudio.PyAudio] = None
-        self._stream: Optional[pyaudio.Stream] = None
+        self._audio = None
+        self._stream = None
 
     def initialize(self):
         """Load the model and prepare the audio stream"""
         try:
+            import pyaudio
             logger.info(f"Initializing Wake-Word Engine ({self.model_name})...")
             self.model = Model(
                 wakeword_models=[self.model_name],
                 inference_framework=self.inference_framework
             )
+            self.FORMAT = pyaudio.paInt16
             self._audio = pyaudio.PyAudio()
             logger.info("Wake-Word Engine initialized.")
         except Exception as e:

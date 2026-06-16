@@ -11,7 +11,7 @@ export const SystemMetricsWidget: FC = () => {
     { 
       id: 'cpu', 
       label: 'Core_Load', 
-      value: systemStatus?.cpu_usage || 12, 
+      value: systemStatus?.cpu?.percent || 12, 
       unit: '%', 
       icon: <Cpu className="w-4 h-4" />, 
       color: '#5E6AD2',
@@ -20,7 +20,7 @@ export const SystemMetricsWidget: FC = () => {
     { 
       id: 'mem', 
       label: 'Memory_Map', 
-      value: systemStatus?.memory_usage || 240, 
+      value: systemStatus?.memory?.used ? Math.round(systemStatus.memory.used / 1024 / 1024) : 240, 
       unit: 'MB', 
       icon: <Database className="w-4 h-4" />, 
       color: '#A855F7',

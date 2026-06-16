@@ -1,6 +1,6 @@
 import { useState, FC, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Plus, Trash2, Clock, Terminal, Calendar, Layers, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
+import { X, Save, Plus, Trash2, Clock, Terminal, Calendar, Layers, ShieldCheck, AlertCircle, RefreshCw, Pencil } from 'lucide-react';
 import { apiClient } from '../services/apiClient';
 import { AutomationTask, AutomationMacro, MacroStep } from '../types/api';
 
@@ -171,7 +171,7 @@ export const AutomationEditor: FC<AutomationEditorProps> = ({ isOpen, onClose, t
                       placeholder="TASK_NAME_ID"
                     />
                     <div className="absolute top-1/2 -translate-y-1/2 right-4 opacity-30 group-focus-within:opacity-100 transition-opacity">
-                      <Edit2 className="w-4 h-4 text-accent" />
+                      <Pencil className="w-4 h-4 text-accent" />
                     </div>
                   </div>
                   <textarea 

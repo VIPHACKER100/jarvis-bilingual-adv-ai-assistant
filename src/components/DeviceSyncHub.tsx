@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Tablet, Monitor, Link, ShieldCheck, Zap, Globe, MoreHorizontal, RefreshCw } from 'lucide-react';
+import { Smartphone, Tablet, Monitor, Link, ShieldCheck, Zap, Globe, MoreHorizontal, RefreshCw, X } from 'lucide-react';
 import { PairedDevice } from '../types/api';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';

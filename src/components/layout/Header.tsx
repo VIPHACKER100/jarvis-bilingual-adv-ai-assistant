@@ -58,7 +58,7 @@ export const Header: FC = () => {
             <HealthIndicator 
               icon={<Cpu className="w-3 h-3" />} 
               label="CPU" 
-              value={systemStatus?.cpu_usage ? `${Math.round(systemStatus.cpu_usage)}%` : '8%'} 
+              value={systemStatus?.cpu?.percent ? `${Math.round(systemStatus.cpu.percent)}%` : '8%'} 
             />
             <HealthIndicator 
               icon={<Zap className="w-3 h-3" />} 

@@ -37,7 +37,8 @@ const App: FC = () => {
     activeTacticalView
   } = useJarvisStore();
 
-  const { sendCommand, toggleActivation } = useVoiceController(useJarvisBridge().sendCommand);
+  const bridge = useJarvisBridge();
+  const { toggleActivation } = useVoiceController(bridge.sendCommand);
   const { addNotification } = useNotifications();
 
   // Connection notifications

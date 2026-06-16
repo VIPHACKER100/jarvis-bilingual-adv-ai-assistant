@@ -18,7 +18,7 @@ export const Footer: FC = () => {
           <StatusItem 
             icon={<Database className="w-3.5 h-3.5" />} 
             label="Memory_Pool" 
-            value={systemStatus?.memory_usage ? `${Math.round(systemStatus.memory_usage)}MB` : '256MB'} 
+            value={systemStatus?.memory?.used ? `${(systemStatus.memory.used / 1024 / 1024).toFixed(0)}MB` : '256MB'} 
           />
           <StatusItem 
             icon={<Network className="w-3.5 h-3.5" />} 

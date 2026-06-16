@@ -137,10 +137,10 @@ describe('VoiceService', () => {
   it('speaks with cancel and onEnd callback', async () => {
     const { voiceService } = await import('../services/voiceService');
     const onEnd = vi.fn();
-    let captured: { lang: string; text?: string } | null = null;
-    mockSynthesis.speak.mockImplementation((u: { lang: string; onend?: (e: Event) => void }) => {
+    let captured: any = null;
+    mockSynthesis.speak.mockImplementation((u: Record<string, unknown>) => {
       captured = u;
-      u.onend?.(new Event('end'));
+      (u.onend as ((e: Event) => void) | undefined)?.(new Event('end'));
     });
 
     voiceService.speak('Hello Sir', 'en', onEnd);
