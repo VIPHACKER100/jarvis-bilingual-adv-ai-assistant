@@ -82,6 +82,11 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] border border-neural-purple/10 rounded-full animate-spin-reverse-slow pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] border-t border-b border-accent/5 rounded-full animate-pulse pointer-events-none" />
 
+        {/* Scanline overlay confined to reactor area */}
+        <div className="absolute -inset-12 pointer-events-none overflow-hidden opacity-10">
+          <div className="scanline" />
+        </div>
+
         <ArcReactor
           isActive={mode !== AppMode.IDLE}
           onClick={onToggleActivation}
@@ -135,8 +140,9 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
           {currentSuggestion && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: [0, 1, 0.85, 1], scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 1.5, ease: 'easeOut' }}
               className="w-full max-w-2xl"
             >
               <Card elevation="high" className="!p-0 border-accent/30 overflow-hidden" interactive>
@@ -264,8 +270,8 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
               Abort_Intent
             </Button>
             <Button 
-              variant="neon" 
-              className="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest !bg-security-rose/10 !border-security-rose/30 !text-security-rose hover:!bg-security-rose/20"
+              variant="cyber-pink" 
+              className="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest"
               onClick={() => confirmCommand(true)}
             >
               Confirm_Auth

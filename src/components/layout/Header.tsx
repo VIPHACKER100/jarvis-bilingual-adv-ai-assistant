@@ -43,7 +43,7 @@ export const Header: FC = () => {
               <h1 className="text-xl md:text-2xl font-bold tracking-tight gradient-text">
                 JARVIS
               </h1>
-              <span className="text-[10px] font-bold text-accent px-1.5 py-0.5 rounded bg-accent-soft border border-border-accent">
+              <span className="text-[10px] font-bold text-cyber-yellow px-1.5 py-0.5 chamfered-sm bg-cyber-yellow/10 border border-cyber-yellow/30">
                 v{APP_VERSION}
               </span>
             </div>
@@ -153,17 +153,37 @@ const HealthIndicator: FC<{ icon: React.ReactNode; label: string; value: string 
   icon,
   label,
   value,
-}) => (
-  <div className="flex flex-col gap-0.5">
-    <div className="flex items-center gap-1.5 text-foreground-subtle">
-      {icon}
-      <span className="text-[7px] font-mono uppercase tracking-[0.1em]">{label}</span>
+}) => {
+  const numericValue = parseInt(value) || 0;
+  const segments = 8;
+  const filledSegments = Math.round((numericValue / 100) * segments);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1.5 text-foreground-subtle">
+        {icon}
+        <span className="text-[7px] font-mono uppercase tracking-[0.1em] terminal-text">{label}</span>
+      </div>
+      <div className="flex items-center gap-0.5">
+        {Array.from({ length: segments }).map((_, i) => (
+          <div
+            key={i}
+            className={`w-1.5 h-2.5 chamfered-sm transition-colors duration-300 ${
+              i < filledSegments
+                ? numericValue > 80
+                  ? 'bg-cyber-pink shadow-[0_0_4px_rgba(var(--cyber-pink-rgb),0.5)]'
+                  : 'bg-accent shadow-[0_0_4px_rgba(var(--accent-rgb),0.5)]'
+                : 'bg-surface-high'
+            }`}
+          />
+        ))}
+        <span className="text-[9px] font-mono font-semibold text-foreground tabular-nums ml-1.5">
+          {value}
+        </span>
+      </div>
     </div>
-    <span className="text-[10px] font-mono font-semibold text-foreground tabular-nums">
-      {value}
-    </span>
-  </div>
-);
+  );
+};
 
 const NavButton: FC<{
   active: boolean;
@@ -173,10 +193,10 @@ const NavButton: FC<{
 }> = ({ active, onClick, icon, label }) => (
   <button
     onClick={onClick}
-    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 ${
+    className={`flex items-center gap-2 px-3 py-2 transition-all duration-300 ${
       active
-        ? 'bg-accent/10 text-accent border border-accent/20 shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)]'
-        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent'
+        ? 'bg-accent/10 text-accent border border-accent/20 shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] chamfered-sm'
+        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent chamfered-sm'
     }`}
     aria-current={active ? 'page' : undefined}
   >

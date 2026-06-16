@@ -108,8 +108,8 @@ const App: FC = () => {
           opacity: [0.04, 0.1, 0.04],
           x: [0, -50, 0],
         }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="ambient-blob w-[600px] h-[600px] bg-neural-purple bottom-[-120px] right-[-120px] blur-[140px]"
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+        className="ambient-blob w-[600px] h-[600px] bg-cyber-pink bottom-[-120px] right-[-120px] blur-[140px]"
       />
 
       <Header />

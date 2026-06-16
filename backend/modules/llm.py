@@ -427,9 +427,9 @@ class LLMModule:
                     logger.error(f"Exception calling OpenRouter vision model {model}: {model_err}")
                     continue
 
-            logger.error("All OpenRouter vision models failed. The model does not support image input or the API key lacks access.")
+            logger.error(f"All OpenRouter vision models failed for {image_path}. The model does not support image input or the API key lacks access.")
             raise RuntimeError(
-                "Cannot read image — this model does not support image input. "
+                f"Cannot read '{path.name}' — this model does not support image input. "
                 "Please check your OpenRouter API key has access to a vision-capable model."
             )
 

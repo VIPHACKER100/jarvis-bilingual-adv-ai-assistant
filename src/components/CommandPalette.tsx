@@ -1,6 +1,6 @@
 import { FC, useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Zap, History, Settings, User, Terminal } from 'lucide-react';
+import { Terminal, Zap, History, Settings, User } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useJarvisBridge } from '../hooks/useJarvisBridge';
 import { Badge } from './ui/Badge';
@@ -8,6 +8,7 @@ import { Badge } from './ui/Badge';
 export const CommandPalette: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [bootPhase, setBootPhase] = useState<'booting' | 'ready'>('ready');
   const { setShowSettings } = useJarvisStore();
   const { sendCommand } = useJarvisBridge();
 
@@ -23,6 +24,15 @@ export const CommandPalette: FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setBootPhase('booting');
+      const timer = setTimeout(() => setBootPhase('ready'), 600);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [isOpen]);
 
   const commands = [
     { id: 'toggle-mic', title: 'Toggle Microphone', icon: <Terminal className="w-4 h-4" />, category: 'System' },
@@ -70,15 +80,24 @@ export const CommandPalette: FC = () => {
           >
             {/* Search Input Area */}
             <div className="flex items-center gap-4 px-6 py-4 border-b border-border-subtle bg-surface-mid">
-              <Search className="w-5 h-5 text-accent" />
-              <input 
-                autoFocus
-                className="flex-1 bg-transparent border-none outline-none text-foreground text-lg placeholder:text-foreground-subtle font-sans"
-                placeholder="Search commands, history, or system actions..."
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-              />
-              <div className="flex items-center gap-1 px-2 py-1 rounded bg-surface-high border border-border-subtle text-[10px] font-mono text-foreground-subtle uppercase">
+              <Terminal className="w-5 h-5 text-cyber-pink" />
+              {bootPhase === 'booting' ? (
+                <div className="flex-1 font-mono text-sm text-cyber-pink">
+                  <span className="animate-pulse">&gt;</span> INITIALIZING NEURAL SEARCH...
+                </div>
+              ) : (
+                <div className="flex-1 relative">
+                  <input 
+                    autoFocus
+                    className="w-full bg-transparent border-none outline-none text-foreground text-lg placeholder:text-foreground-subtle font-mono"
+                    placeholder="> Enter command..."
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                  />
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-5 bg-cyber-pink animate-pulse" />
+                </div>
+              )}
+              <div className="flex items-center gap-1 px-2 py-1 rounded chamfered-sm bg-surface-high border border-border-subtle text-[10px] font-mono text-foreground-subtle uppercase">
                 Esc
               </div>
             </div>
@@ -91,10 +110,10 @@ export const CommandPalette: FC = () => {
                     <button
                       key={res.id}
                       onClick={() => handleAction(res.id)}
-                      className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-accent/10 group transition-all"
+                      className="w-full flex items-center justify-between p-3 chamfered-sm hover:bg-cyber-pink/10 group transition-all"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-surface-high flex items-center justify-center text-foreground-muted group-hover:text-accent group-hover:bg-accent/20 transition-all">
+                        <div className="w-10 h-10 chamfered-sm bg-surface-high flex items-center justify-center text-foreground-muted group-hover:text-cyber-pink group-hover:bg-cyber-pink/20 transition-all">
                           {res.icon}
                         </div>
                         <div className="text-left">

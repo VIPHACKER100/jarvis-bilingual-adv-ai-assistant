@@ -65,7 +65,7 @@ export const SecurityDashboard: FC = () => {
           <div>
             <h3 className="label-caps text-sm font-bold text-white tracking-[0.3em]">Guardian_Intercept_HUD</h3>
             <div className="flex items-center gap-3 mt-1">
-              <span className="label-caps text-[9px] text-security-rose font-bold animate-shimmer bg-security-rose/10 px-2 py-0.5 rounded-sm">Status: Active_Defense</span>
+              <span className="label-caps text-[9px] text-cyber-pink font-bold animate-shimmer bg-cyber-pink/10 px-2 py-0.5 rounded-sm">Status: Active_Defense</span>
               <span className="label-caps text-[9px] text-foreground-muted opacity-40 font-mono tracking-widest">Protocol: Neural_Shield_V4</span>
             </div>
           </div>
@@ -107,11 +107,11 @@ export const SecurityDashboard: FC = () => {
               className="space-y-4"
             >
               <div className="grid grid-cols-6 label-caps text-[8px] font-mono text-foreground-muted tracking-[0.3em] px-4 mb-2 opacity-50">
-                <div className="col-span-2">Origin_Process</div>
-                <div className="col-span-1 text-center">Node_ID</div>
-                <div className="col-span-1">Local_Address</div>
-                <div className="col-span-1">Remote_Address</div>
-                <div className="col-span-1 text-right">Overrides</div>
+                <div className="col-span-2 terminal-text">Origin_Process</div>
+                <div className="col-span-1 text-center terminal-text">Node_ID</div>
+                <div className="col-span-1 terminal-text">Local_Address</div>
+                <div className="col-span-1 terminal-text">Remote_Address</div>
+                <div className="col-span-1 text-right terminal-text">Overrides</div>
               </div>
 
               {connections && connections.map((conn, idx) => (
@@ -125,15 +125,15 @@ export const SecurityDashboard: FC = () => {
                   <div className="absolute top-0 left-0 w-1 h-full bg-accent/20 group-hover:bg-accent transition-colors" />
                   <div className="grid grid-cols-6 items-center">
                     <div className="col-span-2 flex items-center gap-4">
-                      <div className="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_var(--accent)]" />
+                      <div className="w-2 h-2 rounded-full bg-cyber-pink shadow-[0_0_8px_var(--cyber-pink)]" />
                       <div className="flex flex-col">
-                        <span className="text-xs text-white font-mono font-bold tracking-tight">{conn.name || 'ANONYMOUS_PROC'}</span>
-                        <span className="text-[7px] label-caps opacity-30 tracking-widest">{conn.type || 'TCP_SOCKET'}</span>
+                        <span className="text-xs text-white font-mono font-bold tracking-tight terminal-text">{conn.name || 'ANONYMOUS_PROC'}</span>
+                        <span className="text-[7px] label-caps opacity-30 tracking-widest terminal-text">{conn.type || 'TCP_SOCKET'}</span>
                       </div>
                     </div>
-                    <div className="col-span-1 text-center font-mono text-[10px] text-foreground-muted/60 bg-white/5 py-1 rounded-sm">{conn.pid || 'KERN'}</div>
-                    <div className="col-span-1 text-[10px] font-mono text-foreground-muted/80 truncate px-2">{conn.local_addr}</div>
-                    <div className="col-span-1 text-[10px] font-mono text-accent truncate px-2">{conn.remote_addr}</div>
+                    <div className="col-span-1 text-center font-mono text-[10px] text-foreground-muted/60 bg-white/5 py-1 rounded-sm terminal-text">{conn.pid || 'KERN'}</div>
+                    <div className="col-span-1 text-[10px] font-mono text-foreground-muted/80 truncate px-2 terminal-text">{conn.local_addr}</div>
+                    <div className="col-span-1 text-[10px] font-mono text-cyber-pink truncate px-2 terminal-text">{conn.remote_addr}</div>
                     <div className="col-span-1 flex justify-end gap-3">
                       <button 
                         onClick={() => conn.pid && handleQuarantine(conn.pid, 'suspend')}
@@ -180,7 +180,7 @@ export const SecurityDashboard: FC = () => {
                 <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-accent/40" />
               </div>
               
-              <h4 className="label-caps text-lg font-bold text-white tracking-[0.5em] mb-4">Zero_Vulnerabilities_Found</h4>
+              <h4 className="label-caps text-lg font-bold text-white tracking-[0.5em] mb-4 glitch-text flicker-text">Zero_Vulnerabilities_Found</h4>
               <p className="label-caps text-[10px] text-foreground-muted max-w-md uppercase leading-loose tracking-[0.2em] opacity-60 px-6">
                 Process Guardian has mapped all resident neural identities. No heuristic anomalies or unauthorized kernel injections detected in the current sub-cycle.
               </p>
