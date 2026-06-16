@@ -29,7 +29,7 @@ export const SecurityService = {
       'password', 'credit card', 'otp', 'bank details', 'cvv', 'pin',
       'पासवर्ड', 'क्रेडिट कार्ड', 'ओटीपी', 'बैंक डिटेल', 'पिन'
     ];
-    
+
     const lowerCmd = command.toLowerCase();
     return phishingKeywords.some(kw => lowerCmd.includes(kw));
   },
