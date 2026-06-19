@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Globe, Activity, Cpu, Zap, Command } from 'lucide-react';
-import { Language } from '../../types';
+import { Settings, Globe, Activity, Cpu, Zap, Command, Mic } from 'lucide-react';
+import { AppMode, Language } from '../../types';
 import { useJarvisStore } from '../../store/jarvisStore';
 import { APP_VERSION } from '../../config';
 import { sfx } from '../../utils/audioUtils';
@@ -10,6 +10,7 @@ export const Header: FC = () => {
   const {
     isConnected,
     language,
+    mode,
     toggleLanguage,
     setShowSettings,
     systemStatus,
@@ -29,7 +30,7 @@ export const Header: FC = () => {
     <motion.header
       initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? 'bg-background-overlay backdrop-blur-xl border-b border-border-subtle shadow-lg'
@@ -43,7 +44,7 @@ export const Header: FC = () => {
               <h1 className="text-xl md:text-2xl font-bold tracking-tight gradient-text">
                 JARVIS
               </h1>
-              <span className="text-[10px] font-bold text-cyber-yellow px-1.5 py-0.5 chamfered-sm bg-cyber-yellow/10 border border-cyber-yellow/30">
+              <span className="text-[10px] font-bold text-accent px-1.5 py-0.5 rounded-md bg-accent/10 border border-accent/20">
                 v{APP_VERSION}
               </span>
             </div>
@@ -109,6 +110,15 @@ export const Header: FC = () => {
             </span>
           </div>
 
+          <div className={`flex items-center gap-1.5 px-2 py-1.5 rounded-full border border-border-default glass-panel ${
+            mode !== AppMode.IDLE ? 'text-accent' : 'text-foreground-subtle'
+          }`}>
+            <Mic className={`w-3 h-3 ${mode !== AppMode.IDLE ? 'animate-pulse' : ''}`} />
+            <span className="text-[9px] font-mono font-bold uppercase tracking-widest hidden sm:inline">
+              {mode !== AppMode.IDLE ? 'ACTIVE' : 'OFF'}
+            </span>
+          </div>
+
           <button
             onClick={() => {
               sfx.playSelect();
@@ -126,6 +136,10 @@ export const Header: FC = () => {
               <span className={language === Language.HINDI ? 'text-accent' : 'text-foreground-subtle'}>
                 HI
               </span>
+              <span className="text-border-default">/</span>
+              <span className={language === Language.HINGLISH ? 'text-accent' : 'text-foreground-subtle'}>
+                Hx
+              </span>
             </div>
           </button>
 
@@ -140,7 +154,15 @@ export const Header: FC = () => {
             <Settings className="w-4 h-4 text-foreground-muted hover:text-foreground transition-colors" />
           </button>
 
-          <kbd className="hidden sm:inline-flex items-center justify-center w-7 h-7 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle text-[10px] font-mono">
+          <div className="hidden lg:flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle">
+            <Command className="w-3 h-3" />
+            <span className="text-[8px] font-mono font-bold uppercase tracking-wider leading-none gap-0.5 flex items-center">
+              <kbd className="px-1 py-0.5 rounded bg-surface-high border border-border-subtle text-[8px]">^</kbd>
+              <span>+</span>
+              <kbd className="px-1 py-0.5 rounded bg-surface-high border border-border-subtle text-[8px]">Space</kbd>
+            </span>
+          </div>
+          <kbd className="hidden sm:inline-flex xl:hidden items-center justify-center w-7 h-7 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle text-[10px] font-mono" title="Ctrl+Space to toggle voice">
             <Command className="w-3 h-3" />
           </kbd>
         </div>
@@ -168,10 +190,10 @@ const HealthIndicator: FC<{ icon: React.ReactNode; label: string; value: string 
         {Array.from({ length: segments }).map((_, i) => (
           <div
             key={i}
-            className={`w-1.5 h-2.5 chamfered-sm transition-colors duration-300 ${
+            className={`w-1.5 h-2.5 rounded-sm transition-colors duration-300 ${
               i < filledSegments
                 ? numericValue > 80
-                  ? 'bg-cyber-pink shadow-[0_0_4px_rgba(var(--cyber-pink-rgb),0.5)]'
+                  ? 'bg-danger shadow-[0_0_4px_rgba(244,63,94,0.5)]'
                   : 'bg-accent shadow-[0_0_4px_rgba(var(--accent-rgb),0.5)]'
                 : 'bg-surface-high'
             }`}
@@ -195,8 +217,8 @@ const NavButton: FC<{
     onClick={onClick}
     className={`flex items-center gap-2 px-3 py-2 transition-all duration-300 ${
       active
-        ? 'bg-accent/10 text-accent border border-accent/20 shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] chamfered-sm'
-        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent chamfered-sm'
+        ? 'bg-accent/10 text-accent border border-accent/20 shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] rounded-lg'
+        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent rounded-lg'
     }`}
     aria-current={active ? 'page' : undefined}
   >

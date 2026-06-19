@@ -61,7 +61,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
               exit={{ opacity: 0, scale: 1.1 }}
               transition={{ duration: 0.3 }}
             >
-              <StatusBadge mode={mode} isThinking={isAgentThinking} />
+              <StatusBadge mode={mode} isThinking={isAgentThinking} language={language} />
             </motion.div>
           </AnimatePresence>
           <div className="h-px w-12 bg-border-subtle" />
@@ -78,9 +78,21 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
       {/* Primary Neural Reactor Hub */}
       <div className="relative flex flex-col items-center gap-16">
         {/* Orbital HUD Rings */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] border border-accent/10 rounded-full animate-spin-slow pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] border border-neural-purple/10 rounded-full animate-spin-reverse-slow pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] border-t border-b border-accent/5 rounded-full animate-pulse pointer-events-none" />
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] border border-accent/10 rounded-full pointer-events-none"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] border border-accent/10 rounded-full pointer-events-none"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] border-t border-b border-accent/5 rounded-full pointer-events-none"
+        />
 
         {/* Scanline overlay confined to reactor area */}
         <div className="absolute -inset-12 pointer-events-none overflow-hidden opacity-10">
@@ -90,7 +102,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
         <ArcReactor
           isActive={mode !== AppMode.IDLE}
           onClick={onToggleActivation}
-          language={language === Language.HINDI ? 'hi' : 'en'}
+          language={language === Language.HINDI ? 'hi' : language === Language.HINGLISH ? 'hi' : 'en'}
           eventLoopLag={systemStatus?.event_loop_lag}
         />
 
@@ -153,7 +165,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
                   </div>
                   <button 
                     onClick={() => setCurrentSuggestion(null)}
-                    className="text-foreground-subtle hover:text-security-rose transition-colors"
+                    className="text-foreground-subtle hover:text-danger transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -196,9 +208,14 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="text-center px-6"
+              className="text-center px-6 relative"
             >
               <div className="absolute -inset-4 bg-accent/5 blur-3xl rounded-full opacity-20" />
+              {/* Terminal Corner Decorations */}
+              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-accent/40" />
+              <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-accent/40" />
+              <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-accent/40" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-accent/40" />
               <p className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-snug drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
                 {transcript}
               </p>
@@ -242,12 +259,12 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
         size="sm"
       >
         <div className="flex flex-col items-center text-center">
-          <div className="hud-panel p-6 border-security-rose/30 bg-security-rose/[0.03] mb-8 relative group overflow-hidden">
+          <div className="hud-panel p-6 border-danger/30 bg-danger/[0.03] mb-8 relative group overflow-hidden">
             <div className="scanline opacity-10" />
-            <ShieldAlert className="w-10 h-10 text-security-rose animate-pulse" />
+            <ShieldAlert className="w-10 h-10 text-danger animate-pulse" />
           </div>
           
-          <p className="label-caps text-[10px] text-security-rose mb-4 font-bold tracking-[0.2em]">Security Protocol v3.9.0 // Restricted Action</p>
+          <p className="label-caps text-[10px] text-danger mb-4 font-bold tracking-[0.2em]">Security Protocol v3.9.0 // Restricted Action</p>
           <p className="text-foreground-muted text-sm mb-8 leading-relaxed px-4">
             Autonomous agent intent identified as a protected system override. 
             Confirm secure execution for node node:
@@ -270,7 +287,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
               Abort_Intent
             </Button>
             <Button 
-              variant="cyber-pink" 
+              variant="danger" 
               className="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest"
               onClick={() => confirmCommand(true)}
             >
@@ -283,12 +300,18 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
   );
 };
 
-const StatusBadge: FC<{ mode: AppMode, isThinking: boolean }> = ({ mode, isThinking }) => {
+const StatusBadge: FC<{ mode: AppMode, isThinking: boolean, language: Language }> = ({ mode, isThinking, language }) => {
+  const isHindi = language === Language.HINDI;
+  const isHinglish = language === Language.HINGLISH;
+  const showHi = isHindi || isHinglish;
+
   if (isThinking) {
     return (
       <div className="flex items-center gap-3 px-5 py-2 bg-accent/10 border border-accent/30 rounded-sm">
         <div className="w-2 h-2 rounded-full bg-accent animate-ping opacity-75" />
-        <span className="label-caps text-[10px] text-accent tracking-[0.3em]">Autonomous_Processing_v3.9</span>
+        <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+          {showHi ? 'सोच रहा हूँ...' : 'Thinking...'}
+        </span>
       </div>
     );
   }
@@ -298,28 +321,36 @@ const StatusBadge: FC<{ mode: AppMode, isThinking: boolean }> = ({ mode, isThink
       return (
         <div className="flex items-center gap-3 px-5 py-2 bg-accent/10 border border-accent/30 rounded-sm">
           <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">Listening_Neural_Buffer</span>
+          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+            {showHi ? 'LISTENING / सुन रहा हूँ...' : 'LISTENING'}
+          </span>
         </div>
       );
     case AppMode.PROCESSING:
       return (
-        <div className="flex items-center gap-3 px-5 py-2 bg-neural-purple/10 border border-neural-purple/30 rounded-sm">
-          <div className="w-2 h-2 rounded-full bg-neural-purple animate-pulse" />
-          <span className="label-caps text-[10px] text-neural-purple tracking-[0.3em]">Parsing_Data_Packet</span>
+        <div className="flex items-center gap-3 px-5 py-2 bg-accent/10 border border-accent/30 rounded-sm">
+          <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+            {showHi ? 'PROCESSING / कार्य हो रहा है...' : 'PROCESSING'}
+          </span>
         </div>
       );
     case AppMode.SPEAKING:
       return (
         <div className="flex items-center gap-3 px-5 py-2 bg-accent/5 border border-accent/20 rounded-sm">
           <Activity className="w-3 h-3 text-accent animate-pulse" />
-          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">Synthesizing_Heuristics</span>
+          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+            {showHi ? 'RESPONDING / बोल रहा हूँ...' : 'RESPONDING'}
+          </span>
         </div>
       );
     default:
       return (
         <div className="flex items-center gap-3 px-5 py-2 bg-surface-low/50 border border-border-default rounded-sm opacity-50">
           <div className="w-2 h-2 rounded-full bg-foreground-subtle" />
-          <span className="label-caps text-[10px] text-foreground-subtle tracking-[0.3em]">System_Standby_Ready</span>
+          <span className="label-caps text-[10px] text-foreground-subtle tracking-[0.3em]">
+            {showHi ? 'STANDBY / प्रतीक्षा' : 'STANDBY'}
+          </span>
         </div>
       );
   }

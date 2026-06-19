@@ -87,6 +87,7 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 ---
 
 ---
+
 ## 🔒 Security & CodeQL
 
 ### CodeQL security alerts (v3.9.1)

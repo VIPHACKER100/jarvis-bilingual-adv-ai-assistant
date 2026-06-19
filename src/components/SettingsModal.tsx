@@ -1,8 +1,8 @@
 import React, { FC, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Settings, Shield, Zap, Volume2, Globe, 
-  Save, RotateCcw, Check, Sparkles
+  Settings, Shield, Zap, Volume2, 
+  Save, RotateCcw, Check, Sparkles, Mic, Speaker, Trash2
 } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
@@ -18,6 +18,9 @@ export const SettingsModal: FC = () => {
   const { 
     showSettings, setShowSettings, 
     settings, setSettings,
+    volume, setVolume,
+    language, setLanguage,
+    history,
   } = useJarvisStore();
   const { addNotification } = useNotifications();
   
@@ -110,11 +113,47 @@ export const SettingsModal: FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <SettingGroup title="Node_Localization">
                       <div className="hud-panel p-4 bg-accent/[0.02] border-accent/10">
-                        <p className="label-caps text-[9px] text-foreground-muted mb-3">Primary_Input_Protocol</p>
-                        <div className="flex items-center justify-between p-3 bg-background-deep border border-border-default rounded-sm">
-                          <span className="text-xs font-mono font-bold text-accent">{localSettings.language.toUpperCase()} // MASTER</span>
-                          <Globe className="w-4 h-4 text-accent/40" />
+                        <p className="label-caps text-[9px] text-foreground-muted mb-3">Interface_Language</p>
+                        <div className="flex flex-col gap-2">
+                          {[
+                            { id: 'en-US', label: 'English', short: 'EN' },
+                            { id: 'hi-IN', label: 'हिन्दी', short: 'HI' },
+                            { id: 'hi-EN', label: 'Hinglish', short: 'Hx' },
+                          ].map((lang) => (
+                            <button
+                              key={lang.id}
+                              onClick={() => setLanguage(lang.id as any)}
+                              className={`flex items-center justify-between p-2.5 rounded-sm border transition-all text-xs font-mono ${
+                                language === lang.id
+                                  ? 'border-accent/40 bg-accent/[0.06] text-accent'
+                                  : 'border-border-default bg-background-deep text-foreground-subtle hover:border-accent/20'
+                              }`}
+                            >
+                              <span className="font-bold">{lang.label}</span>
+                              <span className="text-[9px] tracking-widest">{lang.short}</span>
+                            </button>
+                          ))}
                         </div>
+                      </div>
+                    </SettingGroup>
+                    <SettingGroup title="Session_Management">
+                      <div className="hud-panel p-4 bg-accent/[0.02] border-accent/10">
+                        <p className="label-caps text-[9px] text-foreground-muted mb-3">Conversation_Log</p>
+                        <div className="flex items-center justify-between p-3 bg-background-deep border border-border-default rounded-sm mb-3">
+                          <span className="text-xs font-mono font-bold text-foreground">{history.length.toString().padStart(3, '0')}</span>
+                          <span className="text-[9px] text-foreground-muted tracking-widest font-mono">Entries</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (history.length === 0) return;
+                            useJarvisStore.setState({ history: [] });
+                            addNotification({ type: 'info', title: 'Session Cleared', message: 'Conversation history has been purged.', duration: 3000 });
+                          }}
+                          className="flex items-center justify-center gap-2 w-full p-2.5 rounded-sm border border-danger/30 bg-danger/[0.04] text-danger hover:bg-danger/10 transition-all text-[10px] font-mono font-bold tracking-widest uppercase"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Clear_History
+                        </button>
                       </div>
                       <div className="hud-panel p-4 bg-accent/[0.02] border-accent/10">
                         <p className="label-caps text-[9px] text-foreground-muted mb-3">Build_Signature</p>
@@ -161,12 +200,12 @@ export const SettingsModal: FC = () => {
                         />
                       </div>
                     </SettingGroup>
-                    <div className="hud-panel p-6 border-neural-purple/20 bg-neural-purple/[0.02] flex items-center gap-6">
-                      <div className="w-12 h-12 rounded-full border border-neural-purple/30 flex items-center justify-center bg-neural-purple/5">
-                        <Sparkles className="w-6 h-6 text-neural-purple animate-pulse" />
+                    <div className="hud-panel p-6 border-accent/20 bg-accent/[0.02] flex items-center gap-6">
+                      <div className="w-12 h-12 rounded-full border border-accent/30 flex items-center justify-center bg-accent/5">
+                        <Sparkles className="w-6 h-6 text-accent animate-pulse" />
                       </div>
                       <div>
-                        <h4 className="label-caps text-xs text-neural-purple tracking-[0.2em] mb-1">Latency_Optimization</h4>
+                        <h4 className="label-caps text-xs text-accent tracking-[0.2em] mb-1">Latency_Optimization</h4>
                         <p className="text-sm text-foreground-muted leading-relaxed">System using distributed neural pathways for sub-100ms response cycles.</p>
                       </div>
                     </div>
@@ -184,12 +223,40 @@ export const SettingsModal: FC = () => {
                           onToggle={() => setLocalSettings({...localSettings, tts_enabled: !localSettings.tts_enabled})}
                         />
                         <div className="hud-panel p-5 bg-accent/[0.02] border-accent/10">
-                          <p className="label-caps text-[9px] text-foreground-muted mb-4">Output_Gain_Control</p>
                           <SliderItem 
-                            label="Voice_Amplitude" 
-                            value={85} 
-                            onChange={() => {}}
+                            label="Output_Volume" 
+                            value={volume}
+                            onChange={setVolume}
                             unit="%"
+                            icon={<Speaker className="w-3.5 h-3.5" />}
+                          />
+                        </div>
+                      </div>
+                    </SettingGroup>
+                    <SettingGroup title="Microphone_Calibration">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="hud-panel p-5 bg-accent/[0.02] border-accent/10">
+                          <SliderItem 
+                            label="Speech_Pitch" 
+                            value={1}
+                            onChange={() => {}}
+                            min={0.5}
+                            max={2}
+                            step={0.1}
+                            unit="x"
+                            icon={<Mic className="w-3.5 h-3.5" />}
+                          />
+                        </div>
+                        <div className="hud-panel p-5 bg-accent/[0.02] border-accent/10">
+                          <SliderItem 
+                            label="Speech_Rate" 
+                            value={1}
+                            onChange={() => {}}
+                            min={0.5}
+                            max={2}
+                            step={0.1}
+                            unit="x"
+                            icon={<Volume2 className="w-3.5 h-3.5" />}
                           />
                         </div>
                       </div>
@@ -207,8 +274,8 @@ export const SettingsModal: FC = () => {
                           enabled={localSettings.enable_dangerous_commands}
                           onToggle={() => setLocalSettings({...localSettings, enable_dangerous_commands: !localSettings.enable_dangerous_commands})}
                         />
-                        <div className="hud-panel p-5 bg-security-rose/[0.02] border-security-rose/10">
-                          <p className="label-caps text-[9px] text-security-rose mb-4 font-bold">Protocol_Decay_Buffer</p>
+                        <div className="hud-panel p-5 bg-danger/[0.02] border-danger/10">
+                          <p className="label-caps text-[9px] text-danger mb-4 font-bold">Protocol_Decay_Buffer</p>
                           <SliderItem 
                             label="Auth_Wait_Time" 
                             value={localSettings.confirmation_timeout}
@@ -216,7 +283,7 @@ export const SettingsModal: FC = () => {
                             min={5}
                             max={60}
                             unit="s"
-                            color="security-rose"
+                            color="danger"
                           />
                         </div>
                       </div>
@@ -243,7 +310,7 @@ export const SettingsModal: FC = () => {
               Discard
             </Button>
             <Button 
-              variant="neon" 
+              variant="primary" 
               className="px-8 py-3 label-caps text-[10px] tracking-[0.2em] !bg-accent/10 !border-accent/40 !text-accent hover:!bg-accent/20"
               leftIcon={isSaving ? null : <Save className="w-4 h-4" />}
               isLoading={isSaving}
@@ -302,20 +369,23 @@ const ToggleItem: FC<{ label: string, description: string, enabled: boolean, onT
   </div>
 );
 
-const SliderItem: FC<{ label: string, value: number, onChange: (val: number) => void, min?: number, max?: number, unit?: string, color?: string }> = ({ 
-  label, value, onChange, min = 0, max = 100, unit = '%', color = 'accent' 
+const SliderItem: FC<{ label: string, value: number, onChange: (val: number) => void, min?: number, max?: number, step?: number, unit?: string, color?: string, icon?: React.ReactNode }> = ({ 
+  label, value, onChange, min = 0, max = 100, step = 1, unit = '%', color = 'accent', icon 
 }) => (
   <div className="space-y-4">
     <div className="flex justify-between items-center">
-      <h5 className="label-caps text-[9px] tracking-widest opacity-60">{label}</h5>
-      <span className={`text-[11px] font-mono font-bold text-${color}`}>{value}{unit}</span>
+      <div className="flex items-center gap-2">
+        {icon && <span className="text-foreground-muted">{icon}</span>}
+        <h5 className="label-caps text-[9px] tracking-widest opacity-60">{label}</h5>
+      </div>
+      <span className={`text-[11px] font-mono font-bold text-${color}`}>{value.toFixed(step < 1 ? 1 : 0)}{unit}</span>
     </div>
     <div className="relative h-6 flex items-center">
       <input 
         type="range" 
-        min={min} max={max} 
+        min={min} max={max} step={step}
         value={value}
-        onChange={e => onChange(parseInt(e.target.value))}
+        onChange={e => onChange(parseFloat(e.target.value))}
         className={`w-full h-1 bg-surface-high/50 rounded-none appearance-none accent-${color} cursor-pointer`}
       />
     </div>

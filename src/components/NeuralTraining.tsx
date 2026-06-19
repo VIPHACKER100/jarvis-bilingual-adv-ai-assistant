@@ -76,10 +76,10 @@ export const NeuralTraining: FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-xl bg-neural-purple/10 border border-neural-purple/20 flex items-center justify-center text-neural-purple">
+            <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
               <Brain className="w-6 h-6" />
             </div>
-            <h1 className="text-3xl font-bold font-display uppercase tracking-tighter text-foreground">
+            <h1 className="text-3xl font-bold uppercase tracking-tighter gradient-text">
               Neural_Training_Interface
             </h1>
           </div>
@@ -94,8 +94,8 @@ export const NeuralTraining: FC = () => {
             <p className="text-sm font-bold text-success">SYNAPTIC_SYNC_ACTIVE</p>
           </div>
           <Button 
-            variant="neon" 
-            className="gap-2 bg-neural-purple hover:bg-neural-purple/80 shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+            variant="primary" 
+            className="gap-2 bg-accent hover:bg-accent/80 shadow-[0_0_20px_rgba(168,85,247,0.2)]"
             disabled={isTraining || !activeProfile}
             onClick={startTraining}
           >
@@ -106,16 +106,16 @@ export const NeuralTraining: FC = () => {
       </div>
 
       {isTraining && (
-        <Card className="border-neural-purple/30 bg-neural-purple/5 overflow-hidden">
+        <Card className="border-accent/30 bg-accent/5 overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-mono text-neural-purple font-bold">OPTIMIZING_NEURAL_WEIGHTS...</span>
-            <span className="text-xs font-mono text-neural-purple">{progress}%</span>
+            <span className="text-xs font-mono text-accent font-bold">OPTIMIZING_NEURAL_WEIGHTS...</span>
+            <span className="text-xs font-mono text-accent">{progress}%</span>
           </div>
-          <div className="h-2 w-full bg-background-base rounded-full overflow-hidden border border-neural-purple/20">
+          <div className="h-2 w-full bg-background-base rounded-full overflow-hidden border border-accent/20">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              className="h-full bg-neural-purple shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+              className="h-full bg-accent shadow-[0_0_10px_rgba(168,85,247,0.5)]"
             />
           </div>
         </Card>
@@ -137,19 +137,19 @@ export const NeuralTraining: FC = () => {
                   onClick={() => setActiveProfile(profile)}
                   className={`w-full text-left p-4 rounded-xl border transition-all group ${
                     activeProfile?.id === profile.id 
-                    ? 'bg-neural-purple/10 border-neural-purple/40 shadow-sm' 
+                    ? 'bg-accent/10 border-accent/40 shadow-sm' 
                     : 'bg-background-elevated border-border-default hover:border-border-hover'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className={`text-sm font-bold uppercase tracking-wide ${activeProfile?.id === profile.id ? 'text-neural-purple' : 'text-foreground'}`}>
+                      <p className={`text-sm font-bold uppercase tracking-wide ${activeProfile?.id === profile.id ? 'text-accent' : 'text-foreground'}`}>
                         {profile.name}
                       </p>
                       <p className="text-[10px] font-mono text-foreground-subtle uppercase">{profile.lang} // {profile.accent}</p>
                     </div>
                     {profile.is_active && (
-                      <Badge variant="ghost" className="bg-success/5 border-success/20 text-success text-[8px]">ACTIVE</Badge>
+                      <Badge variant="accent" className="bg-success/5 border-success/20 text-success text-[8px]">ACTIVE</Badge>
                     )}
                   </div>
                 </button>
@@ -196,7 +196,7 @@ export const NeuralTraining: FC = () => {
                   <TunerSlider 
                     label="Reasoning_Depth" 
                     value={activeProfile?.logic_weight || 0.8} 
-                    color="bg-neural-purple" 
+                    color="bg-accent" 
                     onChange={(val) => updateWeight('logic_weight', val)}
                   />
                 </div>
@@ -210,15 +210,15 @@ export const NeuralTraining: FC = () => {
               </div>
               <div className="flex gap-4">
                 <Button 
-                  variant="ghost" 
-                  className="text-foreground-muted border border-border-default hover:bg-foreground/5"
+                  variant="secondary" 
+                  className="text-foreground-muted"
                   onClick={() => fetchProfiles()}
                 >
                   Discard_Changes
                 </Button>
                 <Button 
                   variant="secondary" 
-                  className="gap-2 border-neural-purple/20 text-neural-purple hover:bg-neural-purple/5"
+                  className="gap-2 border-accent/20 text-accent hover:bg-accent/5"
                   onClick={startTraining}
                 >
                   <Save className="w-4 h-4" />
@@ -233,21 +233,21 @@ export const NeuralTraining: FC = () => {
   );
 };
 
-const TunerSlider: FC<{ label: string, value: number, color?: string, onChange: (val: number) => void }> = ({ label, value, color = 'bg-cyber-cyan', onChange }) => (
+const TunerSlider: FC<{ label: string, value: number, color?: string, onChange: (val: number) => void }> = ({ label, value, color = 'bg-accent', onChange }) => (
   <div className="space-y-2">
     <div className="flex justify-between items-center">
       <label className="text-[10px] font-mono text-foreground-muted uppercase tracking-wider">{label}</label>
       <div className="flex items-center gap-3">
         <button 
           onClick={() => onChange(Math.max(0.1, value - 0.05))}
-          className="text-foreground-subtle hover:text-cyber-cyan transition-colors"
+          className="text-foreground-subtle hover:text-accent transition-colors"
         >
           -
         </button>
         <span className="text-[10px] font-mono text-foreground font-bold w-12 text-center">{value.toFixed(2)}</span>
         <button 
           onClick={() => onChange(Math.min(2.0, value + 0.05))}
-          className="text-foreground-subtle hover:text-cyber-cyan transition-colors"
+          className="text-foreground-subtle hover:text-accent transition-colors"
         >
           +
         </button>

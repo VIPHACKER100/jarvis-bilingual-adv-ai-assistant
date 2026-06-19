@@ -46,11 +46,13 @@ All 8 core system tests passed:
 ## Dependencies
 
 ### Core & Vision
+
 - `fastapi`, `uvicorn`, `websockets` - Core API
 - `pyautogui`, `pytesseract`, `Pillow` - Automation & Vision
 - `httpx`, `openai` - AI Connectivity
 
 ### Platform (Windows 11)
+
 - `pywin32`, `pycaw`, `psutil`, `WMI` - System integration
 
 ## Conclusion

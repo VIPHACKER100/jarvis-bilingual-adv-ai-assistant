@@ -39,8 +39,8 @@ export const AuditTimeline: FC = () => {
   const getLevelColor = (level: LogLevel) => {
     switch (level) {
       case 'STABLE': return 'text-accent';
-      case 'PROCESSING': return 'text-neural-purple';
-      case 'ALERT': return 'text-security-rose';
+      case 'PROCESSING': return 'text-accent';
+      case 'ALERT': return 'text-danger';
       case 'SYNC': return 'text-sync-amber';
       default: return 'text-foreground-muted';
     }
@@ -85,7 +85,7 @@ export const AuditTimeline: FC = () => {
             <div className="w-px h-8 bg-border-subtle" />
             <div className="flex flex-col">
               <span className="label-caps text-[9px] opacity-40">Anomalies</span>
-              <span className="text-xl font-bold font-mono text-security-rose">
+              <span className="text-xl font-bold font-mono text-danger">
                 {neuralLogs.filter(l => l.level === 'ALERT').length}
               </span>
             </div>

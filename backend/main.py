@@ -237,6 +237,7 @@ api_v1.include_router(input_control.router)
 api_v1.include_router(notifications.router)
 api_v1.include_router(sync.router)
 api_v1.include_router(health.router)
+api_v1.include_router(context.router)
 
 app.include_router(api_v1)
 

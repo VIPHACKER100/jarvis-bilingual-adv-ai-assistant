@@ -111,7 +111,7 @@ export const DeviceSyncHub: FC = () => {
           </p>
 
           <div className="flex flex-wrap gap-6">
-            <Button variant="neon" className="gap-3 px-8 py-4 text-xs font-bold uppercase tracking-widest" onClick={generateCode}>
+            <Button variant="primary" className="gap-3 px-8 py-4 text-xs font-bold uppercase tracking-widest" onClick={generateCode}>
               <Link className="w-4 h-4" />
               Initialize_Link
             </Button>
@@ -172,7 +172,7 @@ export const DeviceSyncHub: FC = () => {
                   </span>
                 </div>
                 
-                <Button variant="ghost" onClick={() => setShowPairing(false)} className="text-security-rose hover:bg-security-rose/10 px-8">
+                <Button variant="ghost" onClick={() => setShowPairing(false)} className="text-danger hover:bg-danger/10 px-8">
                   Abort_Protocol
                 </Button>
               </motion.div>
@@ -219,7 +219,7 @@ export const DeviceSyncHub: FC = () => {
                     
                     <button 
                       onClick={() => handleUnpair(device.id)}
-                      className="p-2 text-foreground-subtle hover:text-security-rose transition-colors rounded-sm hover:bg-security-rose/5"
+                      className="p-2 text-foreground-subtle hover:text-danger transition-colors rounded-sm hover:bg-danger/5"
                     >
                       <X className="w-5 h-5" />
                     </button>

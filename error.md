@@ -11,12 +11,14 @@ The system is now running on version **3.9.1**. The architecture has transitione
 ## 🛑 Critical Configuration Issues
 
 ### 1. Frontend Import/Export Mismatches
+
 - **Status**: ✅ RESOLVED
 - **Description**: Several components (`NotificationCenter`, `PermissionModal`) were causing build failures due to mismatches between named and default exports.
 - **Impact**: Build was failing in production mode.
 - **Fix**: Synchronized all imports in `App.tsx` and `JarvisModals.tsx` to use named imports consistent with the component definitions.
 
 ### 2. Missing API Credentials (SECURITY PURGE)
+
 - **Status**: ✅ RESOLVED
 - **Description**: API keys are properly configured in `.env` and `release/config.env` files.
 - **Impact**: All features (Gemini, NVIDIA NIM) are functional.
@@ -27,16 +29,19 @@ The system is now running on version **3.9.1**. The architecture has transitione
 ## 🛠️ Technical Debt & Lints
 
 ### 1. Backend: Async Migration Completion
+
 - **File**: `backend/routers/*.py`, `backend/modules/*.py`
 - **Description**: Successfully migrated all legacy blocking I/O calls (OCR, File operations) to `asyncio.to_thread` wrappers.
 - **Impact**: Significant reduction in event loop lag (HUD is now 100% responsive).
 
 ### 3. CodeQL SAST Security Fixes (v3.9.1)
+
 - **Status**: ✅ RESOLVED
 - **Description**: Three security issues detected by GitHub CodeQL were remediated: bad HTML filtering regexp replaced with robust tag stripping, incomplete multi-character sanitization made iterative with whitespace coverage, and information exposure through exceptions fixed across all backend error responses.
 - **Impact**: Zero high/medium CodeQL findings. Error responses no longer leak internal details.
 
 ### 2. Architecture Visualization
+
 - **Status**: ✅ NEW
 - **Description**: A comprehensive [Memory Map](file:///C:/Users/lenovo/.gemini/antigravity/brain/ac9e5dc4-4e83-41e3-ae61-c37f551cfdec/memory_map.md) has been created to document the dual-layer memory system and execution flow.
 - **Impact**: Improved maintainability and onboarding.

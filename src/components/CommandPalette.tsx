@@ -80,9 +80,9 @@ export const CommandPalette: FC = () => {
           >
             {/* Search Input Area */}
             <div className="flex items-center gap-4 px-6 py-4 border-b border-border-subtle bg-surface-mid">
-              <Terminal className="w-5 h-5 text-cyber-pink" />
+              <Terminal className="w-5 h-5 text-accent" />
               {bootPhase === 'booting' ? (
-                <div className="flex-1 font-mono text-sm text-cyber-pink">
+                <div className="flex-1 font-mono text-sm text-accent">
                   <span className="animate-pulse">&gt;</span> INITIALIZING NEURAL SEARCH...
                 </div>
               ) : (
@@ -94,10 +94,10 @@ export const CommandPalette: FC = () => {
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                   />
-                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-5 bg-cyber-pink animate-pulse" />
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-5 bg-accent animate-pulse" />
                 </div>
               )}
-              <div className="flex items-center gap-1 px-2 py-1 rounded chamfered-sm bg-surface-high border border-border-subtle text-[10px] font-mono text-foreground-subtle uppercase">
+              <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-surface-high border border-border-subtle text-[10px] font-mono text-foreground-subtle uppercase">
                 Esc
               </div>
             </div>
@@ -110,10 +110,10 @@ export const CommandPalette: FC = () => {
                     <button
                       key={res.id}
                       onClick={() => handleAction(res.id)}
-                      className="w-full flex items-center justify-between p-3 chamfered-sm hover:bg-cyber-pink/10 group transition-all"
+                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/10 group transition-all"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 chamfered-sm bg-surface-high flex items-center justify-center text-foreground-muted group-hover:text-cyber-pink group-hover:bg-cyber-pink/20 transition-all">
+                        <div className="w-10 h-10 rounded-lg bg-surface-high flex items-center justify-center text-foreground-muted group-hover:text-accent group-hover:bg-accent/20 transition-all">
                           {res.icon}
                         </div>
                         <div className="text-left">
@@ -121,7 +121,7 @@ export const CommandPalette: FC = () => {
                           <p className="text-[10px] text-foreground-subtle uppercase tracking-wider">{res.category}</p>
                         </div>
                       </div>
-                      <Badge variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Badge variant="accent" className="opacity-0 group-hover:opacity-100 transition-opacity">
                         Execute
                       </Badge>
                     </button>
@@ -149,7 +149,6 @@ export const CommandPalette: FC = () => {
               <Badge variant="accent" className="bg-accent/5">Neural_Search_v1.0</Badge>
             </div>
             
-            <div className="scanline" />
           </motion.div>
         </div>
       )}

@@ -367,7 +367,6 @@ websocketService.connect() → ws://localhost:8000/ws
 - [x] **Neural Feedback Loop** (Security choices logged & re-indexed)
 - [x] **Agent Trace Auditing** (Full ReAct logs persisted to memory)
 
-
 ### ✅ Module Integration
 
 - [x] All 13 backend modules accessible

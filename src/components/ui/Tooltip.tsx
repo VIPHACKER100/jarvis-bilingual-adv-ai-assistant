@@ -53,8 +53,8 @@ export const Tooltip: FC<TooltipProps> = ({
             initial={{ opacity: 0, scale: 0.95, ...initialStyles[position] }}
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className={`absolute z-[100] px-2.5 py-1.5 bg-background-elevated border border-border-bright rounded-md shadow-lg pointer-events-none whitespace-nowrap ${positionStyles[position]}`}
+            transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className={`absolute z-[100] px-2.5 py-1.5 bg-background-elevated border border-border-default rounded-lg shadow-sm pointer-events-none whitespace-nowrap ${positionStyles[position]}`}
           >
             <span className="text-[10px] font-mono text-foreground uppercase tracking-wider">
               {content}

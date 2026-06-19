@@ -142,6 +142,7 @@ npm install
 # Start Expo development server
 npx expo start
 ```
+
 You can scan the QR code with the Expo Go app on iOS or Android.
 
 ### Step 5: Environment Configuration

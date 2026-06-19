@@ -22,13 +22,14 @@ class VoiceService {
   constructor() {
     if (typeof window === 'undefined') return;
 
-    const SpeechRecognitionCtor =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const w = window as any;
+    const SpeechRecognitionCtor = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (SpeechRecognitionCtor) {
-      this.recognition = new SpeechRecognitionCtor();
-      this.recognition.continuous = false;
-      this.recognition.interimResults = true;
-      this.recognition.maxAlternatives = 1;
+      const recognition = new SpeechRecognitionCtor() as SpeechRecognition;
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      this.recognition = recognition;
     } else {
       console.error('Speech Recognition API not supported in this browser.');
     }

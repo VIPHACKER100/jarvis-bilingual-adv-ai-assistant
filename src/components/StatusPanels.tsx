@@ -2,11 +2,14 @@ import { FC } from 'react';
 import { motion } from 'framer-motion';
 import { ActivityFeed } from './ActivityFeed';
 import { SystemMetricsWidget } from './SystemMetricsWidget';
+import { VolumeControl } from './VolumeControl';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
+import { useJarvisStore } from '../store/jarvisStore';
 import { Activity, LayoutDashboard, Database } from 'lucide-react';
 
 export const StatusPanels: FC = () => {
+  const volume = useJarvisStore(s => s.volume);
   return (
     <section className="w-full space-y-12">
       {/* Metrics Section */}
@@ -14,9 +17,9 @@ export const StatusPanels: FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <LayoutDashboard className="w-5 h-5 text-accent" />
-            <h2 className="text-xl font-bold tracking-tight text-display gradient-text">System_Intelligence // Dashboard</h2>
+            <h2 className="text-xl font-bold tracking-tight gradient-text">System_Intelligence // Dashboard</h2>
           </div>
-          <Badge variant="ghost" className="border-border-subtle bg-surface-low">Realtime_Telemetry</Badge>
+          <Badge variant="accent" className="border-border-subtle bg-surface-low">Realtime_Telemetry</Badge>
         </div>
         
         <SystemMetricsWidget />
@@ -28,7 +31,7 @@ export const StatusPanels: FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center gap-3">
             <Activity className="w-5 h-5 text-secondary" />
-            <h2 className="text-xl font-bold tracking-tight text-display gradient-text">Session_Log</h2>
+            <h2 className="text-xl font-bold tracking-tight gradient-text">Session_Log</h2>
           </div>
           <ActivityFeed />
         </div>
@@ -37,9 +40,11 @@ export const StatusPanels: FC = () => {
         <div className="space-y-6">
           <div className="flex items-center gap-3">
             <Database className="w-5 h-5 text-info" />
-            <h2 className="text-xl font-bold tracking-tight text-display gradient-text">Module_Manifest</h2>
+            <h2 className="text-xl font-bold tracking-tight gradient-text">Module_Manifest</h2>
           </div>
-          
+
+          <VolumeControl level={volume} />
+
           <div className="space-y-4">
             <ModuleCard 
               name="Vision_Overlay_v4" 

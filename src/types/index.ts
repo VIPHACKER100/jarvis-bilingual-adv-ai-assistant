@@ -1,14 +1,6 @@
 // Export all from bridge.ts
 export * from './bridge';
 
-// Adding SpeechRecognition types to the global window object
-declare global {
-  interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
-  }
-}
-
 export interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
@@ -28,13 +20,6 @@ export interface SpeechRecognition extends EventTarget {
   stop(): void;
   abort(): void;
 }
-
-export interface SpeechRecognitionStatic {
-  new (): SpeechRecognition;
-}
-
-declare var SpeechRecognition: SpeechRecognitionStatic;
-declare var webkitSpeechRecognition: SpeechRecognitionStatic;
 
 export interface ISpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;

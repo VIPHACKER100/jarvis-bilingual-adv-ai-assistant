@@ -1,5 +1,14 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { sfx } from '../utils/audioUtils';
+import { useJarvisStore } from '../store/jarvisStore';
+
+const BAR_COUNT = 9;
+const equalizerBars = Array.from({ length: BAR_COUNT }, (_, i) => ({
+  heights: [3, 4 + Math.random() * 12, 6 + Math.random() * 10, 2 + Math.random() * 14, 3],
+  duration: 0.5 + Math.random() * 0.5,
+  delay: i * 0.07,
+}));
 
 interface ArcReactorProps {
   isActive: boolean;
@@ -11,8 +20,10 @@ interface ArcReactorProps {
 export const ArcReactor: FC<ArcReactorProps> = ({ 
   isActive, 
   onClick, 
+  language = 'en',
   eventLoopLag = 0 
 }) => {
+  const volume = useJarvisStore(s => s.volume);
   // Dynamic glow color based on system health (lag)
   const glowColor = useMemo(() => {
     if (eventLoopLag > 100) return 'rgba(255, 59, 105, 0.6)'; // security-rose (Red alert)
@@ -20,8 +31,17 @@ export const ArcReactor: FC<ArcReactorProps> = ({
     return 'rgba(76, 215, 246, 0.6)'; // accent (Optimal)
   }, [eventLoopLag]);
 
+  const handleClick = useCallback(() => {
+    if (!isActive) {
+      sfx.playActivation();
+    } else {
+      sfx.playDeactivation();
+    }
+    onClick();
+  }, [isActive, onClick]);
+
   return (
-    <div className="relative group cursor-pointer" onClick={onClick}>
+    <div className="relative group cursor-pointer" onClick={handleClick} title={isActive ? "Deactivate JARVIS (Ctrl+Space)" : "Activate JARVIS (Ctrl+Space)"} aria-label={isActive ? "Deactivate voice assistant" : "Activate voice assistant"}>
       {/* Tactical Outer Perimeter */}
       <AnimatePresence>
         {isActive && (
@@ -70,7 +90,7 @@ export const ArcReactor: FC<ArcReactorProps> = ({
         <motion.div 
           animate={{ rotate: isActive ? -360 : 0 }}
           transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
-          className="absolute inset-10 rounded-full border border-dashed border-neural-purple/20 opacity-30" 
+          className="absolute inset-10 rounded-full border border-dashed border-accent/20 opacity-30" 
         />
 
         {/* Sector Markers */}
@@ -92,9 +112,19 @@ export const ArcReactor: FC<ArcReactorProps> = ({
               className="w-20 h-20 md:w-24 md:h-24 border-2 border-accent/30 rounded-2xl flex items-center justify-center relative bg-accent/5 backdrop-blur-sm"
             >
               <div className="absolute inset-2 border border-accent/20 rounded-xl" />
-              <div className={`w-10 h-10 rounded-full shadow-[0_0_25px_rgba(76,215,246,0.6)] transition-all duration-1000 ${
-                isActive ? 'bg-accent animate-pulse' : 'bg-foreground-subtle/20'
-              }`} />
+              
+              {/* Stark Tech Triangle Core */}
+              <svg
+                viewBox="0 0 24 24"
+                className={`relative z-20 w-10 h-10 md:w-14 md:h-14 transition-all duration-500 ${
+                  isActive
+                    ? 'text-accent drop-shadow-[0_0_15px_rgba(76,215,246,1)]'
+                    : 'text-foreground-subtle/30'
+                }`}
+                fill="currentColor"
+              >
+                <path d="M12 2L2 22h20L12 2zm0 4L18 20H6L12 6z" />
+              </svg>
               
               {/* Data Pulse Particles */}
               {isActive && [0, 60, 120, 180, 240, 300].map((angle) => (
@@ -122,10 +152,32 @@ export const ArcReactor: FC<ArcReactorProps> = ({
             )}
           </div>
 
+          {/* Audio Equalizer Bars (volume-responsive) */}
+          {isActive && (
+            <div className="mt-6 flex items-end gap-[3px] h-4">
+              {equalizerBars.map((bar, i) => (
+                <motion.div
+                  key={i}
+                  animate={{ height: bar.heights.map(h => h * (volume / 100 + 0.2)) }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: bar.duration,
+                    delay: bar.delay,
+                    ease: "easeInOut",
+                  }}
+                  className="w-[3px] bg-gradient-to-t from-accent/40 to-accent rounded-full"
+                />
+              ))}
+            </div>
+          )}
+
           {/* Tactical Readouts */}
-          <div className="mt-8 flex flex-col items-center gap-1">
+          <div className="mt-6 flex flex-col items-center gap-1">
             <span className="label-caps text-[11px] text-accent font-bold tracking-[0.4em] drop-shadow-[0_0_8px_rgba(76,215,246,0.4)]">
-              {isActive ? 'System_Active' : 'Standby_Mode'}
+              {isActive
+                ? (language === 'hi' ? 'ONLINE / चालू' : 'System_Active')
+                : (language === 'hi' ? 'STANDBY / बंद' : 'Standby_Mode')
+              }
             </span>
             <div className="flex items-center gap-2 opacity-40">
               <span className="label-caps text-[7px] tracking-widest font-mono">Core_Temp: 34.2°C</span>

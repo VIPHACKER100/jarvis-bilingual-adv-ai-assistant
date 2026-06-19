@@ -1,7 +1,6 @@
-import React from 'react';
-import { AlertTriangle, X, Mic, ShieldAlert } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Button } from './ui/Button';
+import { FC, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, X, Mic, Shield } from 'lucide-react';
 
 interface PermissionModalProps {
   isOpen: boolean;
@@ -9,71 +8,108 @@ interface PermissionModalProps {
   language: 'en' | 'hi';
 }
 
-export const PermissionModal: React.FC<PermissionModalProps> = ({ isOpen, onClose, language }) => {
-  if (!isOpen) return null;
+export const PermissionModal: FC<PermissionModalProps> = ({ isOpen, onClose, language }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const isHindi = language === 'hi';
+
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      dialogRef.current?.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, handleClose]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="absolute inset-0 bg-background-deep/80 backdrop-blur-md"
-        onClick={onClose}
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.19, 1, 0.22, 1] }}
-        className="relative w-full max-w-md glass-panel--high border border-danger/30 overflow-hidden"
-      >
-        <div className="scanline pointer-events-none" />
-        <div className="p-8">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-danger-soft flex items-center justify-center border border-danger/20">
-                <AlertTriangle className="w-5 h-5 text-danger" />
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background-deep/80 backdrop-blur-sm p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={isHindi ? "माइक्रोफ़ोन अनुमति" : "Microphone Permission"}
+        >
+          <motion.div
+            ref={dialogRef}
+            tabIndex={-1}
+            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+            transition={{ duration: 0.2, ease: [0.19, 1, 0.22, 1] }}
+            className="relative w-full max-w-md border border-red-500/40 rounded-xl overflow-hidden shadow-[0_0_60px_rgba(239,68,68,0.15)] bg-surface-low"
+          >
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(239,68,68,0.03)_1px,transparent_1px)] bg-[size:4px_4px] pointer-events-none" />
+
+            <div className="relative z-10 p-6">
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-500/10 rounded-lg border border-red-500/30">
+                    <Shield className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-red-400 tracking-wider font-mono flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 animate-pulse" />
+                      SYSTEM ALERT
+                    </h2>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="p-1.5 rounded-lg hover:bg-white/5 text-foreground-muted hover:text-foreground transition-all"
+                  title={isHindi ? "बंद करें" : "Close"}
+                  aria-label={isHindi ? "डायलॉग बंद करें" : "Close dialog"}
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <div>
-                <h2 className="text-sm font-semibold text-foreground">
-                  {language === 'hi' ? 'माइक्रोफ़ोन अनुमति' : 'Microphone Access Required'}
-                </h2>
-                <p className="text-xs text-foreground-muted mt-0.5">Severity: Medium</p>
+
+              <div className="space-y-4">
+                <p className="font-mono text-sm border-l-2 border-red-500/30 pl-3 text-red-300">
+                  {isHindi
+                    ? "CRITICAL: माइक्रोफ़ोन एक्सेस अस्वीकार कर दिया गया।"
+                    : "CRITICAL: Microphone access denied."}
+                </p>
+
+                <div className="flex items-start gap-3 p-3 bg-background-deep/50 border border-border-default rounded-lg">
+                  <Mic className="w-5 h-5 text-foreground-muted mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-foreground-muted leading-relaxed">
+                    {isHindi
+                      ? "JARVIS को सक्रिय होने के लिए ऑडियो इनपुट की आवश्यकता है। कृपया अपने ब्राउज़र सेटिंग्स (URL बार में लॉक आइकन) में माइक्रोफ़ोन की अनुमति दें और पुनः प्रयास करें।"
+                      : "JARVIS requires audio input execution privileges. Please update your browser site settings (Lock icon in URL bar) to allow microphone access and re-initialize."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={handleClose}
+                  className="px-5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/40 rounded-lg text-xs tracking-wider transition-all uppercase font-bold font-mono"
+                  title={isHindi ? "समझ गया" : "Acknowledge"}
+                  aria-label={isHindi ? "स्वीकार करें" : "Acknowledge"}
+                >
+                  {isHindi ? "समझ गया" : "ACKNOWLEDGE"}
+                </button>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-surface-high text-foreground-subtle hover:text-foreground transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 mb-4 bg-danger-soft border border-danger/20 rounded-lg">
-            <Mic className="w-4 h-4 text-danger flex-shrink-0" />
-            <p className="text-xs text-danger font-medium">
-              {language === 'hi'
-                ? 'माइक्रोफ़ोन अनुमति अस्वीकृत'
-                : 'Access Denied: MIC_INPUT_STREAM_LOCKED'}
-            </p>
-          </div>
-
-          <p className="text-sm text-foreground-muted leading-relaxed mb-8">
-            {language === 'hi'
-              ? 'JARVIS को सक्रिय होने के लिए ऑडियो इनपुट की आवश्यकता है। कृपया अपने ब्राउज़र सेटिंग्स में माइक्रोफ़ोन की अनुमति दें।'
-              : 'JARVIS requires microphone access for voice interaction. Please allow microphone permissions in your browser settings to enable full functionality.'}
-          </p>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[10px] font-mono text-foreground-subtle">
-              <ShieldAlert className="w-3 h-3" />
-              <span>Error: 0x80070005</span>
-            </div>
-            <Button variant="danger" onClick={onClose} size="sm">
-              {language === 'hi' ? 'स्वीकार करें' : 'Acknowledge'}
-            </Button>
-          </div>
-        </div>
-      </motion.div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

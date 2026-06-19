@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'accent' | 'ghost';
+type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'accent';
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -15,7 +15,6 @@ const variantClass: Record<BadgeVariant, string> = {
   danger: 'badge-danger',
   info: 'badge-info',
   accent: 'badge-accent',
-  ghost: 'bg-transparent text-foreground-subtle border-border-default',
 };
 
 export const Badge: FC<BadgeProps> = ({

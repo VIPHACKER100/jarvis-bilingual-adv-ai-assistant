@@ -166,6 +166,11 @@ export const useJarvisStore = create<JarvisState>()(
           language: state.language,
           volume: state.volume,
           isActive: state.isActive,
+          history: state.history.slice(-50), // Keep last 50 entries
+        }),
+        merge: (persisted, current) => ({
+          ...current,
+          ...(persisted as Partial<JarvisState>),
         }),
       }
     ),

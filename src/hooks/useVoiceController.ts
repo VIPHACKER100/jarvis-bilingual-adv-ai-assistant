@@ -2,6 +2,7 @@ import { useRef, useCallback } from 'react';
 import { AppMode, Language } from '../types';
 import { voiceService } from '../services/voiceService';
 import { sfx } from '../utils/audioUtils';
+import { processTranscript } from '../services/commandProcessor';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
 
@@ -195,10 +196,129 @@ export const useVoiceController = (
             : language === Language.HINDI
               ? 'hi'
               : 'en';
-        sendCommand(text, langCode);
+
+        const handleLocalResponse = (localResult: import('../services/commandProcessor').ProcessedCommand) => {
+          const localActions = [
+            'NAVIGATION', 'YOUTUBE', 'WHATSAPP', 'TIME', 'DATE',
+            'WEATHER', 'CALCULATOR', 'VOLUME_UP', 'VOLUME_DOWN',
+            'VOLUME_MUTE', 'SCROLL_UP', 'SCROLL_DOWN', 'NEW_TAB', 'CLOSE_TAB',
+            'SCREENSHOT', 'FULLSCREEN', 'EXIT_FULLSCREEN',
+            'HELP', 'GREETING', 'IDENTITY', 'CREATOR_INFO', 'SECURITY_ALERT'
+          ] as const;
+
+          const isLocalAction = localActions.includes(localResult.actionType as any);
+
+          if (isLocalAction) {
+            setMode(AppMode.SPEAKING);
+            addToHistory({
+              transcript: text,
+              response: localResult.response,
+              actionType: localResult.actionType,
+              language: localResult.language,
+              timestamp: Date.now()
+            });
+
+            if (localResult.externalUrl) {
+              window.open(localResult.externalUrl, '_blank');
+            }
+
+            const store = useJarvisStore.getState();
+            switch (localResult.actionType) {
+              case 'VOLUME_UP':
+                store.setVolume(Math.min(store.volume + 10, 100));
+                break;
+              case 'VOLUME_DOWN':
+                store.setVolume(Math.max(store.volume - 10, 0));
+                break;
+              case 'VOLUME_MUTE':
+                store.setVolume(0);
+                break;
+              case 'SCROLL_UP':
+                window.scrollBy({ top: -400, behavior: 'smooth' });
+                break;
+              case 'SCROLL_DOWN':
+                window.scrollBy({ top: 400, behavior: 'smooth' });
+                break;
+              case 'NEW_TAB':
+                window.open('about:blank', '_blank');
+                break;
+              case 'CLOSE_TAB':
+                window.close();
+                break;
+              case 'SCREENSHOT':
+                addNotification({ type: 'info', title: 'Screenshot', message: 'Screenshot feature requires browser extension or backend support.', duration: 3000 });
+                break;
+              case 'FULLSCREEN':
+                document.documentElement.requestFullscreen?.();
+                break;
+              case 'EXIT_FULLSCREEN':
+                document.exitFullscreen?.();
+                break;
+            }
+
+            voiceService.speak(
+              localResult.spokenResponse || localResult.response,
+              localResult.language
+            );
+
+            setTimeout(() => {
+              processingRef.current = false;
+              if (useJarvisStore.getState().isActive) {
+                startListeningRef.current();
+              } else {
+                setMode(AppMode.IDLE);
+              }
+            }, 2000);
+          } else {
+            const backendOnline = useJarvisStore.getState().isConnected;
+            if (backendOnline) {
+              sendCommand(text, langCode);
+            } else {
+              // Backend offline — use local result (has LLM fallback or default)
+              setMode(AppMode.SPEAKING);
+              addToHistory({
+                transcript: text,
+                response: localResult.response,
+                actionType: localResult.actionType,
+                language: localResult.language,
+                timestamp: Date.now()
+              });
+              voiceService.speak(
+                localResult.spokenResponse || localResult.response,
+                localResult.language
+              );
+              setTimeout(() => {
+                processingRef.current = false;
+                if (useJarvisStore.getState().isActive) {
+                  startListeningRef.current();
+                } else {
+                  setMode(AppMode.IDLE);
+                }
+              }, 2000);
+            }
+          }
+        };
+
+        processTranscript(text).then(handleLocalResponse).catch(() => {
+          const backendOnline = useJarvisStore.getState().isConnected;
+          if (backendOnline) {
+            sendCommand(text, langCode);
+          } else {
+            setMode(AppMode.IDLE);
+            processingRef.current = false;
+            addToHistory({
+              transcript: text,
+              response: 'System error processing command.',
+              actionType: 'ERROR',
+              language: 'en',
+              timestamp: Date.now(),
+              isSystemMessage: true,
+            });
+          }
+        });
       }
     },
-    [settings, language, sendCommand, setTranscript, setMode, addNotification]
+    [settings, language, sendCommand, setTranscript, setMode, addNotification, addToHistory]
   );
 
   const handleCommandResultRef = useRef(handleCommandResult);

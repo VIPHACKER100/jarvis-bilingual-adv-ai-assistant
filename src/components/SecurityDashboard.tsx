@@ -49,23 +49,22 @@ export const SecurityDashboard: FC = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-black/40 relative">
-      <div className="absolute inset-0 scanline opacity-10 pointer-events-none" />
       
       {/* Header Info */}
       <div className="p-6 border-b border-white/10 bg-white/[0.02] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shrink-0 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-          <Lock className="w-24 h-24 text-security-rose" />
+          <Lock className="w-24 h-24 text-danger" />
         </div>
         
         <div className="flex items-center gap-5">
-          <div className="w-12 h-12 rounded-sm bg-security-rose/10 flex items-center justify-center border border-security-rose/30 relative">
-            <ShieldAlert className="w-6 h-6 text-security-rose animate-pulse" />
-            <div className="absolute inset-0 bg-security-rose/5 animate-ping rounded-sm" />
+          <div className="w-12 h-12 rounded-sm bg-danger/10 flex items-center justify-center border border-danger/30 relative">
+            <ShieldAlert className="w-6 h-6 text-danger animate-pulse" />
+            <div className="absolute inset-0 bg-danger/5 animate-ping rounded-sm" />
           </div>
           <div>
             <h3 className="label-caps text-sm font-bold text-white tracking-[0.3em]">Guardian_Intercept_HUD</h3>
             <div className="flex items-center gap-3 mt-1">
-              <span className="label-caps text-[9px] text-cyber-pink font-bold animate-shimmer bg-cyber-pink/10 px-2 py-0.5 rounded-sm">Status: Active_Defense</span>
+              <span className="label-caps text-[9px] text-danger font-bold px-2 py-0.5 rounded-sm bg-danger/10">Status: Active_Defense</span>
               <span className="label-caps text-[9px] text-foreground-muted opacity-40 font-mono tracking-widest">Protocol: Neural_Shield_V4</span>
             </div>
           </div>
@@ -86,7 +85,7 @@ export const SecurityDashboard: FC = () => {
             onClick={() => setActiveTab('processes')}
             className={`px-6 py-2 rounded-sm label-caps text-[10px] font-bold transition-all tracking-[0.2em] ${
               activeTab === 'processes' 
-                ? 'bg-security-rose/20 text-security-rose border border-security-rose/30' 
+                ? 'bg-danger/20 text-danger border border-danger/30' 
                 : 'text-foreground-muted hover:text-foreground'
             }`}
           >
@@ -125,7 +124,7 @@ export const SecurityDashboard: FC = () => {
                   <div className="absolute top-0 left-0 w-1 h-full bg-accent/20 group-hover:bg-accent transition-colors" />
                   <div className="grid grid-cols-6 items-center">
                     <div className="col-span-2 flex items-center gap-4">
-                      <div className="w-2 h-2 rounded-full bg-cyber-pink shadow-[0_0_8px_var(--cyber-pink)]" />
+                      <div className="w-2 h-2 rounded-full bg-danger shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
                       <div className="flex flex-col">
                         <span className="text-xs text-white font-mono font-bold tracking-tight terminal-text">{conn.name || 'ANONYMOUS_PROC'}</span>
                         <span className="text-[7px] label-caps opacity-30 tracking-widest terminal-text">{conn.type || 'TCP_SOCKET'}</span>
@@ -133,12 +132,12 @@ export const SecurityDashboard: FC = () => {
                     </div>
                     <div className="col-span-1 text-center font-mono text-[10px] text-foreground-muted/60 bg-white/5 py-1 rounded-sm terminal-text">{conn.pid || 'KERN'}</div>
                     <div className="col-span-1 text-[10px] font-mono text-foreground-muted/80 truncate px-2 terminal-text">{conn.local_addr}</div>
-                    <div className="col-span-1 text-[10px] font-mono text-cyber-pink truncate px-2 terminal-text">{conn.remote_addr}</div>
+                    <div className="col-span-1 text-[10px] font-mono text-danger truncate px-2 terminal-text">{conn.remote_addr}</div>
                     <div className="col-span-1 flex justify-end gap-3">
                       <button 
                         onClick={() => conn.pid && handleQuarantine(conn.pid, 'suspend')}
                         disabled={!conn.pid || quarantining === conn.pid}
-                        className="p-2 rounded-sm bg-security-rose/10 border border-security-rose/30 text-security-rose hover:bg-security-rose/20 transition-all disabled:opacity-30"
+                        className="p-2 rounded-sm bg-danger/10 border border-danger/30 text-danger hover:bg-danger/20 transition-all disabled:opacity-30"
                         title="Freeze Memory State"
                       >
                         <Zap className="w-4 h-4" />
@@ -146,7 +145,7 @@ export const SecurityDashboard: FC = () => {
                       <button 
                         onClick={() => conn.pid && handleQuarantine(conn.pid, 'terminate')}
                         disabled={!conn.pid || quarantining === conn.pid}
-                        className="p-2 rounded-sm bg-security-rose/20 border border-security-rose/40 text-security-rose hover:bg-security-rose/40 transition-all disabled:opacity-30"
+                        className="p-2 rounded-sm bg-danger/20 border border-danger/40 text-danger hover:bg-danger/40 transition-all disabled:opacity-30"
                         title="Expunge Process"
                       >
                         <X className="w-4 h-4" />
@@ -180,7 +179,7 @@ export const SecurityDashboard: FC = () => {
                 <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-accent/40" />
               </div>
               
-              <h4 className="label-caps text-lg font-bold text-white tracking-[0.5em] mb-4 glitch-text flicker-text">Zero_Vulnerabilities_Found</h4>
+              <h4 className="label-caps text-lg font-bold text-white tracking-[0.5em] mb-4">Zero_Vulnerabilities_Found</h4>
               <p className="label-caps text-[10px] text-foreground-muted max-w-md uppercase leading-loose tracking-[0.2em] opacity-60 px-6">
                 Process Guardian has mapped all resident neural identities. No heuristic anomalies or unauthorized kernel injections detected in the current sub-cycle.
               </p>
@@ -194,12 +193,11 @@ export const SecurityDashboard: FC = () => {
                     <motion.div initial={{ x: '-100%' }} animate={{ x: '0%' }} transition={{ duration: 1 }} className="h-full bg-accent" />
                   </div>
                 </div>
-                <div className="hud-panel p-5 bg-neural-purple/[0.03] border-neural-purple/10 text-left relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-neural-purple/[0.05] -rotate-45 translate-x-8 -translate-y-8" />
-                  <span className="label-caps text-[8px] text-neural-purple font-bold tracking-widest block mb-2">THREAT_ISOLATION_INDEX</span>
-                  <span className="text-xl font-mono text-white tracking-tighter">100.0<span className="text-xs opacity-40">%</span></span>
-                  <div className="h-1 w-full bg-neural-purple/20 mt-3 rounded-full overflow-hidden">
-                    <motion.div initial={{ x: '-100%' }} animate={{ x: '0%' }} transition={{ duration: 1.2 }} className="h-full bg-neural-purple" />
+                <div className="hud-panel p-5 bg-accent/[0.03] border-accent/10 text-left relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-accent/[0.05] -rotate-45 translate-x-8 -translate-y-8" />
+                  <span className="label-caps text-[8px] text-accent font-bold tracking-widest block mb-2">THREAT_ISOLATION_INDEX</span>
+                  <div className="h-1 w-full bg-accent/20 mt-3 rounded-full overflow-hidden">
+                    <motion.div initial={{ x: '-100%' }} animate={{ x: '0%' }} transition={{ duration: 1.2 }} className="h-full bg-accent" />
                   </div>
                 </div>
               </div>
@@ -217,7 +215,7 @@ export const SecurityDashboard: FC = () => {
             <span className="label-caps text-[9px] font-bold text-foreground-subtle tracking-widest">Heuristic_Deep_Scan: Engaged</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-security-rose animate-pulse shadow-[0_0_10px_rgba(255,59,105,0.5)]" />
+            <div className="w-2 h-2 rounded-full bg-danger animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.5)]" />
             <span className="label-caps text-[9px] font-bold text-foreground-subtle tracking-widest">Isolation_Zone: Ready</span>
           </div>
         </div>

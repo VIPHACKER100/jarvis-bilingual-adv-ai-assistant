@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -25,10 +25,11 @@ export const Modal: FC<ModalProps> = ({
   size = 'md',
   children,
 }) => {
+  const handleEsc = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose();
+  }, [onClose]);
+
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
     if (isOpen) {
       window.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
@@ -37,7 +38,7 @@ export const Modal: FC<ModalProps> = ({
       window.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, handleEsc]);
 
   return (
     <AnimatePresence>
@@ -55,23 +56,25 @@ export const Modal: FC<ModalProps> = ({
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
-            transition={{ duration: 0.25, ease: [0.19, 1, 0.22, 1] }}
-            className={`relative w-full ${sizeStyles[size]} glass-panel--high border border-border-bright overflow-hidden flex flex-col max-h-[85vh]`}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={title || 'Modal dialog'}
+            className={`relative w-full ${sizeStyles[size]} glass-panel--high overflow-hidden flex flex-col max-h-[85vh]`}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
               {title && (
                 <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
               )}
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-surface-high transition-colors text-foreground-subtle hover:text-foreground"
+                className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors text-foreground-subtle hover:text-foreground"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-6">{children}</div>
-            <div className="scanline" />
           </motion.div>
         </div>
       )}

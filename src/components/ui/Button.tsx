@@ -1,8 +1,8 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'neon' | 'cyber-pink';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
 interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
@@ -15,19 +15,17 @@ interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'btn-primary',
+  primary: 'btn-primary btn-shine',
   secondary: 'btn-secondary',
   ghost: 'btn-ghost',
   danger: 'btn-danger',
-  neon: 'btn-neon',
-  'cyber-pink': 'btn-cyber-pink',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-xs chamfered-sm',
-  md: 'px-4 py-2.5 text-sm chamfered',
-  lg: 'px-6 py-3 text-base chamfered-lg',
-  icon: 'p-2.5 chamfered',
+  sm: 'px-3 py-1.5 text-xs rounded-md',
+  md: 'px-4 py-2.5 text-sm rounded-lg',
+  lg: 'px-6 py-3 text-base rounded-lg',
+  icon: 'p-2.5 rounded-lg',
 };
 
 export const Button: FC<ButtonProps> = ({
@@ -42,23 +40,14 @@ export const Button: FC<ButtonProps> = ({
   ...props
 }) => {
   const isDisabled = disabled || isLoading;
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    if (variant === 'neon' || variant === 'cyber-pink') {
-      setMounted(true);
-      const timeout = setTimeout(() => setMounted(false), 300);
-      return () => clearTimeout(timeout);
-    }
-    return undefined;
-  }, [variant]);
 
   return (
     <motion.button
-      whileHover={isDisabled ? {} : { scale: 1.02 }}
+      whileHover={isDisabled ? {} : { scale: 1.02, y: -2 }}
       whileTap={isDisabled ? {} : { scale: 0.98 }}
+      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
       disabled={isDisabled}
-      className={`btn ${variantStyles[variant]} ${sizeStyles[size]} ${mounted ? 'glitch-text' : ''} ${className}`}
+      className={`btn ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
       aria-disabled={isDisabled}
       {...props}
     >

@@ -51,14 +51,14 @@ export const Tabs: FC<TabsProps> = ({
               <motion.div
                 layoutId="activeTab"
                 className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-accent shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]"
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               />
             )}
             {isActive && variant === 'pill' && (
               <motion.div
                 layoutId="activeTabPill"
                 className="absolute inset-0 bg-accent/10 rounded-lg -z-10"
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               />
             )}
           </button>
