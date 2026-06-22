@@ -1,22 +1,60 @@
 """
-JARVIS v4.0 — LLM Gateway
-Unified interface for all LLM providers with:
-- Provider adapters (NVIDIA, OpenRouter, OpenAI, Ollama)
-- Automatic failover with circuit breaker
-- Per-provider cost tracking
-- Streaming support via async generators
+JARVIS v4.0 — LLM Module (Backward Compatible Package)
+Delegates to the LLM Gateway (modules/llm_gateway/) with adapter-based providers.
+Maintains backward compatibility for all existing imports.
 """
 
-import os
-import time
-import json
-import asyncio
-from typing import Dict, Any, Optional, List, AsyncGenerator, Type
-from dataclasses import dataclass, field
-from pathlib import Path
-
-from utils.logger import logger
-from config import (
-    LLM_PROVIDER, NVIDIA_MODEL, OPENROUTER_MODEL, OPENAI_MODEL,
-    NVIDIA_EMBEDDING_MODEL, OPENAI_EMBEDDING_MODEL, GOOGLE_EMBEDDING_MODEL,
+# Import the wrapper module that provides backward-compatible API
+from modules.llm_wrapper import (
+    llm_module,
+    llm_client,
+    get_response,
+    get_visual_response,
+    extract_command,
+    summarize_context,
+    get_agent_response,
+    get_embedding,
+    ping_llm,
+    get_response_stream,
+    _get_nvidia_response,
+    _get_openrouter_response,
+    _get_openai_response,
+    _get_ollama_response,
+    _stream_nvidia,
+    _stream_openrouter,
+    _stream_openai,
+    _stream_ollama,
+    _call_nvidia_raw,
+    _call_openrouter_raw,
+    _call_openai_raw,
+    _call_ollama_raw,
+    AGENT_SYSTEM_PROMPT,
+    SYSTEM_PROMPT_TEMPLATE,
 )
+
+__all__ = [
+    "llm_module",
+    "llm_client",
+    "get_response",
+    "get_visual_response",
+    "extract_command",
+    "summarize_context",
+    "get_agent_response",
+    "get_embedding",
+    "ping_llm",
+    "get_response_stream",
+    "_get_nvidia_response",
+    "_get_openrouter_response",
+    "_get_openai_response",
+    "_get_ollama_response",
+    "_stream_nvidia",
+    "_stream_openrouter",
+    "_stream_openai",
+    "_stream_ollama",
+    "_call_nvidia_raw",
+    "_call_openrouter_raw",
+    "_call_openai_raw",
+    "_call_ollama_raw",
+    "AGENT_SYSTEM_PROMPT",
+    "SYSTEM_PROMPT_TEMPLATE",
+]
