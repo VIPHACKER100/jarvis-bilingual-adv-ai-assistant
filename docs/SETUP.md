@@ -191,6 +191,8 @@ VITE_JARVIS_API_KEY=your-secure-api-key-here
 # Must match BACKEND_API_KEY above — used for WebSocket auth
 ```
 
+> **Frontend URL configuration**: WebSocket and API URLs are computed automatically in `src/config.ts` from the detected hostname and `BACKEND_PORT`. For remote deployments, edit `src/config.ts` to set custom `WS_API_BASE_URL` and `AUDIO_WS_URL` values, or set `VITE_BACKEND_PORT` in `.env` to change the port.
+
 ### Step 6: Verify Installation
 
 #### Test Backend

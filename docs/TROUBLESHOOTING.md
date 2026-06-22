@@ -125,6 +125,29 @@ JARVIS v4.0 requires API key authentication for all endpoints except health prob
 
 Verify the probe is targeting one of these paths, not a generic `/api/` path.
 
+### Frontend WebSocket connection failures (remote deploy)
+
+**Symptom**: WebSocket connection succeeds on localhost but fails when deploying to a remote server.
+
+**Common causes and fixes:**
+
+| Cause | Fix |
+|-------|-----|
+| `websocketService.ts` uses `token` query param | Changed to `api_key` — must match the backend's expected query parameter name |
+| `useAudioWS.ts` connects to wrong WS path | Must connect to `/api/v1/audio/ws/audio`, not a stale path |
+| `config.ts` missing `WS_API_BASE_URL` | Ensure `config.ts` exports `WS_API_BASE_URL` for WebSocket URL construction |
+| SSE streaming returns 403 | `useAgentStream.ts` must include `X-API-Key` header in the SSE fetch call |
+
+**Verification**: Check `src/config.ts` for `WS_API_BASE_URL` and `AUDIO_WS_URL` definitions. Verify `websocketService.ts` uses `api_key` (not `token`) as the query parameter name.
+
+### Settings keys endpoint exposes partial key material
+
+**Symptom**: `GET /api/v1/settings/keys` returns something like `{"NVIDIA_API_KEY": "abcd...wxyz"}` instead of a boolean.
+
+**Cause**: Older versions leaked the first and last 4 characters of each API key in the response.
+
+**Fix**: The `redact()` function in `settings.py` now returns `bool(key)` — just a `true`/`false` indicating whether the key is configured, with no key material in the response. All callers have been updated to handle booleans.
+
 ### WebSocket connection refused (auth)
 
 **Symptom**: Failed to construct WebSocket — `401` close code.

@@ -39,6 +39,9 @@ NVIDIA_API_KEY=your-key-here
 OPENROUTER_API_KEY=your-key-here
 OPENAI_API_KEY=your-key-here
 
+# Frontend WebSocket URLs (computed in src/config.ts; override for remote deploy)
+# See src/config.ts for WS_API_BASE_URL and AUDIO_WS_URL
+
 # Logging
 LOG_LEVEL=DEBUG
 ```

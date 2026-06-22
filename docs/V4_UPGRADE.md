@@ -80,6 +80,9 @@ TTS_VOICE=alloy
 TTS_LANGUAGE=en
 STT_LANGUAGE=en
 
+# Frontend WebSocket Config (computed in src/config.ts; override for remote deploy)
+# See src/config.ts for WS_API_BASE_URL and AUDIO_WS_URL
+
 # Observability
 OTEL_ENABLED=false
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
