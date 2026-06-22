@@ -1,0 +1,67 @@
+"""
+Audio Streaming Router — WebSocket endpoint for bidirectional TTS/STT streaming.
+"""
+
+import json
+import base64
+import asyncio
+from typing import Optional
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from utils.logger import logger
+from modules.audio.tts import tts_service
+from modules.audio.stt import stt_service
+
+router = APIRouter(tags=["Audio"])
+
+MAX_AUDIO_BYTES = 10 * 1024 * 1024  # 10 MB
+MAX_TTS_TEXT = 2000
+
+
+@router.websocket("/ws/audio")
+async def audio_websocket(websocket: WebSocket, language: str = "en"):
+    await websocket.accept()
+    logger.info(f"Audio WS connected (lang={language})")
+
+    try:
+        while True:
+            raw = await websocket.receive_text()
+            if len(raw) > MAX_AUDIO_BYTES:
+                await websocket.send_json({"type": "error", "error": "Message too large"})
+                continue
+
+            msg = json.loads(raw)
+            msg_type = msg.get("type")
+
+            if msg_type == "stt":
+                audio_b64 = msg.get("audio")
+                if audio_b64:
+                    audio_bytes = base64.b64decode(audio_b64)
+                    if len(audio_bytes) > MAX_AUDIO_BYTES:
+                        await websocket.send_json({"type": "error", "error": "Audio data too large"})
+                        continue
+                    text = await stt_service.transcribe(audio_bytes, language)
+                    await websocket.send_json({"type": "stt_result", "text": text or ""})
+
+            elif msg_type == "tts":
+                text = (msg.get("text") or "")[:MAX_TTS_TEXT]
+                voice = msg.get("voice", "alloy")
+                if text:
+                    audio_data = await tts_service.synthesize(text, voice, language)
+                    if audio_data:
+                        await websocket.send_json({
+                            "type": "tts_audio",
+                            "audio": base64.b64encode(audio_data).decode(),
+                            "format": "opus",
+                        })
+                    else:
+                        await websocket.send_json({"type": "tts_error", "error": "TTS failed"})
+
+            elif msg_type == "ping":
+                await websocket.send_json({"type": "pong"})
+
+    except WebSocketDisconnect:
+        logger.info("Audio WS disconnected")
+    except json.JSONDecodeError:
+        await websocket.send_json({"type": "error", "error": "Invalid JSON"})
+    except Exception as e:
+        logger.error(f"Audio WS error: {e}")

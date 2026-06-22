@@ -79,6 +79,19 @@ interface JarvisState {
   neuralLogs: NeuralLogEntry[];
   setNeuralLogs: (logs: NeuralLogEntry[]) => void;
   addNeuralLog: (log: NeuralLogEntry) => void;
+
+  // v4.0: Agent Streaming State
+  agentStreaming: boolean;
+  setAgentStreaming: (streaming: boolean) => void;
+  agentStreamResponse: string;
+  setAgentStreamResponse: (response: string) => void;
+  appendAgentStreamResponse: (chunk: string) => void;
+  agentProvider: string | null;
+  setAgentProvider: (provider: string | null) => void;
+  audioWSConnected: boolean;
+  setAudioWSConnected: (connected: boolean) => void;
+  audioTranscript: string | null;
+  setAudioTranscript: (transcript: string | null) => void;
 }
 
 export const useJarvisStore = create<JarvisState>()(
@@ -157,8 +170,23 @@ export const useJarvisStore = create<JarvisState>()(
   neuralLogs: [],
   setNeuralLogs: (neuralLogs) => set({ neuralLogs }),
   addNeuralLog: (log) => set((state) => ({
-    neuralLogs: [log, ...state.neuralLogs].slice(0, 100) // Keep last 100 logs
+    neuralLogs: [log, ...state.neuralLogs].slice(0, 100)
   })),
+
+  // v4.0: Agent Streaming
+  agentStreaming: false,
+  setAgentStreaming: (agentStreaming) => set({ agentStreaming }),
+  agentStreamResponse: '',
+  setAgentStreamResponse: (agentStreamResponse) => set({ agentStreamResponse }),
+  appendAgentStreamResponse: (chunk) => set((state) => ({
+    agentStreamResponse: state.agentStreamResponse + chunk,
+  })),
+  agentProvider: null,
+  setAgentProvider: (agentProvider) => set({ agentProvider }),
+  audioWSConnected: false,
+  setAudioWSConnected: (audioWSConnected) => set({ audioWSConnected }),
+  audioTranscript: null,
+  setAudioTranscript: (audioTranscript) => set({ audioTranscript }),
       }),
       {
         name: 'jarvis-storage',
@@ -166,7 +194,7 @@ export const useJarvisStore = create<JarvisState>()(
           language: state.language,
           volume: state.volume,
           isActive: state.isActive,
-          history: state.history.slice(-50), // Keep last 50 entries
+          history: state.history.slice(-50),
         }),
         merge: (persisted, current) => ({
           ...current,

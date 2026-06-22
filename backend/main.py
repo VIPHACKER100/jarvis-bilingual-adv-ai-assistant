@@ -21,6 +21,10 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from config import BACKEND_PORT, FRONTEND_URL, PLATFORM, VERSION
+from utils.middleware_security import (
+    SecurityHeadersMiddleware, SQLInjectionMiddleware,
+    MaxBodySizeMiddleware, per_route_limiter
+)
 from modules.system import system_module
 from modules.automation import automation_manager
 from utils.logger import logger, log_system_event
@@ -30,7 +34,8 @@ from routers import (
     system, windows, files, media, pdf_tools, 
     image_tools, desktop, memory, automation, 
     commands, websocket, settings, whatsapp,
-    input_control, notifications, sync, health, context
+    input_control, notifications, sync, health, context,
+    agent, audio
 )
 from modules.memory import memory_manager
 from modules.whatsapp import whatsapp_manager
@@ -142,6 +147,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register security middleware (order matters — run first)
+app.add_middleware(MaxBodySizeMiddleware)
+app.add_middleware(SQLInjectionMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
+
 # Request timing middleware for all routes
 @app.middleware("http")
 async def response_time_middleware(request: Request, call_next):
@@ -240,6 +250,8 @@ api_v1.include_router(health.router)
 api_v1.include_router(context.router)
 
 app.include_router(api_v1)
+app.include_router(agent.router)
+app.include_router(audio.router)
 
 # Maintain legacy root routes for backward compatibility
 app.include_router(system.router)

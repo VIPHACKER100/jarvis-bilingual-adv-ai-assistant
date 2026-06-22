@@ -485,3 +485,61 @@ export interface TrainingProgress {
   accuracy: number;
   current_epoch: number;
 }
+
+// ─── Agent API (v4.0) ────────────────────────────────────────────────────────
+
+export interface AgentChatRequest {
+  query: string;
+  language?: string;
+  stream?: boolean;
+  use_rag?: boolean;
+  session_id?: string;
+}
+
+export interface AgentChatResponse {
+  success: boolean;
+  response: string;
+  provider: string;
+  language: string;
+  cost_stats: Record<string, number>;
+}
+
+export interface AgentStreamMeta {
+  type: 'meta';
+  provider: string;
+  language: string;
+}
+
+export interface AgentStreamChunk {
+  type: 'chunk';
+  text: string;
+}
+
+export interface AgentStreamDone {
+  type: 'done';
+  full_text: string;
+}
+
+export type AgentStreamEvent = AgentStreamMeta | AgentStreamChunk | AgentStreamDone;
+
+export interface AgentHealthResponse {
+  success: boolean;
+  online: boolean;
+  active_provider: string | null;
+  available_providers: string[];
+  cost_stats: Record<string, number>;
+}
+
+export interface AgentRagResult {
+  node: string;
+  score: number;
+  match_type: string;
+  excerpt: string;
+}
+
+export interface AgentRagResponse {
+  success: boolean;
+  query: string;
+  results: AgentRagResult[];
+  total_scanned: number;
+}

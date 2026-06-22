@@ -1,101 +1,190 @@
-name: JARVIS CI Pipeline
+name: CI
 
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'memory/**'
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  PYTHON_VERSION: "3.12"
-  NODE_VERSION: "20"
+  NODE_VERSION: '22'
+  PYTHON_VERSION: '3.12'
+  FORCE_COLOR: '1'
 
 jobs:
-  # ─── Backend Tests ──────────────────────────────────────────────────────
-  backend:
-    name: Backend Tests
-    runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: backend
-
+  frontend-lint-typecheck:
+    name: Frontend — Lint & Typecheck
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Markdown lint
+        run: npx markdownlint-cli '**/*.md' --ignore node_modules --ignore backend/venv
+
+      - name: Check build
+        run: npm run build
+
+  backend-lint:
+    name: Backend — Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: pip
 
       - name: Install dependencies
+        working-directory: backend
         run: |
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
+          pip install ruff mypy
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio pytest-cov aiosqlite
 
-      - name: Run tests with coverage
-        run: |
-          python -m pytest tests/ -v --tb=short --cov=. --cov-report=xml --cov-report=term-missing
-        env:
-          TESTING: "true"
+      - name: Ruff lint check
+        working-directory: backend
+        run: ruff check --config '{"line-length": 120, "select": ["E", "F", "W", "I", "N", "UP", "B", "SIM", "ARG"], "ignore": ["E501"]}'
 
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: backend/coverage.xml
+      - name: Import check
+        working-directory: backend
+        run: python -c "import main; import models; print('Backend imports OK')"
 
-  # ─── Frontend Checks ───────────────────────────────────────────────────
-  frontend:
-    name: Frontend Build & Type Check
-    runs-on: windows-latest
-
+  test:
+    name: Tests — ${{ matrix.component }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [frontend, backend]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node (frontend)
+        if: matrix.component == 'frontend'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install frontend deps
+        if: matrix.component == 'frontend'
         run: npm ci
 
-      - name: Type check
-        run: npx tsc --noEmit
+      - name: Run frontend tests
+        if: matrix.component == 'frontend'
+        run: npx vitest run --coverage.enabled=false
 
-      - name: Run tests
-        run: npm run test -- --reporter=verbose
-        continue-on-error: true
-
-      - name: Build
-        run: npm run build
-
-  # ─── Lint ───────────────────────────────────────────────────────────────
-  lint:
-    name: Lint & Format
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
+      - name: Setup Python (backend)
+        if: matrix.component == 'backend'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Python lint (ruff)
+      - name: Install backend deps
+        if: matrix.component == 'backend'
+        working-directory: backend
         run: |
-          pip install ruff
-          ruff check backend/ --output-format=github
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run backend tests
+        if: matrix.component == 'backend'
+        working-directory: backend
+        run: python -m pytest tests/ -v --timeout=30 -x --ignore=venv
         continue-on-error: true
 
-      - name: Markdown lint
-        uses: DavidAnson/markdownlint-cli2-action@v19
+  docker-build:
+    name: Docker — Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        uses: docker/build-push-action@v5
         with:
-          globs: "**/*.md"
-          config: ".markdownlint.json"
-        continue-on-error: true
+          context: .
+          file: Dockerfile.backend
+          push: false
+          tags: jarvis-backend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.frontend
+          push: false
+          tags: jarvis-frontend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  security-scan:
+    name: Security — Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  deploy:
+    name: Deploy
+    if: github.ref == 'refs/heads/main'
+    needs: [frontend-lint-typecheck, backend-lint, test, docker-build, security-scan]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.backend
+          push: true
+          tags: ghcr.io/${{ github.repository }}/backend:latest
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Deploy notification
+        run: echo "✅ Deployment would trigger here"

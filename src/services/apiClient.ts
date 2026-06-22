@@ -641,6 +641,56 @@ class ApiClient {
     if (!response.ok) throw new Error(`Failed to initiate training for profile ${id}`);
     return response.json();
   }
+
+  // ─── Agent API (v4.0) ─────────────────────────────────────────────────────
+
+  /** Non-streaming agent chat with optional RAG context */
+  async agentChat(query: string, language: string = 'en', useRag: boolean = true): Promise<{
+    success: boolean;
+    response: string;
+    provider: string;
+    language: string;
+    cost_stats: Record<string, number>;
+  }> {
+    const resp = await fetch(`${this.baseUrl}/agent/chat`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ query, language, stream: false, use_rag: useRag }),
+    });
+    if (!resp.ok) throw new Error('Agent chat failed');
+    return resp.json();
+  }
+
+  /** Retrieve RAG context for a query */
+  async agentRagSearch(query: string): Promise<{
+    success: boolean;
+    query: string;
+    results: Array<{ node: string; score: number; match_type: string; excerpt: string }>;
+    total_scanned: number;
+  }> {
+    const resp = await fetch(`${this.baseUrl}/agent/rag`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ query, stream: false, use_rag: true }),
+    });
+    if (!resp.ok) throw new Error('Agent RAG search failed');
+    return resp.json();
+  }
+
+  /** Agent subsystem health */
+  async agentHealth(): Promise<{
+    success: boolean;
+    online: boolean;
+    active_provider: string | null;
+    available_providers: string[];
+    cost_stats: Record<string, number>;
+  }> {
+    const resp = await fetch(`${this.baseUrl}/agent/health`, {
+      headers: this.getHeaders(),
+    });
+    if (!resp.ok) throw new Error('Agent health check failed');
+    return resp.json();
+  }
 }
 
 // Export singleton instance
