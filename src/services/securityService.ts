@@ -10,12 +10,14 @@ export const SecurityService = {
   sanitizeCommand: (command: string): string => {
     if (!command) return "";
     let sanitized = command;
-    for (let i = 0; i < 3; i++) {
+    let previous: string;
+    do {
+      previous = sanitized;
       sanitized = sanitized
         .replace(/<[^>]*>/g, '')
         .replace(/\s*(?:javascript|data|vbscript)\s*:/gi, '')
         .replace(/\s*on\w+\s*=\s*/gi, '');
-    }
+    } while (sanitized !== previous);
     return sanitized.trim();
   },
 
