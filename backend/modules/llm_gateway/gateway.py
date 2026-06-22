@@ -14,7 +14,7 @@ from config import LLM_PROVIDER
 
 from modules.llm_gateway.adapters import (
     ProviderAdapter, ProviderConfig,
-    NvidiaAdapter, OpenRouterAdapter, OpenAIAdapter, OllamaAdapter,
+    OpenAICompatibleAdapter, GoogleAdapter, OllamaAdapter,
 )
 from modules.llm_gateway.cost import cost_tracker
 
@@ -39,34 +39,60 @@ class LLMGateway:
         nvidia_key = os.getenv("NVIDIA_API_KEY")
         openrouter_key = os.getenv("OPENROUTER_API_KEY")
         openai_key = os.getenv("OPENAI_API_KEY")
+        google_key = os.getenv("GOOGLE_API_KEY")
 
         if nvidia_key:
-            self._providers["nvidia"] = NvidiaAdapter(ProviderConfig(
-                api_key=nvidia_key,
-                model=os.getenv("NVIDIA_MODEL", "deepseek-ai/deepseek-v4-pro"),
-                fallback_models=["deepseek-ai/deepseek-v4-pro"],
-                timeout=45,
-                max_tokens=16384,
-            ))
+            self._providers["nvidia"] = OpenAICompatibleAdapter(
+                name="nvidia",
+                config=ProviderConfig(
+                    api_key=nvidia_key,
+                    model=os.getenv("NVIDIA_MODEL", "deepseek-ai/deepseek-v4-pro"),
+                    fallback_models=["deepseek-ai/deepseek-v4-pro"],
+                    timeout=45,
+                    max_tokens=16384,
+                ),
+                base_url="https://integrate.api.nvidia.com/v1",
+                has_embeddings=True,
+                extra_body={"chat_template_kwargs": {"thinking": False}},
+            )
 
         if openrouter_key:
-            self._providers["openrouter"] = OpenRouterAdapter(ProviderConfig(
-                api_key=openrouter_key,
-                model=os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001"),
-                fallback_models=[
-                    "google/gemini-2.0-flash-lite-preview-02-05",
-                    "deepseek/deepseek-r1",
-                    "mistralai/mistral-7b-instruct",
-                    "openrouter/auto",
-                ],
-                timeout=30,
-            ))
+            self._providers["openrouter"] = OpenAICompatibleAdapter(
+                name="openrouter",
+                config=ProviderConfig(
+                    api_key=openrouter_key,
+                    model=os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001"),
+                    fallback_models=[
+                        "google/gemini-2.0-flash-lite-preview-02-05",
+                        "deepseek/deepseek-r1",
+                        "mistralai/mistral-7b-instruct",
+                        "openrouter/auto",
+                    ],
+                    timeout=30,
+                ),
+                base_url="https://openrouter.ai/api/v1",
+                has_embeddings=False,
+                extra_body=None,
+            )
 
         if openai_key:
-            self._providers["openai"] = OpenAIAdapter(ProviderConfig(
-                api_key=openai_key,
-                model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-                max_tokens=4096,
+            self._providers["openai"] = OpenAICompatibleAdapter(
+                name="openai",
+                config=ProviderConfig(
+                    api_key=openai_key,
+                    model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+                    max_tokens=4096,
+                ),
+                base_url="https://api.openai.com/v1",
+                has_embeddings=True,
+                extra_body=None,
+            )
+
+        if google_key:
+            self._providers["google"] = GoogleAdapter(ProviderConfig(
+                api_key=google_key,
+                model=os.getenv("GOOGLE_MODEL", "gemini-2.0-flash"),
+                max_tokens=8192,
             ))
 
         self._providers["ollama"] = OllamaAdapter(ProviderConfig(
@@ -78,12 +104,12 @@ class LLMGateway:
         if preferred in self._providers:
             self._provider_order = [preferred]
             self._provider_order.extend(
-                p for p in ("openrouter", "nvidia", "openai", "ollama")
+                p for p in ("openrouter", "nvidia", "openai", "google", "ollama")
                 if p != preferred and p in self._providers
             )
         else:
             self._provider_order = [
-                p for p in ("openrouter", "nvidia", "openai", "ollama")
+                p for p in ("openrouter", "nvidia", "openai", "google", "ollama")
                 if p in self._providers
             ]
 
@@ -171,7 +197,7 @@ class LLMGateway:
         yield "Error: No LLM providers available."
 
     async def get_embedding(self, text: str) -> Optional[List[float]]:
-        for provider_name in ("nvidia", "openai"):
+        for provider_name in ("nvidia", "openai", "google"):
             adapter = self._providers.get(provider_name)
             if adapter:
                 result = await adapter.get_embedding(text)

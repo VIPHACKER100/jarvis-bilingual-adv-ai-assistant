@@ -10,7 +10,12 @@ from utils.logger_structured import logger
 
 
 class TTSService:
-    LANGUAGES = {"en": "english", "hi": "hindi", "hinglish": "english"}
+    LANGUAGES = {"en": "en", "hi": "hi", "hinglish": "en"}
+    EDGE_VOICES = {
+        "en": "en-US-ChristopherNeural",
+        "hi": "hi-IN-MadhurNeural",
+        "hinglish": "en-US-ChristopherNeural",
+    }
 
     def __init__(self):
         pass
@@ -18,9 +23,10 @@ class TTSService:
     async def synthesize(self, text: str, voice: str = "alloy", language: str = "en") -> Optional[bytes]:
         openai_key = self._get_openai_key()
         if openai_key:
-            return await self._synthesize_openai(text, voice)
-        logger.warning("No TTS provider available")
-        return None
+            result = await self._synthesize_openai(text, voice)
+            if result:
+                return result
+        return await self._synthesize_edge(text, language)
 
     async def synthesize_stream(self, text: str, voice: str = "alloy", language: str = "en") -> AsyncGenerator[bytes, None]:
         openai_key = self._get_openai_key()
@@ -28,6 +34,8 @@ class TTSService:
             async for chunk in self._synthesize_openai_stream(text, voice):
                 yield chunk
             return
+        async for chunk in self._synthesize_edge_stream(text, language):
+            yield chunk
 
     async def _synthesize_openai(self, text: str, voice: str = "alloy") -> Optional[bytes]:
         import httpx
@@ -65,6 +73,36 @@ class TTSService:
                         yield chunk
         except Exception as e:
             logger.error(f"OpenAI TTS stream error: {e}")
+
+    async def _synthesize_edge(self, text: str, language: str = "en") -> Optional[bytes]:
+        try:
+            import edge_tts
+            voice = self.EDGE_VOICES.get(language, "en-US-ChristopherNeural")
+            communicate = edge_tts.Communicate(text, voice)
+            chunks = []
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    chunks.append(chunk["data"])
+            return b"".join(chunks) if chunks else None
+        except ImportError:
+            logger.warning("edge-tts not installed, skipping local TTS fallback")
+            return None
+        except Exception as e:
+            logger.error(f"Edge-TTS error: {e}")
+            return None
+
+    async def _synthesize_edge_stream(self, text: str, language: str = "en") -> AsyncGenerator[bytes, None]:
+        try:
+            import edge_tts
+            voice = self.EDGE_VOICES.get(language, "en-US-ChristopherNeural")
+            communicate = edge_tts.Communicate(text, voice)
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    yield chunk["data"]
+        except ImportError:
+            logger.warning("edge-tts not installed, cannot stream TTS")
+        except Exception as e:
+            logger.error(f"Edge-TTS stream error: {e}")
 
     def _get_openai_key(self) -> Optional[str]:
         import os

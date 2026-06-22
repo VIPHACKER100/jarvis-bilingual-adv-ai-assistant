@@ -9,7 +9,6 @@ Each adapter wraps a specific LLM provider and exposes:
 
 import os
 import time
-import asyncio
 import json
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List, AsyncGenerator
@@ -17,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import httpx
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 from utils.logger_structured import logger
 from modules.llm_gateway.cost import cost_tracker
@@ -32,6 +31,8 @@ class ProviderConfig:
     timeout: float = 30.0
     max_tokens: int = 4096
     temperature: float = 0.7
+    base_url: Optional[str] = None
+    extra_body: Optional[Dict] = None
 
 
 class ProviderAdapter(ABC):
@@ -55,132 +56,43 @@ class ProviderAdapter(ABC):
         return bool(self.config.api_key) and self.circuit.is_available()
 
 
-class NvidiaAdapter(ProviderAdapter):
-    def __init__(self, config: ProviderConfig):
-        super().__init__("nvidia", config)
-        self._client = OpenAI(
-            base_url="https://integrate.api.nvidia.com/v1",
-            api_key=config.api_key
+class OpenAICompatibleAdapter(ProviderAdapter):
+    """Single adapter for any OpenAI-compatible provider (NVIDIA, OpenRouter, OpenAI, Google)."""
+
+    def __init__(self, name: str, config: ProviderConfig, base_url: str,
+                 has_embeddings: bool = False, extra_body: Optional[Dict] = None):
+        super().__init__(name, config)
+        self._client = AsyncOpenAI(
+            base_url=base_url,
+            api_key=config.api_key,
+            timeout=httpx.Timeout(config.timeout),
         ) if config.api_key else None
+        self._has_embeddings = has_embeddings
+        self._extra_body = extra_body
 
     async def generate(self, messages: List[Dict[str, str]], **kwargs) -> Optional[str]:
         if not self._client:
             return None
-
-        model = kwargs.get("model", self.config.model)
+        models = [kwargs.get("model", self.config.model)] + (self.config.fallback_models or [])
         start = time.time()
-
-        try:
-            def _call():
-                return self._client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=kwargs.get("temperature", self.config.temperature),
-                    max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
-                    top_p=0.95,
-                    stream=False,
-                    extra_body={"chat_template_kwargs": {"thinking": False}},
-                )
-
-            completion = await asyncio.to_thread(_call)
-            content = completion.choices[0].message.content.strip()
-            elapsed = (time.time() - start) * 1000
-
-            prompt_toks = completion.usage.prompt_tokens if completion.usage else 0
-            comp_toks = completion.usage.completion_tokens if completion.usage else 0
-
-            cost_tracker.record(self.name, model, prompt_toks, comp_toks, elapsed, success=True)
-            self.circuit.record_success()
-            return content
-
-        except Exception as e:
-            elapsed = (time.time() - start) * 1000
-            cost_tracker.record(self.name, model, latency_ms=elapsed, success=False)
-            self.circuit.record_failure()
-            logger.error(f"NVIDIA API error: {e}")
-            return None
-
-    async def generate_stream(self, messages: List[Dict[str, str]], **kwargs) -> AsyncGenerator[str, None]:
-        if not self._client:
-            yield "Error: NVIDIA not configured."
-            return
-
-        model = kwargs.get("model", self.config.model)
-        try:
-            def _call():
-                return self._client.chat.completions.create(
+        for model in models:
+            try:
+                completion = await self._client.chat.completions.create(
                     model=model, messages=messages,
                     temperature=kwargs.get("temperature", self.config.temperature),
                     max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
-                    stream=True,
+                    extra_body=self._extra_body,
                 )
-
-            completion = await asyncio.to_thread(_call)
-            for chunk in completion:
-                if chunk.choices and chunk.choices[0].delta.content:
-                    yield chunk.choices[0].delta.content
-
-            self.circuit.record_success()
-        except Exception as e:
-            logger.error(f"NVIDIA stream error: {e}")
-            yield f"Error: {e}"
-
-    async def get_embedding(self, text: str) -> Optional[List[float]]:
-        if not self._client:
-            return None
-        try:
-            def _call():
-                return self._client.embeddings.create(
-                    input=[text],
-                    model=os.getenv("NVIDIA_EMBEDDING_MODEL", "nvidia/llama-3.2-nv-embedqc-v1")
-                )
-            response = await asyncio.to_thread(_call)
-            return response.data[0].embedding
-        except Exception as e:
-            logger.error(f"NVIDIA embedding error: {e}")
-            return None
-
-
-class OpenRouterAdapter(ProviderAdapter):
-    def __init__(self, config: ProviderConfig):
-        super().__init__("openrouter", config)
-        self._client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=config.api_key
-        ) if config.api_key else None
-        self._fallback_models = config.fallback_models or []
-
-    async def generate(self, messages: List[Dict[str, str]], **kwargs) -> Optional[str]:
-        if not self._client:
-            return None
-
-        models = [kwargs.get("model", self.config.model)] + self._fallback_models
-        start = time.time()
-
-        for model in models:
-            try:
-                def _call(model=model):
-                    return self._client.chat.completions.create(
-                        model=model, messages=messages,
-                        temperature=kwargs.get("temperature", self.config.temperature),
-                        max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
-                    )
-
-                completion = await asyncio.to_thread(_call)
                 content = completion.choices[0].message.content.strip()
                 elapsed = (time.time() - start) * 1000
-
                 prompt_toks = completion.usage.prompt_tokens if completion.usage else 0
                 comp_toks = completion.usage.completion_tokens if completion.usage else 0
-
                 cost_tracker.record(self.name, model, prompt_toks, comp_toks, elapsed, success=True)
                 self.circuit.record_success()
                 return content
-
             except Exception as e:
-                logger.warning(f"OpenRouter model {model} failed: {e}")
+                logger.warning(f"{self.name} model {model} failed: {e}")
                 continue
-
         elapsed = (time.time() - start) * 1000
         cost_tracker.record(self.name, self.config.model, latency_ms=elapsed, success=False)
         self.circuit.record_failure()
@@ -188,95 +100,59 @@ class OpenRouterAdapter(ProviderAdapter):
 
     async def generate_stream(self, messages: List[Dict[str, str]], **kwargs) -> AsyncGenerator[str, None]:
         if not self._client:
-            yield "Error: OpenRouter not configured."
+            yield f"Error: {self.name} not configured."
             return
-
         model = kwargs.get("model", self.config.model)
         try:
-            def _call():
-                return self._client.chat.completions.create(
-                    model=model, messages=messages, stream=True,
-                )
-
-            completion = await asyncio.to_thread(_call)
-            for chunk in completion:
+            stream = await self._client.chat.completions.create(
+                model=model, messages=messages, stream=True,
+                extra_body=self._extra_body,
+            )
+            async for chunk in stream:
                 if chunk.choices and chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
             self.circuit.record_success()
         except Exception as e:
-            logger.error(f"OpenRouter stream error: {e}")
-            yield f"Error: {e}"
-
-
-class OpenAIAdapter(ProviderAdapter):
-    def __init__(self, config: ProviderConfig):
-        super().__init__("openai", config)
-        self._client = OpenAI(api_key=config.api_key) if config.api_key else None
-
-    async def generate(self, messages: List[Dict[str, str]], **kwargs) -> Optional[str]:
-        if not self._client:
-            return None
-
-        start = time.time()
-        try:
-            def _call():
-                return self._client.chat.completions.create(
-                    model=kwargs.get("model", self.config.model),
-                    messages=messages,
-                    temperature=kwargs.get("temperature", self.config.temperature),
-                    max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
-                )
-
-            completion = await asyncio.to_thread(_call)
-            content = completion.choices[0].message.content.strip()
-            elapsed = (time.time() - start) * 1000
-
-            prompt_toks = completion.usage.prompt_tokens if completion.usage else 0
-            comp_toks = completion.usage.completion_tokens if completion.usage else 0
-
-            cost_tracker.record(self.name, self.config.model, prompt_toks, comp_toks, elapsed, success=True)
-            self.circuit.record_success()
-            return content
-
-        except Exception as e:
-            elapsed = (time.time() - start) * 1000
-            cost_tracker.record(self.name, self.config.model, latency_ms=elapsed, success=False)
-            self.circuit.record_failure()
-            logger.error(f"OpenAI API error: {e}")
-            return None
-
-    async def generate_stream(self, messages: List[Dict[str, str]], **kwargs) -> AsyncGenerator[str, None]:
-        if not self._client:
-            yield "Error: OpenAI not configured."
-            return
-        try:
-            def _call():
-                return self._client.chat.completions.create(
-                    model=kwargs.get("model", self.config.model),
-                    messages=messages, stream=True,
-                )
-            completion = await asyncio.to_thread(_call)
-            for chunk in completion:
-                if chunk.choices and chunk.choices[0].delta.content:
-                    yield chunk.choices[0].delta.content
-            self.circuit.record_success()
-        except Exception as e:
-            logger.error(f"OpenAI stream error: {e}")
+            logger.error(f"{self.name} stream error: {e}")
             yield f"Error: {e}"
 
     async def get_embedding(self, text: str) -> Optional[List[float]]:
-        if not self._client:
+        if not self._client or not self._has_embeddings:
             return None
         try:
-            def _call():
-                return self._client.embeddings.create(
-                    input=[text],
-                    model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
-                )
-            response = await asyncio.to_thread(_call)
+            response = await self._client.embeddings.create(
+                input=[text],
+                model=os.getenv(f"{self.name.upper()}_EMBEDDING_MODEL", "text-embedding-3-small")
+            )
             return response.data[0].embedding
         except Exception as e:
-            logger.error(f"OpenAI embedding error: {e}")
+            logger.error(f"{self.name} embedding error: {e}")
+            return None
+
+
+class GoogleAdapter(OpenAICompatibleAdapter):
+    """Adapter for Google Gemini via OpenAI-compatible endpoint."""
+
+    def __init__(self, config: ProviderConfig):
+        super().__init__(
+            name="google",
+            config=config,
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            has_embeddings=True,
+            extra_body=None,
+        )
+
+    async def get_embedding(self, text: str) -> Optional[List[float]]:
+        if not self._client or not self._has_embeddings:
+            return None
+        try:
+            response = await self._client.embeddings.create(
+                input=[text],
+                model=os.getenv("GOOGLE_EMBEDDING_MODEL", "text-embedding-004")
+            )
+            return response.data[0].embedding
+        except Exception as e:
+            logger.error(f"google embedding error: {e}")
             return None
 
 

@@ -220,26 +220,40 @@ class DatabaseManager:
 
     async def _run_migrations(self) -> None:
         migrations_dir = Path(__file__).parent.parent / "migrations"
-        migration_file = migrations_dir / "001_initial_pg.sql"
-        if not migration_file.exists():
-            logger.warning(f"Initial migration not found: {migration_file}")
-            return
 
-        row = await self.fetchrow("""
-            SELECT EXISTS (
-                SELECT FROM information_schema.tables
-                WHERE table_name = 'conversations'
-            ) AS exists
-        """)
-        if row and row["exists"]:
-            logger.debug("PostgreSQL schema is up to date")
-            return
-
-        sql = migration_file.read_text(encoding="utf-8")
+        # Ensure version tracking table exists
         async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                await conn.execute(sql)
-        logger.info("PostgreSQL initial schema applied successfully")
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS schema_version (
+                    version TEXT PRIMARY KEY,
+                    applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+
+        # Read sorted migration files
+        migration_files = sorted(migrations_dir.glob("*.sql"))
+        if not migration_files:
+            logger.warning("No migration files found")
+            return
+
+        for migration_file in migration_files:
+            version = migration_file.stem  # e.g. "001_initial_pg" or "002_pgvector"
+
+            row = await self.fetchrow(
+                "SELECT version FROM schema_version WHERE version = ?", (version,)
+            )
+            if row:
+                logger.debug(f"Migration {version} already applied")
+                continue
+
+            sql = migration_file.read_text(encoding="utf-8")
+            async with self._pool.acquire() as conn:
+                async with conn.transaction():
+                    await conn.execute(sql)
+                    await conn.execute(
+                        "INSERT INTO schema_version (version) VALUES ($1)", version
+                    )
+            logger.info(f"Migration {version} applied successfully")
 
 
 db_manager = DatabaseManager()

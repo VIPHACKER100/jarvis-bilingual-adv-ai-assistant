@@ -24,6 +24,11 @@
     "CODEX": {
       "description": "Code review agent — returns plain-text rating reports across six dimensions",
       "mode": "all"
+    },
+    "bug-analysis": {
+      "description": "AI-powered debugging suite — analyzes bugs, errors, and code for root cause, impact, and fix plans",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "ask" }
     }
   }
 }

@@ -1,7 +1,6 @@
 ---
 description: Reviews code for quality, style, bugs, and security vulnerabilities in the JARVIS project.
 mode: subagent
-model: anthropic/claude-sonnet-4-6
 permission:
   read: allow
   grep: allow

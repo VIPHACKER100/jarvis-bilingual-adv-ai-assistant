@@ -2,7 +2,6 @@ import aiofiles
 import asyncio
 import hashlib
 import json
-import numpy as np
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
@@ -47,7 +46,6 @@ class NeuralMemoryManager:
         self.memory_dir = PROJECT_ROOT / "memory"
         self.memory_dir.mkdir(exist_ok=True)
         self.core_nodes = ["user.md", "personality.md", "preferences.md", "decisions.md", "people.md"]
-        self._vectors_cache: Dict[str, np.ndarray] = {}
 
     async def get_node(self, name: str) -> Optional[str]:
         """Read content of a specific memory node"""
@@ -217,35 +215,18 @@ class NeuralMemoryManager:
         return "\n\n".join(context_parts)
 
     async def _get_semantic_scores(self, query: str) -> Dict[str, float]:
-        """Calculate semantic similarity scores for all indexed nodes"""
+        """Calculate semantic similarity scores via pgvector cosine distance"""
         from modules.llm_wrapper import llm_client
         
         query_vector = await llm_client.get_embedding(query)
         if not query_vector:
             return {}
-            
-        query_np = np.array(query_vector)
-        scores = {}
         
-        # Load vectors from DB if not in cache
-        if not self._vectors_cache:
-            rows = await db_manager.fetchall("SELECT filename, embedding FROM neural_vectors")
-            for filename, emb_blob in rows:
-                self._vectors_cache[filename] = np.frombuffer(emb_blob, dtype=np.float32)
-        
-        for filename, vector in self._vectors_cache.items():
-            # Cosine similarity
-            dot_product = np.dot(query_np, vector)
-            norm_q = np.linalg.norm(query_np)
-            norm_v = np.linalg.norm(vector)
-            
-            if norm_q > 0 and norm_v > 0:
-                similarity = dot_product / (norm_q * norm_v)
-                scores[filename] = float(similarity)
-            else:
-                scores[filename] = 0.0
-                
-        return scores
+        rows = await db_manager.fetchall(
+            "SELECT filename, 1 - (embedding <=> ?::vector) AS similarity FROM neural_vectors WHERE embedding IS NOT NULL ORDER BY embedding <=> ?::vector LIMIT 20",
+            (query_vector, query_vector)
+        )
+        return {row["filename"]: row["similarity"] for row in rows}
 
     async def sync_vectors(self):
         """Synchronize Markdown nodes with vector embeddings in the database"""
@@ -278,25 +259,17 @@ class NeuralMemoryManager:
                     logger.warning(f"Could not generate embedding for {node['name']}")
                     continue
                 
-                # Convert to numpy and then to buffer for DB
-                emb_np = np.array(embedding, dtype=np.float32)
-                emb_blob = emb_np.tobytes()
-                
                 if row:
-                    # Update
                     await db_manager.execute(
-                        "UPDATE neural_vectors SET content_hash = ?, embedding = ?, updated_at = ? WHERE filename = ?",
-                        (content_hash, emb_blob, datetime.now().isoformat(), node["name"])
+                        "UPDATE neural_vectors SET content_hash = ?, embedding = ?::vector, updated_at = ? WHERE filename = ?",
+                        (content_hash, embedding, datetime.now().isoformat(), node["name"])
                     )
                 else:
-                    # Insert
                     await db_manager.execute(
-                        "INSERT INTO neural_vectors (filename, content_hash, embedding) VALUES (?, ?, ?)",
-                        (node["name"], content_hash, emb_blob)
+                        "INSERT INTO neural_vectors (filename, content_hash, embedding) VALUES (?, ?, ?::vector)",
+                        (node["name"], content_hash, embedding)
                     )
                 
-                # Update cache
-                self._vectors_cache[node["name"]] = emb_np
                 synced_count += 1
                 
             except Exception as e:

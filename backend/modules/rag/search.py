@@ -1,6 +1,6 @@
 """
-Hybrid Search — combines keyword (fuzzy) + semantic (vector) retrieval.
-Uses rapidfuzz for keyword scores and pgvector for semantic scores.
+Hybrid Search — combines keyword (fuzzy) + semantic (pgvector) retrieval.
+Uses rapidfuzz for keyword scores and pgvector cosine distance for semantic scores.
 """
 
 import os
@@ -27,18 +27,21 @@ class HybridSearch:
                      use_semantic: bool = True) -> List[SearchResult]:
         from rapidfuzz import fuzz
         from modules.rag.embeddings import embedding_service
+        from utils.database import db_manager
 
         query_lower = query.lower()
         results: List[SearchResult] = []
-
         semantic_scores: Dict[str, float] = {}
+
         if use_semantic:
             query_embedding = await embedding_service.embed(query)
             if query_embedding:
-                for node in nodes:
-                    emb = await self._get_cached_embedding(node)
-                    if emb is not None:
-                        semantic_scores[node["name"]] = self._cosine_similarity(query_embedding, emb)
+                rows = await db_manager.fetchall(
+                    "SELECT filename, 1 - (embedding <=> ?::vector) AS similarity FROM neural_vectors WHERE embedding IS NOT NULL ORDER BY embedding <=> ?::vector LIMIT 20",
+                    (query_embedding, query_embedding)
+                )
+                for row in rows:
+                    semantic_scores[row["filename"]] = row["similarity"]
 
         for node in nodes:
             name = node["name"].replace(".md", "").lower()
@@ -67,30 +70,12 @@ class HybridSearch:
         results.sort(key=lambda r: r.score, reverse=True)
         return results[:10]
 
-    async def _get_cached_embedding(self, node: Dict[str, Any]) -> Optional[List[float]]:
-        try:
-            from modules.memory import memory_manager
-            cache = memory_manager.neural._vectors_cache
-            return cache.get(node["name"])
-        except Exception:
-            return None
-
     async def _read_node_content(self, name: str) -> Optional[str]:
         try:
             from modules.memory import memory_manager
             return await memory_manager.neural.get_node(name)
         except Exception:
             return None
-
-    def _cosine_similarity(self, a: List[float], b: List[float]) -> float:
-        if not a or not b or len(a) != len(b):
-            return 0.0
-        dot = sum(x * y for x, y in zip(a, b))
-        na = sum(x * x for x in a) ** 0.5
-        nb = sum(x * x for x in b) ** 0.5
-        if na == 0 or nb == 0:
-            return 0.0
-        return dot / (na * nb)
 
 
 hybrid_search = HybridSearch()

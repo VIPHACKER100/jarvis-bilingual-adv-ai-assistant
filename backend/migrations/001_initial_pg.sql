@@ -50,16 +50,21 @@ CREATE TABLE IF NOT EXISTS performance_metrics (
 
 CREATE INDEX IF NOT EXISTS idx_performance_timestamp ON performance_metrics(timestamp);
 
--- Neural vectors for semantic memory
+-- Neural vectors for semantic memory (pgvector)
+CREATE EXTENSION IF NOT EXISTS vector;
+
 CREATE TABLE IF NOT EXISTS neural_vectors (
     id           SERIAL PRIMARY KEY,
     filename     TEXT NOT NULL UNIQUE,
     content_hash TEXT NOT NULL,
-    embedding    REAL[] NOT NULL,
+    embedding    vector(1024) NOT NULL,
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_neural_vectors_filename ON neural_vectors(filename);
+CREATE INDEX IF NOT EXISTS idx_neural_vectors_embedding
+    ON neural_vectors USING ivfflat (embedding vector_cosine_ops)
+    WITH (lists = 100);
 
 -- Paired devices for mobile sync
 CREATE TABLE IF NOT EXISTS paired_devices (

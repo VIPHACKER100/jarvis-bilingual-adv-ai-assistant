@@ -1,5 +1,6 @@
 """
 Audio Streaming Router — WebSocket endpoint for bidirectional TTS/STT streaming.
+Supports streaming TTS (incremental audio chunks) and full-audio STT.
 """
 
 import json
@@ -55,6 +56,20 @@ async def audio_websocket(websocket: WebSocket, language: str = "en"):
                         })
                     else:
                         await websocket.send_json({"type": "tts_error", "error": "TTS failed"})
+
+            elif msg_type == "tts_stream":
+                text = (msg.get("text") or "")[:MAX_TTS_TEXT]
+                voice = msg.get("voice", "alloy")
+                if text:
+                    async for chunk in tts_service.synthesize_stream(text, voice, language):
+                        await websocket.send_json({
+                            "type": "tts_chunk",
+                            "audio": base64.b64encode(chunk).decode(),
+                            "format": "opus",
+                        })
+                    await websocket.send_json({"type": "tts_end"})
+                else:
+                    await websocket.send_json({"type": "tts_error", "error": "Empty text"})
 
             elif msg_type == "ping":
                 await websocket.send_json({"type": "pong"})
