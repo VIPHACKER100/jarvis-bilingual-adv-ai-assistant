@@ -1,0 +1,362 @@
+# JARVIS Performance Optimization Guide
+
+Comprehensive reference for writing performant backend code in the JARVIS v4.0 async-first architecture.
+
+---
+
+## 1. Async-first patterns and anti-patterns
+
+### Core principle
+
+Every backend function that touches I/O — network, disk, database, subprocess — **must** be `async`. CPU-bound or blocking-library work must be offloaded to a thread via `asyncio.to_thread`.
+
+### Correct patterns
+
+```python
+# ✅ Async I/O — native coroutine
+async def fetch_user_fact(key: str) -> Optional[str]:
+    row = await db_manager.fetchone("SELECT value FROM memory WHERE key = $1", key)
+    return row["value"] if row else None
+```
+
+```python
+# ✅ Blocking work offloaded to thread
+import asyncio
+import aiofiles
+
+async def read_file_fast(path: Path) -> str:
+    def _read():
+        return path.read_text(encoding="utf-8")
+    return await asyncio.to_thread(_read)
+```
+
+```python
+# ✅ Parallel independent I/O with asyncio.gather
+async def get_system_snapshot() -> dict:
+    cpu_task = asyncio.create_task(get_cpu_percent())
+    mem_task = asyncio.create_task(get_memory_info())
+    net_task = asyncio.create_task(get_network_stats())
+
+    results = await asyncio.gather(cpu_task, mem_task, net_task, return_exceptions=True)
+    # Replace exceptions with safe defaults
+    safe = [r if not isinstance(r, BaseException) else None for r in results]
+    return {"cpu": safe[0], "memory": safe[1], "network": safe[2]}
+```
+
+### Anti-patterns
+
+```python
+# ❌ Sync I/O on the event loop — blocks ALL concurrent coroutines
+import requests
+def get_data():
+    return requests.get("https://api.example.com")  # Blocks the loop!
+```
+
+```python
+# ❌ Synchronous file I/O in async context
+async def bad_read(path: Path) -> str:
+    return path.read_text()  # Blocks the loop even though function is async
+```
+
+```python
+# ❌ Missing return_exceptions in gather — one failure cancels everything
+async def risky_gather():
+    return await asyncio.gather(task_a(), task_b())  # If task_a fails, task_b is cancelled
+```
+
+```python
+# ❌ Forgetting to await a coroutine
+async def leaky():
+    memory_manager.neural.sync_vectors()  # Creates an unawaited coroutine warning
+```
+
+### Key rules
+
+1. **Never call `time.sleep()`** — always use `await asyncio.sleep()`.
+2. **Never call `threading.Event.wait()`** — use `asyncio.Event.wait()`.
+3. **Always `await` every coroutine** — unawaited coroutines leak memory and produce warnings.
+4. **Use `return_exceptions=True`** in `asyncio.gather` when tasks are independent.
+5. **Use `asyncio.create_task()`** for fire-and-forget background work that must outlive the current handler.
+
+---
+
+## 2. Database connection management best practices
+
+### Connection pool (asyncpg)
+
+The JARVIS async database is managed by `AsyncDatabaseManager` in `backend/utils/database_async.py`. It uses `asyncpg.create_pool` with:
+
+| Parameter | Default | Purpose |
+|-----------|---------|---------|
+| `min_size` | 2 | Minimum idle connections kept warm |
+| `max_size` | 10 | Maximum concurrent connections |
+| `command_timeout` | 30 | Seconds before a query is cancelled |
+
+### Connection lifecycle
+
+```python
+# ✅ Correct: context manager auto-releases connections
+async with db_async.connection() as conn:
+    row = await conn.fetchrow("SELECT * FROM conversations WHERE id = $1", 42)
+```
+
+```python
+# ✅ Correct: transactions are explicitly scoped
+async with db_async.transaction() as conn:
+    await conn.execute("INSERT INTO memory (key, value) VALUES ($1, $2)", "color", "blue")
+    await conn.execute("UPDATE memory SET confidence = 1.0 WHERE key = $1", "color")
+    # Transaction commits automatically on exit; rolls back on exception
+```
+
+### Anti-patterns
+
+```python
+# ❌ Acquiring a connection without context manager — leaks if exception occurs
+conn = await db_async._pool.acquire()
+await conn.fetchrow("SELECT ...")
+# If an exception happens here, the connection is never returned
+```
+
+```python
+# ❌ Holding a connection across an LLM call — wastes pool slots
+async with db_async.connection() as conn:
+    row = await conn.fetchrow("SELECT ...")
+    response = await llm_gateway.generate(text)  # LLM call can take 5-30 seconds
+    await conn.execute("INSERT INTO conversations ...", ...)
+    # Connection held open for the entire LLM call duration
+```
+
+### Pool sizing guidance
+
+- **Local development**: `min_size=2, max_size=5` is sufficient.
+- **Production**: `min_size=2, max_size=10` handles concurrent WebSocket broadcasts + REST requests.
+- **If you see `asyncpg.exceptions._base.InterfaceError: cannot acquire connection`**, increase `max_size` or reduce connection hold time.
+- **Never set `max_size` above 20** — PostgreSQL has a default `max_connections = 100`; JARVIS is not the only client.
+
+---
+
+## 3. pgvector optimization strategies
+
+### Current setup
+
+JARVIS uses PostgreSQL with the `pgvector` extension for semantic memory search. The `neural_vectors` table stores 1024-dimensional embeddings generated by the LLM embedding service.
+
+### Index strategy: HNSW vs IVFFlat
+
+| Property | IVFFlat | HNSW |
+|----------|---------|------|
+| Build time | Fast | Moderate |
+| Query speed | Good | **Excellent** |
+| Memory usage | Lower | Higher |
+| Update tolerance | Requires periodic `REINDEX` | Handles inserts naturally |
+| Best for | Static datasets, <100K rows | Dynamic data, <1M rows |
+
+**Recommendation for JARVIS**: HNSW is preferred because memory nodes change frequently (every decision log, preference update, or fact extraction triggers a vector sync).
+
+### Recommended index creation
+
+```sql
+-- HNSW index for cosine distance (current best for JARVIS)
+CREATE INDEX IF NOT EXISTS idx_neural_vectors_embedding
+    ON neural_vectors
+    USING hnsw (embedding vector_cosine_ops)
+    WITH (m = 16, ef_construction = 64);
+
+-- If data is static and large, IVFFlat is acceptable:
+-- CREATE INDEX idx_neural_vectors_embedding
+--     ON neural_vectors
+--     USING ivfflat (embedding vector_cosine_ops)
+--     WITH (lists = 10);
+```
+
+### Query optimization
+
+```python
+# ✅ Good: use LIMIT to bound the scan
+rows = await db_manager.fetchall(
+    """SELECT filename, 1 - (embedding <=> $1::vector) AS similarity
+       FROM neural_vectors
+       WHERE embedding IS NOT NULL
+       ORDER BY embedding <=> $1::vector
+       LIMIT 20""",
+    (query_embedding,)
+)
+```
+
+```python
+# ❌ Bad: no LIMIT — scans entire table
+rows = await db_manager.fetchall(
+    "SELECT filename, embedding <=> $1::vector FROM neural_vectors",
+    (query_embedding,)
+)
+```
+
+### Batch embedding sync
+
+The `sync_vectors` method in `NeuralMemoryManager` regenerates embeddings only for changed nodes (hash-based diff). To further optimize:
+
+```python
+# ✅ Batch insert/update instead of row-by-row
+async def batch_sync_vectors(self, updates: list[dict]):
+    """Sync multiple vectors in a single transaction."""
+    async with db_async.transaction() as conn:
+        for item in updates:
+            await conn.execute(
+                """INSERT INTO neural_vectors (filename, content_hash, embedding)
+                   VALUES ($1, $2, $3::vector)
+                   ON CONFLICT (filename)
+                   DO UPDATE SET content_hash = $2, embedding = $3::vector, updated_at = NOW()""",
+                item["name"], item["hash"], item["embedding"]
+            )
+```
+
+---
+
+## 4. Memory management guidelines
+
+### Conversation pruning
+
+Every LLM call triggers `prune_conversations(limit=25)` to keep the context window manageable. This is critical for controlling token costs and latency.
+
+```python
+# In llm_wrapper.py — called before every LLM interaction
+async def get_response(self, text, language='en', context=None):
+    await memory_manager.prune_conversations(limit=25)  # Keep only last 25
+    neural_context = await memory_manager.neural.get_neural_context(text)
+    return await llm_gateway.generate(text, language=language, context=full_context)
+```
+
+### Performance metrics storage
+
+System metrics (event loop lag, CPU, memory) are saved to `performance_metrics` every 5 seconds via `broadcast_system_status`. For long-running instances, periodically clean old records:
+
+```python
+# Retention policy — call periodically or in a background task
+async def cleanup_old_metrics(days: int = 7) -> int:
+    cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+    cursor = await db_manager.execute(
+        "DELETE FROM performance_metrics WHERE timestamp < $1", cutoff
+    )
+    return cursor.rowcount
+```
+
+### RAG context token budget
+
+The `RAGPipeline` caps assembled context at `MAX_CONTEXT_TOKENS = 3000` and the final prompt at `max_tokens * 4` characters. Monitor this:
+
+```python
+# Log context size for debugging
+context = await rag_pipeline.retrieve(query)
+logger.debug(f"RAG: {len(context.results)} results, "
+             f"{len(context.assembled_prompt)} chars assembled")
+```
+
+### Memory node caching
+
+The `NeuralMemoryManager` reads files from disk on every `get_node()` call. For hot paths (proactive engine, RAG pipeline), consider an LRU cache:
+
+```python
+from functools import lru_cache
+
+# Cache node content for 60 seconds
+@lru_cache(maxsize=32)
+def _cached_node(name: str, mtime: float) -> Optional[str]:
+    """mtime-based cache invalidation."""
+    return (PROJECT_ROOT / "memory" / name).read_text(encoding="utf-8")
+```
+
+---
+
+## 5. Monitoring and profiling tips
+
+### Event loop lag monitor
+
+JARVIS includes a built-in event loop monitor in `backend/main.py`. It measures the drift between `asyncio.sleep(1)` and actual elapsed time.
+
+```python
+# Configured threshold: 100ms — any lag above this triggers a warning
+# Visible in logs as: CRITICAL: Event loop lag detected! XXX.XXms
+# Also exposed in system status as: event_loop_lag (ms)
+```
+
+**Interpreting lag values:**
+
+| Lag (ms) | Status | Action |
+|-----------|--------|--------|
+| 0–50 | Healthy | No action needed |
+| 50–100 | Warning | Review recent code changes for blocking calls |
+| 100–500 | Critical | Use `py-spy` or `cProfile` to find the blocking function |
+| 500+ | Emergency | A synchronous call is monopolizing the loop |
+
+### Structured logging with structlog
+
+All backend logs use `structlog` (configured in `utils/logger_structured.py`). Key event types:
+
+```python
+from utils.logger_structured import logger, log_system_event
+
+# Application events
+logger.info("LLM Gateway → nvidia", provider="nvidia", latency_ms=1234)
+
+# System events (persisted)
+log_system_event("EVENT_LOOP_LAG", {"lag_ms": 150.5})
+log_system_event("STARTUP", {"port": 8000, "version": "4.0.0-alpha.1"})
+```
+
+### OpenTelemetry tracing (optional)
+
+Enable distributed tracing by setting `OTEL_ENABLED=true` in `.env`:
+
+```bash
+OTEL_ENABLED=true
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
+```
+
+This instruments FastAPI and HTTPX automatically, exporting spans to any OTLP-compatible collector (Jaeger, Grafana Tempo, etc.).
+
+### Cost tracking
+
+The `CostTracker` in `modules/llm_gateway/cost.py` records every LLM call with provider, model, tokens, latency, and estimated cost. Query it via:
+
+```python
+from modules.llm_gateway import cost_tracker
+
+# Session summary
+stats = cost_tracker.stats()
+# {
+#   "total_calls": 42,
+#   "total_tokens": 15000,
+#   "total_cost": 0.00525,
+#   "session_duration_sec": 3600.0,
+#   "providers": {
+#     "nvidia": {"calls": 30, "tokens": 12000, "cost": 0.0042, "failures": 2}
+#   }
+# }
+```
+
+### Profiling commands
+
+```bash
+# Find CPU hotspots
+python -m cProfile -o profile.out backend/main.py
+snakeviz profile.out
+
+# Find event loop blocking
+pip install py-spy
+py-spy top --pid <PID>
+
+# Database query analysis
+# Enable slow query logging in PostgreSQL:
+# log_min_duration_statement = 200  # ms
+```
+
+---
+
+## Related documents
+
+- [Troubleshooting Performance](TROUBLESHOOTING_PERFORMANCE.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [API Documentation](API_DOCUMENTATION.md)
+- [ADR: HNSW Index](adr/001-hnsw-index-for-pgvector.md)
+- [ADR: Bounded CostTracker](adr/002-bounded-cost-tracker.md)
+- [ADR: Periodic Background Tasks](adr/003-periodic-background-tasks.md)

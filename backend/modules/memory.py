@@ -450,66 +450,83 @@ class MemoryManager:
             return {}
 
     async def get_command_insights(self, days: int = 30) -> Dict:
-        """Mines command history to produce behavioral usage insights"""
+        """Mines command history to produce behavioral usage insights.
+        
+        Uses PostgreSQL-native date functions:
+          - DATE(timestamp)     → (timestamp AT TIME ZONE 'UTC')::date
+          - STRFTIME('%H', ts)  → EXTRACT(HOUR FROM timestamp AT TIME ZONE 'UTC')::int
+        """
         try:
             since = (datetime.now() - timedelta(days=days)).isoformat()
-            async with db_manager.connection() as db:
 
-                # Top 5 most used command types
-                async with db.execute('''
-                    SELECT command_type, COUNT(*) as count
-                    FROM conversations
-                    WHERE timestamp > ?
-                    GROUP BY command_type
-                    ORDER BY count DESC
-                    LIMIT 5
-                ''', (since,)) as cursor:
-                    top_commands = [dict(r) for r in await cursor.fetchall()]
+            # Top 5 most used command types
+            top_commands_rows = await db_manager.fetchall(
+                """
+                SELECT command_type, COUNT(*) AS count
+                FROM conversations
+                WHERE timestamp > $1
+                GROUP BY command_type
+                ORDER BY count DESC
+                LIMIT 5
+                """,
+                (since,),
+            )
+            top_commands = [dict(r) for r in top_commands_rows]
 
-                # Commands per day (last 7 days)
-                async with db.execute('''
-                    SELECT DATE(timestamp) as day, COUNT(*) as count
-                    FROM conversations
-                    WHERE timestamp > DATE('now', '-7 days')
-                    GROUP BY day
-                    ORDER BY day ASC
-                ''') as cursor:
-                    daily_activity = [dict(r) for r in await cursor.fetchall()]
+            # Commands per day (last 7 days)
+            daily_rows = await db_manager.fetchall(
+                """
+                SELECT (timestamp AT TIME ZONE 'UTC')::date AS day,
+                       COUNT(*) AS count
+                FROM conversations
+                WHERE timestamp > (NOW() AT TIME ZONE 'UTC' - INTERVAL '7 days')
+                GROUP BY day
+                ORDER BY day ASC
+                """,
+            )
+            daily_activity = [
+                {"day": str(r["day"]), "count": r["count"]} for r in daily_rows
+            ]
 
-                # Peak usage hour (0-23)
-                async with db.execute('''
-                    SELECT CAST(STRFTIME('%H', timestamp) AS INTEGER) as hour,
-                           COUNT(*) as count
-                    FROM conversations
-                    WHERE timestamp > ?
-                    GROUP BY hour
-                    ORDER BY count DESC
-                    LIMIT 1
-                ''', (since,)) as cursor:
-                    row = await cursor.fetchone()
-                    peak_hour = dict(row) if row else {"hour": None, "count": 0}
+            # Peak usage hour (0-23)
+            peak_row = await db_manager.fetchone(
+                """
+                SELECT EXTRACT(HOUR FROM timestamp AT TIME ZONE 'UTC')::int AS hour,
+                       COUNT(*) AS count
+                FROM conversations
+                WHERE timestamp > $1
+                GROUP BY hour
+                ORDER BY count DESC
+                LIMIT 1
+                """,
+                (since,),
+            )
+            peak_hour = dict(peak_row) if peak_row else {"hour": None, "count": 0}
 
-                # Failure rate by command type
-                async with db.execute('''
-                    SELECT command_type,
-                           SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as failures,
-                           COUNT(*) as total
-                    FROM conversations
-                    WHERE timestamp > ?
-                    GROUP BY command_type
-                    HAVING failures > 0
-                    ORDER BY failures DESC
-                    LIMIT 5
-                ''', (since,)) as cursor:
-                    failure_patterns = [dict(r) for r in await cursor.fetchall()]
+            # Failure rate by command type
+            failure_rows = await db_manager.fetchall(
+                """
+                SELECT command_type,
+                       SUM(CASE WHEN success = FALSE THEN 1 ELSE 0 END) AS failures,
+                       COUNT(*) AS total
+                FROM conversations
+                WHERE timestamp > $1
+                GROUP BY command_type
+                HAVING SUM(CASE WHEN success = FALSE THEN 1 ELSE 0 END) > 0
+                ORDER BY failures DESC
+                LIMIT 5
+                """,
+                (since,),
+            )
+            failure_patterns = [dict(r) for r in failure_rows]
 
-                return {
-                    "top_commands": top_commands,
-                    "daily_activity": daily_activity,
-                    "peak_hour": peak_hour,
-                    "failure_patterns": failure_patterns,
-                    "period_days": days
-                }
+            return {
+                "top_commands": top_commands,
+                "daily_activity": daily_activity,
+                "peak_hour": peak_hour,
+                "failure_patterns": failure_patterns,
+                "period_days": days,
+            }
 
         except Exception as e:
             logger.error(f"Error getting command insights: {e}")
@@ -831,7 +848,7 @@ class MemoryManager:
         
         try:
             return json.loads(entry.value)
-        except:
+        except (json.JSONDecodeError, ValueError, TypeError):
             return entry.value
 
 

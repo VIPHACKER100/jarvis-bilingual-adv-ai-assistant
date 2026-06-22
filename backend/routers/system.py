@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, HTTPException, Query
 from typing import Dict, Any, Optional, List
 from modules.system import system_module
@@ -113,24 +114,35 @@ async def get_command_insights(days: int = Query(30, ge=1, le=365)):
 
 @router.get("/security/processes")
 async def get_suspicious_processes():
-    """Get all running processes for security analysis"""
-    # For now, return all processes with basic info
+    """Get all running processes for security analysis (non-blocking)."""
     import psutil
-    processes = []
-    for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info', 'status']):
-        try:
-            info = proc.info
-            processes.append({
-                "pid": info['pid'],
-                "name": info['name'],
-                "cpu_percent": info['cpu_percent'],
-                "memory_mb": info['memory_info'].rss / (1024 * 1024),
-                "status": info['status'],
-                "threat_level": "safe" # Basic stub
-            })
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
-    return {"success": True, "processes": sorted(processes, key=lambda x: x['cpu_percent'], reverse=True)[:50]}
+
+    def _collect_processes() -> list[dict[str, Any]]:
+        """Blocking I/O — runs in thread pool via asyncio.to_thread."""
+        processes: list[dict[str, Any]] = []
+        for proc in psutil.process_iter(
+            ['pid', 'name', 'cpu_percent', 'memory_info', 'status']
+        ):
+            try:
+                info = proc.info
+                mem_mb = 0.0
+                if info['memory_info'] is not None:
+                    mem_mb = info['memory_info'].rss / (1024 * 1024)
+                processes.append({
+                    "pid": info['pid'],
+                    "name": info['name'],
+                    "cpu_percent": info['cpu_percent'] or 0.0,
+                    "memory_mb": round(mem_mb, 2),
+                    "status": info['status'],
+                    "threat_level": "safe",
+                })
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                continue
+        return processes
+
+    processes = await asyncio.to_thread(_collect_processes)
+    top = sorted(processes, key=lambda x: x['cpu_percent'], reverse=True)[:50]
+    return {"success": True, "processes": top}
 
 @router.get("/security/connections")
 async def get_network_scan():

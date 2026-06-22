@@ -1095,7 +1095,90 @@ ws.send(JSON.stringify({
 
 ## Rate Limiting
 
-Currently no rate limiting for local usage. Future versions may implement limits for remote access.
+JARVIS applies rate limiting at two levels:
+
+### Global rate limit
+
+Default: **200 requests per minute** per remote IP address. Configured via `slowapi` in `backend/main.py`.
+
+```python
+limiter = Limiter(key_func=get_remote_address, default_limits=["200 per minute"])
+```
+
+Local requests (from `127.0.0.1`, `localhost`, `::1`) are exempt from API key checks but still subject to the global rate limit.
+
+### Per-route rate limit
+
+The `PerRouteRateLimiter` in `backend/utils/middleware_security.py` provides fine-grained control for sensitive endpoints:
+
+```python
+from utils.middleware_security import per_route_limiter
+
+# In a router endpoint:
+if not per_route_limiter.check(key="agent:chat", max_calls=10, window_sec=60.0):
+    raise HTTPException(status_code=429, detail="Rate limit exceeded")
+```
+
+### Response headers
+
+All responses include:
+
+| Header | Description |
+|--------|-------------|
+| `X-Response-Time` | Request processing time in seconds |
+| `X-Request-ID` | Unique UUID for request tracing |
+
+### 429 response
+
+```json
+{
+  "detail": "Rate limit exceeded"
+}
+```
+
+---
+
+## Performance characteristics
+
+### Response time expectations
+
+| Endpoint category | Expected latency | Notes |
+|-------------------|-----------------|-------|
+| Health check (`GET /`) | <5ms | Static response |
+| System status (`GET /api/system/status`) | <100ms | Includes CPU/memory/disk queries |
+| Command execution (`POST /api/command`) | <500ms | Depends on command complexity |
+| File operations | <200ms | Excludes large file transfers |
+| Memory/Fact queries | <100ms | PostgreSQL with connection pooling |
+| LLM-powered endpoints | 1–10s | Depends on provider and model |
+| OCR/Image processing | 2–15s | CPU-intensive, offloaded to threads |
+| Proactive suggestions | 3–8s | LLM call + context analysis |
+
+### Resource usage warnings
+
+The following endpoints have high resource consumption:
+
+| Endpoint | Resource | Warning |
+|----------|----------|---------|
+| `POST /api/command` (LLM commands) | CPU + Network | Triggers LLM API call; 1–10s response time |
+| `POST /api/media/ocr/*` | CPU | Tesseract OCR is CPU-intensive; offloaded to thread pool |
+| `POST /api/desktop/screenshot` | Memory | Full screenshot captured as base64; ~5–15MB per capture |
+| `WS /ws` (WebSocket) | Memory | Each connection holds state; broadcast every 5s |
+| `POST /api/automation/macro/{id}/run` | CPU + Network | Sequential command execution; may trigger multiple LLM calls |
+| `GET /api/memory/stats` | Database | Aggregation query; slower with large conversation history |
+
+### Event loop health
+
+The `event_loop_lag` field in the system status response indicates event loop responsiveness:
+
+| Lag (ms) | Status | Meaning |
+|-----------|--------|---------|
+| 0–50 | Healthy | Normal operation |
+| 50–100 | Warning | Approaching threshold |
+| 100+ | Critical | Blocking call detected; investigate immediately |
+
+---
+
+## Changelog
 
 ## Mobile Sync (v3.9.0)
 

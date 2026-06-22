@@ -4,10 +4,9 @@ Exposes Server-Sent Events (SSE) endpoint for streaming agent responses.
 """
 
 import json
-import time
 from typing import Optional
-from fastapi import APIRouter, Request, Depends, HTTPException
-from utils.middleware_security import per_route_limiter
+from fastapi import APIRouter, Request, HTTPException, Depends
+from utils.middleware_security import per_route_limiter, verify_api_key
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -15,7 +14,7 @@ from utils.logger_structured import logger
 from modules.rag import rag_pipeline
 from modules.llm_gateway import llm_gateway, cost_tracker
 
-router = APIRouter(prefix="/agent", tags=["agent"])
+router = APIRouter(prefix="/agent", tags=["agent"], dependencies=[Depends(verify_api_key)])
 
 
 class AgentQuery(BaseModel):
@@ -61,16 +60,22 @@ async def agent_stream(body: AgentQuery, request: Request):
         context = ctx.assembled_prompt
 
     async def event_stream():
-        yield f"data: {json.dumps({'type': 'meta', 'provider': llm_gateway.active_provider, 'language': body.language})}\n\n"
+        try:
+            yield f"data: {json.dumps({'type': 'meta', 'provider': llm_gateway.active_provider, 'language': body.language})}\n\n"
 
-        full_response = []
-        async for chunk in llm_gateway.generate_stream(
-            body.query, language=body.language, context=context
-        ):
-            full_response.append(chunk)
-            yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+            full_response = []
+            async for chunk in llm_gateway.generate_stream(
+                body.query, language=body.language, context=context
+            ):
+                full_response.append(chunk)
+                yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
 
-        yield f"data: {json.dumps({'type': 'done', 'full_text': ''.join(full_response)})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'full_text': ''.join(full_response)})}\n\n"
+        except Exception:
+            logger.exception("Agent stream failed")
+            if full_response:
+                yield f"data: {json.dumps({'type': 'partial_done', 'full_text': ''.join(full_response), 'truncated': True})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'error': 'Stream generation failed'})}\n\n"
 
     return StreamingResponse(
         event_stream(),

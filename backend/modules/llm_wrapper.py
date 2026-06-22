@@ -49,7 +49,6 @@ class LLMModule:
     async def get_response(self, text: str, language: str = 'en',
                            context: Optional[str] = None) -> Optional[str]:
         from modules.memory import memory_manager
-        await memory_manager.prune_conversations(limit=25)
         neural_context = await memory_manager.neural.get_neural_context(text)
         full_context = context or ""
         if neural_context:
@@ -59,7 +58,6 @@ class LLMModule:
     async def get_response_stream(self, text: str, language: str = 'en',
                                    context: Optional[str] = None) -> AsyncGenerator[str, None]:
         from modules.memory import memory_manager
-        await memory_manager.prune_conversations(limit=25)
         neural_context = await memory_manager.neural.get_neural_context(text)
         full_context = context or ""
         if neural_context:

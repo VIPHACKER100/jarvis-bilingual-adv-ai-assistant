@@ -3,6 +3,7 @@ Hybrid Search — combines keyword (fuzzy) + semantic (pgvector) retrieval.
 Uses rapidfuzz for keyword scores and pgvector cosine distance for semantic scores.
 """
 
+import asyncio
 import os
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
@@ -43,7 +44,7 @@ class HybridSearch:
                 for row in rows:
                     semantic_scores[row["filename"]] = row["similarity"]
 
-        for node in nodes:
+        async def _score_node(node: Dict[str, Any]) -> Optional[SearchResult]:
             name = node["name"].replace(".md", "").lower()
             content = await self._read_node_content(node["name"])
 
@@ -60,12 +61,16 @@ class HybridSearch:
                 match_type = "semantic" if semantic_score > keyword_score else "keyword"
                 if keyword_score > 0.3 and semantic_score > 0.3:
                     match_type = "hybrid"
-                results.append(SearchResult(
+                return SearchResult(
                     node_name=node["name"],
                     content=content or "",
                     score=round(hybrid_score, 4),
                     match_type=match_type,
-                ))
+                )
+            return None
+
+        scored_results = await asyncio.gather(*[_score_node(n) for n in nodes])
+        results = [r for r in scored_results if r is not None]
 
         results.sort(key=lambda r: r.score, reverse=True)
         return results[:10]

@@ -1,12 +1,16 @@
 """
-Security Middleware — CSP headers, input sanitization, body limits, per-route rate limiting.
+Security Middleware — CSP headers, input sanitization, body limits, per-route rate limiting,
+and API key authentication dependency.
 """
 
+import os
 import re
 import time
 import json
+import hmac
 from typing import Dict, Tuple, Callable, Awaitable
-from fastapi import Request, Response
+from fastapi import Request, Response, HTTPException, Depends
+from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp, Scope, Receive, Send, Message
@@ -144,3 +148,33 @@ class PerRouteRateLimiter:
 
 
 per_route_limiter = PerRouteRateLimiter()
+
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def get_client_ip(request: Request) -> str:
+    """Extract client IP from request, respecting X-Forwarded-For for reverse proxies."""
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else ""
+
+
+async def verify_api_key(request: Request, api_key: str = Depends(api_key_header)) -> None:
+    """FastAPI dependency — requires valid API key for protected routes.
+
+    Bypasses auth for localhost requests (safe in development).
+    Returns 403 if key is missing/wrong and BACKEND_API_KEY is configured.
+    Uses hmac.compare_digest for constant-time comparison.
+    """
+    configured_key = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+    if not configured_key:
+        return
+
+    client_host = get_client_ip(request)
+    is_local = client_host in ("127.0.0.1", "localhost", "::1")
+    if is_local:
+        return
+
+    if not api_key or not hmac.compare_digest(api_key, configured_key):
+        raise HTTPException(status_code=403, detail="Invalid or missing API Key")

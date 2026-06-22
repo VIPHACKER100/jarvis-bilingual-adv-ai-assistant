@@ -102,6 +102,38 @@ If you run a new CodeQL analysis and find other alerts, verify they are not rein
 
 ---
 
+## ⚡ Performance Issues
+
+### High event loop lag (>100ms)
+
+- **Symptom**: WebSocket messages delayed, UI feels sluggish, system status shows high `event_loop_lag`.
+- **Cause**: A synchronous call is blocking the async event loop.
+- **Diagnostic**: Check `backend/logs/jarvis_system.log` for `CRITICAL: Event loop lag detected` warnings. The lag value indicates which function is blocking.
+- **Common culprits**: `time.sleep()`, `requests.get/post`, synchronous file I/O (`open().read()`), `subprocess.run()`.
+- **Fix**: Replace with `asyncio.sleep()`, `httpx.AsyncClient`, `aiofiles`, or `asyncio.create_subprocess_exec`. See [Performance Guide](PERFORMANCE_GUIDE.md) for examples.
+- **Advanced profiling**: Use `py-spy top --pid <PID>` to identify the blocking function, or set `PYTHONASYNCIODEBUG=1` for automatic coroutine timing warnings.
+
+### Database connection pool exhaustion
+
+- **Symptom**: `asyncpg.exceptions.InterfaceError: cannot acquire connection` or `TimeoutError` in logs.
+- **Cause**: Too many concurrent database connections; connections held too long (e.g., across LLM calls).
+- **Diagnostic**: Check pool status in a debug endpoint: `db_async._pool.get_size()` / `db_async._pool.get_idle_size()`.
+- **Fix**: Ensure all database access uses context managers (`async with db_async.connection()`). Do NOT hold connections across LLM API calls. Increase `max_size` in `backend/utils/database_async.py` if needed (max 20).
+
+### Slow LLM responses
+
+- **Symptom**: User waits >5 seconds for a response.
+- **Diagnostic**: Check which provider is active in logs (`LLM Gateway → nvidia`). Check `cost_tracker.stats()` for per-provider latency.
+- **Fix**: Switch to a faster model (e.g., `google/gemini-2.0-flash-001`). Reduce `max_tokens` for simple queries. Check if the circuit breaker has tripped (`circuit.state == "open"`).
+
+### Memory usage growing over time
+
+- **Symptom**: JARVIS process RSS increases continuously over hours/days.
+- **Diagnostic**: Check `cost_tracker._history` length (should be bounded at 1000). Check `websocket_manager.active_connections` count (should not grow past disconnects).
+- **Fix**: The `CostTracker` uses a bounded deque (max 1000 records). If WebSocket connections leak, ensure `disconnect` handlers properly clean up. See [Troubleshooting Performance](TROUBLESHOOTING_PERFORMANCE.md) for full memory profiling guide.
+
+---
+
 ## 📞 Still need help?
 
 - Open an issue on [GitHub](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant/issues).

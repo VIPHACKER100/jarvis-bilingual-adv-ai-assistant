@@ -3,8 +3,10 @@ Audio Streaming Router — WebSocket endpoint for bidirectional TTS/STT streamin
 Supports streaming TTS (incremental audio chunks) and full-audio STT.
 """
 
+import os
 import json
 import base64
+import hmac
 import asyncio
 from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -18,8 +20,23 @@ MAX_AUDIO_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_TTS_TEXT = 2000
 
 
+def _get_client_ip(websocket: WebSocket) -> str:
+    forwarded = websocket.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return websocket.client.host if websocket.client else ""
+
+
 @router.websocket("/ws/audio")
-async def audio_websocket(websocket: WebSocket, language: str = "en"):
+async def audio_websocket(websocket: WebSocket, language: str = "en", api_key: Optional[str] = None):
+    configured_key = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+    if configured_key:
+        client_host = _get_client_ip(websocket)
+        is_local = client_host in ("127.0.0.1", "localhost", "::1")
+        if not is_local:
+            if not api_key or not hmac.compare_digest(api_key, configured_key):
+                await websocket.close(code=1008)
+                return
     await websocket.accept()
     logger.info(f"Audio WS connected (lang={language})")
 

@@ -75,7 +75,9 @@ class OpenAICompatibleAdapter(ProviderAdapter):
             return None
         models = [kwargs.get("model", self.config.model)] + (self.config.fallback_models or [])
         start = time.time()
+        last_model = self.config.model
         for model in models:
+            last_model = model
             try:
                 completion = await self._client.chat.completions.create(
                     model=model, messages=messages,
@@ -83,7 +85,7 @@ class OpenAICompatibleAdapter(ProviderAdapter):
                     max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
                     extra_body=self._extra_body,
                 )
-                content = completion.choices[0].message.content.strip()
+                content = (completion.choices[0].message.content or "").strip()
                 elapsed = (time.time() - start) * 1000
                 prompt_toks = completion.usage.prompt_tokens if completion.usage else 0
                 comp_toks = completion.usage.completion_tokens if completion.usage else 0
@@ -94,7 +96,7 @@ class OpenAICompatibleAdapter(ProviderAdapter):
                 logger.warning(f"{self.name} model {model} failed: {e}")
                 continue
         elapsed = (time.time() - start) * 1000
-        cost_tracker.record(self.name, self.config.model, latency_ms=elapsed, success=False)
+        cost_tracker.record(self.name, last_model, latency_ms=elapsed, success=False)
         self.circuit.record_failure()
         return None
 
@@ -160,54 +162,57 @@ class OllamaAdapter(ProviderAdapter):
     def __init__(self, config: ProviderConfig):
         super().__init__("ollama", config)
         self._base_url = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+        self._client = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
 
     async def generate(self, messages: List[Dict[str, str]], **kwargs) -> Optional[str]:
+        model = kwargs.get("model", self.config.model)
         start = time.time()
         try:
             payload = {
-                "model": kwargs.get("model", self.config.model),
+                "model": model,
                 "messages": messages,
                 "stream": False,
             }
-            async with httpx.AsyncClient() as client:
-                response = await client.post(self._base_url, json=payload, timeout=60.0)
+            response = await self._client.post(self._base_url, json=payload)
 
             if response.status_code == 200:
                 data = response.json()
                 content = data.get("message", {}).get("content", "").strip()
                 elapsed = (time.time() - start) * 1000
-                cost_tracker.record(self.name, self.config.model, latency_ms=elapsed, success=True)
+                cost_tracker.record(self.name, model, latency_ms=elapsed, success=True)
                 self.circuit.record_success()
                 return content or None
 
             logger.error(f"Ollama error {response.status_code}: {response.text}")
+            elapsed = (time.time() - start) * 1000
+            cost_tracker.record(self.name, model, latency_ms=elapsed, success=False)
             self.circuit.record_failure()
             return None
 
         except Exception as e:
             elapsed = (time.time() - start) * 1000
-            cost_tracker.record(self.name, self.config.model, latency_ms=elapsed, success=False)
+            cost_tracker.record(self.name, model, latency_ms=elapsed, success=False)
             self.circuit.record_failure()
             logger.error(f"Ollama exception: {e}")
             return None
 
     async def generate_stream(self, messages: List[Dict[str, str]], **kwargs) -> AsyncGenerator[str, None]:
+        model = kwargs.get("model", self.config.model)
         payload = {
-            "model": kwargs.get("model", self.config.model),
+            "model": model,
             "messages": messages,
             "stream": True,
         }
         try:
-            async with httpx.AsyncClient() as client:
-                async with client.stream("POST", self._base_url, json=payload, timeout=60.0) as response:
-                    async for line in response.aiter_lines():
-                        if not line:
-                            continue
-                        data = json.loads(line)
-                        if "message" in data:
-                            yield data["message"]["content"]
-                        if data.get("done"):
-                            break
+            async with self._client.stream("POST", self._base_url, json=payload) as response:
+                async for line in response.aiter_lines():
+                    if not line:
+                        continue
+                    data = json.loads(line)
+                    if "message" in data:
+                        yield data["message"]["content"]
+                    if data.get("done"):
+                        break
             self.circuit.record_success()
         except Exception as e:
             logger.error(f"Ollama stream error: {e}")

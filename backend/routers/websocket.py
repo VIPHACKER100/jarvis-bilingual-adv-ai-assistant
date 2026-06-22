@@ -1,3 +1,5 @@
+import os
+import hmac
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 from typing import Dict, Any, List, Optional
@@ -11,18 +13,38 @@ from utils.websocket_manager import manager
 
 router = APIRouter(tags=["WebSocket"])
 
+
+def _get_client_ip(websocket: WebSocket) -> str:
+    forwarded = websocket.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return websocket.client.host if websocket.client else ""
+
+
 @router.websocket("/ws")
 async def websocket_endpoint(
-    websocket: WebSocket, 
+    websocket: WebSocket,
     client_id: Optional[str] = None,
     token: Optional[str] = None,
-    device_id: Optional[str] = None
+    device_id: Optional[str] = None,
+    api_key: Optional[str] = None,
 ):
     """Real-time bidirectional communication with authentication"""
     from handlers.command_handler import handle_command
     from modules.memory import memory_manager
+
+    # API key gate
+    configured_key = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+    if configured_key:
+        client_host = _get_client_ip(websocket)
+        is_local = client_host in ("127.0.0.1", "localhost", "::1")
+        if not is_local:
+            if not api_key or not hmac.compare_digest(api_key, configured_key):
+                logger.warning("Unauthorized WebSocket connection attempt (bad API key)")
+                await websocket.close(code=1008)
+                return
     
-    # Simple auth check for mobile devices
+    # Device auth check for mobile devices
     if device_id and token:
         devices = await memory_manager.get_setting("paired_devices", [])
         is_valid = any(d["id"] == device_id and d["token"] == token for d in devices)

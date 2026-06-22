@@ -30,10 +30,13 @@ class TTSService:
 
     async def synthesize_stream(self, text: str, voice: str = "alloy", language: str = "en") -> AsyncGenerator[bytes, None]:
         openai_key = self._get_openai_key()
+        yielded = False
         if openai_key:
             async for chunk in self._synthesize_openai_stream(text, voice):
+                yielded = True
                 yield chunk
-            return
+            if yielded:
+                return
         async for chunk in self._synthesize_edge_stream(text, language):
             yield chunk
 
@@ -106,7 +109,7 @@ class TTSService:
 
     def _get_openai_key(self) -> Optional[str]:
         import os
-        return os.getenv("OPENAI_API_KEY") or os.getenv("OPENROUTER_API_KEY")
+        return os.getenv("OPENAI_API_KEY")
 
 
 tts_service = TTSService()

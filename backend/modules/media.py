@@ -495,16 +495,18 @@ class MediaProcessor:
             language: str = 'en') -> Dict:
         """Convert images to PDF"""
         try:
-            images = []
+            def _open_images() -> list:
+                imgs = []
+                for img_path in image_paths:
+                    p = Path(img_path).expanduser().resolve()
+                    if p.exists():
+                        img = Image.open(p)
+                        if img.mode in ('RGBA', 'LA', 'P'):
+                            img = img.convert('RGB')
+                        imgs.append(img)
+                return imgs
 
-            for img_path in image_paths:
-                path = Path(img_path).expanduser().resolve()
-                if path.exists():
-                    img = Image.open(path)
-                    # Convert to RGB if necessary
-                    if img.mode in ('RGBA', 'LA', 'P'):
-                        img = img.convert('RGB')
-                    images.append(img)
+            images = await asyncio.to_thread(_open_images)
 
             if not images:
                 return {
@@ -516,7 +518,6 @@ class MediaProcessor:
 
             output = Path(output_path).expanduser().resolve()
 
-            # Save as PDF asynchronously
             def save_pdf():
                 if len(images) > 1:
                     images[0].save(
@@ -530,7 +531,9 @@ class MediaProcessor:
                                 len(images))))
                 else:
                     images[0].save(str(output), 'PDF', resolution=100.0)
-            
+                for img in images:
+                    img.close()
+
             await asyncio.to_thread(save_pdf)
 
             log_command(f'images to PDF: {len(images)} images', 'images_to_pdf', True)
@@ -572,33 +575,29 @@ class MediaProcessor:
                     'response': 'Image file not found'
                 }
 
-            # Open image
-            image = Image.open(path)
+            def _open_and_convert():
+                img = Image.open(path)
+                suffix = str(Path(output_path).suffix)
+                fmt = format or (suffix[1:].upper() if suffix else "PNG")
+                if fmt.upper() in ('JPEG', 'JPG') and img.mode in ('RGBA', 'LA', 'P'):
+                    img = img.convert('RGB')
+                return img, fmt
 
-            # Determine output format
-            suffix = str(Path(output_path).suffix)
-            if not format:
-                format = suffix[1:].upper() if suffix else "PNG"
+            image, fmt = await asyncio.to_thread(_open_and_convert)
 
-            # Convert RGBA to RGB for JPEG
-            if format.upper() in [
-                    'JPEG', 'JPG'] and image.mode in (
-                    'RGBA', 'LA', 'P'):
-                image = image.convert('RGB')
-
-            # Save asynchronously
             output = Path(output_path).expanduser().resolve()
-            await asyncio.to_thread(image.save, str(output), format.upper())
+            await asyncio.to_thread(image.save, str(output), fmt.upper())
+            image.close()
 
-            log_command(f'convert image {path.name} to {format}', 'convert_image', True)
+            log_command(f'convert image {path.name} to {fmt}', 'convert_image', True)
 
             return {
                 'success': True,
                 'action_type': 'CONVERT_IMAGE',
                 'input': str(path),
                 'output': str(output),
-                'format': format.upper(),
-                'response': f'Converted {path.name} to {format.upper()}'
+                'format': fmt.upper(),
+                'response': f'Converted {path.name} to {fmt.upper()}'
             }
 
         except Exception as e:
@@ -630,23 +629,26 @@ class MediaProcessor:
                     'response': 'Image file not found'
                 }
 
-            image = Image.open(path)
-            original_size = image.size
+            def _open_and_resize():
+                img = Image.open(path)
+                original = img.size
+                if maintain_aspect and (width and height):
+                    img.thumbnail((width, height), Image.Resampling.LANCZOS)
+                elif width and height:
+                    img = img.resize((width, height), Image.Resampling.LANCZOS)
+                elif width:
+                    ratio = width / original[0]
+                    h = int(original[1] * ratio)
+                    img = img.resize((width, h), Image.Resampling.LANCZOS)
+                elif height:
+                    ratio = height / original[1]
+                    w = int(original[0] * ratio)
+                    img = img.resize((w, height), Image.Resampling.LANCZOS)
+                return img, original
 
-            # Calculate new size
-            if maintain_aspect and (width and height):
-                image.thumbnail((width, height), Image.Resampling.LANCZOS)
-            elif width and height:
-                image = image.resize((width, height), Image.Resampling.LANCZOS)
-            elif width:
-                ratio = width / original_size[0]
-                height = int(original_size[1] * ratio)
-                image = image.resize((width, height), Image.Resampling.LANCZOS)
-            elif height:
-                ratio = height / original_size[1]
-                width = int(original_size[0] * ratio)
-                image = image.resize((width, height), Image.Resampling.LANCZOS)
-            else:
+            image, original_size = await asyncio.to_thread(_open_and_resize)
+
+            if not width and not height:
                 return {
                     'success': False,
                     'action_type': 'RESIZE_IMAGE',
@@ -654,9 +656,10 @@ class MediaProcessor:
                     'response': 'Please specify width or height'
                 }
 
-            # Save asynchronously
             output = Path(output_path).expanduser().resolve()
             await asyncio.to_thread(image.save, str(output))
+            new_size = image.size
+            image.close()
 
             log_command(f'resize image {path.name}', 'resize_image', True)
 
@@ -666,8 +669,8 @@ class MediaProcessor:
                 'input': str(path),
                 'output': str(output),
                 'original_size': original_size,
-                'new_size': image.size,
-                'response': f'Resized from {original_size} to {image.size}'
+                'new_size': new_size,
+                'response': f'Resized from {original_size} to {new_size}'
             }
 
         except Exception as e:
@@ -697,20 +700,19 @@ class MediaProcessor:
                     'response': 'Image file not found'
                 }
 
-            image = Image.open(path)
             original_size = path.stat().st_size
-
-            # Save with compression asynchronously
             output = Path(output_path).expanduser().resolve()
 
             def do_compress():
+                image = Image.open(path)
                 if path.suffix.lower() in ['.jpg', '.jpeg']:
                     image.save(str(output), 'JPEG', quality=quality, optimize=True)
                 elif path.suffix.lower() == '.png':
                     image.save(str(output), 'PNG', optimize=True)
                 else:
                     image.save(str(output), optimize=True)
-            
+                image.close()
+
             await asyncio.to_thread(do_compress)
 
             new_size = output.stat().st_size

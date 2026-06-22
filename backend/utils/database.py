@@ -153,20 +153,39 @@ class DatabaseManager:
 
     @asynccontextmanager
     async def connection(self) -> AsyncGenerator[Any, None]:
+        """Yield a real asyncpg Connection from the pool.
+        
+        Usage:
+            async with db_manager.connection() as conn:
+                row = await conn.fetchrow("SELECT ...")
+        """
         if not self._initialized or self._pool is None:
             await self.initialize()
 
-        # Yield self so memory.py can do async with db.execute(...) on it
-        yield self
+        conn = await self._pool.acquire()
+        try:
+            yield conn
+        finally:
+            await self._pool.release(conn)
 
     @asynccontextmanager
     async def transaction(self) -> AsyncGenerator[Any, None]:
+        """Yield a real asyncpg Connection inside a transaction.
+        
+        Usage:
+            async with db_manager.transaction() as conn:
+                await conn.execute("INSERT ...")
+                # Automatically committed on success, rolled back on exception
+        """
         if not self._initialized or self._pool is None:
             await self.initialize()
 
-        async with self._pool.acquire() as conn:
+        conn = await self._pool.acquire()
+        try:
             async with conn.transaction():
-                yield self
+                yield conn
+        finally:
+            await self._pool.release(conn)
 
     def execute(self, sql: str, params: tuple = ()) -> MockCursorWrapper:
         # Compatibility wrapper for `await db.execute` and `async with db.execute`
