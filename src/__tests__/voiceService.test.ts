@@ -30,6 +30,8 @@ describe('VoiceService', () => {
     speak: ReturnType<typeof vi.fn>;
     cancel: ReturnType<typeof vi.fn>;
     getVoices: ReturnType<typeof vi.fn>;
+    addEventListener: ReturnType<typeof vi.fn>;
+    removeEventListener: ReturnType<typeof vi.fn>;
     onvoiceschanged: (() => void) | null;
   };
 
@@ -41,6 +43,8 @@ describe('VoiceService', () => {
         { name: 'Google US English', lang: 'en-US' },
         { name: 'Google हिन्दी', lang: 'hi-IN' },
       ]),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
       onvoiceschanged: null,
     };
 

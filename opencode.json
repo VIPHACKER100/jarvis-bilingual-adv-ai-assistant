@@ -21,10 +21,6 @@
       "mode": "subagent",
       "permission": { "edit": "allow", "bash": "allow" }
     },
-    "code-reviewer": {
-      "description": "Reviews code for quality, style, bugs, and security vulnerabilities",
-      "mode": "subagent"
-    },
     "CODEX": {
       "description": "Code review agent — returns plain-text rating reports across six dimensions",
       "mode": "all"

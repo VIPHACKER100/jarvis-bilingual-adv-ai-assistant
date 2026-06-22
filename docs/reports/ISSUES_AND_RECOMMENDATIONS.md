@@ -47,11 +47,12 @@ winget install UB-Mannheim.TesseractOCR
 
 ## P1 — Correctness
 
-### 2. Silent failure when listening blocked by speaking
+### 2. Silent failure when listening blocked by speaking ✅ RESOLVED
 
 - **File:** `src/services/voiceService.ts:75`
 - **Risk:** In `startListening()`, if `isSpeaking` is true the method returns without calling `onError`, leaving the caller uninformed about why listening didn't start.
 - **Suggestion:** Call `onError` with a descriptive message before returning when `isSpeaking` is true.
+- **Fix Applied (2026-06-23):** Added `onError('speaking')` call before the `return` statement in `startListening()` when `this.isSpeaking` is true, ensuring the caller is always notified when listening is blocked.
 
 ### 3. Missing error handling in streaming event generator
 
@@ -103,23 +104,26 @@ elif command_key == 'command_insights':
 
 ## P2 — Medium (tests & maintainability)
 
-### 8. Fragile onvoiceschanged handler chain in speak()
+### 8. Fragile onvoiceschanged handler chain in speak() ✅ RESOLVED
 
 - **File:** `src/services/voiceService.ts:191`
 - **Risk:** The `speak()` method overwrites `window.speechSynthesis.onvoiceschanged` with a wrapper, but if `speak()` is called multiple times in rapid succession, each call nests the previous handler, creating a fragile callback chain that can break or cause unintended double-invocations.
 - **Suggestion:** Use `addEventListener` (or maintain a queue) to avoid nested callback wrapping.
+- **Fix Applied (2026-06-23):** Constructor uses `addEventListener('voiceschanged', loadVoices)`, `speak()` uses `addEventListener('voiceschanged', trySpeak, { once: true })` instead of manual property overwrite + chaining. Eliminates nested callback risk entirely.
 
-### 9. TypeScript `any` cast undermines type safety
+### 9. TypeScript `any` cast undermines type safety ✅ RESOLVED
 
 - **File:** `src/services/voiceService.ts:25`
 - **Risk:** `const w = window as any` bypasses TypeScript's compile-time checks for the `SpeechRecognition` constructor, hiding potential type mismatches.
 - **Suggestion:** Augment the `Window` interface with the optional `SpeechRecognition` property instead of casting to `any`.
+- **Fix Applied (2026-06-23):** Added `interface SpeechRecognitionWindow extends Window` with typed optional constructors, removed the `const w = window as any` intermediate variable. Uses `(window as SpeechRecognitionWindow).SpeechRecognition` instead.
 
-### 10. Duplicate getVoices() call in speak()
+### 10. Duplicate getVoices() call in speak() ✅ RESOLVED
 
 - **File:** `src/services/voiceService.ts:183-189`
 - **Risk:** `getVoices()` is called on line 183 to populate the local `voices` variable, then called again inside the deferred `trySpeak` callback on line 189, making a redundant API call.
 - **Suggestion:** Reuse the already-fetched `voices` array to avoid the redundant call.
+- **Fix Applied (2026-06-23):** `trySpeak` now passes the already-captured `voices` variable instead of calling `this.synthesis.getVoices()` again inside the deferred callback.
 
 ### 11. Unused imports in agent.py
 
@@ -224,16 +228,16 @@ Run with backend + frontend dev servers:
 ## Suggested fix order
 
 1. **P1 Security** — Add authentication guard to agent routes (`backend/routers/agent.py`)
-2. **P1 Correctness** — Fix silent failure when speaking blocks listening (`src/services/voiceService.ts:75`)
+2. ~~**P1 Correctness** — Fix silent failure when speaking blocks listening (`src/services/voiceService.ts:75`)~~ **RESOLVED** in 2026-06-23 fix cycle
 3. **P1 Correctness** — Add error handling in streaming event generator (`backend/routers/agent.py:63-73`)
 4. **P1 UX** — Install Tesseract (user environment)
 5. **P1 UX** — Fix `open_documents` typo phrase
 6. **P1 UX** — Add `command_insights` dispatch
 7. **P1 UX** — Improve parser word-boundary matching
 8. **P2** — Remove unused imports `time` and `Depends` from `agent.py`
-9. **P2** — Fix fragile `onvoiceschanged` handler chain in `speak()`
-10. **P2** — Replace `any` cast with augmented Window interface
-11. **P2** — Eliminate duplicate `getVoices()` call
+9. ~~**P2** — Fix fragile `onvoiceschanged` handler chain in `speak()`~~ **RESOLVED** in 2026-06-23 fix cycle
+10. ~~**P2** — Replace `any` cast with augmented Window interface~~ **RESOLVED** in 2026-06-23 fix cycle
+11. ~~**P2** — Eliminate duplicate `getVoices()` call~~ **RESOLVED** in 2026-06-23 fix cycle
 12. **P2** — Fix `test_api.py` path
 13. **P2** — Add param normalizer for file commands
 14. **P2** — Expand integration tests
@@ -252,5 +256,5 @@ Run with backend + frontend dev servers:
 | `backend/main.py` | CodeQL: information exposure fix (generic error responses) |
 | `backend/routers/context.py` | CodeQL: information exposure fix (generic error responses) |
 | `src/services/securityService.ts` | CodeQL: bad HTML regex & incomplete sanitization fixes |
-| `src/services/voiceService.ts` | Code review: 4 findings (correctness, maintainability, readability, performance) |
+| `src/services/voiceService.ts` | Code review: 4 findings (correctness, maintainability, readability, performance) — **all resolved** in 2026-06-23 fix cycle |
 | `backend/routers/agent.py` | Code review: 3 findings (security, style, correctness) |
