@@ -34,9 +34,7 @@ async def get_settings():
 async def get_keys():
     """Get status of configured API keys (redacted)"""
     def redact(key):
-        if not key: return None
-        if len(key) < 8: return "****"
-        return f"{key[:4]}****{key[-4:]}"
+        return bool(key)
 
     return {
         "NVIDIA_API_KEY": redact(os.getenv("NVIDIA_API_KEY")),

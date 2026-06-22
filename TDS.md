@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 3.9.1 |
+| **Version** | 4.0.0-alpha.1 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
-| **Last Updated** | 2026-06-16 |
+| **Last Updated** | 2026-06-23 |
 | **Status** | Active Development |
 | **Companion** | [PRD.md](PRD.md) |
 
@@ -23,7 +23,7 @@ JARVIS is a **local-first client–server application**:
 
 - **Frontend (React 19 + Vite + TypeScript):** Glassmorphic HUD, voice capture, WebSocket client, REST consumer.
 - **Backend (FastAPI + Python 3.11+):** Command dispatch, OS automation, LLM orchestration, persistence, real-time broadcasts.
-- **Data Layer (SQLite + optional Redis):** Conversations, memory facts, performance metrics, sessions.
+- **Data Layer (PostgreSQL + pgvector):** Conversations, memory facts, performance metrics, sessions, vector embeddings.
 
 ```mermaid
 flowchart TB
@@ -45,7 +45,7 @@ flowchart TB
     end
 
     subgraph Data["Persistence"]
-        SQL[(SQLite WAL)]
+        SQL[(PostgreSQL + pgvector)]
         REDIS[(Redis optional)]
         JSON[contacts.json / macros.json]
     end
@@ -99,7 +99,7 @@ flowchart TB
 |-------|------------|---------|
 | Framework | FastAPI | ≥ 0.110 |
 | Server | Uvicorn | ≥ 0.29 |
-| Async DB | aiosqlite | ≥ 0.20 |
+| Async DB | asyncpg | ≥ 0.29 |
 | Rate limit | SlowAPI | ≥ 0.1.9 |
 | System | psutil, pyautogui, pywin32 (Win) | — |
 | OCR | pytesseract, Pillow | — |
@@ -138,13 +138,14 @@ jarvis-bilingual-adv-ai-assistant/
 │   │   ├── environment.py        # VERSION, paths, ports
 │   │   └── commands.py           # Bilingual mappings, dangerous cmds
 │   ├── utils/
-│   │   └── database.py           # Pool, WAL, migrations
+│   │   ├── database_async.py     # asyncpg pool, pgvector, migrations
+│   │   └── database.py           # SQLite-to-PostgreSQL query translation
 │   ├── migrations/
 │   │   └── 001_initial.sql       # Schema v1
 │   └── tests/                    # pytest suite
 ├── memory/                       # Persistent AI session memory (Markdown)
 ├── docs/                         # SETUP, COMMANDS, API_DOCUMENTATION
-├── data/                         # SQLite DB, macros, contacts
+├── data/                         # PostgreSQL data, macros, contacts
 └── .github/workflows/            # CI pipeline
 ```
 
@@ -211,7 +212,7 @@ jarvis-bilingual-adv-ai-assistant/
 | `media.py` | OS media keys |
 | `desktop.py` | Screenshots, clipboard |
 | `llm.py` | Multi-provider LLM with failover |
-| `memory.py` | SQLite persistence, semantic retrieval |
+| `memory.py` | PostgreSQL persistence, pgvector semantic retrieval |
 | `bilingual_parser.py` | Hindi→English command normalization |
 | `whatsapp.py` | WhatsApp automation + smart reply |
 | `proactive.py` | Background situational analysis & feedback loop |
@@ -232,7 +233,7 @@ sequenceDiagram
     participant CH as command_handler
     participant BP as bilingual_parser
     participant MOD as Domain Module
-    participant DB as SQLite
+    participant DB as PostgreSQL
 
     U->>FE: Speech / click
     FE->>WS: { type: "command", text, language }
@@ -403,7 +404,7 @@ ConfigDict(strict=True, extra='forbid')
 
 ### 9.1 Database (`data/memory.db`)
 
-**Engine:** SQLite with WAL journal mode and connection pooling (`backend/utils/database.py`).
+**Engine:** PostgreSQL with asyncpg connection pool and pgvector extension (`backend/utils/database_async.py`).
 
 ### 9.2 Schema (Migration 001)
 
@@ -480,7 +481,7 @@ result = await asyncio.to_thread(blocking_function, *args)
 ### 11.3 Database Optimization
 
 - Connection pool (no per-query open/close).
-- WAL mode for concurrent reads during writes.
+- pgvector extension for native vector similarity search.
 - Migration runner for schema versioning.
 
 ### 11.4 Targets
@@ -504,7 +505,7 @@ result = await asyncio.to_thread(blocking_function, *args)
 | `LLM_PROVIDER` | `nvidia` | Primary LLM |
 | `BACKEND_API_KEY` | — | API authentication |
 | `WAKE_WORD_ENABLED` | `true` | Voice wake |
-| `DATABASE_URL` | `sqlite:///./data/memory.db` | Persistence |
+| `DATABASE_URL` | `postgresql+asyncpg://user:pass@localhost:5432/jarvis` | Persistence |
 | `REDIS_ENABLED` | `true` | Optional cache |
 
 Full template: [`.env.example`](.env.example).
@@ -569,7 +570,7 @@ Python **3.12**, Node **20** in CI (project supports 3.11+ / 18+).
 | `test_command_handler.py` | Dispatch routing, dangerous cmds |
 | `test_memory.py` | DB operations, pooling |
 | `test_bilingual_parser.py` | Hindi normalization |
-| `conftest.py` | In-memory SQLite fixtures, mocks |
+| `conftest.py` | Mocked asyncpg.Pool fixtures |
 
 **Run:** `pytest tests/ -v --cov=.`
 
@@ -608,7 +609,7 @@ Python **3.12**, Node **20** in CI (project supports 3.11+ / 18+).
 
 | Signal | Mechanism |
 |--------|-----------|
-| Structured logs | `utils/logger.py` |
+| Structured logs | `utils/logger_structured.py` |
 | System events | `log_system_event("STARTUP", ...)` |
 | Performance DB | `performance_metrics` table |
 | Response timing | `X-Response-Time` header |

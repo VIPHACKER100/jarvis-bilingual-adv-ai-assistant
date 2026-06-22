@@ -18,7 +18,7 @@ ws://localhost:8000/ws
 
 ## API Versioning
 
-As of v3.7.1, JARVIS has transitioned to a modular router-based system. All endpoints are now available under the `/api/v1` prefix.
+As of v4.0.0-alpha.1, JARVIS uses versioned API routing. Agent and audio endpoints are available under the `/api/v1` prefix.
 
 - **V1 Prefix**: `http://localhost:8000/api/v1`
 - **Legacy Support**: Root-level endpoints (e.g., `http://localhost:8000/api/command`) are maintained for backward compatibility.
@@ -1275,8 +1275,6 @@ The `event_loop_lag` field in the system status response indicates event loop re
 | 100+ | Critical | Blocking call detected; investigate immediately |
 
 ---
-
-## Changelog
 
 ## Mobile Sync (v3.9.0)
 

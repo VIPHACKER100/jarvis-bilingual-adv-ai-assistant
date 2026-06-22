@@ -476,7 +476,7 @@ class ApiClient {
 
   /** Broadcast a notification to all connected WebSocket clients */
   async broadcastNotification(title: string, message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info', duration = 5000): Promise<BroadcastNotificationResponse> {
-    const response = await fetch(`${this.baseUrl}/notifications/broadcast`, {
+    const response = await fetch(`${this.baseUrl}/notifications`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify({ title, message, type, duration })

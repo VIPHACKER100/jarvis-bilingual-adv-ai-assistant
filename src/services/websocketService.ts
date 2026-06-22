@@ -35,7 +35,7 @@ class WebSocketService {
     try {
       const url = new URL(this.url);
       if (API_TOKEN) {
-        url.searchParams.append('token', API_TOKEN);
+        url.searchParams.append('api_key', API_TOKEN);
       }
       this.ws = new WebSocket(url.toString());
 
@@ -164,11 +164,11 @@ class WebSocketService {
   }
 
   sendConfirmation(confirmationId: string, approved: boolean): void {
-    // Use REST API for confirmations
-    fetch(`${API_BASE_URL}/api/confirm/${confirmationId}`, {
+    fetch(`${API_BASE_URL}/confirm/${confirmationId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-Key': API_TOKEN,
       },
       body: JSON.stringify({ approved }),
     }).catch(error => {

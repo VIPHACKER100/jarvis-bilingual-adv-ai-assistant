@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { API_BASE_URL } from '../config';
 
+const API_KEY = (typeof import.meta !== 'undefined' ? (import.meta.env.VITE_JARVIS_API_KEY as string | undefined) : undefined) || '';
+
 interface AgentStreamOptions {
   language?: 'en' | 'hi' | 'hinglish';
   useRag?: boolean;
@@ -36,7 +38,7 @@ export function useAgentStream() {
       try {
         const resp = await fetch(`${API_BASE_URL}/agent/stream`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(API_KEY ? { 'X-API-Key': API_KEY } : {}) },
           body: JSON.stringify({
             query,
             language,

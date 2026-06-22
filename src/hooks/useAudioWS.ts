@@ -64,7 +64,7 @@ export function useAudioWS(language: string = 'en') {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     const apiKey = import.meta.env.VITE_JARVIS_API_KEY as string | undefined;
-    const wsUrl = `${WS_BASE_URL}/audio?language=${language}${apiKey ? `&api_key=${encodeURIComponent(apiKey)}` : ''}`;
+    const wsUrl = `${WS_BASE_URL.replace('/ws', '/api/v1/audio/ws/audio')}?language=${language}${apiKey ? `&api_key=${encodeURIComponent(apiKey)}` : ''}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => setState((s) => ({ ...s, isConnected: true, error: null }));

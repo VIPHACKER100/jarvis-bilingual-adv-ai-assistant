@@ -27,7 +27,7 @@ async def create_task(data: AutomationTaskRequest):
 
 
 @router.get("/tasks")
-def get_tasks():
+async def get_tasks():
     """List all scheduled tasks"""
     tasks = automation_manager.get_all_tasks()
     data = [
@@ -46,21 +46,21 @@ def get_tasks():
 
 
 @router.post("/task/{task_id}/toggle", response_model=BaseResponse)
-def toggle_task(task_id: str):
+async def toggle_task(task_id: str):
     """Enable/Disable a task"""
     result = automation_manager.toggle_task(task_id)
     return {"success": result, "response": f"Task {task_id} toggled"}
 
 
 @router.delete("/task/{task_id}", response_model=BaseResponse)
-def delete_task(task_id: str):
+async def delete_task(task_id: str):
     """Remove a task"""
     result = automation_manager.delete_task(task_id)
     return {"success": result, "response": f"Task {task_id} deleted"}
 
 
 @router.post("/macro", response_model=BaseResponse)
-def create_macro(data: MacroRequest):
+async def create_macro(data: MacroRequest):
     """Create a new command macro"""
     macro = automation_manager.create_macro(
         name=data.name,
@@ -76,7 +76,7 @@ def create_macro(data: MacroRequest):
 
 
 @router.get("/macros")
-def get_macros():
+async def get_macros():
     """List all saved macros"""
     macros = automation_manager.get_all_macros()
     data = [
@@ -94,14 +94,14 @@ def get_macros():
 
 
 @router.post("/macro/{macro_id}/run", response_model=BaseResponse)
-def run_macro(macro_id: str):
+async def run_macro(macro_id: str):
     """Run a macro manually"""
     result = automation_manager.run_macro_manually(macro_id)
     return {"success": result, "response": f"Macro {macro_id} executed"}
 
 
 @router.get("/status")
-def get_automation_status():
+async def get_automation_status():
     """Get scheduler engine status"""
     status = automation_manager.get_scheduler_status()
     return {"success": True, "status": status}

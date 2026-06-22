@@ -33,11 +33,17 @@
 - 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models.
 - 🛡️ **Security Hardening** - All CodeQL SAST findings resolved: bad HTML regex, incomplete sanitization, information exposure through exceptions.
 
-### 🚀 **What's New? (v3.9.1)**
+### 🚀 **What's New? (v4.0.0-alpha.1)**
 
-- 🛡️ **CodeQL Security Fixes** — Bad HTML filtering regexp replaced with robust tag stripper; incomplete multi-character sanitization made iterative with whitespace handling.
-- 🔒 **Information Exposure Fix** — All backend error responses return generic messages; full exception details logged server-side only.
-- ✅ **Zero High/Medium SAST Findings** — Clean CodeQL analysis across the entire codebase.
+- 🗄️ **PostgreSQL + pgvector** — Migrated from SQLite to PostgreSQL with pgvector extension for native semantic vector search. In-memory numpy cosine similarity replaced with `<=>` SQL queries.
+- 🔌 **LLM Gateway Unification** — Collapsed 3 OpenAI-compatible adapters into a single `OpenAICompatibleAdapter`. Switched from synchronous `OpenAI()` + `asyncio.to_thread()` to native `AsyncOpenAI()`. Added Google Gemini adapter.
+- 📝 **Structured Logging** — Migrated 41 files from `utils.logger` to `utils.logger_structured` (structlog + OpenTelemetry). Production JSON log output.
+- 🔢 **API Versioning** — Agent and audio routers moved under `/api/v1/` prefix for clean API versioning.
+- 🛡️ **Security Audit** — API key authentication on all agent endpoints with constant-time comparison via `hmac.compare_digest`. WebSocket auth gate with `api_key` query parameter. X-Forwarded-For spoofing eliminated.
+- 🤖 **Opencode Agents** — 6 agent definitions for specialized development: backend-dev, frontend-dev, test-runner, database-migrator, CODEX, code-reviewer.
+- 📊 **CODEX Code Review** — Autonomous code review agent scoring across 6 dimensions (readability, correctness, security, performance, maintainability, style).
+- 🎵 **Streaming Audio Fixes** — `stopCurrentAudio()` lifecycle management, consolidated play functions, audio onerror handler for decode failures.
+- ✅ **72/72 Tests Passing** — Full test suite passing (47 backend + 25 frontend), zero regressions.
 
 ### 🚀 **What's New? (v3.9.0)**
 
@@ -298,7 +304,7 @@ graph TD
 - **Backend**: `Python 3.11`, `FastAPI`, `PyAutoGUI`, `SQLAlchemy`
 - **Architecture**: `Modular Router System`, `Centralized Command Handlers`, `Proactive Intelligence API`
 - **Intelligence**: `Neural Proactive Engine`, `Bilingual LLM Parser`, `Contextual Action Recommender`
-- **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`, `SQLite (WAL mode)`
+- **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`, `PostgreSQL + pgvector`
 
 ---
 

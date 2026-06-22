@@ -18,7 +18,8 @@ export const AGENT_STREAM_URL = `${API_BASE_URL}/agent/stream`;
 export const AGENT_CHAT_URL = `${API_BASE_URL}/agent/chat`;
 export const AGENT_RAG_URL = `${API_BASE_URL}/agent/rag`;
 export const AGENT_HEALTH_URL = `${API_BASE_URL}/agent/health`;
-export const AUDIO_WS_URL = `${WS_BASE_URL}/audio`;
+export const WS_API_BASE_URL = `ws://${HOST}:${BACKEND_PORT}/api/v1`;
+export const AUDIO_WS_URL = `${WS_API_BASE_URL}/audio/ws/audio`;
 
 // Version Info
 export const APP_VERSION = "v4.0.0";

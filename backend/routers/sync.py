@@ -43,7 +43,7 @@ async def get_sync_status():
 @router.post("/pair", response_model=DevicePairingResponse)
 async def pair_device(request: DevicePairingRequest):
     """Pair a new mobile device using a dynamic code"""
-    if pairing_manager.validate_code(request.pairing_code) or request.pairing_code == "JARVIS-SYNC":
+    if pairing_manager.validate_code(request.pairing_code):
         device_id = str(uuid.uuid4())
         access_token = secrets.token_urlsafe(32)
         

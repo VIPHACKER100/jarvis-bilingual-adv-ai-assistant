@@ -86,7 +86,7 @@ jarvis-bilingual-adv-ai-assistant/
 │   │   └── ...                 # Other domain modules
 │   ├── utils/
 │   │   ├── database_async.py   # PostgreSQL async pool (asyncpg)
-│   │   ├── database.py         # SQLite compatibility layer
+│   │   ├── database.py         # SQLite-to-PostgreSQL query translation (`?` → `$N`)
 │   │   ├── logger_structured.py # Structured logging (structlog + OTEL)
 │   │   ├── websocket_manager.py
 │   │   └── middleware_security.py
