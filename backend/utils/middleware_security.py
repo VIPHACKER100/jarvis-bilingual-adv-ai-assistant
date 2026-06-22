@@ -8,7 +8,7 @@ import re
 import time
 import json
 import hmac
-from typing import Dict, Tuple, Callable, Awaitable
+from typing import Dict, Tuple, Callable, Awaitable, Optional
 from fastapi import Request, Response, HTTPException, Depends
 from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse
@@ -152,26 +152,24 @@ per_route_limiter = PerRouteRateLimiter()
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
-def get_client_ip(request: Request) -> str:
-    """Extract client IP from request, respecting X-Forwarded-For for reverse proxies."""
-    forwarded = request.headers.get("x-forwarded-for", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else ""
+def _get_configured_key() -> Optional[str]:
+    """Single source for API key — matches main.py module-level BACKEND_API_KEY."""
+    return os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
 
 
 async def verify_api_key(request: Request, api_key: str = Depends(api_key_header)) -> None:
     """FastAPI dependency — requires valid API key for protected routes.
 
     Bypasses auth for localhost requests (safe in development).
+    Uses direct socket IP only (X-Forwarded-For not trusted for auth).
     Returns 403 if key is missing/wrong and BACKEND_API_KEY is configured.
     Uses hmac.compare_digest for constant-time comparison.
     """
-    configured_key = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+    configured_key = _get_configured_key()
     if not configured_key:
         return
 
-    client_host = get_client_ip(request)
+    client_host = request.client.host if request.client else ""
     is_local = client_host in ("127.0.0.1", "localhost", "::1")
     if is_local:
         return

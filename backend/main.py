@@ -3,6 +3,7 @@ import sys
 import asyncio
 import time
 import json
+import hmac
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -105,6 +106,7 @@ async def lifespan(app: FastAPI):
     # Start background tasks
     status_broadcast_task = asyncio.create_task(broadcast_system_status())
     lag_monitor_task = asyncio.create_task(monitor_event_loop_lag())
+    prune_task = asyncio.create_task(periodic_prune_conversations())
     
     # Start mDNS Broadcaster
     from utils.mdns import mdns_broadcaster
@@ -122,6 +124,7 @@ async def lifespan(app: FastAPI):
         
     status_broadcast_task.cancel()
     lag_monitor_task.cancel()
+    prune_task.cancel()
     await automation_manager.stop()
     await proactive_manager.stop()
     if WAKE_WORD_ENABLED:
@@ -201,17 +204,20 @@ async def add_request_id(request: Request, call_next):
     return response
 
 # Authentication Middleware for REST API
+HEALTH_EXEMPT_PREFIXES = ("/api/v1/health", "/api/v1/agent/health")
+
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
-    # Only protect /api/ routes, exclude static files and root
-    if request.url.path.startswith("/api/") and BACKEND_API_KEY:
+    path = request.url.path
+    if path.startswith("/api/") and BACKEND_API_KEY and not path.startswith(HEALTH_EXEMPT_PREFIXES):
         api_key = request.headers.get("X-API-Key")
-        
-        # Determine if request is from localhost
+
         client_host = request.client.host if request.client else ""
         is_local = client_host in ("127.0.0.1", "localhost", "::1")
-        
-        if api_key != BACKEND_API_KEY and not is_local:
+        if is_local:
+            return await call_next(request)
+
+        if not api_key or not hmac.compare_digest(api_key, BACKEND_API_KEY):
             return JSONResponse(
                 status_code=403,
                 content={"success": False, "detail": "Invalid or missing API Key"}
@@ -335,6 +341,20 @@ async def broadcast_system_status():
             break
         except Exception as e:
             logger.error(f"Error in status broadcast: {e}")
+
+async def periodic_prune_conversations():
+    """Periodically prune old conversations to prevent unbounded table growth."""
+    logger.info("Periodic conversation pruning started (every 5 minutes)")
+    while True:
+        try:
+            await asyncio.sleep(300)  # 5 minutes
+            deleted = await memory_manager.prune_conversations(limit=500)
+            if deleted > 0:
+                logger.info(f"Periodic prune: removed {deleted} old conversation entries")
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.error(f"Error in periodic pruning: {e}")
 
 # Frontend static file serving logic extracted from original main.py
 def _find_frontend_dir() -> Optional[Path]:

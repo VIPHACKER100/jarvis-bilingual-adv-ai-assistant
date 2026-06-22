@@ -162,6 +162,10 @@ Edit `.env`:
 BACKEND_PORT=8000
 FRONTEND_URL=http://localhost:5173
 
+# Authentication (required for all API requests)
+# Generate a secure random key (e.g., openssl rand -hex 32)
+BACKEND_API_KEY=your-secure-api-key-here
+
 # Security
 CONFIRMATION_TIMEOUT=30
 ENABLE_DANGEROUS_COMMANDS=true
@@ -177,6 +181,14 @@ AUTO_DETECT_WHATSAPP=true
 # Optional: API Keys for future features
 GEMINI_API_KEY=
 OPENROUTER_API_KEY=
+```
+
+Also create a `.env` file in the project root for the frontend:
+
+```env
+# Frontend .env (project root)
+VITE_JARVIS_API_KEY=your-secure-api-key-here
+# Must match BACKEND_API_KEY above — used for WebSocket auth
 ```
 
 ### Step 6: Verify Installation
@@ -196,7 +208,7 @@ You should see:
 ```text
 INFO:     Started server process [xxxxx]
 INFO:     Waiting for application startup.
-    INFO:     JARVIS Backend starting up (v3.9.1 - Modular Architecture)...
+    INFO:     JARVIS Backend starting up (v4.0 - Neural Core)...
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```

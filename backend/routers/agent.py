@@ -60,10 +60,9 @@ async def agent_stream(body: AgentQuery, request: Request):
         context = ctx.assembled_prompt
 
     async def event_stream():
+        full_response = []
         try:
             yield f"data: {json.dumps({'type': 'meta', 'provider': llm_gateway.active_provider, 'language': body.language})}\n\n"
-
-            full_response = []
             async for chunk in llm_gateway.generate_stream(
                 body.query, language=body.language, context=context
             ):
@@ -88,7 +87,7 @@ async def agent_stream(body: AgentQuery, request: Request):
     )
 
 
-@router.get("/health")
+@router.get("/health", dependencies=[])
 async def agent_health():
     """Health check for agent subsystem."""
     providers = llm_gateway.available_providers

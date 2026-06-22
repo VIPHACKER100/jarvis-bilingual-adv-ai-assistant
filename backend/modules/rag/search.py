@@ -69,8 +69,8 @@ class HybridSearch:
                 )
             return None
 
-        scored_results = await asyncio.gather(*[_score_node(n) for n in nodes])
-        results = [r for r in scored_results if r is not None]
+        scored_results = await asyncio.gather(*[_score_node(n) for n in nodes], return_exceptions=True)
+        results = [r for r in scored_results if r is not None and not isinstance(r, BaseException)]
 
         results.sort(key=lambda r: r.score, reverse=True)
         return results[:10]

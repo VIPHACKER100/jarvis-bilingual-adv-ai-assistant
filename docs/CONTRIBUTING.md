@@ -27,9 +27,19 @@ npm install
 Copy `.env.example` to `.env` and configure:
 
 ```bash
+# Authentication (must match between backend and frontend)
+BACKEND_API_KEY=your-secure-api-key-here
+VITE_JARVIS_API_KEY=your-secure-api-key-here  # Must match BACKEND_API_KEY for WebSocket auth
+
+# Database
 DATABASE_URL=postgresql+asyncpg://jarvis:jarvis_dev_password@localhost:5432/jarvis
+
+# LLM Providers
 NVIDIA_API_KEY=your-key-here
 OPENROUTER_API_KEY=your-key-here
+OPENAI_API_KEY=your-key-here
+
+# Logging
 LOG_LEVEL=DEBUG
 ```
 

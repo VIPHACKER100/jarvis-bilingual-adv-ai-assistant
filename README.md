@@ -4,7 +4,7 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-3.9.1-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-4.0.0--alpha.1-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -20,7 +20,7 @@
 
 ---
 
-## 🌟 Modern Capabilities (v3.9.1)
+## 🌟 Modern Capabilities (v4.0.0-alpha.1)
 
 - 🎙️ **Local Voice Activation** - "Hey JARVIS" wake-word detection using `openwakeword` for a hands-free experience.
 - 📱 **Mobile Companion Ecosystem** - Secure pairing and real-time remote control via the new JARVIS Mobile app.

@@ -13,7 +13,7 @@
 | **Domain Handlers** | 9 extracted command handlers replacing monolithic 474-line dispatch |
 | **PostgreSQL Migration** | asyncpg connection pool with SQLite-to-PostgreSQL query translation at runtime |
 | **Structured Logging** | structlog + OpenTelemetry, JSON logs in production |
-| **Security Middleware** | CSP headers, SQLi protection, body size limits, per-route rate limiting |
+| **Security Middleware** | API key auth with `hmac.compare_digest`, CSP headers, SQLi protection, body size limits, per-route rate limiting, WebSocket auth gate |
 
 ## Breaking Changes
 
@@ -52,17 +52,22 @@ npm run build
 
 ## API Endpoints (v4.0)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/v1/agent/chat` | Non-streaming agent response with RAG |
-| POST | `/api/v1/agent/stream` | SSE streaming agent response |
-| POST | `/api/v1/agent/rag` | Retrieve RAG context only |
-| GET | `/api/v1/agent/health` | Agent subsystem health |
-| WS | `/ws/audio?language=en` | Bidirectional TTS/STT streaming |
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| POST | `/api/v1/agent/chat` | Non-streaming agent response with RAG | X-API-Key header |
+| POST | `/api/v1/agent/stream` | SSE streaming agent response | X-API-Key header |
+| POST | `/api/v1/agent/rag` | Retrieve RAG context only | X-API-Key header |
+| GET | `/api/v1/agent/health` | Agent subsystem health | Exempt (probe compat) |
+| WS | `/ws/audio?api_key=&language=en` | Bidirectional TTS/STT streaming | api_key query param |
+| WS | `/ws?api_key=` | Command dispatch + system broadcasts | api_key query param |
 
 ## Environment Variables (new in v4.0)
 
 ```
+# API Key Authentication
+BACKEND_API_KEY=your-secure-api-key    # Validates all REST API requests
+VITE_JARVIS_API_KEY=your-secure-api-key  # Passed as WS query param; must match BACKEND_API_KEY
+
 # LLM Gateway
 LLM_PROVIDER=nvidia
 NVIDIA_API_KEY=...
@@ -85,10 +90,29 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
 ```
 Frontend (React+TS+Vite)
   │
-  ├── /api/v1/agent/stream (SSE) → LLM Gateway + RAG Pipeline
-  ├── /ws/audio (WebSocket)      → Audio TTS/STT
-  ├── /ws (WebSocket)             → Command dispatch → Domain Handlers
-  └── /api/v1/* (REST)           → CRUD operations
+  ├── X-API-Key header ───────────────┐
+  │                                    │
+  ├── /api/v1/agent/stream (SSE)  ────┤── Auth Middleware (hmac.compare_digest)
+  ├── /api/v1/agent/chat (REST)   ────┤     │
+  ├── /api/v1/agent/rag (REST)    ────┤     │  ← Dual auth: middleware + Depends()
+  ├── /api/v1/agent/health (REST) ────┤  (exempt for K8s probes)
+  ├── /ws/audio?api_key= (WS)     ────┤── WebSocket Auth Gate (api_key query param)
+  ├── /ws?api_key= (WS)           ────┤── WebSocket Auth Gate (before device-pairing)
+  └── /api/v1/* (REST)           ─────┤── Auth Middleware
+                                       │
+                                  ┌────┘
+                                  ▼
+                          ┌────────────────┐
+                          │  LLM Gateway    │
+                          │  + RAG Pipeline │
+                          └────────────────┘
+                          ┌────────────────┐
+                          │  Audio TTS/STT  │
+                          └────────────────┘
+                          ┌────────────────┐
+                          │ Domain Handlers │
+                          │  (9 extracted)  │
+                          └────────────────┘
 ```
 
 ## Testing

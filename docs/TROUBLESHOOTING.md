@@ -88,7 +88,53 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 
 ---
 
-## 🔒 Security & CodeQL
+## 🔒 Security, Authentication & CodeQL
+
+### API key authentication failures (403 Forbidden)
+
+JARVIS v4.0 requires API key authentication for all endpoints except health probes.
+
+**Symptom**: All requests return `{"detail": "Invalid or missing API key"}`.
+
+**Common causes and fixes:**
+
+| Cause | Fix |
+|-------|-----|
+| `BACKEND_API_KEY` not set in `backend/.env` | Set `BACKEND_API_KEY` to a secure random string |
+| `VITE_JARVIS_API_KEY` not set in frontend `.env` | Set `VITE_JARVIS_API_KEY` in root `.env` — must match `BACKEND_API_KEY` |
+| REST request missing `X-API-Key` header | Add `-H "X-API-Key: your-key"` to curl, or set in `apiClient.ts` |
+| WebSocket URL missing `?api_key=` param | Ensure `ws://host:port/ws?api_key=your-key` includes the key |
+| Key mismatch between frontend and backend | Both `.env` files must use the **exact same** key value |
+| Request from non-localhost without key | Localhost (`127.0.0.1`, `::1`) is exempt; remote requests always require a key |
+
+**Debugging checklist:**
+
+1. Verify `BACKEND_API_KEY` is set in `backend/.env`
+2. Verify `VITE_JARVIS_API_KEY` is set in root `.env` and matches
+3. Restart both backend and frontend after changing `.env`
+4. Test direct: `curl -H "X-API-Key: your-key" http://localhost:8000/api/v1/agent/chat`
+5. Check backend logs for `API key validation failed` warnings
+
+### Health endpoint returns 403
+
+**Symptom**: Docker/K8s health checks fail with 403.
+
+**Fix**: The following endpoints are **exempt** from authentication:
+- `GET /api/v1/health`
+- `GET /api/v1/agent/health`
+
+Verify the probe is targeting one of these paths, not a generic `/api/` path.
+
+### WebSocket connection refused (auth)
+
+**Symptom**: Failed to construct WebSocket — `401` close code.
+
+**Fix**: The browser WebSocket API does not support custom headers. Pass the API key as a query parameter:
+
+```javascript
+const apiKey = import.meta.env.VITE_JARVIS_API_KEY;
+const ws = new WebSocket(`ws://localhost:8000/ws${apiKey ? '?api_key=' + apiKey : ''}`);
+```
 
 ### CodeQL security alerts (v3.9.1)
 

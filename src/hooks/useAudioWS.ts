@@ -26,6 +26,8 @@ export function useAudioWS(language: string = 'en') {
   const stopCurrentAudio = useCallback(() => {
     if (activeAudioRef.current) {
       activeAudioRef.current.pause();
+      activeAudioRef.current.onended = null;
+      activeAudioRef.current.onerror = null;
       activeAudioRef.current = null;
     }
     for (const url of objectUrlsRef.current) {
@@ -61,7 +63,9 @@ export function useAudioWS(language: string = 'en') {
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-    const ws = new WebSocket(`${WS_BASE_URL}/audio?language=${language}`);
+    const apiKey = import.meta.env.VITE_JARVIS_API_KEY as string | undefined;
+    const wsUrl = `${WS_BASE_URL}/audio?language=${language}${apiKey ? `&api_key=${encodeURIComponent(apiKey)}` : ''}`;
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => setState((s) => ({ ...s, isConnected: true, error: null }));
     ws.onclose = () => setState((s) => ({ ...s, isConnected: false }));
@@ -141,6 +145,8 @@ export function useAudioWS(language: string = 'en') {
 
   const requestTTSStream = useCallback((text: string, voice: string = 'alloy') => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    resolvePlaybackRef.current?.();
+    resolvePlaybackRef.current = null;
     stopCurrentAudio();
     setState((s) => ({ ...s, isProcessing: true, isSpeaking: false }));
     streamChunksRef.current = [];

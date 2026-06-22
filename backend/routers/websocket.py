@@ -14,13 +14,6 @@ from utils.websocket_manager import manager
 router = APIRouter(tags=["WebSocket"])
 
 
-def _get_client_ip(websocket: WebSocket) -> str:
-    forwarded = websocket.headers.get("x-forwarded-for", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return websocket.client.host if websocket.client else ""
-
-
 @router.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
@@ -36,7 +29,7 @@ async def websocket_endpoint(
     # API key gate
     configured_key = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
     if configured_key:
-        client_host = _get_client_ip(websocket)
+        client_host = websocket.client.host if websocket.client else ""
         is_local = client_host in ("127.0.0.1", "localhost", "::1")
         if not is_local:
             if not api_key or not hmac.compare_digest(api_key, configured_key):

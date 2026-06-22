@@ -1,4 +1,4 @@
-# JARVIS API Documentation (v3.9.1)
+# JARVIS API Documentation (v4.0)
 
 Complete API reference for JARVIS Backend.
 
@@ -44,6 +44,56 @@ If the primary provider fails, JARVIS automatically attempts to use the secondar
 ---
 
 ## Authentication
+
+JARVIS uses API key authentication via the `X-API-Key` header for all REST endpoints under `/api/v1/`. WebSocket endpoints (`/ws`, `/ws/audio`) pass the API key as a query parameter.
+
+### Configuration
+
+Set `BACKEND_API_KEY` in `backend/.env` for the backend, and `VITE_JARVIS_API_KEY` in the frontend `.env` for WebSocket auth:
+
+```env
+# Backend .env
+BACKEND_API_KEY=your-secure-api-key-here
+
+# Frontend .env
+VITE_JARVIS_API_KEY=your-secure-api-key-here
+```
+
+### Auth Verification
+
+- **REST endpoints**: Pass `X-API-Key: <key>` header with every request
+- **WebSocket endpoints**: Append `?api_key=<key>` to the WebSocket URL (browser WebSocket API does not support custom headers)
+- **Localhost bypass**: Requests from `127.0.0.1`, `localhost`, or `::1` are exempt from API key checks for local development convenience
+- **Constant-time comparison**: All key comparisons use `hmac.compare_digest` to prevent timing attacks
+
+### Health Endpoints
+
+The following endpoints are **exempt** from authentication for Docker/K8s probe compatibility:
+
+- `GET /api/v1/health`
+- `GET /api/v1/agent/health`
+
+### Defense-in-Depth
+
+Agent routes (`/api/v1/agent/*`) implement dual auth — a middleware-level gate for all `/api/` routes plus a `Depends(verify_api_key)` router-level guard on each agent endpoint. This ensures authentication cannot be bypassed even if the middleware is misconfigured.
+
+### Example Requests
+
+```bash
+# REST endpoint with API key
+curl -H "X-API-Key: your-secure-api-key" http://localhost:8000/api/v1/agent/health
+
+# WebSocket with API key query param
+wscat -c "ws://localhost:8000/ws?api_key=your-secure-api-key"
+```
+
+### 403 Response
+
+```json
+{
+  "detail": "Invalid or missing API key"
+}
+```
 
 ## Response Format
 
@@ -1013,7 +1063,9 @@ POST /api/automation/macro/{macro_id}/run
 ### Connect
 
 ```javascript
-const ws = new WebSocket('ws://localhost:8000/ws');
+// For remote deployments, pass the API key as a query parameter
+const apiKey = import.meta.env.VITE_JARVIS_API_KEY;
+const ws = new WebSocket(`ws://localhost:8000/ws${apiKey ? '?api_key=' + apiKey : ''}`);
 ```
 
 ### Send Command
@@ -1073,6 +1125,51 @@ ws.send(JSON.stringify({
 }));
 ```
 
+### Audio WebSocket (`/ws/audio`)
+
+The bidirectional audio streaming endpoint for TTS (text-to-speech) and STT (speech-to-text):
+
+```javascript
+const apiKey = import.meta.env.VITE_JARVIS_API_KEY;
+const ws = new WebSocket(`ws://localhost:8000/ws/audio?api_key=${apiKey}`);
+```
+
+**TTS Request (client → server):**
+
+```json
+{
+  "type": "tts",
+  "text": "Hello, how can I help you?",
+  "voice": "alloy",
+  "language": "en"
+}
+```
+
+**TTS Response (server → client):** Binary audio data (MP3 chunks streamed as blob events).
+
+**STT Request (client → server):**
+
+```json
+{
+  "type": "transcribe",
+  "audio": "<base64-encoded-audio-data>",
+  "language": "en"
+}
+```
+
+**STT Response (server → client):**
+
+```json
+{
+  "type": "transcription",
+  "text": "What time is it?",
+  "language": "en"
+}
+```
+
+> [!NOTE]
+> The WebSocket API does not support custom HTTP headers. The API key must be passed as the `api_key` query parameter. All key comparisons use constant-time `hmac.compare_digest`.
+
 ---
 
 ## Error Codes
@@ -1080,6 +1177,7 @@ ws.send(JSON.stringify({
 | Status Code | Description |
 | ----------- | ----------- |
 | 400 | Bad Request - Missing required parameters |
+| 403 | Forbidden - Invalid or missing API key |
 | 404 | Not Found - Resource not found |
 | 500 | Internal Server Error |
 
@@ -1212,6 +1310,19 @@ Authorization: Bearer <token>
 ---
 
 ## Changelog
+
+### v4.0.0-alpha.1 (Phase 4 — Security Audit)
+
+- **API key authentication**: All `/api/v1/*` REST endpoints require `X-API-Key` header; WebSocket endpoints (`/ws`, `/ws/audio`) require `?api_key=` query parameter.
+- **Constant-time comparison**: All key comparisons use `hmac.compare_digest` to prevent timing side-channel attacks.
+- **Localhost bypass**: Requests from `127.0.0.1`, `localhost`, and `::1` are exempt for development convenience.
+- **Health endpoint exemption**: `GET /api/v1/health` and `GET /api/v1/agent/health` are exempt from auth for Docker/K8s probe compatibility.
+- **Defense-in-depth**: Agent routes (`/api/v1/agent/*`) implement dual auth — middleware-level gate + `Depends(verify_api_key)` router-level guard.
+- **X-Forwarded-For removed**: Auth paths use direct socket IP only, eliminating a spoofing vector.
+- **WebSocket auth logging**: Auth failures on WebSocket endpoints now log warnings (previously silent).
+- **SSE error resilience**: `event_stream()` generator has try/except with partial-done support — no more abrupt SSE disconnects on failure.
+- **TTS key isolation**: OpenRouter API key no longer leaks to OpenAI TTS endpoint.
+- **Frontend audio fixes**: `useAudioWS` — identity guard, promise leak fix, `audio.onerror` handler, nullified event handlers on cleanup, `api_key` in WS URL.
 
 ### v3.9.1
 

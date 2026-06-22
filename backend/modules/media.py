@@ -164,7 +164,7 @@ class MediaProcessor:
                         'pages': len(reader.pages),
                         'response': f'Extracted text from {len(reader.pages)} pages'
                     }
-            except BaseException:
+            except Exception:
                 pass  # Fall through to OCR
 
             if not self._tesseract_ready:

@@ -1,4 +1,5 @@
 import asyncio
+import heapq
 from fastapi import APIRouter, HTTPException, Query
 from typing import Dict, Any, Optional, List
 from modules.system import system_module
@@ -141,7 +142,7 @@ async def get_suspicious_processes():
         return processes
 
     processes = await asyncio.to_thread(_collect_processes)
-    top = sorted(processes, key=lambda x: x['cpu_percent'], reverse=True)[:50]
+    top = heapq.nlargest(50, processes, key=lambda x: x['cpu_percent'])
     return {"success": True, "processes": top}
 
 @router.get("/security/connections")
