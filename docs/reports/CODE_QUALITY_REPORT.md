@@ -18,6 +18,7 @@
 | **Maintainability Index** | 3 files rated B (low maintainability) |
 | **console.log/warn/error in src** | 42 occurrences |
 | **TODO/FIXME markers** | 0 |
+| **Code Review Score** | **7.5/10 (Good)** |
 
 ---
 
@@ -120,6 +121,21 @@
 - No TODO/FIXME markers — clean technical debt profile
 - All 25 tests pass reliably
 - Good use of Zustand for state management with typed stores
+
+### 2.5 Recent Code Review Findings
+
+**Overall Score:** 7.5/10 (Good)
+**Review Date:** June 23, 2026
+
+| # | Severity | Category | Finding | File | Line(s) | Suggestion |
+|---|----------|----------|---------|------|---------|------------|
+| 1 | **High** | **Correctness** | Silent failure when listening blocked by speaking — `startListening()` returns without calling `onError` when `isSpeaking` is true | `src/services/voiceService.ts` | 75 | Call `onError` with a descriptive message before returning when `isSpeaking` is true |
+| 2 | Medium | Maintainability | Fragile `onvoiceschanged` handler chain in `speak()` — overwrites the callback, breaking on rapid successive calls | `src/services/voiceService.ts` | 191 | Use `addEventListener` or maintain a queue to avoid nested callback wrapping |
+| 3 | **High** | **Security** | Missing authentication on agent endpoints — `/chat`, `/stream`, `/health`, `/rag` have no auth checks | `backend/routers/agent.py` | — | Add a dependency-based authentication guard (API key or JWT verification) to all agent routes |
+| 4 | Low | Style / Standards | Unused imports — `time` (line 7) and `Depends` (line 9) imported but never referenced | `backend/routers/agent.py` | 7, 10 | Remove unused imports |
+| 5 | Medium | Readability | TypeScript `any` cast undermines type safety — `const w = window as any` bypasses compile-time checks | `src/services/voiceService.ts` | 25 | Augment the `Window` interface with the optional `SpeechRecognition` property instead of casting to `any` |
+| 6 | Low | Performance | Duplicate `getVoices()` call in `speak()` — called on line 183, then again inside the deferred callback on line 189 | `src/services/voiceService.ts` | 183–189 | Reuse the already-fetched `voices` array to avoid the redundant API call |
+| 7 | **High** | **Correctness** | Missing error handling in streaming event generator — `event_stream()` can raise unhandled exceptions mid-stream | `backend/routers/agent.py` | 63–73 | Wrap the `async for` loop in a `try-except` block and yield a JSON error event before re-raising or logging |
 
 ---
 

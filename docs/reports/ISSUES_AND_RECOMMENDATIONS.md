@@ -35,11 +35,37 @@ winget install UB-Mannheim.TesseractOCR
 
 ---
 
+## P1 — Security
+
+### 1. Missing authentication on agent endpoints
+
+- **File:** `backend/routers/agent.py`
+- **Risk:** The agent router exposes `/chat`, `/stream`, `/health`, and `/rag` endpoints with rate limiting but no authentication or authorization checks. An unauthenticated attacker could consume LLM credits or probe the system.
+- **Suggestion:** Add a dependency-based authentication guard (API key or JWT verification) to all agent routes.
+
+---
+
+## P1 — Correctness
+
+### 2. Silent failure when listening blocked by speaking
+
+- **File:** `src/services/voiceService.ts:75`
+- **Risk:** In `startListening()`, if `isSpeaking` is true the method returns without calling `onError`, leaving the caller uninformed about why listening didn't start.
+- **Suggestion:** Call `onError` with a descriptive message before returning when `isSpeaking` is true.
+
+### 3. Missing error handling in streaming event generator
+
+- **File:** `backend/routers/agent.py:63-73`
+- **Risk:** The `event_stream()` generator in `agent_stream` can raise unhandled exceptions if the LLM gateway fails mid-stream, causing abrupt SSE disconnection without an error event. Clients receive no indication of failure.
+- **Suggestion:** Wrap the `async for` loop in a `try-except` block and yield a JSON error event before re-raising or logging.
+
+---
+
 ## P1 — High (voice UX broken for some commands)
 
 > **v3.9.1**: Security SAST findings are fully resolved. See ✅ FIXED above.
 
-### 1. Parser phrase collisions
+### 4. Parser phrase collisions
 
 Short phrases lose to longer fuzzy matches. See [COMMAND_TEST_MATRIX.md](./COMMAND_TEST_MATRIX.md).
 
@@ -56,7 +82,7 @@ Short phrases lose to longer fuzzy matches. See [COMMAND_TEST_MATRIX.md](./COMMA
 'open_documents': ['open document', 'documents kholo', ...]  # remove 'open downloads'
 ```
 
-### 2. `command_insights` missing voice dispatch
+### 5. `command_insights` missing voice dispatch
 
 - **Symptom:** Voice "command insights" → agent fallback
 - **Fix:** Add to `dispatch_command`:
@@ -68,7 +94,7 @@ elif command_key == 'command_insights':
     result = {'success': True, 'action_type': 'COMMAND_INSIGHTS', 'data': insights, ...}
 ```
 
-### 3. `open_downloads` opens Documents
+### 6. `open_downloads` opens Documents
 
 - **Cause:** `open_documents` includes `'open downloads'` in phrase list (line 79)
 - **Fix:** Remove duplicate phrase from `open_documents`
@@ -77,7 +103,31 @@ elif command_key == 'command_insights':
 
 ## P2 — Medium (tests & maintainability)
 
-### 4. Failing API test uses wrong path
+### 8. Fragile onvoiceschanged handler chain in speak()
+
+- **File:** `src/services/voiceService.ts:191`
+- **Risk:** The `speak()` method overwrites `window.speechSynthesis.onvoiceschanged` with a wrapper, but if `speak()` is called multiple times in rapid succession, each call nests the previous handler, creating a fragile callback chain that can break or cause unintended double-invocations.
+- **Suggestion:** Use `addEventListener` (or maintain a queue) to avoid nested callback wrapping.
+
+### 9. TypeScript `any` cast undermines type safety
+
+- **File:** `src/services/voiceService.ts:25`
+- **Risk:** `const w = window as any` bypasses TypeScript's compile-time checks for the `SpeechRecognition` constructor, hiding potential type mismatches.
+- **Suggestion:** Augment the `Window` interface with the optional `SpeechRecognition` property instead of casting to `any`.
+
+### 10. Duplicate getVoices() call in speak()
+
+- **File:** `src/services/voiceService.ts:183-189`
+- **Risk:** `getVoices()` is called on line 183 to populate the local `voices` variable, then called again inside the deferred `trySpeak` callback on line 189, making a redundant API call.
+- **Suggestion:** Reuse the already-fetched `voices` array to avoid the redundant call.
+
+### 11. Unused imports in agent.py
+
+- **File:** `backend/routers/agent.py:7,10`
+- **Risk:** The modules `time` (line 7) and `Depends` (line 9, from `fastapi`) are imported but never referenced. Unused imports increase code bloat and mislead maintainers.
+- **Suggestion:** Remove unused imports.
+
+### 12. Failing API test uses wrong path
 
 **File:** `backend/tests/test_api.py`
 
@@ -91,11 +141,11 @@ client.get("/api/v1/system/status")
 client.get("/system/status")
 ```
 
-### 5. `test_all_command_keys_have_routes` failure
+### 13. `test_all_command_keys_have_routes` failure
 
 Will pass once `command_insights` dispatch is added (or add to intentional exclusions).
 
-### 6. Param-sensitive file/media commands
+### 14. Param-sensitive file/media commands
 
 Voice passes strings; handlers expect dicts. Add normalizer in `handle_command`:
 
@@ -104,11 +154,11 @@ if isinstance(params, str) and command_key in FILE_PARAM_KEYS:
     params = infer_params_from_text(command_key, params, command)
 ```
 
-### 7. `DANGEROUS_COMMANDS` includes `hibernate` with no command key
+### 15. `DANGEROUS_COMMANDS` includes `hibernate` with no command key
 
 Remove from dangerous set or add `hibernate` command + handler.
 
-### 8. `shutdown` vs `close_app` phrase overlap
+### 16. `shutdown` vs `close_app` phrase overlap
 
 Both use `band karo` — disambiguate by requiring `pc` / `computer` for shutdown.
 
@@ -173,14 +223,21 @@ Run with backend + frontend dev servers:
 
 ## Suggested fix order
 
-1. Install Tesseract (user environment)
-2. Fix `open_documents` typo phrase
-3. Add `command_insights` dispatch
-4. Improve parser word-boundary matching
-5. Fix `test_api.py` path
-6. Add param normalizer for file commands
-7. Expand integration tests
-8. Run CodeQL analysis after any security-related changes
+1. **P1 Security** — Add authentication guard to agent routes (`backend/routers/agent.py`)
+2. **P1 Correctness** — Fix silent failure when speaking blocks listening (`src/services/voiceService.ts:75`)
+3. **P1 Correctness** — Add error handling in streaming event generator (`backend/routers/agent.py:63-73`)
+4. **P1 UX** — Install Tesseract (user environment)
+5. **P1 UX** — Fix `open_documents` typo phrase
+6. **P1 UX** — Add `command_insights` dispatch
+7. **P1 UX** — Improve parser word-boundary matching
+8. **P2** — Remove unused imports `time` and `Depends` from `agent.py`
+9. **P2** — Fix fragile `onvoiceschanged` handler chain in `speak()`
+10. **P2** — Replace `any` cast with augmented Window interface
+11. **P2** — Eliminate duplicate `getVoices()` call
+12. **P2** — Fix `test_api.py` path
+13. **P2** — Add param normalizer for file commands
+14. **P2** — Expand integration tests
+15. **P3** — Run CodeQL analysis after any security-related changes
 
 ---
 
@@ -195,3 +252,5 @@ Run with backend + frontend dev servers:
 | `backend/main.py` | CodeQL: information exposure fix (generic error responses) |
 | `backend/routers/context.py` | CodeQL: information exposure fix (generic error responses) |
 | `src/services/securityService.ts` | CodeQL: bad HTML regex & incomplete sanitization fixes |
+| `src/services/voiceService.ts` | Code review: 4 findings (correctness, maintainability, readability, performance) |
+| `backend/routers/agent.py` | Code review: 3 findings (security, style, correctness) |
