@@ -12,6 +12,8 @@ aiofiles>=23.2.1
 asyncpg>=0.29.0
 alembic>=1.13.0
 aiosqlite>=0.20.0
+pgvector>=0.2.5
+sqlalchemy>=2.0.29
 
 # System Monitoring & Hardware
 psutil>=5.9.8

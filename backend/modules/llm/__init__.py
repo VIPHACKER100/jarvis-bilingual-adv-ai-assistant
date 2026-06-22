@@ -27,7 +27,6 @@ from modules.llm_wrapper import (
     _call_nvidia_raw,
     _call_openrouter_raw,
     _call_openai_raw,
-    _call_ollama_raw,
     AGENT_SYSTEM_PROMPT,
     SYSTEM_PROMPT_TEMPLATE,
 )
@@ -54,7 +53,6 @@ __all__ = [
     "_call_nvidia_raw",
     "_call_openrouter_raw",
     "_call_openai_raw",
-    "_call_ollama_raw",
     "AGENT_SYSTEM_PROMPT",
     "SYSTEM_PROMPT_TEMPLATE",
 ]

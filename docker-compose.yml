@@ -49,6 +49,8 @@ services:
       WAKE_WORD_ENABLED: "false"
       MDNS_ENABLED: "false"
       LOG_LEVEL: INFO
+      OTEL_ENABLED: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318/v1/traces"
     volumes:
       - ./backend:/app/backend:ro
       - ./memory:/app/memory:ro
@@ -58,6 +60,19 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - jarvis-network
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jarvis-jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686" # UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
     networks:
       - jarvis-network
     restart: unless-stopped

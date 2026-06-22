@@ -61,6 +61,16 @@ async def lifespan(app: FastAPI):
     from config import CONFIG
     personality_manager.set_personality(CONFIG.get("personality", "stark"))
     
+    # Initialize OpenTelemetry if enabled
+    from utils.logger_structured import OTEL_ENABLED
+    if OTEL_ENABLED:
+        try:
+            from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+            FastAPIInstrumentor.instrument_app(app)
+            logger.info("FastAPI OpenTelemetry instrumentation enabled.")
+        except ImportError:
+            logger.warning("FastAPI OpenTelemetry packages missing.")
+            
     await memory_manager.initialize()
     # Trigger semantic vector sync in background to avoid blocking startup
     asyncio.create_task(memory_manager.neural.sync_vectors())
@@ -252,25 +262,6 @@ api_v1.include_router(context.router)
 app.include_router(api_v1)
 app.include_router(agent.router)
 app.include_router(audio.router)
-
-# Maintain legacy root routes for backward compatibility
-app.include_router(system.router)
-app.include_router(windows.router)
-app.include_router(files.router)
-app.include_router(media.router)
-app.include_router(pdf_tools.router)
-app.include_router(image_tools.router)
-app.include_router(desktop.router)
-app.include_router(memory.router)
-app.include_router(automation.router)
-app.include_router(commands.router)
-app.include_router(settings.router)
-app.include_router(whatsapp.router)
-app.include_router(input_control.router)
-app.include_router(notifications.router)
-app.include_router(sync.router)
-app.include_router(health.router)
-app.include_router(context.router)
 
 # WebSocket does not need prefix as it is typically handled separately
 app.include_router(websocket.router)

@@ -299,6 +299,35 @@ class LLMModule:
         result = await adapter.generate(messages, temperature=0.2)
         return result or "Error: No response from OpenAI."
 
+    async def _call_ollama_raw(self, messages: List[Dict[str, str]]) -> str:
+        adapter = llm_gateway._providers.get("ollama")
+        if not adapter:
+            return "Error: Ollama not initialized."
+        result = await adapter.generate(messages, temperature=0.2)
+        return result or "Error: No response from Ollama."
+
 
 llm_module = LLMModule()
 llm_client = llm_module
+
+get_response = llm_module.get_response
+get_response_stream = llm_module.get_response_stream
+get_visual_response = llm_module.get_visual_response
+extract_command = llm_module.extract_command
+ping_llm = llm_module.ping_llm
+get_embedding = llm_module.get_embedding
+summarize_context = llm_module.summarize_context
+get_agent_response = llm_module.get_agent_response
+
+_get_nvidia_response = llm_module._get_nvidia_response
+_get_openrouter_response = llm_module._get_openrouter_response
+_get_openai_response = llm_module._get_openai_response
+_get_ollama_response = llm_module._get_ollama_response
+_stream_nvidia = llm_module._stream_nvidia
+_stream_openrouter = llm_module._stream_openrouter
+_stream_openai = llm_module._stream_openai
+_stream_ollama = llm_module._stream_ollama
+_call_nvidia_raw = llm_module._call_nvidia_raw
+_call_openrouter_raw = llm_module._call_openrouter_raw
+_call_openai_raw = llm_module._call_openai_raw
+_call_ollama_raw = llm_module._call_ollama_raw
