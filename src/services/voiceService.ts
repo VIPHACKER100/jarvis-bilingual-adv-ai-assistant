@@ -7,6 +7,12 @@ import {
 import { useJarvisStore } from '../store/jarvisStore';
 import { resolveVoiceLang, type VoiceSpeakLang } from '../utils/voiceLang';
 
+/** Augmented Window interface for SpeechRecognition constructors. */
+interface SpeechRecognitionWindow extends Window {
+  SpeechRecognition?: new () => SpeechRecognition;
+  webkitSpeechRecognition?: new () => SpeechRecognition;
+}
+
 export type { VoiceSpeakLang } from '../utils/voiceLang';
 export { resolveVoiceLang } from '../utils/voiceLang';
 
@@ -22,8 +28,9 @@ class VoiceService {
   constructor() {
     if (typeof window === 'undefined') return;
 
-    const w = window as any;
-    const SpeechRecognitionCtor = w.SpeechRecognition || w.webkitSpeechRecognition;
+    const SpeechRecognitionCtor =
+      (window as SpeechRecognitionWindow).SpeechRecognition ||
+      (window as SpeechRecognitionWindow).webkitSpeechRecognition;
     if (SpeechRecognitionCtor) {
       const recognition = new SpeechRecognitionCtor() as SpeechRecognition;
       recognition.continuous = false;
@@ -41,7 +48,7 @@ class VoiceService {
     };
     loadVoices();
     if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
+      window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
     }
   }
 
@@ -73,6 +80,7 @@ class VoiceService {
     }
 
     if (this.isSpeaking) {
+      onError('speaking');
       return;
     }
 
@@ -186,13 +194,9 @@ class VoiceService {
       const trySpeak = () => {
         if (!this.pendingSpeak) return;
         this.pendingSpeak = false;
-        this._selectAndSpeak(utterance, this.synthesis.getVoices(), speakLang);
+        this._selectAndSpeak(utterance, voices, speakLang);
       };
-      const prev = window.speechSynthesis.onvoiceschanged;
-      window.speechSynthesis.onvoiceschanged = () => {
-        prev?.call(window.speechSynthesis, new Event('voiceschanged'));
-        trySpeak();
-      };
+      window.speechSynthesis.addEventListener('voiceschanged', trySpeak, { once: true });
       setTimeout(trySpeak, 250);
       return;
     }
