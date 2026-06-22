@@ -5,7 +5,7 @@ Delegates to domain-specific handlers. Falls through to Autonomous Agent.
 
 from typing import Dict, Any, Optional, List
 from fastapi import WebSocket
-from utils.logger import logger, log_command
+from utils.logger_structured import logger, log_command
 from models import CommandResult, ConversationEntryModel
 from modules.bilingual_parser import parser
 from modules.memory import memory_manager, ConversationEntry

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Dict, Any, Optional
 from modules.context import context_manager
 from modules.memory import memory_manager
-from utils.logger import logger
+from utils.logger_structured import logger
 
 router = APIRouter(prefix="/context", tags=["context"])
 

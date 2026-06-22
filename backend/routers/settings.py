@@ -133,6 +133,6 @@ async def test_key(data: KeyTestRequest):
     if not provider or not api_key:
         raise HTTPException(status_code=400, detail="Missing provider or api_key")
         
-    from modules.llm import llm_module
+    from modules.llm_wrapper import llm_module
     # Future: Implement per-provider validation
     return {"success": True, "response": f"Verified {provider} key (simulated)"}

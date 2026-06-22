@@ -89,13 +89,10 @@ class TestLLMGateway:
             result = await gw.generate("hello")
             assert result is None
 
-    async def test_backward_compatible_import(self):
-        import modules.llm as legacy
-        assert hasattr(legacy, "llm_client")
-        assert hasattr(legacy, "llm_module")
-        assert hasattr(legacy, "get_response")
-        assert hasattr(legacy, "ping_llm")
-        assert hasattr(legacy, "get_embedding")
+    async def test_gateway_import(self):
+        from modules.llm_wrapper import llm_module, llm_client
+        assert llm_module is not None
+        assert llm_client is not None
 
 
 # ─── RAG Pipeline Tests ───────────────────────────────────────────────────────

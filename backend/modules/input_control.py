@@ -4,7 +4,7 @@ from typing import Dict, Tuple, Optional, List
 import pyautogui
 from modules.bilingual_parser import parser
 from utils.platform_utils import is_windows, is_macos
-from utils.logger import logger, log_command
+from utils.logger_structured import logger, log_command
 from utils.automation_utils import safe_automation
 
 

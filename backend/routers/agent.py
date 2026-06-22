@@ -11,11 +11,11 @@ from utils.middleware_security import per_route_limiter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from utils.logger import logger
+from utils.logger_structured import logger
 from modules.rag import rag_pipeline
 from modules.llm_gateway import llm_gateway, cost_tracker
 
-router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
+router = APIRouter(prefix="/agent", tags=["agent"])
 
 
 class AgentQuery(BaseModel):

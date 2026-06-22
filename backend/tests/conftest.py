@@ -14,7 +14,6 @@ from dataclasses import dataclass
 
 import pytest
 import pytest_asyncio
-import aiosqlite
 
 # Ensure backend is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -30,65 +29,62 @@ def event_loop():
     loop.close()
 
 
-# ─── In-Memory Test Database ─────────────────────────────────────────────────
+# ─── Mock Database ───────────────────────────────────────────────────────────
+
+class MockConnection:
+    """Mock asyncpg-compatible connection backed by in-memory dicts."""
+    def __init__(self):
+        self._tables = {
+            "conversations": [],
+            "memory": [],
+            "sessions": [],
+            "performance_metrics": [],
+        }
+        self._sequences = {"id": 0}
+
+    async def execute(self, sql: str, *args) -> str:
+        return "INSERT 0 1"
+
+    async def fetchrow(self, sql: str, *args):
+        return None
+
+    async def fetch(self, sql: str, *args):
+        return []
+
+    async def fetchval(self, sql: str, *args):
+        return self._sequences["id"]
+
+    def cursor(self, *args, **kwargs):
+        return self
+
+    async def __aenter__(self): return self
+    async def __aexit__(self, *args): pass
+
+    async def close(self):
+        pass
+
+
+class MockPool:
+    """Mock asyncpg.Pool."""
+    def __init__(self):
+        self._conn = MockConnection()
+
+    def acquire(self):
+        return self._conn
+
+    async def release(self, conn):
+        pass
+
+    async def close(self):
+        pass
+
 
 @pytest_asyncio.fixture
-async def test_db() -> AsyncGenerator[aiosqlite.Connection, None]:
-    """
-    Provide an in-memory SQLite database pre-loaded with JARVIS schema.
-    Completely isolated — no file system side effects.
-    """
-    db = await aiosqlite.connect(":memory:")
-
-    # Apply the initial migration schema
-    migration_path = Path(__file__).parent.parent / "migrations" / "001_initial.sql"
-    if migration_path.exists():
-        schema_sql = migration_path.read_text(encoding="utf-8")
-        await db.executescript(schema_sql)
-    else:
-        # Fallback: create tables manually
-        await db.executescript("""
-            CREATE TABLE IF NOT EXISTS conversations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT NOT NULL,
-                user_input TEXT NOT NULL,
-                jarvis_response TEXT NOT NULL,
-                command_type TEXT,
-                success BOOLEAN DEFAULT 1,
-                context TEXT,
-                language TEXT DEFAULT 'en',
-                session_id TEXT
-            );
-            CREATE TABLE IF NOT EXISTS memory (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                key TEXT UNIQUE NOT NULL,
-                value TEXT NOT NULL,
-                category TEXT DEFAULT 'general',
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
-                confidence REAL DEFAULT 1.0,
-                source TEXT
-            );
-            CREATE TABLE IF NOT EXISTS sessions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id TEXT UNIQUE NOT NULL,
-                started_at TEXT NOT NULL,
-                ended_at TEXT,
-                command_count INTEGER DEFAULT 0,
-                metadata TEXT
-            );
-            CREATE TABLE IF NOT EXISTS performance_metrics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT NOT NULL,
-                event_loop_lag REAL NOT NULL,
-                cpu_percent REAL,
-                memory_percent REAL
-            );
-        """)
-
-    await db.commit()
-    yield db
-    await db.close()
+async def test_db():
+    pool = MockPool()
+    with patch("utils.database.db_manager._pool", pool), \
+         patch("utils.database.db_manager._initialized", True):
+        yield pool._conn
 
 
 # ─── Mock LLM Client ─────────────────────────────────────────────────────────

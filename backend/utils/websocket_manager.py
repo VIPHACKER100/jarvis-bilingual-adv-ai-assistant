@@ -1,6 +1,6 @@
 from fastapi import WebSocket
 from typing import Dict, Any, List
-from utils.logger import logger
+from utils.logger_structured import logger
 import json
 
 class ConnectionManager:

@@ -4,7 +4,7 @@ import asyncio
 from typing import Dict, Any, List
 from modules.memory import memory_manager
 from modules.automation import automation_manager
-from utils.logger import logger
+from utils.logger_structured import logger
 from config import VERSION
 
 class HealthMonitor:

@@ -9,7 +9,7 @@ from fuzzywuzzy import fuzz, process
 
 from modules.bilingual_parser import parser
 from utils.platform_utils import is_windows, is_macos, is_linux, run_command
-from utils.logger import logger, log_command
+from utils.logger_structured import logger, log_command
 
 
 class FileManager:

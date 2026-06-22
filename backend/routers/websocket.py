@@ -5,7 +5,7 @@ import asyncio
 import json
 from datetime import datetime
 from modules.system import system_module
-from utils.logger import logger, log_system_event
+from utils.logger_structured import logger, log_system_event
 from models import WebSocketMessage, WebSocketResponse
 from utils.websocket_manager import manager
 

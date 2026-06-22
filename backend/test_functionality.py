@@ -19,7 +19,7 @@ async def test_input_control():
 
 async def test_llm():
     """Test LLM module"""
-    from modules.llm import llm_module
+    from modules.llm_wrapper import llm_module
     # Just check if module loads
     return llm_module is not None
 
@@ -53,7 +53,7 @@ async def test_whatsapp():
 
 async def test_vision():
     """Test Vision capability (Visual Analysis)"""
-    from modules.llm import llm_module
+    from modules.llm_wrapper import llm_module
     # Check if get_visual_response exists
     return hasattr(llm_module, 'get_visual_response')
 

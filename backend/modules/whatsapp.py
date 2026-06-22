@@ -8,7 +8,7 @@ import aiofiles
 from config import DATA_DIR, BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM
 from modules.bilingual_parser import parser
 from utils.platform_utils import get_whatsapp_desktop_path, is_windows, is_macos, is_linux, run_command
-from utils.logger import logger, log_command
+from utils.logger_structured import logger, log_command
 from utils.automation_utils import safe_automation
 
 
@@ -459,7 +459,7 @@ class WhatsAppManager:
         """Draft a reply based on the current WhatsApp screen context using OCR"""
         try:
             from modules.context import context_manager
-            from modules.llm import llm_module
+            from modules.llm_wrapper import llm_module
             
             visual_context = await context_manager.get_visual_context()
             

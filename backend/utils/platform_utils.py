@@ -3,7 +3,7 @@ import os
 import subprocess
 from pathlib import Path
 from config import PLATFORM
-from utils.logger import logger
+from utils.logger_structured import logger
 
 def get_platform():
     """Get current platform"""

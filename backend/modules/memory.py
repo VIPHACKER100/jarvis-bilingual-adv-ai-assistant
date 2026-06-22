@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 
 from config import DATA_DIR, PROJECT_ROOT
-from utils.logger import logger
+from utils.logger_structured import logger
 from utils.database import db_manager
 
 
@@ -218,7 +218,7 @@ class NeuralMemoryManager:
 
     async def _get_semantic_scores(self, query: str) -> Dict[str, float]:
         """Calculate semantic similarity scores for all indexed nodes"""
-        from modules.llm import llm_client
+        from modules.llm_wrapper import llm_client
         
         query_vector = await llm_client.get_embedding(query)
         if not query_vector:
@@ -250,7 +250,7 @@ class NeuralMemoryManager:
     async def sync_vectors(self):
         """Synchronize Markdown nodes with vector embeddings in the database"""
         logger.info("Synchronizing semantic memory vectors...")
-        from modules.llm import llm_client
+        from modules.llm_wrapper import llm_client
         
         nodes = await self.list_nodes()
         synced_count = 0
@@ -481,7 +481,6 @@ class MemoryManager:
         try:
             since = (datetime.now() - timedelta(days=days)).isoformat()
             async with db_manager.connection() as db:
-                db.row_factory = __import__('aiosqlite').Row
 
                 # Top 5 most used command types
                 async with db.execute('''

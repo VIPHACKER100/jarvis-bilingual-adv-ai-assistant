@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional, AsyncGenerator, Any, List, Dict
 from contextlib import asynccontextmanager
 
-from utils.logger import logger
+from utils.logger_structured import logger
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -225,12 +225,12 @@ class DatabaseManager:
             logger.warning(f"Initial migration not found: {migration_file}")
             return
 
-        row = await self.fetchrow(\"\"\"
+        row = await self.fetchrow("""
             SELECT EXISTS (
                 SELECT FROM information_schema.tables
                 WHERE table_name = 'conversations'
             ) AS exists
-        \"\"\")
+        """)
         if row and row["exists"]:
             logger.debug("PostgreSQL schema is up to date")
             return

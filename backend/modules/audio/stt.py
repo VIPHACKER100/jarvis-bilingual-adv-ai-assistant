@@ -6,7 +6,7 @@ Providers: OpenAI Whisper, local fallback
 import io
 import os
 from typing import Optional, AsyncGenerator, List
-from utils.logger import logger
+from utils.logger_structured import logger
 
 
 class STTService:

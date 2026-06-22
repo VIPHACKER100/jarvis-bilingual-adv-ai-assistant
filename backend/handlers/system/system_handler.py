@@ -1,6 +1,6 @@
 import re
 from typing import Dict, Any, Optional
-from utils.logger import logger
+from utils.logger_structured import logger
 from modules.system import system_module
 
 

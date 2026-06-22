@@ -1,7 +1,7 @@
 import socket
 from zeroconf.asyncio import AsyncZeroconf
 from zeroconf import IPVersion, ServiceInfo
-from utils.logger import logger
+from utils.logger_structured import logger
 import os
 
 class mDNSBroadcaster:

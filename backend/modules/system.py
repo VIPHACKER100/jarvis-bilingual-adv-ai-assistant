@@ -9,7 +9,7 @@ from utils.platform_utils import (
     set_volume, get_volume, set_mute, is_muted,
     is_windows, is_macos, is_linux
 )
-from utils.logger import log_command, logger
+from utils.logger_structured import log_command, logger
 from models import (
     SystemStatusResponse, BatteryInfo, CPUInfo, MemoryInfo, 
     DiskInfo, NetworkIOInfo, BatteryResponse, TimeResponse, 

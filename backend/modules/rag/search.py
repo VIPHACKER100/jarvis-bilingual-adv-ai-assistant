@@ -7,7 +7,7 @@ import os
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 
-from utils.logger import logger
+from utils.logger_structured import logger
 
 
 @dataclass

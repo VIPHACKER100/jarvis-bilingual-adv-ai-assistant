@@ -6,7 +6,7 @@ import secrets
 
 from modules.system import system_module
 from modules.memory import memory_manager
-from utils.logger import logger
+from utils.logger_structured import logger
 from models import (
     DevicePairingRequest, 
     DevicePairingResponse, 

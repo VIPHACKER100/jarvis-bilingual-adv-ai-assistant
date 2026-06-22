@@ -8,7 +8,7 @@ from typing import Dict, Tuple
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from utils.logger import logger
+from utils.logger_structured import logger
 
 
 BLOCKED_PATTERNS = re.compile(

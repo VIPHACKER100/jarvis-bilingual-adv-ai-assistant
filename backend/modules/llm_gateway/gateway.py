@@ -9,7 +9,7 @@ import time
 from typing import Dict, Any, Optional, List, AsyncGenerator
 from pathlib import Path
 
-from utils.logger import logger
+from utils.logger_structured import logger
 from config import LLM_PROVIDER
 
 from modules.llm_gateway.adapters import (

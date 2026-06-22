@@ -7,7 +7,7 @@ import json
 import asyncio
 import re
 from typing import List, Dict, Any, Optional, Callable, Coroutine
-from utils.logger import logger
+from utils.logger_structured import logger
 from modules.tools import get_tools_prompt
 from modules.memory import memory_manager
 
@@ -29,7 +29,7 @@ class AgentController:
         # Get relevant context from memory (Neural Context)
         memory_context = await memory_manager.get_neural_context(query)
         
-        from modules.llm import llm_client
+        from modules.llm_wrapper import llm_client
         
         logger.info(f"Starting autonomous agent loop for: '{query}'")
         

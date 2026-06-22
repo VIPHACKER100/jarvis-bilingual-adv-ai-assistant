@@ -6,7 +6,7 @@ from openwakeword.model import Model
 from typing import Callable, Optional
 import threading
 
-from utils.logger import logger
+from utils.logger_structured import logger
 
 class WakeWordEngine:
     """

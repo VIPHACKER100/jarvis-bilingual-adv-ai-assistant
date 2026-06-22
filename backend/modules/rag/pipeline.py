@@ -6,7 +6,7 @@ Orchestrates: embedding → hybrid search → re-ranking → context assembly.
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 
-from utils.logger import logger
+from utils.logger_structured import logger
 from modules.rag.embeddings import embedding_service
 from modules.rag.search import hybrid_search, SearchResult
 

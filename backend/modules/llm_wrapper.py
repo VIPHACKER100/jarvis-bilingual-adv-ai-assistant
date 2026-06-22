@@ -12,7 +12,7 @@ from pathlib import Path
 
 from modules.llm_gateway import llm_gateway, cost_tracker
 from modules.llm_gateway.gateway import SYSTEM_PROMPT_TEMPLATE
-from utils.logger import logger
+from utils.logger_structured import logger
 from config import (
     BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM,
     LLM_PROVIDER, NVIDIA_MODEL, OPENROUTER_MODEL, OPENAI_MODEL,

@@ -7,11 +7,11 @@ import base64
 import asyncio
 from typing import Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from utils.logger import logger
+from utils.logger_structured import logger
 from modules.audio.tts import tts_service
 from modules.audio.stt import stt_service
 
-router = APIRouter(tags=["Audio"])
+router = APIRouter(prefix="/audio", tags=["Audio"])
 
 MAX_AUDIO_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_TTS_TEXT = 2000

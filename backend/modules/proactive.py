@@ -4,8 +4,8 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 from modules.window_manager import window_manager
 from modules.media import media_manager
-from modules.llm import llm_client
-from utils.logger import logger, log_system_event
+from modules.llm_wrapper import llm_client
+from utils.logger_structured import logger, log_system_event
 from utils.websocket_manager import manager
 
 class ProactiveManager:

@@ -13,7 +13,7 @@ from PIL import Image
 
 from modules.bilingual_parser import parser
 from utils.platform_utils import is_windows, is_macos, is_linux
-from utils.logger import logger, log_command
+from utils.logger_structured import logger, log_command
 from utils.automation_utils import safe_automation
 
 

@@ -7,7 +7,7 @@ from pathlib import Path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
-from modules.llm import llm_module
+from modules.llm_wrapper import llm_module
 
 async def test_all_providers():
     print("--- JARVIS LLM API Multi-Provider Test ---")

@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Callable
 from config import DANGEROUS_COMMANDS, CONFIRMATION_TIMEOUT
-from utils.logger import log_command, log_system_event
+from utils.logger_structured import log_command, log_system_event
 
 
 class SecurityManager:

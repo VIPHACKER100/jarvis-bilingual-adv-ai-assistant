@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Optional, AsyncGenerator, Any
 from contextlib import asynccontextmanager
 
-from utils.logger import logger
+from utils.logger_structured import logger
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",

@@ -6,7 +6,7 @@ Providers: OpenAI TTS, Edge-TTS (local), fallback
 import base64
 import asyncio
 from typing import AsyncGenerator, Optional
-from utils.logger import logger
+from utils.logger_structured import logger
 
 
 class TTSService:

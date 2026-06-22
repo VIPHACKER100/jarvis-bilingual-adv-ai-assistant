@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from modules.bilingual_parser import parser
 from modules.memory import memory_manager, ConversationEntry, MemoryEntry
-from utils.logger import logger
+from utils.logger_structured import logger
 
 
 @dataclass

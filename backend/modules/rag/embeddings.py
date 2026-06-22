@@ -3,7 +3,7 @@ Embedding Service — generates vector embeddings via available LLM providers.
 """
 
 from typing import List, Optional
-from utils.logger import logger
+from utils.logger_structured import logger
 
 
 class EmbeddingService:

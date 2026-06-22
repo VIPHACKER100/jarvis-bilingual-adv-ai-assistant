@@ -27,7 +27,7 @@ from utils.middleware_security import (
 )
 from modules.system import system_module
 from modules.automation import automation_manager
-from utils.logger import logger, log_system_event
+from utils.logger_structured import logger, log_system_event, OTEL_ENABLED
 
 # Import routers
 from routers import (
@@ -62,7 +62,6 @@ async def lifespan(app: FastAPI):
     personality_manager.set_personality(CONFIG.get("personality", "stark"))
     
     # Initialize OpenTelemetry if enabled
-    from utils.logger_structured import OTEL_ENABLED
     if OTEL_ENABLED:
         try:
             from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
@@ -258,10 +257,10 @@ api_v1.include_router(notifications.router)
 api_v1.include_router(sync.router)
 api_v1.include_router(health.router)
 api_v1.include_router(context.router)
+api_v1.include_router(agent.router)
+api_v1.include_router(audio.router)
 
 app.include_router(api_v1)
-app.include_router(agent.router)
-app.include_router(audio.router)
 
 # WebSocket does not need prefix as it is typically handled separately
 app.include_router(websocket.router)

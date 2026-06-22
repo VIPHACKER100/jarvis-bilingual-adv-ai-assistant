@@ -15,7 +15,7 @@ import pyautogui
 
 from modules.bilingual_parser import parser
 from utils.platform_utils import is_windows, is_macos, is_linux
-from utils.logger import logger, log_command
+from utils.logger_structured import logger, log_command
 
 
 class MediaProcessor:
@@ -286,7 +286,7 @@ class MediaProcessor:
     async def analyze_screen(self, query: Optional[str] = None, language: str = 'en') -> Dict:
         """Capture screenshot and analyze it using a multimodal LLM"""
         try:
-            from modules.llm import llm_module
+            from modules.llm_wrapper import llm_module
             from modules.desktop import desktop_manager
             
             # 1. Take a screenshot (saving to file for multimodal processing)
@@ -930,7 +930,7 @@ class MediaProcessor:
 
     async def get_screen_summary(self, language: str = 'en') -> Dict:
         """Get a coherent summary of what's on screen using LLM"""
-        from modules.llm import llm_client
+        from modules.llm_wrapper import llm_client
         
         result = await self.extract_text_from_screenshot(language)
         if result['success']:
@@ -951,7 +951,7 @@ class MediaProcessor:
 
     async def analyze_screen(self, query: str, language: str = 'en') -> Dict:
         """Answer a specific question about the current screen content"""
-        from modules.llm import llm_client
+        from modules.llm_wrapper import llm_client
         
         result = await self.extract_text_from_screenshot(language)
         if result['success']:

@@ -1,5 +1,5 @@
 from typing import Dict, Any, Optional
-from utils.logger import logger
+from utils.logger_structured import logger
 from config import CONFIG, save_config
 
 

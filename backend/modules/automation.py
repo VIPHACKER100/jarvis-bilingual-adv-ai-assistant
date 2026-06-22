@@ -7,7 +7,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 from config import DATA_DIR
-from utils.logger import logger
+from utils.logger_structured import logger
 
 
 @dataclass

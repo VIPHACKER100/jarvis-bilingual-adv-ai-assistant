@@ -19,7 +19,7 @@ from pathlib import Path
 import httpx
 from openai import OpenAI
 
-from utils.logger import logger
+from utils.logger_structured import logger
 from modules.llm_gateway.cost import cost_tracker
 from modules.llm_gateway.circuit import CircuitBreaker
 

@@ -3,7 +3,7 @@ import subprocess
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import pyautogui
-from utils.logger import logger
+from utils.logger_structured import logger
 
 class SafeAutomation:
     """Wrapper for GUI and system automation to ensure safety and reliability"""
