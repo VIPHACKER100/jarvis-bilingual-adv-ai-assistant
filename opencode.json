@@ -1,0 +1,33 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "backend-dev": {
+      "description": "Python/FastAPI backend specialist for JARVIS",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+    "frontend-dev": {
+      "description": "React/TypeScript frontend specialist for JARVIS",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+    "test-runner": {
+      "description": "Runs and fixes pytest/vitest test suites",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+    "database-migrator": {
+      "description": "PostgreSQL schema design and Alembic migrations",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+    "code-reviewer": {
+      "description": "Reviews code for quality, style, bugs, and security vulnerabilities",
+      "mode": "subagent"
+    },
+    "CODEX": {
+      "description": "Code review agent — returns plain-text rating reports across six dimensions",
+      "mode": "all"
+    }
+  }
+}

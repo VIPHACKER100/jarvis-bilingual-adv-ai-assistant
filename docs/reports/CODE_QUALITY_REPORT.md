@@ -1,4 +1,4 @@
-# Code Quality Report — JARVIS v3.9.1
+# Code Quality Report — JARVIS v4.0.0-alpha.1
 
 **Generated:** June 22, 2026  
 **Scope:** Backend (Python/FastAPI) + Frontend (React/TypeScript)
@@ -13,7 +13,7 @@
 | **markdownlint** | PASS (0 errors) |
 | **Frontend tests** | 25/25 passed (3 test files) |
 | **Backend Ruff lint** | **1043 errors** (822 auto-fixable) |
-| **Backend tests** | Collection failure (missing `structlog`) |
+| **Backend tests** | 47/47 passed (100%) |
 | **Cyclomatic complexity (avg)** | Rank C (18.6) |
 | **Maintainability Index** | 3 files rated B (low maintainability) |
 | **console.log/warn/error in src** | 42 occurrences |
@@ -51,7 +51,7 @@
 |------|--------|------------|
 | `backend/modules/memory.py` | ~60 | Whitespace, import order, bare except |
 | `backend/modules/media.py` | ~55 | Unused imports, F811 redefinition, long lines |
-| `backend/modules/llm_legacy.py` | ~50 | Unused imports, bare except, long lines |
+| `backend/modules/llm_legacy.py` | — | Archived in v4.0.0-alpha.1 (resolved) |
 | `backend/modules/whatsapp.py` | ~40 | Unused imports, long lines |
 | `backend/modules/system.py` | ~40 | Unused imports, F841 unused var, long lines |
 | `backend/modules/window_manager.py` | ~25 | Unused imports, bare except |
@@ -78,7 +78,7 @@
 
 | File | Score | Rating |
 |------|-------|--------|
-| `backend/modules/llm_legacy.py` | B | Low maintainability |
+| `backend/modules/llm_legacy.py` | — | Archived in v4.0.0-alpha.1 (resolved) |
 | `backend/modules/media.py` | B | Low maintainability |
 | `backend/modules/system.py` | B | Low maintainability |
 
@@ -127,7 +127,7 @@
 
 ### 3.1 Dead/Legacy Code
 
-- **`backend/modules/llm_legacy.py`** — 800+ lines of legacy LLM code still in the repo, causing 50+ lint errors. It is not imported by any active module and should be archived or removed.
+- ~~**`backend/modules/llm_legacy.py`** — 800+ lines of legacy LLM code.~~ **Resolved in v4.0.0-alpha.1** — archived to [archive/llm_legacy.py] and the `modules/llm/` backward-compat shim removed.
 - **Various empty `__init__.py` files** in `handlers/automation/`, `handlers/media/`, `handlers/security/` — suggest planned but unimplemented modules.
 
 ### 3.2 File Size Warnings
@@ -141,9 +141,9 @@
 | `src/components/MemoryViewer.tsx` | 693 | Single component too large |
 | `src/services/apiClient.ts` | 574 | Should be split by domain |
 
-### 3.3 Missing Backend Dependencies
+### 3.3 Backend Dependencies (Resolved)
 
-`structlog` and `opentelemetry-*` packages are imported but not installed in the virtual environment — this breaks `pytest` collection and likely runtime in some code paths.
+`structlog` and `opentelemetry-*` packages are now installed as part of the structured logging migration (v4.0.0-alpha.1). `utils/logger.py` shim has been deleted; all 41 consumers use `utils.logger_structured`.
 
 ### 3.4 No ESLint or Prettier for TypeScript
 
@@ -155,7 +155,7 @@ The frontend relies solely on TypeScript's built-in type checking. There is no E
 ### 3.5 Test Coverage
 
 - **Frontend:** 25 tests across 3 files — very low coverage for ~10,000 lines of source
-- **Backend:** 0 tests can currently run (import error due to missing `structlog`)
+- **Backend:** 47/47 tests passing (100%) — all pre-existing failures resolved.
 - No coverage thresholds configured
 
 ---
@@ -164,10 +164,10 @@ The frontend relies solely on TypeScript's built-in type checking. There is no E
 
 | Priority | Action | Impact |
 |----------|--------|--------|
-| P0 | Install missing deps (`structlog`, `opentelemetry`) to fix test collection | Enables backend CI |
+| P0 | ~~Install missing deps (`structlog`, `opentelemetry`)~~ | **Resolved** in v4.0.0-alpha.1 |
 | P0 | Fix 10 bare `except` clauses — at minimum log the exception | Prevents silent failures |
 | P1 | Run `ruff --fix` to auto-clean 822 issues (imports, whitespace, trailing space) | Quick wins |
-| P1 | Remove `llm_legacy.py` or move to `archive/` | Reduces noise by ~50 errors |
+| P1 | ~~Remove `llm_legacy.py` or move to `archive/`~~ | **Resolved** in v4.0.0-alpha.1 |
 | P1 | Add ESLint + Prettier config to frontend | Enforce React best practices |
 | P2 | Refactor `bilingual_parser.py:109` (rank F complexity) — extract sub-functions | Reduces bug surface |
 | P2 | Split `media.py` (892 lines) into domain-specific modules | Improves maintainability |
@@ -189,7 +189,7 @@ The frontend relies solely on TypeScript's built-in type checking. There is no E
 | Auto-fixable errors | 822 (78.8%) |
 | TS type errors | 0 |
 | Frontend test pass rate | 100% (25/25) |
-| Backend tests passing | 0 (setup failure) |
+| Backend tests passing | 47/47 (100% passing) |
 | console.* calls in src/ | 42 |
 | TODO/FIXME in backend | 0 |
 | Cyclomatic complexity avg | Rank C (18.6) |

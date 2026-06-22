@@ -7,6 +7,23 @@ All notable changes to the JARVIS AI Assistant will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0-alpha.1] - 2026-06-22
+
+### Changed
+
+- **PostgreSQL migration**: Removed aiosqlite dependency, deleted SQLite migration files, removed dynamic aiosqlite.Row import from memory.py, rewrote test fixtures to use mocked asyncpg.Pool
+- **Structured logging**: Migrated 41 files from `utils.logger` to `utils.logger_structured` (structlog + OpenTelemetry), deleted the logger.py shim
+- **LLM Gateway cleanup**: Archived dead llm_legacy.py (832 lines, zero imports), removed modules/llm/ backward-compat shim, updated 8 consumer files to import from llm_wrapper directly
+- **API versioning**: Moved agent and audio routers under /api/v1 prefix
+- **Version bumped** from 3.9.1 to 4.0.0-alpha.1
+
+### Fixed
+
+- **Backend test sweep**: All 47 backend tests now pass (was 33/47 with 14 pre-existing failures). All 25 frontend tests continue to pass — zero failures across the entire suite.
+- **`command_handler` tests (6 tests)**: Updated mock targets from `command_handler.system_module` to `handlers.system.system_handler.system_module`. Rewrote `test_all_command_keys_have_routes` to use convention-based handler mapping instead of source-code string scanning.
+- **`test_v4.py` tests (8 tests)**: Updated `CostTracker` fixture — `track()` → `record()`, `estimate_cost()` → `total_cost()`, removed `reset()`. Updated `CircuitBreaker` fixture — `max_failures` → `failure_threshold`, `reset_timeout` → `recovery_timeout`, import from `modules.llm_gateway.circuit` instead of `.adapters`.
+- **Critical `SQLInjectionMiddleware` body-stream exhaustion bug**: Converted from `BaseHTTPMiddleware` to raw ASGI middleware with a `_ReceiveWrapper` that replays pre-read body to downstream handlers.
+
 ## [3.9.1] - 2026-06-16
 
 ### Fixed

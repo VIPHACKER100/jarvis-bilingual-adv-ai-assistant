@@ -11,13 +11,13 @@
 | **Docker Compose** | Production-grade deployment with PostgreSQL, Redis, Nginx reverse proxy |
 | **CI/CD Pipeline** | GitHub Actions: lint → test matrix → security scan → deploy |
 | **Domain Handlers** | 9 extracted command handlers replacing monolithic 474-line dispatch |
-| **PostgreSQL Migration** | Alembic + asyncpg pool, backward-compatible with existing SQLite |
+| **PostgreSQL Migration** | asyncpg connection pool with SQLite-to-PostgreSQL query translation at runtime |
 | **Structured Logging** | structlog + OpenTelemetry, JSON logs in production |
 | **Security Middleware** | CSP headers, SQLi protection, body size limits, per-route rate limiting |
 
 ## Breaking Changes
 
-- `modules/llm.py` is now a **backward-compatible wrapper** — all 13 import sites keep working. No code changes required.
+- `modules/llm_legacy.py` has been archived and the `modules/llm/` backward-compat shim removed. All consumers now import directly from `modules.llm_wrapper`.
 - `command_handler.py` now dispatches to 9 domain handlers in `handlers/` — custom commands may need re-registration.
 - Docker deployment requires PostgreSQL — set `DATABASE_URL` in `.env`.
 
