@@ -2,6 +2,7 @@ import { FC, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, MessageSquare, Zap, Shield, AlertTriangle, Clock } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
+import type { CommandResult } from '../types';
 
 
 export const ActivityFeed: FC = () => {
@@ -69,7 +70,7 @@ export const ActivityFeed: FC = () => {
   );
 };
 
-const ActivityItem: FC<{ item: any }> = ({ item }) => {
+const ActivityItem: FC<{ item: CommandResult }> = ({ item }) => {
   const config = {
     SYSTEM: { icon: <Shield className="w-3.5 h-3.5" />, color: 'var(--secondary)', label: 'SYS_CORE', accent: 'border-secondary/30 bg-secondary/5' },
     COMMAND: { icon: <Zap className="w-3.5 h-3.5" />, color: 'var(--accent)', label: 'USER_CMD', accent: 'border-accent/30 bg-accent/5' },

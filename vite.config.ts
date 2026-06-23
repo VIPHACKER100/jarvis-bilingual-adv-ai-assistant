@@ -30,6 +30,7 @@ export default defineConfig({
           if (id.includes('zustand')) return 'vendor-state';
           if (id.includes('lucide-react')) return 'vendor-ui';
           if (id.includes('react-router-dom')) return 'vendor-router';
+          return undefined;
         },
       },
     },

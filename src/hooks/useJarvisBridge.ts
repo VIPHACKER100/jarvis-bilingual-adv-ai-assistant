@@ -6,7 +6,8 @@ import {
   CommandResponse,
   WebSocketMessage
 } from '../types/bridge';
-import { useNotifications } from '../context/NotificationContext';
+import type { VoiceProfile, NeuralLogEntry } from '../types/api';
+import { useNotifications, type NotificationType } from '../context/NotificationContext';
 import { useJarvisStore } from '../store/jarvisStore';
 
 export function useJarvisBridge() {
@@ -43,7 +44,7 @@ export function useJarvisBridge() {
             setPendingConfirmation({
               confirmation_id: response.confirmation_id,
               command_key: response.command_key,
-              command_text: response.data?.command_text || '',
+              command_text: (response.data?.command_text as string) || '',
               language: response.language,
               response: response.response,
               timeout: 30,
@@ -65,22 +66,22 @@ export function useJarvisBridge() {
 
       case 'notification':
         if (message.data) {
-          const { title, message: notifMsg, type, duration } = message.data as any;
+          const { title, message: notifMsg, type, duration } = message.data as Record<string, unknown>;
           addNotification({
-            title: title || 'System Alert',
-            message: notifMsg || '',
-            type: type || 'info',
-            duration: duration || 5000
+            title: (title as string) || 'System Alert',
+            message: (notifMsg as string) || '',
+            type: (type as NotificationType) || 'info',
+            duration: (duration as number) || 5000
           });
         }
         break;
 
       case 'macro_update':
         if (message.data) {
-          const macroData = message.data as any;
+          const macroData = message.data as Record<string, unknown>;
           addNotification({
             title: 'Macro Progress',
-            message: `Executed: ${macroData.command || 'Step'}`,
+            message: `Executed: ${(macroData.command as string) || 'Step'}`,
             type: 'system',
             duration: 2000
           });
@@ -89,8 +90,8 @@ export function useJarvisBridge() {
 
       case 'proactive_suggestion':
         if (message.data) {
-          const suggestionData = message.data as any;
-          const text = suggestionData.text || (typeof message.data === 'string' ? message.data : '');
+          const suggestionData = message.data as Record<string, unknown>;
+          const text = (suggestionData.text as string) || (typeof message.data === 'string' ? message.data : '');
           if (text) {
             const currentStatus = getStoreState().systemStatus;
             if (currentStatus) {
@@ -105,9 +106,9 @@ export function useJarvisBridge() {
 
       case 'agent_thinking':
         getStoreState().setAgentThinking(true);
-        const thinkingData = message.data as any;
+        const thinkingData = message.data as Record<string, unknown>;
         if (thinkingData?.thought) {
-          getStoreState().setAgentThought(thinkingData.thought);
+          getStoreState().setAgentThought(thinkingData.thought as string);
         }
         break;
 
@@ -118,7 +119,7 @@ export function useJarvisBridge() {
 
       case 'neural_log':
         if (message.data) {
-          getStoreState().addNeuralLog(message.data as any);
+          getStoreState().addNeuralLog(message.data as unknown as NeuralLogEntry);
         }
         break;
 
@@ -204,7 +205,7 @@ export function useJarvisBridge() {
     return await apiClient.getVoiceProfiles();
   }, []);
 
-  const updateVoiceProfile = useCallback(async (id: string, profile: any) => {
+  const updateVoiceProfile = useCallback(async (id: string, profile: Partial<VoiceProfile>) => {
     return await apiClient.updateVoiceProfile(id, profile);
   }, []);
 

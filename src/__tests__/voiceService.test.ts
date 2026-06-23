@@ -22,9 +22,22 @@ describe('resolveVoiceLang', () => {
   });
 });
 
+interface MockSpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  onresult: ((e: unknown) => void) | null;
+  onend: (() => void) | null;
+  onerror: ((e: { error: string }) => void) | null;
+  onstart: (() => void) | null;
+  start: ReturnType<typeof vi.fn>;
+  stop: ReturnType<typeof vi.fn>;
+  abort: ReturnType<typeof vi.fn>;
+}
+
 describe('VoiceService', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let activeRecognition: any;
+  let activeRecognition: MockSpeechRecognitionInstance | null;
 
   let mockSynthesis: {
     speak: ReturnType<typeof vi.fn>;
@@ -134,14 +147,14 @@ describe('VoiceService', () => {
         1: { 0: { transcript: 'time is it' }, isFinal: true, length: 1 },
       },
     };
-    activeRecognition.onresult?.(event);
+    activeRecognition!.onresult?.(event);
     expect(onResult).toHaveBeenCalledWith('what time is it', true);
   });
 
   it('speaks with cancel and onEnd callback', async () => {
     const { voiceService } = await import('../services/voiceService');
     const onEnd = vi.fn();
-    let captured: any = null;
+    let captured: Record<string, unknown> | null = null;
     mockSynthesis.speak.mockImplementation((u: Record<string, unknown>) => {
       captured = u;
       (u.onend as ((e: Event) => void) | undefined)?.(new Event('end'));
@@ -150,7 +163,7 @@ describe('VoiceService', () => {
     voiceService.speak('Hello Sir', 'en', onEnd);
     expect(mockSynthesis.cancel).toHaveBeenCalled();
     expect(mockSynthesis.speak).toHaveBeenCalled();
-    expect(captured?.lang).toBe('en-US');
+    expect(captured?.['lang']).toBe('en-US');
     expect(onEnd).toHaveBeenCalled();
     expect(voiceService.getIsSpeaking()).toBe(false);
   });

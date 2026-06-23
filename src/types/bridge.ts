@@ -65,7 +65,7 @@ export interface CommandResponse {
   response: string;
   requires_confirmation?: boolean;
   confirmation_id?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   error?: string;
   volume?: number;
   macro_name?: string;
@@ -84,7 +84,7 @@ export interface ConfirmationRequest {
 
 export interface WebSocketMessage {
   type: 'command_result' | 'system_status' | 'confirmation_request' | 'error' | 'pong' | 'notification' | 'macro_update' | 'proactive_suggestion' | 'wake_detected' | 'agent_thinking' | 'agent_resolved' | 'neural_log';
-  data?: CommandResponse | SystemStatus | ConfirmationRequest | Record<string, any> | string | number | null;
+  data?: CommandResponse | SystemStatus | ConfirmationRequest | Record<string, unknown> | string | number | null;
   message?: string;
   timestamp?: string;
 }

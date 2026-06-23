@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, type ComponentType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Shield, Terminal, Globe, Sparkles } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
@@ -7,7 +7,7 @@ import { AppMode } from '../types';
 import { QuickAction } from '../types/api';
 
 
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, ComponentType<{ className?: string; size?: number }>> = {
   Zap, Shield, Terminal, Globe, Sparkles
 };
 

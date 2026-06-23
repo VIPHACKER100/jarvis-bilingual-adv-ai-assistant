@@ -87,9 +87,13 @@ export function useAgentStream() {
             }
           }
         }
-      } catch (err: any) {
-        if (err.name === 'AbortError') return;
-        setState({ isStreaming: false, response: '', provider: null, error: err.message });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          if (err.name === 'AbortError') return;
+          setState({ isStreaming: false, response: '', provider: null, error: err.message });
+        } else {
+          setState({ isStreaming: false, response: '', provider: null, error: String(err) });
+        }
       }
     },
     []

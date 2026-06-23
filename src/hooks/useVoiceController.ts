@@ -206,7 +206,7 @@ export const useVoiceController = (
             'HELP', 'GREETING', 'IDENTITY', 'CREATOR_INFO', 'SECURITY_ALERT'
           ] as const;
 
-          const isLocalAction = localActions.includes(localResult.actionType as any);
+          const isLocalAction = (localActions as readonly string[]).includes(localResult.actionType);
 
           if (isLocalAction) {
             setMode(AppMode.SPEAKING);

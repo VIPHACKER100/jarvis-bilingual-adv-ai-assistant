@@ -126,6 +126,7 @@ export const Header: FC = () => {
             }}
             className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg glass-panel hover:bg-surface-high transition-all"
             title="Toggle language"
+            aria-label="Toggle language"
           >
             <Globe className="w-3.5 h-3.5 text-foreground-muted" />
             <div className="flex items-center gap-1 font-mono text-[9px] font-bold">
@@ -150,6 +151,7 @@ export const Header: FC = () => {
             }}
             className="p-2 rounded-lg glass-panel hover:bg-surface-high transition-all"
             title="Settings"
+            aria-label="Settings"
           >
             <Settings className="w-4 h-4 text-foreground-muted hover:text-foreground transition-colors" />
           </button>
