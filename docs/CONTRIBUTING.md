@@ -70,7 +70,7 @@ The `scripts/` directory contains three Python utility scripts:
 **Prerequisites by script:**
 
 - `build.py` requires Node.js/npm (for frontend build) and PyInstaller (installed via `pip install pyinstaller`).
-- The refactoring scripts (`refactor_await.py`, `refactor_memory_async.py`) have no external dependencies beyond Python 3.11+ and are **not intended for re-use** — they are preserved for historical reference.
+- The refactoring scripts (`refactor_await.py`, `refactor_memory_async.py`) have no external dependencies beyond Python 3.13+ and are **not intended for re-use** — they are preserved for historical reference.
 
 **Running:**
 
@@ -114,8 +114,7 @@ jarvis-bilingual-adv-ai-assistant/
 │   │   ├── proactive.py        # Background proactive suggestions
 │   │   └── ...                 # Other domain modules
 │   ├── utils/
-│   │   ├── database_async.py   # PostgreSQL async pool (asyncpg)
-│   │   ├── database.py         # SQLite-to-PostgreSQL query translation (`?` → `$N`)
+│   │   ├── database.py         # PostgreSQL async pool (asyncpg) with SQLite-to-PostgreSQL query translation (`?` → `$N`)
 │   │   ├── logger_structured.py # Structured logging (structlog + OTEL)
 │   │   ├── websocket_manager.py
 │   │   └── middleware_security.py
@@ -133,7 +132,7 @@ jarvis-bilingual-adv-ai-assistant/
 
 ### Python (Backend)
 
-- **Python 3.11+** required
+- **Python 3.13+** required
 - **Async-first**: All I/O functions must be `async`. Use `asyncio.to_thread()` for blocking work.
 - **Type hints**: All function signatures must have complete type annotations.
 - **Docstrings**: Module-level docstrings required. Function docstrings for public APIs.

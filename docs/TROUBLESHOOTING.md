@@ -187,7 +187,7 @@ If you run a new CodeQL analysis and find other alerts, verify they are not rein
 - **Symptom**: `asyncpg.exceptions.InterfaceError: cannot acquire connection` or `TimeoutError` in logs.
 - **Cause**: Too many concurrent database connections; connections held too long (e.g., across LLM calls).
 - **Diagnostic**: Check pool status in a debug endpoint: `db_async._pool.get_size()` / `db_async._pool.get_idle_size()`.
-- **Fix**: Ensure all database access uses context managers (`async with db_async.connection()`). Do NOT hold connections across LLM API calls. Increase `max_size` in `backend/utils/database_async.py` if needed (max 20).
+- **Fix**: Ensure all database access uses context managers (`async with db_async.connection()`). Do NOT hold connections across LLM API calls. Increase `max_size` in `backend/utils/database.py` if needed (max 20).
 
 ### Slow LLM responses
 

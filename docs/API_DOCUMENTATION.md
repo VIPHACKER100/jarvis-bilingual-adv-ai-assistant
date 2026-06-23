@@ -33,7 +33,7 @@ JARVIS supports multiple LLM providers for conversational intelligence.
 
 Update `backend/config.py` or `.env` to switch providers:
 
-- `LLM_PROVIDER`: `nvidia` (default) or `openrouter`.
+- `LLM_PROVIDER`: `nvidia` (default), `openrouter`, `openai`, `google`, or `ollama`.
 - `NVIDIA_MODEL`: Model ID for NVIDIA (e.g., `qwen/qwen2.5-7b-instruct`).
 - `OPENROUTER_MODEL`: Model ID for OpenRouter.
 
@@ -45,7 +45,7 @@ If the primary provider fails, JARVIS automatically attempts to use the secondar
 
 ## Authentication
 
-JARVIS uses API key authentication via the `X-API-Key` header for all REST endpoints under `/api/v1/`. WebSocket endpoints (`/ws`, `/ws/audio`) pass the API key as a query parameter.
+JARVIS uses API key authentication via the `X-API-Key` header for all REST endpoints under `/api/v1/`. WebSocket endpoints (`/ws`, `/api/v1/audio/ws/audio`) pass the API key as a query parameter.
 
 ### Configuration
 
@@ -1128,13 +1128,13 @@ ws.send(JSON.stringify({
 }));
 ```
 
-### Audio WebSocket (`/ws/audio`)
+### Audio WebSocket (`/api/v1/audio/ws/audio`)
 
 The bidirectional audio streaming endpoint for TTS (text-to-speech) and STT (speech-to-text):
 
 ```javascript
 const apiKey = import.meta.env.VITE_JARVIS_API_KEY;
-const ws = new WebSocket(`ws://localhost:8000/ws/audio?api_key=${apiKey}`);
+const ws = new WebSocket(`ws://localhost:8000/api/v1/audio/ws/audio?api_key=${apiKey}`);
 ```
 
 **TTS Request (client → server):**
@@ -1314,7 +1314,7 @@ Authorization: Bearer <token>
 
 ### v4.0.0-alpha.1 (Phase 4 — Security Audit & P0/P1 Bug Fixes)
 
-- **API key authentication**: All `/api/v1/*` REST endpoints require `X-API-Key` header; WebSocket endpoints (`/ws`, `/ws/audio`) require `?api_key=` query parameter.
+- **API key authentication**: All `/api/v1/*` REST endpoints require `X-API-Key` header; WebSocket endpoints (`/ws`, `/api/v1/audio/ws/audio`) require `?api_key=` query parameter.
 - **Constant-time comparison**: All key comparisons use `hmac.compare_digest` to prevent timing side-channel attacks.
 - **Localhost bypass**: Requests from `127.0.0.1`, `localhost`, and `::1` are exempt for development convenience.
 - **Health endpoint exemption**: `GET /api/v1/health` and `GET /api/v1/agent/health` are exempt from auth for Docker/K8s probe compatibility.

@@ -7,7 +7,7 @@
 | **LLM Gateway** | Adapter pattern with 4 providers (Nvidia, OpenRouter, OpenAI, Ollama), auto-failover, circuit breaker, cost tracking |
 | **RAG Pipeline** | Hybrid search (keyword + semantic), memory context assembly, embedding service |
 | **Agent SSE Streaming** | `/api/v1/agent/stream` — real-time streaming LLM responses to frontend |
-| **Audio WebSocket** | `/ws/audio` — bidirectional TTS/STT streaming via OpenAI APIs |
+| **Audio WebSocket** | `/api/v1/audio/ws/audio` — bidirectional TTS/STT streaming via OpenAI APIs |
 | **Docker Compose** | Production-grade deployment with PostgreSQL, Redis, Nginx reverse proxy |
 | **CI/CD Pipeline** | GitHub Actions: lint → test matrix → security scan → deploy |
 | **Domain Handlers** | 9 extracted command handlers replacing monolithic 474-line dispatch |
@@ -77,7 +77,7 @@ npm run build
 | POST | `/api/v1/agent/stream` | SSE streaming agent response | X-API-Key header |
 | POST | `/api/v1/agent/rag` | Retrieve RAG context only | X-API-Key header |
 | GET | `/api/v1/agent/health` | Agent subsystem health | Exempt (probe compat) |
-| WS | `/ws/audio?api_key=&language=en` | Bidirectional TTS/STT streaming | api_key query param |
+| WS | `/api/v1/audio/ws/audio?api_key=&language=en` | Bidirectional TTS/STT streaming | api_key query param |
 | WS | `/ws?api_key=` | Command dispatch + system broadcasts | api_key query param |
 
 ## Environment Variables (new in v4.0)
@@ -118,8 +118,8 @@ Frontend (React+TS+Vite)
   ├── /api/v1/agent/chat (REST)   ────┤     │
   ├── /api/v1/agent/rag (REST)    ────┤     │  ← Dual auth: middleware + Depends()
   ├── /api/v1/agent/health (REST) ────┤  (exempt for K8s probes)
-  ├── /ws/audio?api_key= (WS)     ────┤── WebSocket Auth Gate (api_key query param)
-  ├── /ws?api_key= (WS)           ────┤── WebSocket Auth Gate (before device-pairing)
+  ├── /api/v1/audio/ws/audio?api_key= (WS) ────┤── WebSocket Auth Gate (api_key query param)
+  ├── /ws?api_key= (WS)                   ────┤── WebSocket Auth Gate (before device-pairing)
   └── /api/v1/* (REST)           ─────┤── Auth Middleware
                                        │
                                   ┌────┘

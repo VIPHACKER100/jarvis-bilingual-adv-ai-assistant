@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 3.9.1 |
+| **Version** | 4.0.0-alpha.2 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
-| **Last Updated** | 2026-06-16 |
+| **Last Updated** | 2026-06-23 |
 | **Status** | Active Development |
 
 ---
@@ -50,7 +50,7 @@ Become the definitive bilingual desktop AI assistant for power users—combining
 
 ### Business / Product Goals
 
-| Goal | Metric | Target (v3.8+) |
+| Goal | Metric | Target (v4.0.0+) |
 |------|--------|------------------|
 | Command reliability | Commands executing without runtime error | ≥ 99% for routed commands |
 | Bilingual parity | Hindi/Hinglish commands with valid responses | 100% key coverage |
@@ -78,7 +78,7 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 ## 6. Product Scope
 
-### 6.1 In Scope (Current — v3.9.1)
+### 6.1 In Scope (Current — v4.0.0-alpha.2)
 
 #### Voice & Language
 
@@ -120,7 +120,7 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 #### Intelligence Layer
 
-- Multi-provider LLM (NVIDIA, OpenRouter, Ollama) with failover.
+- Multi-provider LLM (OpenRouter, NVIDIA, Ollama, Google Gemini) with failover.
 - Semantic neural memory retrieval (`rapidfuzz` + keyword scoring).
 - Proactive situational suggestions (`ProactiveManager`).
 - Dynamic personality modes (e.g., Stark).
@@ -145,13 +145,13 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 #### Infrastructure
 
 - FastAPI modular routers (19 router modules).
-- SQLite with WAL + connection pooling.
-- GitHub Actions CI (Python 3.12, Node 20).
-- Docker Compose support.
+- PostgreSQL + pgvector for semantic vector search.
+- GitHub Actions CI (Python 3.11/3.12/3.13, Node 18/20/22).
+- Docker Compose support (PostgreSQL, Redis, Nginx).
 - **Autonomous Agentic Loop (v3.9.0)**: ReAct (Reasoning + Acting) loop for multi-step task orchestration.
 - **Situational Screen Awareness (v3.9.0)**: Deep visual context via LLM-assisted OCR analysis for proactive suggestions.
 - **Safety Gates (v3.9.0)**: Interception of dangerous autonomous commands with manual confirmation override.
-- **Semantic Vector Search (v3.9.0)**: Hybrid retrieval using ChromaDB/SQLite for long-term memory.
+- **Semantic Vector Search (v4.0.0)**: Hybrid retrieval using PostgreSQL + pgvector for long-term memory.
 
 ### 6.2 Out of Scope (Current Release)
 
@@ -165,10 +165,10 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 | Phase | Feature | Priority |
 |-------|---------|----------|
-| v4.0 | Dedicated mobile companion app (Production Build) | High |
-| v4.0 | Plugin/skill marketplace for custom commands | Medium |
-| v4.0 | Multi-machine neural sync | Low |
+| v4.x | Plugin/skill marketplace for custom commands | Medium |
+| v4.x | Multi-machine neural sync | Low |
 | v4.x | Full macOS/Linux automation parity | Medium |
+| v4.x | Mobile companion app (Production Build) | Medium |
 | v5.0 | AGI-lite local orchestration (World Model) | Visionary |
 
 ---
@@ -220,7 +220,7 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| FR-06.1 | Conversations and facts persist in SQLite | P0 |
+| FR-06.1 | Conversations and facts persist in PostgreSQL + pgvector | P0 |
 | FR-06.2 | Relevant memory nodes inject into LLM context semantically | P1 |
 | FR-06.3 | User can view/edit memory via Memory Viewer UI | P2 |
 
@@ -251,7 +251,7 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 | **Accessibility** | All interactive UI elements have `title` and `aria-label` |
 | **Maintainability** | Modular routers; typed frontend API (`src/types/api.ts`) |
 | **Observability** | Structured logging, performance metrics DB, event-loop monitor |
-| **Compatibility** | Node 18+, Python 3.11+ (CI on 3.12); Chrome/Edge recommended |
+| **Compatibility** | Node 18/20/22+, Python 3.11+ (CI on 3.11/3.12/3.13); Chrome/Edge recommended |
 | **Localization** | English + Hindi response catalogs; Hinglish STT |
 
 ---
@@ -337,7 +337,7 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 | Tesseract OCR | Text extraction | Optional (feature-dependent) |
 | WhatsApp Web/Desktop | Messaging automation | Optional |
 | Redis | Caching layer | Optional (`REDIS_ENABLED`) |
-| SQLite | Persistence | Yes |
+| PostgreSQL + pgvector | Persistence + vector search | Yes |
 
 ---
 
@@ -370,18 +370,18 @@ Desktop users—especially bilingual developers—switch constantly between keyb
 
 ---
 
-## 14. Release Criteria (v3.9.1)
+## 14. Release Criteria (v4.0.0-alpha.2)
 
-- [ ] All 90+ commands route without `command_handler` exceptions.
-- [ ] CI pipeline green (backend tests, frontend build, type check).
-- [ ] Dashboard components handle empty/undefined API payloads.
-- [ ] WebSocket broadcasts use `jsonable_encoder` (no serialization crashes).
-- [ ] Version `3.9.1` consistent in `environment.py`, `package.json`, README.
-- [ ] Documentation: SETUP, COMMANDS, API_DOCUMENTATION, TROUBLESHOOTING current.
-- [ ] ReAct Agentic Loop functions autonomously and parses complex queries.
-- [ ] Mobile Telemetry pipeline reliably updates backend context.
-- [ ] Neural Feedback Loop actively logs rejections and alters proactive LLM context.
-- [ ] CodeQL SAST scan passes with zero high/medium findings.
+- [ ] All backend tests pass (pytest, currently 47) and all frontend tests pass (Vitest, currently 25).
+- [ ] CI pipeline green (backend tests, frontend build, type check) across Python 3.11/3.12/3.13 + Node 18/20/22.
+- [ ] Dashboard components handle empty/undefined API payloads with defensive optional chaining.
+- [ ] API key authentication enabled on all agent endpoints with constant-time comparison (`hmac.compare_digest`).
+- [ ] PostgreSQL + pgvector running with Alembic migrations applied.
+- [ ] LLM Gateway multi-provider failover working (OpenRouter, NVIDIA, Ollama, Google Gemini).
+- [ ] All endpoints use `/api/v1/` prefix.
+- [ ] WebSocket authenticated via `api_key` query parameter.
+- [ ] Structured logging (structlog) in production JSON format.
+- [ ] Version `4.0.0-alpha.2` consistent in `environment.py`, `package.json`, `CHANGELOG.md`, README.
 
 ---
 

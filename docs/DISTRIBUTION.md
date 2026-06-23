@@ -1,4 +1,4 @@
-# 📦 JARVIS Distribution Guide (v3.9.1)
+# 📦 JARVIS Distribution Guide (v4.0.0-alpha.2)
 
 Complete guide for packaging and distributing JARVIS AI Assistant with enhanced asset bundling.
 
@@ -8,7 +8,7 @@ Complete guide for packaging and distributing JARVIS AI Assistant with enhanced 
 
 ### Prerequisites
 
-- Python 3.11+ with pip
+- Python 3.13+ with pip
 - Node.js 18+ with npm
 - Windows 10/11
 
@@ -45,7 +45,7 @@ python scripts/build.py
 ## 📁 Distribution Structure
 
 ```
-JARVIS_v3.9.1/
+JARVIS_v4.0.0-alpha.2/
 ├── START_JARVIS.bat          # One-click launcher
 ├── README.md                 # Project instructions
 ├── .env                      # Configuration file
@@ -69,7 +69,7 @@ JARVIS_v3.9.1/
 ```bash
 # Create zip archive
 cd release
-zip -r ../JARVIS_v3.9.1_Windows.zip .
+zip -r ../JARVIS_v4.0.0-alpha.2_Windows.zip .
 
 # Or on Windows:
 # Right-click release folder → Send to → Compressed folder
@@ -92,10 +92,10 @@ Create professional installer using:
 ; JARVIS.iss
 [Setup]
 AppName=JARVIS AI Assistant
-AppVersion=2.2.0
+AppVersion=4.0.0-alpha.2
 DefaultDirName={autopf}\JARVIS
 OutputDir=.
-OutputBaseFilename=JARVIS_v3.9.1_Setup
+OutputBaseFilename=JARVIS_v4.0.0-alpha.2_Setup
 
 [Files]
 Source: "release\*"; DestDir: "{app}"; Flags: recursesubdirs
@@ -110,7 +110,7 @@ Name: "{autodesktop}\JARVIS"; Filename: "{app}\START_JARVIS.bat"
 ```nsis
 ; JARVIS.nsi
 Name "JARVIS AI Assistant"
-OutFile "JARVIS_v2.0_Setup.exe"
+OutFile "JARVIS_v4.0.0-alpha.2_Setup.exe"
 InstallDir $PROGRAMFILES\JARVIS
 Section
   SetOutPath $INSTDIR

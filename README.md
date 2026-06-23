@@ -9,14 +9,10 @@
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.129-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 
-![JARVIS Banner](docs/assets/banner.png)
-
 **A futuristic, voice-activated system controller for Windows, macOS, and Linux.**  
 *Bilingual (English/Hindi) • 100+ Commands • Full Hardware Control*
 
 [Setup Guide](docs/SETUP.md) • [Command List](docs/COMMANDS.md) • [Troubleshooting](docs/TROUBLESHOOTING.md)
-
----
 
 ---
 
@@ -78,8 +74,6 @@
 - Image/PDF OCR Extraction
 - PDF Merging & Splitting
 - Batch Image Compression
-
----
 
 ---
 
@@ -164,7 +158,7 @@
 
 ### Prerequisites
 
-- **Node.js** 18+
+- **Node.js** 18+ (LTS 20/22 recommended)
 - **Python** 3.13+
 - **Git**
 - **Chrome or Edge** (for voice recognition)
@@ -175,6 +169,9 @@
 # Clone repository
 git clone https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant.git
 cd jarvis-bilingual-adv-ai-assistant
+
+# Start PostgreSQL + Redis (Docker)
+docker compose up -d postgres redis
 
 # Install frontend dependencies
 npm install
@@ -191,6 +188,9 @@ source venv/bin/activate
 
 # Install Python dependencies
 pip install -r requirements.txt
+
+# Apply database migrations
+alembic upgrade head
 
 cd ..
 ```
@@ -285,28 +285,42 @@ npm run dev
 graph TD
     User((User Voice)) --> Voice[Web Speech API]
     Voice --> Frontend[React v19 Dashboard]
-    Frontend -- WebSocket --> Backend[FastAPI Controller]
+    Frontend -- WebSocket/SSE --> Gateway[LLM Gateway]
+    Frontend -- WebSocket Audio --> AudioStream[Audio Streaming]
+    Frontend -- REST API --> Auth[API Key Auth]
+    Auth --> Backend[FastAPI Controller]
+
     Backend --> Routers[Modular Routers]
-    Routers --> Context[Context & Proactive API]
-    Context --> LogicCore{Bilingual Parser}
-    LogicCore --> Handlers[Command Handlers]
+    Routers --> Handlers[Command Handlers]
+    Routers --> Agent[Agent Loop / SSE]
+
+    Gateway --> Adapters[Provider Adapters]
+    Adapters --> OpenRouter[OpenRouter]
+    Adapters --> Nvidia[NVIDIA]
+    Adapters --> Ollama[Ollama]
+    Adapters --> Google[Google Gemini]
+
+    Gateway --> RAG[pgvector RAG Pipeline]
+    RAG --> PostgreSQL[(PostgreSQL + pgvector)]
+
     Handlers --> System[System Module]
     Handlers --> Window[Window Manager]
     Handlers --> File[File Engine]
     Handlers --> Media[Media Processor]
     System --> OS[Windows/Linux/macOS API]
-    Context -. Suggestions .-> Frontend
+
+    Agent -. Suggestions .-> Frontend
 ```
 
 ### **The Tech Stack**
 
 - **Frontend**: `React 19`, `TypeScript 5.9`, `Vite`, `Tailwind CSS`, `Framer Motion`
-- **Backend**: `Python 3.13`, `FastAPI`, `PyAutoGUI`, `SQLAlchemy`
-- **Architecture**: `Modular Router System`, `Centralized Command Handlers`, `Proactive Intelligence API`
-- **Intelligence**: `Neural Proactive Engine`, `Bilingual LLM Parser`, `Contextual Action Recommender`
-- **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`, `PostgreSQL + pgvector`
-
----
+- **Backend**: `Python 3.13`, `FastAPI`, `asyncpg`, `SQLAlchemy`, `structlog`
+- **Database**: `PostgreSQL 16 + pgvector` (semantic vector search)
+- **Architecture**: `Modular Router System`, `Centralized Command Handlers`, `LLM Gateway with Multi-Provider Failover`
+- **Intelligence**: `Neural Proactive Engine`, `Bilingual LLM Parser`, `Contextual Action Recommender`, `Autonomous Agent Loop (ReAct)`
+- **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`
+- **Infrastructure**: `Docker Compose`, `Nginx`, `Redis`, `Alembic Migrations`, `GitHub Actions CI`
 
 ---
 
@@ -316,7 +330,7 @@ graph TD
 - **Frontend**: React 19, TypeScript 5.9, 3,800+ lines
 - **Backend**: Python 3.13, FastAPI, 3,000+ lines
 - **Architecture**: Modular 10+ Routers, 15+ Handlers
-- **API Endpoints**: 65+ REST + WebSocket
+- **API Endpoints**: 65+ REST (under `/api/v1/`) + WebSocket
 - **Voice Commands**: 100+ bilingual
 - **Platforms**: Windows, macOS, Linux
 
@@ -445,7 +459,7 @@ pip install -r requirements.txt --force-reinstall
 
 ---
 
-## �️ Security & Privacy
+## Security & Privacy
 
 - 🔐 **Confirmation System** - Dangerous actions require explicit user approval.
 - ⏱️ **Auto-Cancel** - 30-second timeout if no response is received.
@@ -463,7 +477,7 @@ pip install -r requirements.txt --force-reinstall
 
 ---
 
-## � Connect with VIPHACKER100
+## Connect with VIPHACKER100
 
 | Channel | Link |
 | --------- | ------ |

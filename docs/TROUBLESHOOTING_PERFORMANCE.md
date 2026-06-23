@@ -77,7 +77,7 @@ if pool:
 
 1. Ensure all database access uses context managers (`async with db_async.connection()`)
 2. Do NOT hold connections across LLM calls or other slow operations
-3. Increase `max_size` in `database_async.py` if genuinely needed (max 20)
+3. Increase `max_size` in `database.py` if genuinely needed (max 20)
 4. Add connection timeout monitoring
 
 ### WebSocket disconnections
@@ -178,7 +178,7 @@ psql -h localhost -U jarvis -d jarvis -c "SELECT 1;"
 
 ```python
 # In a Python shell or debug endpoint
-from utils.database_async import db_async
+from utils.database import db_async
 await db_async.initialize()
 health = await db_async.health_check()
 print(health)

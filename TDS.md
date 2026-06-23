@@ -138,8 +138,7 @@ jarvis-bilingual-adv-ai-assistant/
 │   │   ├── environment.py        # VERSION, paths, ports
 │   │   └── commands.py           # Bilingual mappings, dangerous cmds
 │   ├── utils/
-│   │   ├── database_async.py     # asyncpg pool, pgvector, migrations
-│   │   └── database.py           # SQLite-to-PostgreSQL query translation
+│   │   ├── database.py           # asyncpg pool, pgvector, migrations, SQLite-to-PostgreSQL query translation
 │   ├── migrations/
 │   │   └── 001_initial.sql       # Schema v1
 │   └── tests/                    # pytest suite
@@ -404,7 +403,7 @@ ConfigDict(strict=True, extra='forbid')
 
 ### 9.1 Database (`data/memory.db`)
 
-**Engine:** PostgreSQL with asyncpg connection pool and pgvector extension (`backend/utils/database_async.py`).
+**Engine:** PostgreSQL with asyncpg connection pool and pgvector extension (`backend/utils/database.py`).
 
 ### 9.2 Schema (Migration 001)
 

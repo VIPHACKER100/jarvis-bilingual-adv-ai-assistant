@@ -84,7 +84,7 @@ async def leaky():
 
 ### Connection pool (asyncpg)
 
-The JARVIS async database is managed by `AsyncDatabaseManager` in `backend/utils/database_async.py`. It uses `asyncpg.create_pool` with:
+The JARVIS async database is managed by `AsyncDatabaseManager` in `backend/utils/database.py`. It uses `asyncpg.create_pool` with:
 
 | Parameter | Default | Purpose |
 |-----------|---------|---------|
@@ -300,7 +300,7 @@ logger.info("LLM Gateway → nvidia", provider="nvidia", latency_ms=1234)
 
 # System events (persisted)
 log_system_event("EVENT_LOOP_LAG", {"lag_ms": 150.5})
-log_system_event("STARTUP", {"port": 8000, "version": "4.0.0-alpha.1"})
+log_system_event("STARTUP", {"port": 8000, "version": "4.0.0-alpha.2"})
 ```
 
 ### OpenTelemetry tracing (optional)

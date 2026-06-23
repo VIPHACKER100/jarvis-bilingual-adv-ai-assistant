@@ -5,8 +5,12 @@
 1. [System Requirements](#system-requirements)
 2. [Quick Install](#quick-install)
 3. [Detailed Setup](#detailed-setup)
-4. [Troubleshooting](#troubleshooting)
-5. [Post-Installation](#post-installation)
+4. [Platform-Specific Notes](#platform-specific-notes)
+5. [Troubleshooting](#troubleshooting)
+6. [Post-Installation](#post-installation)
+7. [Updating JARVIS](#updating-jarvis)
+8. [Uninstalling](#uninstalling)
+9. [Getting Help](#getting-help)
 
 ---
 
@@ -26,7 +30,7 @@
 - **RAM**: 8GB+
 - **Storage**: 5GB free space
 - **Browser**: Latest Chrome or Edge
-- **Python**: 3.11 or 3.12
+- **Python**: 3.13
 - **Node.js**: 20 LTS
 
 ---
@@ -37,10 +41,10 @@
 
 ```bash
 # Windows
-powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/VIPHACKER100/jarvis/main/install.ps1' -OutFile 'install.ps1'; .\install.ps1"
+powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant/main/scripts/install.ps1' -OutFile 'install.ps1'; .\install.ps1"
 
 # macOS/Linux
-curl -fsSL https://raw.githubusercontent.com/VIPHACKER100/jarvis/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant/main/scripts/install.sh | bash
 ```
 
 ---
@@ -70,7 +74,59 @@ npm cache clean --force
 npm install --legacy-peer-deps
 ```
 
-### Step 3: Setup Python Backend
+### Step 3: Setup PostgreSQL Database
+
+JARVIS v4.0 uses PostgreSQL with the pgvector extension for semantic vector search. You can run it via Docker Compose or install directly.
+
+#### Option A: Docker Compose (Recommended)
+
+```bash
+# From project root, start PostgreSQL + Redis
+docker compose up -d postgres redis
+```
+
+This starts:
+- **PostgreSQL 16** with pgvector extension on port `5432`
+- **Redis** on port `6379`
+
+The database and schema are created automatically on first backend launch via Alembic migrations.
+
+#### Option B: Manual PostgreSQL Setup
+
+Install PostgreSQL 16+ with pgvector:
+
+**Windows:**
+```cmd
+# Download PostgreSQL from https://www.postgresql.org/download/windows/
+# Run installer, remember the postgres password
+
+# Enable pgvector (run in psql or SQL shell)
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+**macOS:**
+```bash
+brew install postgresql@16 pgvector
+brew services start postgresql@16
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt-get install postgresql-16 postgresql-16-pgvector
+sudo systemctl start postgresql
+```
+
+Create the database:
+```bash
+createdb jarvis
+```
+
+Set the `DATABASE_URL` in `backend/.env`:
+```env
+DATABASE_URL=postgresql+asyncpg://postgres:your-password@localhost:5432/jarvis
+```
+
+### Step 4: Setup Python Backend
 
 #### Windows
 
@@ -132,7 +188,19 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 4: Setup Mobile Companion App (v3.9.0+)
+#### Run Database Migrations
+
+After the backend dependencies are installed and PostgreSQL is running:
+
+```bash
+cd backend
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+alembic upgrade head
+```
+
+This applies all schema migrations (tables, indexes, pgvector extension).
+
+### Step 5: Setup Mobile Companion App (v4.0.0+)
 
 The mobile app provides a remote telemetry and control dashboard.
 
@@ -145,7 +213,7 @@ npx expo start
 
 You can scan the QR code with the Expo Go app on iOS or Android.
 
-### Step 5: Environment Configuration
+### Step 6: Environment Configuration
 
 Create `.env` file in `backend/` directory:
 
@@ -193,7 +261,7 @@ VITE_JARVIS_API_KEY=your-secure-api-key-here
 
 > **Frontend URL configuration**: WebSocket and API URLs are computed automatically in `src/config.ts` from the detected hostname and `BACKEND_PORT`. For remote deployments, edit `src/config.ts` to set custom `WS_API_BASE_URL` and `AUDIO_WS_URL` values, or set `VITE_BACKEND_PORT` in `.env` to change the port.
 
-### Step 6: Verify Installation
+### Step 7: Verify Installation
 
 #### Test Backend
 
@@ -210,7 +278,7 @@ You should see:
 ```text
 INFO:     Started server process [xxxxx]
 INFO:     Waiting for application startup.
-    INFO:     JARVIS Backend starting up (v4.0 - Neural Core)...
+    INFO:     JARVIS Backend starting up (Modular Architecture)...
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
@@ -234,7 +302,7 @@ You should see:
   ➜  Network: use --host to expose
 ```
 
-### Step 7: First Run
+### Step 8: First Run
 
 1. Open browser to: `http://localhost:5173`
 2. Allow microphone permissions when prompted

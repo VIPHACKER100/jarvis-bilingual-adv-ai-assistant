@@ -25,7 +25,7 @@ Please provide the following details in your report:
 * Description of the vulnerability
 * Steps to reproduce the vulnerability
 * Potential impact of the vulnerability
-* Your JARVIS version (e.g., `3.9.1`) and operating system
+* Your JARVIS version (e.g., `4.0.0-alpha.2`) and operating system
 
 ### Response Time
 
