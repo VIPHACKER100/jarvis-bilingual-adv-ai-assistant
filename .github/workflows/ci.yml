@@ -76,7 +76,7 @@ jobs:
 
       - name: Ruff lint check
         working-directory: backend
-        run: ruff check --config '{"line-length": 120, "select": ["E", "F", "W", "I", "N", "UP", "B", "SIM", "ARG"], "ignore": ["E501"]}'
+        run: ruff check
 
       - name: Import check
         working-directory: backend

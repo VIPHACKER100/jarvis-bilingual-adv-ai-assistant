@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --no-user --prefix=/install -r requirements.txt
 
-FROM python:3.12-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 RUN addgroup --system --gid 1000 jarvis && adduser --system --uid 1000 --ingroup jarvis jarvis
 
