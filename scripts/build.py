@@ -14,6 +14,7 @@ import itertools
 import json
 from datetime import datetime
 import time
+import platform
 
 class Colors:
     HEADER = '\033[95m'
@@ -129,8 +130,9 @@ def build_frontend():
     log("\n[FRONTEND] Building JARVIS Frontend...")
     
     # Build frontend
+    npm_cmd = 'npm.cmd' if platform.system().lower() == 'windows' else 'npm'
     try:
-        subprocess.run(['npm.cmd', 'run', 'build'], check=True, cwd=PROJECT_ROOT)
+        subprocess.run([npm_cmd, 'run', 'build'], check=True, cwd=PROJECT_ROOT)
         log("  [OK] Frontend built successfully")
         return True
     except subprocess.CalledProcessError as e:

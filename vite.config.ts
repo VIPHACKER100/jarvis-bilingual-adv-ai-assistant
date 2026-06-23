@@ -25,11 +25,11 @@ export default defineConfig({
     target: 'es2020',
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-motion': ['framer-motion'],
-          'vendor-state': ['zustand'],
-          'vendor-ui': ['lucide-react'],
-          'vendor-router': ['react-router-dom'],
+        manualChunks(id: string) {
+          if (id.includes('framer-motion')) return 'vendor-motion';
+          if (id.includes('zustand')) return 'vendor-state';
+          if (id.includes('lucide-react')) return 'vendor-ui';
+          if (id.includes('react-router-dom')) return 'vendor-router';
         },
       },
     },
