@@ -15,6 +15,8 @@ depends_on = None
 
 
 def upgrade() -> None:
+    op.execute("CREATE EXTENSION IF NOT EXISTS vector")
+
     op.create_table(
         "conversations",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
@@ -76,7 +78,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("filename", sa.Text(), nullable=False),
         sa.Column("content_hash", sa.Text(), nullable=False),
-        sa.Column("embedding", sa.ARRAY(sa.Float()), nullable=False),
+        sa.Column("embedding", sa.Text(), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("filename"),
@@ -96,8 +98,27 @@ def upgrade() -> None:
         sa.UniqueConstraint("device_id"),
     )
 
+    op.create_table(
+        "quick_actions",
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column("label", sa.Text(), nullable=False),
+        sa.Column("command", sa.Text(), nullable=False),
+        sa.Column("icon", sa.Text(), nullable=True),
+        sa.Column("order", sa.Integer(), server_default=sa.text("0"), nullable=True),
+        sa.PrimaryKeyConstraint("id"),
+    )
+
+    # pgvector ivfflat index
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS idx_neural_vectors_embedding "
+        "ON neural_vectors USING ivfflat (embedding vector_cosine_ops) "
+        "WITH (lists = 100)"
+    )
+
 
 def downgrade() -> None:
+    op.execute("DROP INDEX IF EXISTS idx_neural_vectors_embedding")
+    op.drop_table("quick_actions")
     op.drop_table("paired_devices")
     op.drop_table("neural_vectors")
     op.drop_table("performance_metrics")
