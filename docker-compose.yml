@@ -80,7 +80,7 @@ services:
     restart: unless-stopped
 
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.62.0
     container_name: jarvis-jaeger
     environment:
       - COLLECTOR_OTLP_ENABLED=true

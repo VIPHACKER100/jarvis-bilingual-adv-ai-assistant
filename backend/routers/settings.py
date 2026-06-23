@@ -53,7 +53,7 @@ async def get_keys():
 async def update_settings(data: SettingsUpdateRequest):
     """Update system configuration"""
     try:
-        settings_dict = data.dict(exclude_unset=True)
+        settings_dict = data.model_dump(exclude_unset=True)
         # Update the in-memory CONFIG
         for key, value in settings_dict.items():
             CONFIG[key] = value
