@@ -54,6 +54,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Asia/Kolkata"
+    versioning-strategy: "increase-if-necessary"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
@@ -62,7 +63,21 @@ updates:
       - "VIPHACKER100"
     commit-message:
       prefix: "chore(deps)"
-    allow:
-      - dependency-type: "direct"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    # Group minor/patch updates to reduce PR noise
+    groups:
+      production-deps:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      development-deps:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
-      - dependency-name: "pip"
+      # numpy 2.5+ requires Python 3.12+ (project uses 3.11)
+      - dependency-name: "numpy"
+        versions: [">=2.5.0"]

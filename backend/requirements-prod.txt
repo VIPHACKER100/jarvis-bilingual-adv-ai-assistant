@@ -7,6 +7,13 @@ httpx==0.28.1
 python-dotenv==1.2.2
 slowapi==0.1.10
 aiofiles==25.1.0
+# Security-critical transitive deps (pinned for CVE coverage)
+starlette==1.3.1          # CVE-2026-48817, CVE-2026-48818, CVE-2026-54282, CVE-2026-54283
+urllib3==2.7.0            # PYSEC-2026-141, PYSEC-2026-142
+idna==3.18                # PYSEC-2026-215
+cryptography==49.0.0      # GHSA-537c-gmf6-5ccf
+requests==2.34.2          # CVE-2026-25645
+werkzeug==3.1.8           # CVE-2026-27199
 
 # Database
 asyncpg==0.31.0
