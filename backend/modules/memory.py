@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
+from rapidfuzz import fuzz
+
 import aiofiles
 from config import PROJECT_ROOT
 from utils.database import db_manager
@@ -150,8 +152,6 @@ class NeuralMemoryManager:
         Dynamically collect relevant memory nodes for LLM context.
         Uses hybrid search (fuzzy + semantic) if a query is provided.
         """
-        from rapidfuzz import fuzz
-
         nodes = await self.list_nodes()
         if not nodes:
             return ""

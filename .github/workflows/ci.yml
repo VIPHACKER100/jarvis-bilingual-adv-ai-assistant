@@ -16,7 +16,7 @@ concurrency:
 
 env:
   NODE_VERSION: '22'
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.13'
   FORCE_COLOR: '1'
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11', '3.12']
+        python-version: ['3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
 
@@ -76,7 +76,7 @@ jobs:
 
       - name: Ruff lint check
         working-directory: backend
-        run: ruff check --config '{"line-length": 120, "select": ["E", "F", "W", "I", "N", "UP", "B", "SIM", "ARG"], "ignore": ["E501"]}'
+        run: ruff check
 
       - name: Import check
         working-directory: backend
@@ -84,7 +84,7 @@ jobs:
 
       - name: pip-audit
         continue-on-error: true
-        run: pip-audit --desc on -r backend/requirements.txt
+        run: pip-audit --desc -r backend/requirements.txt
 
   test:
     name: Tests — ${{ matrix.component }}
@@ -156,7 +156,7 @@ jobs:
       - name: pip-audit (strict)
         run: |
           pip install pip-audit
-          pip-audit --desc on -r backend/requirements.txt --strict
+          pip-audit --desc -r backend/requirements.txt --strict
 
   docker-build:
     name: Docker — Build Check

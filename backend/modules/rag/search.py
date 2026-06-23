@@ -3,6 +3,8 @@ Hybrid Search — combines keyword (fuzzy) + semantic (pgvector) retrieval.
 Uses rapidfuzz for keyword scores and pgvector cosine distance for semantic scores.
 """
 
+from rapidfuzz import fuzz
+
 import asyncio
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
@@ -23,7 +25,6 @@ class HybridSearch:
 
     async def search(self, query: str, nodes: List[Dict[str, Any]], use_semantic: bool = True) -> List[SearchResult]:
         from modules.rag.embeddings import embedding_service
-        from rapidfuzz import fuzz
         from utils.database import db_manager
 
         query_lower = query.lower()

@@ -73,15 +73,14 @@ def upgrade() -> None:
     )
     op.create_index("idx_performance_timestamp", "performance_metrics", ["timestamp"])
 
-    op.create_table(
-        "neural_vectors",
-        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("filename", sa.Text(), nullable=False),
-        sa.Column("content_hash", sa.Text(), nullable=False),
-        sa.Column("embedding", sa.Text(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("filename"),
+    op.execute(
+        "CREATE TABLE IF NOT EXISTS neural_vectors ("
+        "id SERIAL PRIMARY KEY, "
+        "filename TEXT NOT NULL UNIQUE, "
+        "content_hash TEXT NOT NULL, "
+        "embedding vector(1024) NOT NULL, "
+        "updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        ")"
     )
     op.create_index("idx_neural_vectors_filename", "neural_vectors", ["filename"])
 
