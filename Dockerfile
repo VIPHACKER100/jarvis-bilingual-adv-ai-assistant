@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Build Backend
-FROM python:3.11-slim AS backend
+FROM python:3.13-slim AS backend
 
 RUN addgroup --system --gid 1000 jarvis && adduser --system --uid 1000 --ingroup jarvis jarvis
 

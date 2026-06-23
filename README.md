@@ -7,7 +7,7 @@
 [![Version](https://img.shields.io/badge/Version-4.0.0--alpha.2-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python)](https://python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.129-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 
 ![JARVIS Banner](docs/assets/banner.png)
 
@@ -165,7 +165,7 @@
 ### Prerequisites
 
 - **Node.js** 18+
-- **Python** 3.11+
+- **Python** 3.13+
 - **Git**
 - **Chrome or Edge** (for voice recognition)
 
@@ -300,7 +300,7 @@ graph TD
 
 ### **The Tech Stack**
 
-- **Frontend**: `React 19`, `TypeScript 5.8`, `Vite`, `Tailwind CSS`, `Framer Motion`
+- **Frontend**: `React 19`, `TypeScript 5.9`, `Vite`, `Tailwind CSS`, `Framer Motion`
 - **Backend**: `Python 3.13`, `FastAPI`, `PyAutoGUI`, `SQLAlchemy`
 - **Architecture**: `Modular Router System`, `Centralized Command Handlers`, `Proactive Intelligence API`
 - **Intelligence**: `Neural Proactive Engine`, `Bilingual LLM Parser`, `Contextual Action Recommender`
@@ -313,7 +313,7 @@ graph TD
 ## 📊 Technical Specifications
 
 - **Total Code**: ~6,800 lines
-- **Frontend**: React 19, TypeScript 5.8, 3,800+ lines
+- **Frontend**: React 19, TypeScript 5.9, 3,800+ lines
 - **Backend**: Python 3.13, FastAPI, 3,000+ lines
 - **Architecture**: Modular 10+ Routers, 15+ Handlers
 - **API Endpoints**: 65+ REST + WebSocket
@@ -403,7 +403,7 @@ LOG_RETENTION_DAYS=30
 ### Backend won't start
 
 ```bash
-# Check Python version (need 3.11+)
+# Check Python version (need 3.13+)
 python --version
 
 # Reinstall dependencies
