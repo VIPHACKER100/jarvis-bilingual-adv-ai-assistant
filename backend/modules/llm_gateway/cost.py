@@ -82,27 +82,15 @@ class CostTracker:
         return rec
 
     def total_cost(self, since: Optional[float] = None) -> float:
-        recents = (
-            self._history
-            if since is None
-            else [r for r in self._history if r.timestamp >= since]
-        )
+        recents = self._history if since is None else [r for r in self._history if r.timestamp >= since]
         return sum(r.estimated_cost for r in recents)
 
     def total_tokens(self, since: Optional[float] = None) -> int:
-        recents = (
-            self._history
-            if since is None
-            else [r for r in self._history if r.timestamp >= since]
-        )
+        recents = self._history if since is None else [r for r in self._history if r.timestamp >= since]
         return sum(r.total_tokens for r in recents)
 
     def stats(self, since: Optional[float] = None) -> dict:
-        recents = (
-            self._history
-            if since is None
-            else [r for r in self._history if r.timestamp >= since]
-        )
+        recents = self._history if since is None else [r for r in self._history if r.timestamp >= since]
         provider_stats: Dict[str, dict] = {}
         for r in recents:
             ps = provider_stats.setdefault(
@@ -125,11 +113,7 @@ class CostTracker:
 
     def export_history(self, since: Optional[float] = None) -> List[dict]:
         """Export records as JSON-serializable list of dicts."""
-        recents = (
-            self._history
-            if since is None
-            else [r for r in self._history if r.timestamp >= since]
-        )
+        recents = self._history if since is None else [r for r in self._history if r.timestamp >= since]
         return [r.to_dict() for r in recents]
 
     def clear(self) -> int:

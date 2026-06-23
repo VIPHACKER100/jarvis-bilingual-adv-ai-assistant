@@ -37,21 +37,29 @@ DOMAIN_HANDLERS = [
 ]
 
 
-async def dispatch_command(command_key: str, params: Any, current_lang: str,
-                           command: str = "", websocket: Optional[WebSocket] = None,
-                           session_id: Optional[str] = None) -> Dict[str, Any]:
+async def dispatch_command(
+    command_key: str,
+    params: Any,
+    current_lang: str,
+    command: str = "",
+    websocket: Optional[WebSocket] = None,
+    session_id: Optional[str] = None,
+) -> Dict[str, Any]:
     for domain_name, handler in DOMAIN_HANDLERS:
         result = await handler.handle(command_key, params, current_lang)
         if result is not None:
             return result
 
-    return {'success': False, 'action_type': 'UNKNOWN', 'response': 'Unknown command.'}
+    return {"success": False, "action_type": "UNKNOWN", "response": "Unknown command."}
 
 
-async def handle_command(websocket: Optional[WebSocket], command: str,
-                         language: Optional[str] = None,
-                         override_params: Optional[Dict[str, Any]] = None,
-                         session_id: Optional[str] = None) -> Dict[str, Any]:
+async def handle_command(
+    websocket: Optional[WebSocket],
+    command: str,
+    language: Optional[str] = None,
+    override_params: Optional[Dict[str, Any]] = None,
+    session_id: Optional[str] = None,
+) -> Dict[str, Any]:
     command_key, detected_lang, params = parser.parse_command(command)
     current_lang = language or detected_lang
 
@@ -62,87 +70,91 @@ async def handle_command(websocket: Optional[WebSocket], command: str,
 
     result_raw = await dispatch_command(command_key, params, current_lang, command, websocket, session_id)
 
-    if result_raw.get('action_type') != 'UNKNOWN':
+    if result_raw.get("action_type") != "UNKNOWN":
         result = result_raw
     else:
         logger.info(f"No direct handler for '{command_key}', invoking Autonomous Agent...")
 
         if websocket:
             try:
-                await websocket.send_json({'type': 'agent_thinking', 'session_id': session_id})
+                await websocket.send_json({"type": "agent_thinking", "session_id": session_id})
             except Exception:
                 pass
 
         async def on_agent_thought(thought: str):
             if websocket:
                 try:
-                    await websocket.send_json({
-                        'type': 'agent_thinking',
-                        'data': {'thought': thought, 'session_id': session_id}
-                    })
+                    await websocket.send_json(
+                        {"type": "agent_thinking", "data": {"thought": thought, "session_id": session_id}}
+                    )
                 except Exception:
                     pass
 
         from modules.agent import agent_controller
+
         agent_response = await agent_controller.run_loop(
             command, current_lang, session_id or "default", on_thought=on_agent_thought
         )
 
         if agent_response:
-            result = {'success': True, 'action_type': 'AGENT_RESOLVED', 'response': agent_response}
-            log_command(command, 'agent', True)
+            result = {"success": True, "action_type": "AGENT_RESOLVED", "response": agent_response}
+            log_command(command, "agent", True)
             if websocket:
                 try:
-                    await websocket.send_json({
-                        'type': 'agent_resolved',
-                        'data': {'full_response': agent_response, 'session_id': session_id}
-                    })
+                    await websocket.send_json(
+                        {"type": "agent_resolved", "data": {"full_response": agent_response, "session_id": session_id}}
+                    )
                 except Exception:
                     pass
         else:
-            result = {'success': False, 'action_type': 'UNKNOWN',
-                      'response': parser.get_response('command_not_understood', current_lang)}
-            log_command(command, 'unknown', False)
+            result = {
+                "success": False,
+                "action_type": "UNKNOWN",
+                "response": parser.get_response("command_not_understood", current_lang),
+            }
+            log_command(command, "unknown", False)
 
-    if hasattr(result, 'dict'):
+    if hasattr(result, "dict"):
         result = result.dict()
 
-    details = result.get('details') or (params if isinstance(params, dict) else None)
+    details = result.get("details") or (params if isinstance(params, dict) else None)
     suggestion = await context_manager.suggest_next_action()
 
     res_obj = CommandResult(
-        success=result.get('success', True),
-        response=result.get('response', ''),
-        action_type=result.get('action_type', 'COMMAND_EXECUTION'),
-        command_key=command_key or 'unknown',
+        success=result.get("success", True),
+        response=result.get("response", ""),
+        action_type=result.get("action_type", "COMMAND_EXECUTION"),
+        command_key=command_key or "unknown",
         language=current_lang,
         suggestion=suggestion,
         details=details,
-        data=result.get('data')
+        data=result.get("data"),
     )
 
-    if res_obj.success and result.get('requires_confirmation') and not result.get('confirmation_id'):
+    if res_obj.success and result.get("requires_confirmation") and not result.get("confirmation_id"):
         res_obj.requires_confirmation = True
         res_obj.confirmation_id = security.request_confirmation(
             command_key=command_key,
             command_text=command,
             language=current_lang,
-            details={'params': params, 'language': current_lang}
+            details={"params": params, "language": current_lang},
         )
 
-    res = res_obj.dict()
+    res = res_obj.model_dump()
 
     try:
         entry = ConversationEntry(
             user_input=command,
-            jarvis_response=res['response'],
+            jarvis_response=res["response"],
             command_type=command_key or "conversation",
-            success=res['success'],
+            success=res["success"],
             language=current_lang,
-            session_id=session_id or ""
+            session_id=session_id or "",
         )
         await memory_manager.save_conversation(entry)
-        await context_manager.update_context(command, command_key or "conversation", res['success'], session_id or "default")
+        await context_manager.update_context(
+            command, command_key or "conversation", res["success"], session_id or "default"
+        )
     except Exception as e:
         logger.error(f"Error saving to memory in command_handler: {e}")
 

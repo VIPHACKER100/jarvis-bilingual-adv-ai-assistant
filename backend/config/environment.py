@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Base paths
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     # Running in a PyInstaller bundle
     # sys._MEIPASS is the temporary folder where PyInstaller extracts bundled data
     BASE_DIR = Path(sys._MEIPASS)

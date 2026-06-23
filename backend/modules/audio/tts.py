@@ -27,7 +27,9 @@ class TTSService:
                 return result
         return await self._synthesize_edge(text, language)
 
-    async def synthesize_stream(self, text: str, voice: str = "alloy", language: str = "en") -> AsyncGenerator[bytes, None]:
+    async def synthesize_stream(
+        self, text: str, voice: str = "alloy", language: str = "en"
+    ) -> AsyncGenerator[bytes, None]:
         openai_key = self._get_openai_key()
         yielded = False
         if openai_key:
@@ -41,6 +43,7 @@ class TTSService:
 
     async def _synthesize_openai(self, text: str, voice: str = "alloy") -> Optional[bytes]:
         import httpx
+
         api_key = self._get_openai_key()
         if not api_key:
             return None
@@ -59,6 +62,7 @@ class TTSService:
 
     async def _synthesize_openai_stream(self, text: str, voice: str = "alloy") -> AsyncGenerator[bytes, None]:
         import httpx
+
         api_key = self._get_openai_key()
         if not api_key:
             return
@@ -79,6 +83,7 @@ class TTSService:
     async def _synthesize_edge(self, text: str, language: str = "en") -> Optional[bytes]:
         try:
             import edge_tts
+
             voice = self.EDGE_VOICES.get(language, "en-US-ChristopherNeural")
             communicate = edge_tts.Communicate(text, voice)
             chunks = []
@@ -96,6 +101,7 @@ class TTSService:
     async def _synthesize_edge_stream(self, text: str, language: str = "en") -> AsyncGenerator[bytes, None]:
         try:
             import edge_tts
+
             voice = self.EDGE_VOICES.get(language, "en-US-ChristopherNeural")
             communicate = edge_tts.Communicate(text, voice)
             async for chunk in communicate.stream():
@@ -108,6 +114,7 @@ class TTSService:
 
     def _get_openai_key(self) -> Optional[str]:
         import os
+
         return os.getenv("OPENAI_API_KEY")
 
 

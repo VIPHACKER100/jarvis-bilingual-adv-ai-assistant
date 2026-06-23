@@ -30,8 +30,7 @@ def configure_logging(service_name: str = "jarvis-backend") -> None:
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
-            structlog.dev.ConsoleRenderer() if os.isatty(1)
-            else structlog.processors.JSONRenderer(),
+            structlog.dev.ConsoleRenderer() if os.isatty(1) else structlog.processors.JSONRenderer(),
         ],
         wrapper_class=structlog.stdlib.BoundLogger,
         context_class=dict,
@@ -50,8 +49,6 @@ def _setup_opentelemetry(service_name: str) -> None:
     try:
         from opentelemetry import trace
         from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-        from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
@@ -82,9 +79,11 @@ def log_event(event: str, **kwargs: Any) -> None:
 # Compatibility aliases for existing code
 logger = get_logger("jarvis")
 
+
 def log_command(cmd, cmd_type, success):
     """Log a command event (compatibility alias)."""
     log_event("command", command=cmd, command_type=cmd_type, success=success)
+
 
 def log_system_event(event, data):
     """Log a system event (compatibility alias)."""

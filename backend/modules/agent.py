@@ -23,8 +23,13 @@ class AgentController:
     def __init__(self):
         self.tools_context = get_tools_prompt()
 
-    async def run_loop(self, query: str, language: str = "en", session_id: str = "default",
-                 on_thought: Optional[Callable[[str], Coroutine]] = None) -> str:
+    async def run_loop(
+        self,
+        query: str,
+        language: str = "en",
+        session_id: str = "default",
+        on_thought: Optional[Callable[[str], Coroutine]] = None,
+    ) -> str:
         """
         Execute the Thought-Action-Observation loop to resolve a complex query.
         """
@@ -49,7 +54,7 @@ class AgentController:
                     tools_context=self.tools_context,
                     neural_context=memory_context,
                     history=history,
-                    language=language
+                    language=language,
                 )
                 backoff = 1  # reset on success
             except Exception as llm_err:
@@ -75,7 +80,7 @@ class AgentController:
 
             if not action_json:
                 logger.warning("Agent failed to provide an Action. Stopping loop.")
-                return response # Return whatever it said as fallback
+                return response  # Return whatever it said as fallback
 
             try:
                 action_data = json.loads(action_json)
@@ -88,23 +93,18 @@ class AgentController:
                 observation = await self._execute_action(action_name, action_params, language, session_id)
 
                 # 4. Add to history
-                history.append({
-                    "thought": thought,
-                    "action": action_json,
-                    "observation": str(observation)
-                })
+                history.append({"thought": thought, "action": action_json, "observation": str(observation)})
 
             except Exception as e:
                 error_msg = f"Error executing agent action: {str(e)}"
                 logger.error(error_msg)
-                history.append({
-                    "thought": thought,
-                    "action": action_json,
-                    "observation": f"ERROR: {error_msg}"
-                })
+                history.append({"thought": thought, "action": action_json, "observation": f"ERROR: {error_msg}"})
 
         logger.warning("Agent reached maximum iterations.")
-        final_answer = "I've tried multiple steps but couldn't reach a final conclusion. Here is what I found so far: " + str(history[-1].get("observation", ""))
+        final_answer = (
+            "I've tried multiple steps but couldn't reach a final conclusion. Here is what I found so far: "
+            + str(history[-1].get("observation", ""))
+        )
 
         # Persist the full trace to neural memory for future debugging
         await self._log_trace_to_memory(query, history, final_answer)
@@ -116,6 +116,7 @@ class AgentController:
             from datetime import datetime
 
             import aiofiles
+
             trace_path = "memory/agent_traces.md"
 
             lines = [f"\n## [{datetime.now().isoformat()}] Query: {query[:80]}\n"]
@@ -144,10 +145,7 @@ class AgentController:
         try:
             # Call direct dispatcher
             result = await dispatch_command(
-                command_key=name,
-                params=params,
-                current_lang=language,
-                session_id=session_id
+                command_key=name, params=params, current_lang=language, session_id=session_id
             )
 
             # Simplify observation for the LLM
@@ -173,6 +171,7 @@ class AgentController:
                 return json_match.group(1).strip()
 
         return None
+
 
 # Singleton instance
 agent_controller = AgentController()

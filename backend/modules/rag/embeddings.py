@@ -26,7 +26,7 @@ class EmbeddingService:
                 )
                 if row and row[0]:
                     # Extract dimension from vector type: vector(1024) -> 1024
-                    dim_str = str(row[0]).strip('()')
+                    dim_str = str(row[0]).strip("()")
                     self._dimension = int(dim_str)
                 else:
                     # Fallback to default
@@ -38,6 +38,7 @@ class EmbeddingService:
 
     async def embed(self, text: str) -> Optional[List[float]]:
         from modules.llm_gateway import llm_gateway
+
         embedding = await llm_gateway.get_embedding(text)
         if embedding:
             # Validate dimension matches schema
@@ -72,7 +73,10 @@ class EmbeddingService:
     def dimension(self) -> int:
         """Get embedding dimension (will fetch from schema on first access)."""
         import warnings
-        warnings.warn("EmbeddingService.dimension is deprecated. Use async _get_dimension() instead.", DeprecationWarning)
+
+        warnings.warn(
+            "EmbeddingService.dimension is deprecated. Use async _get_dimension() instead.", DeprecationWarning
+        )
         return self._dimension or 1024
 
 

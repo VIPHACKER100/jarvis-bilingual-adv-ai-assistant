@@ -8,6 +8,7 @@ def test_config_loading():
     assert isinstance(RESPONSES, dict)
     assert "greeting" in RESPONSES
 
+
 def test_bilingual_responses():
     greeting = RESPONSES.get("greeting")
     assert greeting is not None

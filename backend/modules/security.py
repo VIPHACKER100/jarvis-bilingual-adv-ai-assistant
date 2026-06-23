@@ -25,8 +25,7 @@ class SecurityManager:
 
         return False
 
-    def request_confirmation(self, command_key: str, command_text: str,
-                             language: str, details: dict) -> str:
+    def request_confirmation(self, command_key: str, command_text: str, language: str, details: dict) -> str:
         """
         Request user confirmation for dangerous command
         Returns confirmation_id
@@ -35,19 +34,18 @@ class SecurityManager:
         expires_at = datetime.now() + timedelta(seconds=CONFIRMATION_TIMEOUT)
 
         self.pending_confirmations[confirmation_id] = {
-            'command_key': command_key,
-            'command_text': command_text,
-            'language': language,
-            'details': details,
-            'expires_at': expires_at,
-            'confirmed': None  # None=pending, True=confirmed, False=rejected
+            "command_key": command_key,
+            "command_text": command_text,
+            "language": language,
+            "details": details,
+            "expires_at": expires_at,
+            "confirmed": None,  # None=pending, True=confirmed, False=rejected
         }
 
-        log_system_event("CONFIRMATION_REQUESTED", {
-            'confirmation_id': confirmation_id,
-            'command': command_key,
-            'timeout': CONFIRMATION_TIMEOUT
-        })
+        log_system_event(
+            "CONFIRMATION_REQUESTED",
+            {"confirmation_id": confirmation_id, "command": command_key, "timeout": CONFIRMATION_TIMEOUT},
+        )
 
         # Start timeout timer
         asyncio.create_task(self._handle_timeout(confirmation_id))
@@ -61,20 +59,19 @@ class SecurityManager:
 
         if confirmation_id in self.pending_confirmations:
             confirmation = self.pending_confirmations[confirmation_id]
-            if confirmation['confirmed'] is None:
-                confirmation['confirmed'] = False
+            if confirmation["confirmed"] is None:
+                confirmation["confirmed"] = False
 
-                log_system_event("CONFIRMATION_TIMEOUT", {
-                    'confirmation_id': confirmation_id,
-                    'command': confirmation['command_key']
-                })
+                log_system_event(
+                    "CONFIRMATION_TIMEOUT", {"confirmation_id": confirmation_id, "command": confirmation["command_key"]}
+                )
 
                 # Log to neural memory as undesirable (timed out)
                 await memory_manager.neural.log_decision(
-                    command=confirmation['command_text'],
-                    action=confirmation['command_key'],
+                    command=confirmation["command_text"],
+                    action=confirmation["command_key"],
                     result="REJECTED",
-                    reason="Handshake timeout - user did not respond."
+                    reason="Handshake timeout - user did not respond.",
                 )
 
                 # Notify via callback if registered
@@ -90,30 +87,31 @@ class SecurityManager:
         confirmation = self.pending_confirmations[confirmation_id]
 
         # Check if already decided
-        if confirmation['confirmed'] is not None:
+        if confirmation["confirmed"] is not None:
             return False
 
         # Check if expired
-        if datetime.now() > confirmation['expires_at']:
-            confirmation['confirmed'] = False
+        if datetime.now() > confirmation["expires_at"]:
+            confirmation["confirmed"] = False
             return False
 
-        confirmation['confirmed'] = approved
+        confirmation["confirmed"] = approved
 
         log_command(
-            confirmation['command_text'],
-            confirmation['command_key'],
+            confirmation["command_text"],
+            confirmation["command_key"],
             success=approved,
-            details={'confirmed': approved, 'confirmation_id': confirmation_id}
+            details={"confirmed": approved, "confirmation_id": confirmation_id},
         )
 
         # Log to neural memory for long-term learning
         from modules.memory import memory_manager
+
         await memory_manager.neural.log_decision(
-            command=confirmation['command_text'],
-            action=confirmation['command_key'],
+            command=confirmation["command_text"],
+            action=confirmation["command_key"],
             result="APPROVED" if approved else "REJECTED",
-            reason="Explicit user interaction."
+            reason="Explicit user interaction.",
         )
 
         return True
@@ -122,7 +120,7 @@ class SecurityManager:
         """Get status of confirmation: None=pending, True=confirmed, False=rejected/timeout"""
         if confirmation_id not in self.pending_confirmations:
             return None
-        return self.pending_confirmations[confirmation_id]['confirmed']
+        return self.pending_confirmations[confirmation_id]["confirmed"]
 
     def register_callback(self, confirmation_id: str, callback: Callable):
         """Register async callback for confirmation result"""
@@ -136,8 +134,7 @@ class SecurityManager:
         """Remove expired confirmations"""
         now = datetime.now()
         expired = [
-            cid for cid, conf in self.pending_confirmations.items()
-            if now > conf['expires_at'] + timedelta(minutes=5)
+            cid for cid, conf in self.pending_confirmations.items() if now > conf["expires_at"] + timedelta(minutes=5)
         ]
         for cid in expired:
             del self.pending_confirmations[cid]

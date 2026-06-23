@@ -4,15 +4,18 @@ from modules.media import media_processor
 
 router = APIRouter(prefix="/media", tags=["Media (OCR)"])
 
+
 @router.post("/ocr/image", response_model=OCRResultResponse)
 async def ocr_image(image_path: str, language: str = "en"):
     """Extract text from image"""
     return await media_processor.ocr_image(image_path, language)
 
+
 @router.post("/ocr/pdf", response_model=OCRResultResponse)
 async def ocr_pdf(pdf_path: str, page_number: int = 0, language: str = "en"):
     """Extract text from PDF page"""
     return await media_processor.ocr_pdf(pdf_path, page_number, language)
+
 
 @router.post("/ocr/screen", response_model=OCRResultResponse)
 async def ocr_screen(language: str = "en"):

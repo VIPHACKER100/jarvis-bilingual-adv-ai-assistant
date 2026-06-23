@@ -14,6 +14,7 @@ class WakeWordEngine:
     Runs in a background thread and triggers a callback upon detection.
     Features: noise gate, dynamic cooldown, configurable threshold.
     """
+
     def __init__(self, model_name: str = "hey_jarvis", inference_framework: str = "onnx"):
         self.model_name = model_name
         self.inference_framework = inference_framework
@@ -36,6 +37,7 @@ class WakeWordEngine:
         """Load the model and prepare the audio stream, with graceful fallback"""
         try:
             import pyaudio
+
             self._pyaudio_available = True
         except ImportError:
             logger.warning("pyaudio not installed — wake word engine disabled")
@@ -43,10 +45,7 @@ class WakeWordEngine:
 
         try:
             logger.info(f"Initializing Wake-Word Engine ({self.model_name})...")
-            self.model = Model(
-                wakeword_models=[self.model_name],
-                inference_framework=self.inference_framework
-            )
+            self.model = Model(wakeword_models=[self.model_name], inference_framework=self.inference_framework)
             self.FORMAT = pyaudio.paInt16
             self._audio = pyaudio.PyAudio()
             logger.info("Wake-Word Engine initialized.")
@@ -111,7 +110,7 @@ class WakeWordEngine:
                 channels=self.CHANNELS,
                 rate=self.RATE,
                 input=True,
-                frames_per_buffer=self.CHUNK_SIZE
+                frames_per_buffer=self.CHUNK_SIZE,
             )
 
             logger.debug("Microphone stream opened.")
@@ -162,7 +161,7 @@ class WakeWordEngine:
                 channels=self.CHANNELS,
                 rate=self.RATE,
                 input=True,
-                frames_per_buffer=self.CHUNK_SIZE
+                frames_per_buffer=self.CHUNK_SIZE,
             )
         except Exception:
             pass

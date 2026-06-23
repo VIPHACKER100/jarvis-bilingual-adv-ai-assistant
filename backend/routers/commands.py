@@ -4,6 +4,7 @@ from modules.security import security
 
 router = APIRouter(prefix="", tags=["Commands"])
 
+
 @router.post("/command", response_model=CommandResult)
 async def execute_command(request: Request, data: CommandRequest):
     """Execute a single command via REST"""
@@ -20,6 +21,7 @@ async def execute_command(request: Request, data: CommandRequest):
     result = await handle_command(None, command, language, session_id=session_id)
     return result
 
+
 @router.post("/confirm/{confirmation_id}", response_model=BaseResponse)
 async def confirm_command(confirmation_id: str, data: ConfirmationRequest):
     """Confirm or deny a pending dangerous command"""
@@ -27,10 +29,8 @@ async def confirm_command(confirmation_id: str, data: ConfirmationRequest):
 
     approved = data.approved
     result = await security.confirm_command(confirmation_id, approved)
-    return {
-        "success": result,
-        "response": "Action confirmed" if approved else "Action cancelled"
-    }
+    return {"success": result, "response": "Action confirmed" if approved else "Action cancelled"}
+
 
 @router.get("/pending")
 async def get_pending_actions():

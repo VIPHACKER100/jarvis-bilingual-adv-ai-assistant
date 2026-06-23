@@ -1,10 +1,10 @@
-
 from fastapi import APIRouter, HTTPException
 from models import NotificationRequest, NotificationResponse
 from routers.websocket import broadcast_notification
 from utils.logger_structured import logger
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
+
 
 @router.post("", response_model=NotificationResponse)
 async def push_notification(data: NotificationRequest):

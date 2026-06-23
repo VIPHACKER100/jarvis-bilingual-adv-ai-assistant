@@ -40,12 +40,10 @@ class ProviderAdapter(ABC):
         self.circuit = CircuitBreaker()
 
     @abstractmethod
-    async def generate(self, messages: List[Dict[str, str]], **kwargs) -> Optional[str]:
-        ...
+    async def generate(self, messages: List[Dict[str, str]], **kwargs) -> Optional[str]: ...
 
     @abstractmethod
-    async def generate_stream(self, messages: List[Dict[str, str]], **kwargs) -> AsyncGenerator[str, None]:
-        ...
+    async def generate_stream(self, messages: List[Dict[str, str]], **kwargs) -> AsyncGenerator[str, None]: ...
 
     async def get_embedding(self, text: str) -> Optional[List[float]]:
         return None
@@ -57,14 +55,24 @@ class ProviderAdapter(ABC):
 class OpenAICompatibleAdapter(ProviderAdapter):
     """Single adapter for any OpenAI-compatible provider (NVIDIA, OpenRouter, OpenAI, Google)."""
 
-    def __init__(self, name: str, config: ProviderConfig, base_url: str,
-                 has_embeddings: bool = False, extra_body: Optional[Dict] = None):
+    def __init__(
+        self,
+        name: str,
+        config: ProviderConfig,
+        base_url: str,
+        has_embeddings: bool = False,
+        extra_body: Optional[Dict] = None,
+    ):
         super().__init__(name, config)
-        self._client = AsyncOpenAI(
-            base_url=base_url,
-            api_key=config.api_key,
-            timeout=httpx.Timeout(config.timeout),
-        ) if config.api_key else None
+        self._client = (
+            AsyncOpenAI(
+                base_url=base_url,
+                api_key=config.api_key,
+                timeout=httpx.Timeout(config.timeout),
+            )
+            if config.api_key
+            else None
+        )
         self._has_embeddings = has_embeddings
         self._extra_body = extra_body
 
@@ -78,7 +86,8 @@ class OpenAICompatibleAdapter(ProviderAdapter):
             last_model = model
             try:
                 completion = await self._client.chat.completions.create(
-                    model=model, messages=messages,
+                    model=model,
+                    messages=messages,
                     temperature=kwargs.get("temperature", self.config.temperature),
                     max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
                     extra_body=self._extra_body,
@@ -105,7 +114,9 @@ class OpenAICompatibleAdapter(ProviderAdapter):
         model = kwargs.get("model", self.config.model)
         try:
             stream = await self._client.chat.completions.create(
-                model=model, messages=messages, stream=True,
+                model=model,
+                messages=messages,
+                stream=True,
                 extra_body=self._extra_body,
             )
             async for chunk in stream:
@@ -121,8 +132,7 @@ class OpenAICompatibleAdapter(ProviderAdapter):
             return None
         try:
             response = await self._client.embeddings.create(
-                input=[text],
-                model=os.getenv(f"{self.name.upper()}_EMBEDDING_MODEL", "text-embedding-3-small")
+                input=[text], model=os.getenv(f"{self.name.upper()}_EMBEDDING_MODEL", "text-embedding-3-small")
             )
             return response.data[0].embedding
         except Exception as e:
@@ -147,8 +157,7 @@ class GoogleAdapter(OpenAICompatibleAdapter):
             return None
         try:
             response = await self._client.embeddings.create(
-                input=[text],
-                model=os.getenv("GOOGLE_EMBEDDING_MODEL", "text-embedding-004")
+                input=[text], model=os.getenv("GOOGLE_EMBEDDING_MODEL", "text-embedding-004")
             )
             return response.data[0].embedding
         except Exception as e:

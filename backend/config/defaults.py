@@ -19,6 +19,7 @@ GOOGLE_EMBEDDING_MODEL = os.getenv("GOOGLE_EMBEDDING_MODEL", "models/text-embedd
 CONFIRMATION_TIMEOUT = int(os.getenv("CONFIRMATION_TIMEOUT", 30))
 ENABLE_DANGEROUS_COMMANDS = os.getenv("ENABLE_DANGEROUS_COMMANDS", "true").lower() == "true"
 
+
 def get_config():
     """Load user config from JSON, merging with defaults"""
     defaults = {
@@ -43,16 +44,18 @@ def get_config():
     }
     config_path = DATA_DIR / "config.json"
     if config_path.exists():
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             saved = json.load(f)
         # Merge: saved values override defaults
         defaults.update(saved)
     return defaults
 
+
 def save_config(config):
     """Save user config to JSON"""
     config_path = DATA_DIR / "config.json"
-    with open(config_path, 'w', encoding='utf-8') as f:
+    with open(config_path, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
+
 
 CONFIG = get_config()

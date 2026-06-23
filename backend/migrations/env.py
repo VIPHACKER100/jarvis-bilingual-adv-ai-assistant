@@ -1,4 +1,5 @@
 """Alembic environment config for async PostgreSQL migrations."""
+
 import asyncio
 import os
 from logging.config import fileConfig

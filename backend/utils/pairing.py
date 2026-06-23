@@ -6,6 +6,7 @@ from typing import Dict
 
 class PairingManager:
     """Manages temporary pairing codes for mobile device linking"""
+
     def __init__(self):
         self.active_codes: Dict[str, float] = {}  # code -> expiry_timestamp
         self.code_length = 6
@@ -17,11 +18,11 @@ class PairingManager:
         self.clear_expired()
 
         # Generate 6-digit numeric code
-        code = ''.join(secrets.choice(string.digits) for _ in range(self.code_length))
+        code = "".join(secrets.choice(string.digits) for _ in range(self.code_length))
 
         # In case of collision (unlikely), regenerate
         while code in self.active_codes:
-            code = ''.join(secrets.choice(string.digits) for _ in range(self.code_length))
+            code = "".join(secrets.choice(string.digits) for _ in range(self.code_length))
 
         self.active_codes[code] = time.time() + self.expiry_duration
         return code
@@ -43,6 +44,7 @@ class PairingManager:
         expired = [c for c, t in self.active_codes.items() if t < now]
         for c in expired:
             del self.active_codes[c]
+
 
 # Global instance
 pairing_manager = PairingManager()

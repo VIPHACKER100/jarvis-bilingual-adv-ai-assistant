@@ -11,16 +11,14 @@ from typing import Any, AsyncGenerator, Optional
 import asyncpg
 from utils.logger_structured import logger
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://jarvis:jarvis_dev_password@localhost:5432/jarvis"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://jarvis:jarvis_dev_password@localhost:5432/jarvis")
 
 
 def _parse_url(url: str) -> dict:
     """Parse a postgresql+asyncpg:// URL into connection kwargs."""
     raw = url.replace("postgresql+asyncpg://", "postgresql://")
     from urllib.parse import urlparse
+
     parsed = urlparse(raw)
     return {
         "host": parsed.hostname or "localhost",

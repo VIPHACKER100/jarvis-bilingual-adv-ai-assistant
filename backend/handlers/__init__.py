@@ -19,7 +19,13 @@ personality_handler = PersonalityHandler()
 memory_handler = MemoryHandler()
 
 __all__ = [
-    "system_handler", "window_handler", "desktop_handler",
-    "input_handler", "file_handler", "media_handler",
-    "whatsapp_handler", "personality_handler", "memory_handler",
+    "system_handler",
+    "window_handler",
+    "desktop_handler",
+    "input_handler",
+    "file_handler",
+    "media_handler",
+    "whatsapp_handler",
+    "personality_handler",
+    "memory_handler",
 ]

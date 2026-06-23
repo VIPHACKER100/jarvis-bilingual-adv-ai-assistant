@@ -19,15 +19,12 @@ class DesktopManager:
     """Screenshots, clipboard, and media controls"""
 
     def __init__(self):
-        self.screenshots_dir = Path.home() / 'Pictures' / 'JARVIS_Screenshots'
+        self.screenshots_dir = Path.home() / "Pictures" / "JARVIS_Screenshots"
         self.screenshots_dir.mkdir(parents=True, exist_ok=True)
 
     # ==================== SCREENSHOT FUNCTIONS ====================
 
-    async def take_screenshot(
-            self,
-            save_to_file: bool = True,
-            language: str = 'en') -> Dict:
+    async def take_screenshot(self, save_to_file: bool = True, language: str = "en") -> Dict:
         """Take full screenshot"""
         try:
             screenshot = await safe_automation.capture_screenshot()
@@ -40,42 +37,35 @@ class DesktopManager:
             file_path = None
             if save_to_file:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                file_path = self.screenshots_dir / \
-                    f"screenshot_{timestamp}.png"
+                file_path = self.screenshots_dir / f"screenshot_{timestamp}.png"
                 await asyncio.to_thread(screenshot.save, str(file_path))
 
-            log_command('take screenshot', 'screenshot', True)
+            log_command("take screenshot", "screenshot", True)
 
             return {
-                'success': True,
-                'action_type': 'SCREENSHOT',
-                'image': f'data:image/png;base64,{img_str}',
-                'file_path': str(file_path) if file_path else None,
-                'size': screenshot.size,
-                'response': parser.get_response('screenshot_captured', language)
+                "success": True,
+                "action_type": "SCREENSHOT",
+                "image": f"data:image/png;base64,{img_str}",
+                "file_path": str(file_path) if file_path else None,
+                "size": screenshot.size,
+                "response": parser.get_response("screenshot_captured", language),
             }
 
         except Exception as e:
-            logger.error(f'Error taking screenshot: {e}')
+            logger.error(f"Error taking screenshot: {e}")
             return {
-                'success': False,
-                'action_type': 'SCREENSHOT',
-                'error': str(e),
-                'response': 'Failed to take screenshot'
+                "success": False,
+                "action_type": "SCREENSHOT",
+                "error": str(e),
+                "response": "Failed to take screenshot",
             }
 
     async def take_screenshot_region(
-            self,
-            x: int,
-            y: int,
-            width: int,
-            height: int,
-            save_to_file: bool = True,
-            language: str = 'en') -> Dict:
+        self, x: int, y: int, width: int, height: int, save_to_file: bool = True, language: str = "en"
+    ) -> Dict:
         """Take screenshot of specific region"""
         try:
-            screenshot = await safe_automation.capture_screenshot(
-                region=(x, y, width, height))
+            screenshot = await safe_automation.capture_screenshot(region=(x, y, width, height))
 
             # Convert to base64
             buffered = io.BytesIO()
@@ -85,42 +75,35 @@ class DesktopManager:
             file_path = None
             if save_to_file:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                file_path = self.screenshots_dir / \
-                    f"screenshot_region_{timestamp}.png"
+                file_path = self.screenshots_dir / f"screenshot_region_{timestamp}.png"
                 await asyncio.to_thread(screenshot.save, str(file_path))
 
-            log_command(
-                f'take region screenshot {x},{y},{width},{height}', 'screenshot_region', True)
+            log_command(f"take region screenshot {x},{y},{width},{height}", "screenshot_region", True)
 
             return {
-                'success': True,
-                'action_type': 'SCREENSHOT_REGION',
-                'region': {'x': x, 'y': y, 'width': width, 'height': height},
-                'image': f'data:image/png;base64,{img_str}',
-                'file_path': str(file_path) if file_path else None,
-                'response': f'Region screenshot captured ({width}x{height})'
+                "success": True,
+                "action_type": "SCREENSHOT_REGION",
+                "region": {"x": x, "y": y, "width": width, "height": height},
+                "image": f"data:image/png;base64,{img_str}",
+                "file_path": str(file_path) if file_path else None,
+                "response": f"Region screenshot captured ({width}x{height})",
             }
 
         except Exception as e:
-            logger.error(f'Error taking region screenshot: {e}')
+            logger.error(f"Error taking region screenshot: {e}")
             return {
-                'success': False,
-                'action_type': 'SCREENSHOT_REGION',
-                'error': str(e),
-                'response': 'Failed to take screenshot'
+                "success": False,
+                "action_type": "SCREENSHOT_REGION",
+                "error": str(e),
+                "response": "Failed to take screenshot",
             }
 
-    async def save_screenshot(
-            self,
-            image_data: str,
-            filename: Optional[str] = None,
-            language: str = 'en') -> Dict:
+    async def save_screenshot(self, image_data: str, filename: Optional[str] = None, language: str = "en") -> Dict:
         """Save base64 screenshot to file"""
         try:
             # Decode base64 - this is CPU bound, fine for async if not huge, but safer in thread
             def _save_task():
-                image_bytes = base64.b64decode(image_data.split(
-                    ',')[1] if ',' in image_data else image_data)
+                image_bytes = base64.b64decode(image_data.split(",")[1] if "," in image_data else image_data)
                 image = Image.open(io.BytesIO(image_bytes))
 
                 # Generate filename
@@ -136,318 +119,274 @@ class DesktopManager:
             file_path_str = await asyncio.to_thread(_save_task)
 
             return {
-                'success': True,
-                'action_type': 'SAVE_SCREENSHOT',
-                'file_path': file_path_str,
-                'response': f'Screenshot saved to {Path(file_path_str).name}'
+                "success": True,
+                "action_type": "SAVE_SCREENSHOT",
+                "file_path": file_path_str,
+                "response": f"Screenshot saved to {Path(file_path_str).name}",
             }
 
         except Exception as e:
-            logger.error(f'Error saving screenshot: {e}')
+            logger.error(f"Error saving screenshot: {e}")
             return {
-                'success': False,
-                'action_type': 'SAVE_SCREENSHOT',
-                'error': str(e),
-                'response': 'Failed to save screenshot'
+                "success": False,
+                "action_type": "SAVE_SCREENSHOT",
+                "error": str(e),
+                "response": "Failed to save screenshot",
             }
 
     # ==================== CLIPBOARD FUNCTIONS ====================
 
-    async def get_clipboard_text(self, language: str = 'en') -> Dict:
+    async def get_clipboard_text(self, language: str = "en") -> Dict:
         """Get text from clipboard"""
         try:
             text = await asyncio.to_thread(pyperclip.paste)
 
             return {
-                'success': True,
-                'action_type': 'CLIPBOARD_GET_TEXT',
-                'text': text,
-                'text_preview': text[:200] + '...' if len(text) > 200 else text,
-                'length': len(text),
-                'response': f'Clipboard text retrieved ({len(text)} characters)'
+                "success": True,
+                "action_type": "CLIPBOARD_GET_TEXT",
+                "text": text,
+                "text_preview": text[:200] + "..." if len(text) > 200 else text,
+                "length": len(text),
+                "response": f"Clipboard text retrieved ({len(text)} characters)",
             }
 
         except Exception as e:
-            logger.error(f'Error getting clipboard text: {e}')
+            logger.error(f"Error getting clipboard text: {e}")
             return {
-                'success': False,
-                'action_type': 'CLIPBOARD_GET_TEXT',
-                'error': str(e),
-                'response': 'Failed to get clipboard text'
+                "success": False,
+                "action_type": "CLIPBOARD_GET_TEXT",
+                "error": str(e),
+                "response": "Failed to get clipboard text",
             }
 
-    async def set_clipboard_text(
-            self,
-            text: str,
-            language: str = 'en') -> Dict:
+    async def set_clipboard_text(self, text: str, language: str = "en") -> Dict:
         """Set text to clipboard"""
         try:
             await asyncio.to_thread(pyperclip.copy, text)
 
-            log_command(f'copy text to clipboard ({len(text)} chars)', 'clipboard_set_text', True)
+            log_command(f"copy text to clipboard ({len(text)} chars)", "clipboard_set_text", True)
 
             return {
-                'success': True,
-                'action_type': 'CLIPBOARD_SET_TEXT',
-                'text': text,
-                'length': len(text),
-                'response': f'Copied {len(text)} characters to clipboard'
+                "success": True,
+                "action_type": "CLIPBOARD_SET_TEXT",
+                "text": text,
+                "length": len(text),
+                "response": f"Copied {len(text)} characters to clipboard",
             }
 
         except Exception as e:
-            logger.error(f'Error setting clipboard text: {e}')
+            logger.error(f"Error setting clipboard text: {e}")
             return {
-                'success': False,
-                'action_type': 'CLIPBOARD_SET_TEXT',
-                'error': str(e),
-                'response': 'Failed to copy to clipboard'
+                "success": False,
+                "action_type": "CLIPBOARD_SET_TEXT",
+                "error": str(e),
+                "response": "Failed to copy to clipboard",
             }
 
-    async def clear_clipboard(self, language: str = 'en') -> Dict:
+    async def clear_clipboard(self, language: str = "en") -> Dict:
         """Clear clipboard"""
         try:
-            await asyncio.to_thread(pyperclip.copy, '')
+            await asyncio.to_thread(pyperclip.copy, "")
 
-            return {
-                'success': True,
-                'action_type': 'CLIPBOARD_CLEAR',
-                'response': 'Clipboard cleared'
-            }
+            return {"success": True, "action_type": "CLIPBOARD_CLEAR", "response": "Clipboard cleared"}
 
         except Exception as e:
-            logger.error(f'Error clearing clipboard: {e}')
+            logger.error(f"Error clearing clipboard: {e}")
             return {
-                'success': False,
-                'action_type': 'CLIPBOARD_CLEAR',
-                'error': str(e),
-                'response': 'Failed to clear clipboard'
+                "success": False,
+                "action_type": "CLIPBOARD_CLEAR",
+                "error": str(e),
+                "response": "Failed to clear clipboard",
             }
 
     # ==================== MEDIA CONTROLS ====================
 
-    async def play_pause_media(self, language: str = 'en') -> Dict:
+    async def play_pause_media(self, language: str = "en") -> Dict:
         """Play/pause media playback"""
         try:
-            await safe_automation.run_gui_action(pyautogui.press, 'playpause')
+            await safe_automation.run_gui_action(pyautogui.press, "playpause")
 
-            log_command('play/pause media', 'media_play_pause', True)
+            log_command("play/pause media", "media_play_pause", True)
 
             return {
-                'success': True,
-                'action_type': 'MEDIA_PLAY_PAUSE',
-                'response': parser.get_response('media_play_pause', language)
+                "success": True,
+                "action_type": "MEDIA_PLAY_PAUSE",
+                "response": parser.get_response("media_play_pause", language),
             }
 
         except Exception as e:
-            logger.error(f'Error controlling media: {e}')
+            logger.error(f"Error controlling media: {e}")
             return {
-                'success': False,
-                'action_type': 'MEDIA_PLAY_PAUSE',
-                'error': str(e),
-                'response': 'Failed to control media'
+                "success": False,
+                "action_type": "MEDIA_PLAY_PAUSE",
+                "error": str(e),
+                "response": "Failed to control media",
             }
 
-    async def next_track(self, language: str = 'en') -> Dict:
+    async def next_track(self, language: str = "en") -> Dict:
         """Next track/song"""
         try:
-            await safe_automation.run_gui_action(pyautogui.press, 'nexttrack')
+            await safe_automation.run_gui_action(pyautogui.press, "nexttrack")
 
-            log_command('next track', 'media_next', True)
+            log_command("next track", "media_next", True)
 
             return {
-                'success': True,
-                'action_type': 'MEDIA_NEXT',
-                'response': parser.get_response('media_next', language)
+                "success": True,
+                "action_type": "MEDIA_NEXT",
+                "response": parser.get_response("media_next", language),
             }
 
         except Exception as e:
-            logger.error(f'Error next track: {e}')
-            return {
-                'success': False,
-                'action_type': 'MEDIA_NEXT',
-                'error': str(e),
-                'response': 'Failed to skip track'
-            }
+            logger.error(f"Error next track: {e}")
+            return {"success": False, "action_type": "MEDIA_NEXT", "error": str(e), "response": "Failed to skip track"}
 
-    async def previous_track(self, language: str = 'en') -> Dict:
+    async def previous_track(self, language: str = "en") -> Dict:
         """Previous track/song"""
         try:
-            await safe_automation.run_gui_action(pyautogui.press, 'prevtrack')
+            await safe_automation.run_gui_action(pyautogui.press, "prevtrack")
 
-            log_command('previous track', 'media_previous', True)
+            log_command("previous track", "media_previous", True)
 
             return {
-                'success': True,
-                'action_type': 'MEDIA_PREVIOUS',
-                'response': parser.get_response('media_prev', language)
+                "success": True,
+                "action_type": "MEDIA_PREVIOUS",
+                "response": parser.get_response("media_prev", language),
             }
 
         except Exception as e:
-            logger.error(f'Error previous track: {e}')
-            return {
-                'success': False,
-                'action_type': 'MEDIA_PREVIOUS',
-                'error': str(e),
-                'response': 'Failed to go back'
-            }
+            logger.error(f"Error previous track: {e}")
+            return {"success": False, "action_type": "MEDIA_PREVIOUS", "error": str(e), "response": "Failed to go back"}
 
-    async def stop_media(self, language: str = 'en') -> Dict:
+    async def stop_media(self, language: str = "en") -> Dict:
         """Stop media playback"""
         try:
-            await safe_automation.run_gui_action(pyautogui.press, 'stop')
+            await safe_automation.run_gui_action(pyautogui.press, "stop")
 
-            log_command('stop media', 'media_stop', True)
+            log_command("stop media", "media_stop", True)
 
             return {
-                'success': True,
-                'action_type': 'MEDIA_STOP',
-                'response': parser.get_response('media_stop', language)
+                "success": True,
+                "action_type": "MEDIA_STOP",
+                "response": parser.get_response("media_stop", language),
             }
 
         except Exception as e:
-            logger.error(f'Error stopping media: {e}')
-            return {
-                'success': False,
-                'action_type': 'MEDIA_STOP',
-                'error': str(e),
-                'response': 'Failed to stop media'
-            }
+            logger.error(f"Error stopping media: {e}")
+            return {"success": False, "action_type": "MEDIA_STOP", "error": str(e), "response": "Failed to stop media"}
 
-    async def volume_mute(self, language: str = 'en') -> Dict:
+    async def volume_mute(self, language: str = "en") -> Dict:
         """Mute/unmute system volume"""
         try:
-            await safe_automation.run_gui_action(pyautogui.press, 'volumemute')
+            await safe_automation.run_gui_action(pyautogui.press, "volumemute")
 
-            log_command('mute volume', 'volume_mute', True)
+            log_command("mute volume", "volume_mute", True)
 
-            return {
-                'success': True,
-                'action_type': 'VOLUME_MUTE',
-                'response': 'Mute toggled'
-            }
+            return {"success": True, "action_type": "VOLUME_MUTE", "response": "Mute toggled"}
 
         except Exception as e:
-            logger.error(f'Error muting volume: {e}')
-            return {
-                'success': False,
-                'action_type': 'VOLUME_MUTE',
-                'error': str(e),
-                'response': 'Failed to mute'
-            }
+            logger.error(f"Error muting volume: {e}")
+            return {"success": False, "action_type": "VOLUME_MUTE", "error": str(e), "response": "Failed to mute"}
 
-    async def volume_up(self, language: str = 'en') -> Dict:
+    async def volume_up(self, language: str = "en") -> Dict:
         """Increase system volume"""
         try:
-            await safe_automation.run_gui_action(pyautogui.press, 'volumeup')
+            await safe_automation.run_gui_action(pyautogui.press, "volumeup")
 
-            log_command('volume up', 'media_volume_up', True)
+            log_command("volume up", "media_volume_up", True)
 
-            return {
-                'success': True,
-                'action_type': 'MEDIA_VOLUME_UP',
-                'response': 'Volume up'
-            }
+            return {"success": True, "action_type": "MEDIA_VOLUME_UP", "response": "Volume up"}
 
         except Exception as e:
-            logger.error(f'Error increasing volume: {e}')
+            logger.error(f"Error increasing volume: {e}")
             return {
-                'success': False,
-                'action_type': 'MEDIA_VOLUME_UP',
-                'error': str(e),
-                'response': 'Failed to increase volume'
+                "success": False,
+                "action_type": "MEDIA_VOLUME_UP",
+                "error": str(e),
+                "response": "Failed to increase volume",
             }
 
-    async def volume_down(self, language: str = 'en') -> Dict:
+    async def volume_down(self, language: str = "en") -> Dict:
         """Decrease system volume"""
         try:
-            await safe_automation.run_gui_action(pyautogui.press, 'volumedown')
+            await safe_automation.run_gui_action(pyautogui.press, "volumedown")
 
-            log_command('volume down', 'media_volume_down', True)
+            log_command("volume down", "media_volume_down", True)
 
-            return {
-                'success': True,
-                'action_type': 'MEDIA_VOLUME_DOWN',
-                'response': 'Volume down'
-            }
+            return {"success": True, "action_type": "MEDIA_VOLUME_DOWN", "response": "Volume down"}
 
         except Exception as e:
-            logger.error(f'Error decreasing volume: {e}')
+            logger.error(f"Error decreasing volume: {e}")
             return {
-                'success': False,
-                'action_type': 'MEDIA_VOLUME_DOWN',
-                'error': str(e),
-                'response': 'Failed to decrease volume'
+                "success": False,
+                "action_type": "MEDIA_VOLUME_DOWN",
+                "error": str(e),
+                "response": "Failed to decrease volume",
             }
 
     # ==================== UTILITY FUNCTIONS ====================
 
-    async def get_screen_resolution(self, language: str = 'en') -> Dict:
+    async def get_screen_resolution(self, language: str = "en") -> Dict:
         """Get screen resolution"""
         try:
             width, height = await safe_automation.run_gui_action(pyautogui.size)
 
             return {
-                'success': True,
-                'action_type': 'SCREEN_RESOLUTION',
-                'width': width,
-                'height': height,
-                'resolution': f'{width}x{height}',
-                'response': f'Screen resolution: {width}x{height}'
+                "success": True,
+                "action_type": "SCREEN_RESOLUTION",
+                "width": width,
+                "height": height,
+                "resolution": f"{width}x{height}",
+                "response": f"Screen resolution: {width}x{height}",
             }
 
         except Exception as e:
-            logger.error(f'Error getting screen resolution: {e}')
+            logger.error(f"Error getting screen resolution: {e}")
             return {
-                'success': False,
-                'action_type': 'SCREEN_RESOLUTION',
-                'error': str(e),
-                'response': 'Failed to get screen resolution'
+                "success": False,
+                "action_type": "SCREEN_RESOLUTION",
+                "error": str(e),
+                "response": "Failed to get screen resolution",
             }
 
-    async def show_notification(
-            self,
-            title: str,
-            message: str,
-            language: str = 'en') -> Dict:
+    async def show_notification(self, title: str, message: str, language: str = "en") -> Dict:
         """Show system notification"""
         try:
             if is_windows():
+
                 def _notify_task():
                     from win10toast import ToastNotifier
+
                     toaster = ToastNotifier()
                     toaster.show_toast(title, message, duration=5)
 
                 await asyncio.to_thread(_notify_task)
             elif is_macos():
                 script = f'display notification "{message}" with title "{title}"'
-                await safe_automation.run_command(f'osascript -e \'{script}\'', shell=True)
+                await safe_automation.run_command(f"osascript -e '{script}'", shell=True)
             else:
                 # Linux
                 await safe_automation.run_command(f'notify-send "{title}" "{message}"', shell=True)
 
             return {
-                'success': True,
-                'action_type': 'NOTIFICATION',
-                'title': title,
-                'message': message,
-                'response': 'Notification shown'
+                "success": True,
+                "action_type": "NOTIFICATION",
+                "title": title,
+                "message": message,
+                "response": "Notification shown",
             }
 
         except Exception as e:
-            logger.error(f'Error showing notification: {e}')
+            logger.error(f"Error showing notification: {e}")
             return {
-                'success': False,
-                'action_type': 'NOTIFICATION',
-                'error': str(e),
-                'response': 'Failed to show notification'
+                "success": False,
+                "action_type": "NOTIFICATION",
+                "error": str(e),
+                "response": "Failed to show notification",
             }
 
     # ==================== ADVANCED WINDOWS FEATURES ====================
 
-    async def change_wallpaper(
-            self,
-            image_path: str,
-            language: str = 'en') -> Dict:
+    async def change_wallpaper(self, image_path: str, language: str = "en") -> Dict:
         """Change desktop wallpaper"""
         try:
             path = Path(image_path).expanduser().resolve()
@@ -457,141 +396,109 @@ class DesktopManager:
                 return path.exists()
 
             if not await asyncio.to_thread(_validate_path):
-                return {
-                    'success': False,
-                    'error': 'Image not found',
-                    'response': 'Wallpaper image not found'}
+                return {"success": False, "error": "Image not found", "response": "Wallpaper image not found"}
 
             if is_windows():
+
                 def _set_wallpaper_task():
                     SPI_SETDESKWALLPAPER = 20
-                    ctypes.windll.user32.SystemParametersInfoW(
-                        SPI_SETDESKWALLPAPER, 0, str(path), 3)  # type: ignore
+                    ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, str(path), 3)  # type: ignore
 
                 await asyncio.to_thread(_set_wallpaper_task)
             elif is_macos():
                 script = f'tell application "System Events" to set picture of every desktop to POSIX file "{path}"'
-                await safe_automation.run_command(['osascript', '-e', script])
+                await safe_automation.run_command(["osascript", "-e", script])
             else:
                 # GNOME example
-                await safe_automation.run_command(['gsettings',
-                                                'set',
-                                                'org.gnome.desktop.background',
-                                                'picture-uri',
-                                                f'file://{path}'])
+                await safe_automation.run_command(
+                    ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", f"file://{path}"]
+                )
 
-            log_command(f'change wallpaper to {path.name}', 'change_wallpaper', True)
+            log_command(f"change wallpaper to {path.name}", "change_wallpaper", True)
             return {
-                'success': True,
-                'action_type': 'CHANGE_WALLPAPER',
-                'path': str(path),
-                'response': 'Wallpaper changed successfully'}
+                "success": True,
+                "action_type": "CHANGE_WALLPAPER",
+                "path": str(path),
+                "response": "Wallpaper changed successfully",
+            }
         except Exception as e:
-            logger.error(f'Error changing wallpaper: {e}')
-            return {
-                'success': False,
-                'error': str(e),
-                'response': 'Failed to change wallpaper'}
+            logger.error(f"Error changing wallpaper: {e}")
+            return {"success": False, "error": str(e), "response": "Failed to change wallpaper"}
 
-    async def empty_recycle_bin(
-            self,
-            language: str = 'en',
-            confirmed: bool = False) -> Dict:
+    async def empty_recycle_bin(self, language: str = "en", confirmed: bool = False) -> Dict:
         """Empty system recycle bin"""
         if not confirmed:
             return {
-                'success': False,
-                'requires_confirmation': True,
-                'action_type': 'EMPTY_RECYCLE_BIN',
-                'response': 'Are you sure you want to empty the recycle bin?',
-                'confirmation_context': {'command': 'empty_recycle_bin'}
+                "success": False,
+                "requires_confirmation": True,
+                "action_type": "EMPTY_RECYCLE_BIN",
+                "response": "Are you sure you want to empty the recycle bin?",
+                "confirmation_context": {"command": "empty_recycle_bin"},
             }
 
         try:
             if is_windows():
+
                 def _empty_task():
                     import winshell
+
                     winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=True)
 
                 await asyncio.to_thread(_empty_task)
             elif is_macos():
-                await safe_automation.run_command(
-                    ['osascript', '-e', 'tell application "Finder" to empty trash'])
+                await safe_automation.run_command(["osascript", "-e", 'tell application "Finder" to empty trash'])
             else:
-                await safe_automation.run_command('rm -rf ~/.local/share/Trash/*', shell=True)
+                await safe_automation.run_command("rm -rf ~/.local/share/Trash/*", shell=True)
 
-            log_command('empty recycle bin', 'empty_recycle_bin', True)
-            return {
-                'success': True,
-                'action_type': 'EMPTY_RECYCLE_BIN',
-                'response': 'Recycle bin emptied'}
+            log_command("empty recycle bin", "empty_recycle_bin", True)
+            return {"success": True, "action_type": "EMPTY_RECYCLE_BIN", "response": "Recycle bin emptied"}
         except Exception as e:
-            logger.error(f'Error emptying recycle bin: {e}')
-            return {
-                'success': False,
-                'error': str(e),
-                'response': 'Failed to empty recycle bin'}
+            logger.error(f"Error emptying recycle bin: {e}")
+            return {"success": False, "error": str(e), "response": "Failed to empty recycle bin"}
 
-    async def toggle_taskbar(
-            self,
-            show: Optional[bool] = None,
-            language: str = 'en') -> Dict:
+    async def toggle_taskbar(self, show: Optional[bool] = None, language: str = "en") -> Dict:
         """Hide or show the Windows taskbar"""
         if not is_windows():
-            return {
-                'success': False,
-                'error': 'Not supported on this platform'}
+            return {"success": False, "error": "Not supported on this platform"}
 
         try:
+
             def _toggle_taskbar_task():
                 # Find the taskbar window
-                hwnd = ctypes.windll.user32.FindWindowW(
-                    "Shell_TrayWnd", None)  # type: ignore
+                hwnd = ctypes.windll.user32.FindWindowW("Shell_TrayWnd", None)  # type: ignore
 
                 SW_HIDE = 0
                 SW_SHOW = 5
 
-                current_state = ctypes.windll.user32.IsWindowVisible(
-                    hwnd)  # type: ignore
+                current_state = ctypes.windll.user32.IsWindowVisible(hwnd)  # type: ignore
 
                 should_show = not current_state if show is None else show
 
                 if should_show:
                     ctypes.windll.user32.ShowWindow(hwnd, SW_SHOW)  # type: ignore
-                    return 'shown'
+                    return "shown"
                 else:
                     ctypes.windll.user32.ShowWindow(hwnd, SW_HIDE)  # type: ignore
-                    return 'hidden'
+                    return "hidden"
 
             status = await asyncio.to_thread(_toggle_taskbar_task)
 
-            return {
-                'success': True,
-                'action_type': 'TOGGLE_TASKBAR',
-                'status': status,
-                'response': f'Taskbar {status}'}
+            return {"success": True, "action_type": "TOGGLE_TASKBAR", "status": status, "response": f"Taskbar {status}"}
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
-    async def toggle_desktop_icons(
-            self,
-            show: Optional[bool] = None,
-            language: str = 'en') -> Dict:
+    async def toggle_desktop_icons(self, show: Optional[bool] = None, language: str = "en") -> Dict:
         """Hide or show desktop icons (Windows)"""
         if not is_windows():
-            return {
-                'success': False,
-                'error': 'Not supported on this platform'}
+            return {"success": False, "error": "Not supported on this platform"}
 
         try:
+
             def _toggle_icons_task():
                 import winreg
+
                 key_path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-                key = winreg.OpenKey(
-                    winreg.HKEY_CURRENT_USER,
-                    key_path,
-                    0,
-                    winreg.KEY_ALL_ACCESS)
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_ALL_ACCESS)
 
                 if show is None:
                     # Get current value
@@ -600,101 +507,77 @@ class DesktopManager:
                 else:
                     should_hide = 0 if show else 1
 
-                winreg.SetValueEx(
-                    key,
-                    "HideIcons",
-                    0,
-                    winreg.REG_DWORD,
-                    should_hide)
+                winreg.SetValueEx(key, "HideIcons", 0, winreg.REG_DWORD, should_hide)
                 winreg.CloseKey(key)
 
                 # Refresh desktop to apply changes
-                ctypes.windll.user32.SendMessageW(
-                    0xffff, 0x0111, 0x1a221, 0)  # type: ignore (WM_COMMAND, refresh)
+                ctypes.windll.user32.SendMessageW(0xFFFF, 0x0111, 0x1A221, 0)  # type: ignore (WM_COMMAND, refresh)
 
-                return 'hidden' if should_hide else 'shown'
+                return "hidden" if should_hide else "shown"
 
             status = await asyncio.to_thread(_toggle_icons_task)
 
             return {
-                'success': True,
-                'action_type': 'TOGGLE_ICONS',
-                'status': status,
-                'response': f'Desktop icons {status}'}
+                "success": True,
+                "action_type": "TOGGLE_ICONS",
+                "status": status,
+                "response": f"Desktop icons {status}",
+            }
         except Exception as e:
-            logger.error(f'Error toggling icons: {e}')
-            return {'success': False, 'error': str(e)}
+            logger.error(f"Error toggling icons: {e}")
+            return {"success": False, "error": str(e)}
 
-    async def set_theme(
-            self,
-            theme: str = 'dark',
-            language: str = 'en') -> Dict:
+    async def set_theme(self, theme: str = "dark", language: str = "en") -> Dict:
         """Set Windows system theme (light/dark)"""
         if not is_windows():
-            return {
-                'success': False,
-                'error': 'Not supported on this platform'}
+            return {"success": False, "error": "Not supported on this platform"}
 
         try:
+
             def _set_theme_task():
                 import winreg
-                key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-                key = winreg.OpenKey(
-                    winreg.HKEY_CURRENT_USER,
-                    key_path,
-                    0,
-                    winreg.KEY_ALL_ACCESS)
 
-                value = 0 if theme.lower() == 'dark' else 1
+                key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_ALL_ACCESS)
+
+                value = 0 if theme.lower() == "dark" else 1
 
                 # Apps use light/dark mode
-                winreg.SetValueEx(
-                    key,
-                    "AppsUseLightTheme",
-                    0,
-                    winreg.REG_DWORD,
-                    value)
+                winreg.SetValueEx(key, "AppsUseLightTheme", 0, winreg.REG_DWORD, value)
                 # System uses light/dark mode
-                winreg.SetValueEx(key, "SystemUsesLightTheme",
-                                0, winreg.REG_DWORD, value)
+                winreg.SetValueEx(key, "SystemUsesLightTheme", 0, winreg.REG_DWORD, value)
 
                 winreg.CloseKey(key)
 
             await asyncio.to_thread(_set_theme_task)
 
             return {
-                'success': True,
-                'action_type': 'SET_THEME',
-                'theme': theme,
-                'response': f'System theme set to {theme}'}
+                "success": True,
+                "action_type": "SET_THEME",
+                "theme": theme,
+                "response": f"System theme set to {theme}",
+            }
         except Exception as e:
-            logger.error(f'Error setting theme: {e}')
-            return {'success': False, 'error': str(e)}
+            logger.error(f"Error setting theme: {e}")
+            return {"success": False, "error": str(e)}
 
-    async def zoom_screen(
-            self,
-            level: str = 'in',
-            language: str = 'en') -> Dict:
+    async def zoom_screen(self, level: str = "in", language: str = "en") -> Dict:
         """Zoom screen using Windows Magnifier or built-in hotkeys"""
         try:
             if is_windows():
-                if level == 'in':
-                    await safe_automation.run_gui_action(pyautogui.hotkey, 'win', '+')
+                if level == "in":
+                    await safe_automation.run_gui_action(pyautogui.hotkey, "win", "+")
                 else:
-                    await safe_automation.run_gui_action(pyautogui.hotkey, 'win', '-')
+                    await safe_automation.run_gui_action(pyautogui.hotkey, "win", "-")
             elif is_macos():
-                if level == 'in':
-                    await safe_automation.run_gui_action(pyautogui.hotkey, 'command', 'option', '=')
+                if level == "in":
+                    await safe_automation.run_gui_action(pyautogui.hotkey, "command", "option", "=")
                 else:
-                    await safe_automation.run_gui_action(pyautogui.hotkey, 'command', 'option', '-')
+                    await safe_automation.run_gui_action(pyautogui.hotkey, "command", "option", "-")
 
-            return {
-                'success': True,
-                'action_type': 'ZOOM',
-                'level': level,
-                'response': f'Zoomed {level}'}
+            return {"success": True, "action_type": "ZOOM", "level": level, "response": f"Zoomed {level}"}
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
 
 # Singleton instance

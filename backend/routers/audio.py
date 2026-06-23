@@ -60,11 +60,13 @@ async def audio_websocket(websocket: WebSocket, language: str = "en", api_key: O
                 if text:
                     audio_data = await tts_service.synthesize(text, voice, language)
                     if audio_data:
-                        await websocket.send_json({
-                            "type": "tts_audio",
-                            "audio": base64.b64encode(audio_data).decode(),
-                            "format": "opus",
-                        })
+                        await websocket.send_json(
+                            {
+                                "type": "tts_audio",
+                                "audio": base64.b64encode(audio_data).decode(),
+                                "format": "opus",
+                            }
+                        )
                     else:
                         await websocket.send_json({"type": "tts_error", "error": "TTS failed"})
 
@@ -73,11 +75,13 @@ async def audio_websocket(websocket: WebSocket, language: str = "en", api_key: O
                 voice = msg.get("voice", "alloy")
                 if text:
                     async for chunk in tts_service.synthesize_stream(text, voice, language):
-                        await websocket.send_json({
-                            "type": "tts_chunk",
-                            "audio": base64.b64encode(chunk).decode(),
-                            "format": "opus",
-                        })
+                        await websocket.send_json(
+                            {
+                                "type": "tts_chunk",
+                                "audio": base64.b64encode(chunk).decode(),
+                                "format": "opus",
+                            }
+                        )
                     await websocket.send_json({"type": "tts_end"})
                 else:
                     await websocket.send_json({"type": "tts_error", "error": "Empty text"})

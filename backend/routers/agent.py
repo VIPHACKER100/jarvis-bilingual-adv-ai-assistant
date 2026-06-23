@@ -36,9 +36,7 @@ async def agent_chat(body: AgentQuery, request: Request):
         ctx = await rag_pipeline.retrieve(body.query)
         context = ctx.assembled_prompt
 
-    result = await llm_gateway.generate(
-        body.query, language=body.language, context=context
-    )
+    result = await llm_gateway.generate(body.query, language=body.language, context=context)
     return {
         "success": True,
         "response": result or "No response generated.",
@@ -63,9 +61,7 @@ async def agent_stream(body: AgentQuery, request: Request):
         full_response = []
         try:
             yield f"data: {json.dumps({'type': 'meta', 'provider': llm_gateway.active_provider, 'language': body.language})}\n\n"
-            async for chunk in llm_gateway.generate_stream(
-                body.query, language=body.language, context=context
-            ):
+            async for chunk in llm_gateway.generate_stream(body.query, language=body.language, context=context):
                 full_response.append(chunk)
                 yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
 
@@ -106,10 +102,12 @@ async def agent_rag_search(body: AgentQuery):
     ctx = await rag_pipeline.retrieve(body.query, force_refresh=True)
     results = []
     for r in ctx.results[:5]:
-        results.append({
-            "node": r.node_name,
-            "score": r.score,
-            "match_type": r.match_type,
-            "excerpt": r.content[:300],
-        })
+        results.append(
+            {
+                "node": r.node_name,
+                "score": r.score,
+                "match_type": r.match_type,
+                "excerpt": r.content[:300],
+            }
+        )
     return {"success": True, "query": body.query, "results": results, "total_scanned": ctx.total_nodes_scanned}

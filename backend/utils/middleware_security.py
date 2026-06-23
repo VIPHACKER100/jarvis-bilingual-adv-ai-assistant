@@ -27,6 +27,7 @@ MAX_BODY_BYTES = 1024 * 512  # 512 KB
 
 class _ReceiveWrapper:
     """Wraps an ASGI receive callable to deliver a pre-read body."""
+
     def __init__(self, receive: Receive, body: bytes) -> None:
         self._receive = receive
         self._body = body
@@ -46,7 +47,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["Permissions-Policy"] = "microphone=(self), camera=(self), clipboard-read=(self), clipboard-write=(self)"
+        response.headers["Permissions-Policy"] = (
+            "microphone=(self), camera=(self), clipboard-read=(self), clipboard-write=(self)"
+        )
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
         response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
         if request.url.scheme == "https":
@@ -60,6 +63,7 @@ class SQLInjectionMiddleware:
     Uses raw ASGI receive channel to avoid body-stream exhaustion issues
     that occur with BaseHTTPMiddleware + request.body().
     """
+
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
@@ -109,15 +113,19 @@ class SQLInjectionMiddleware:
             (b"content-type", b"application/json"),
             (b"content-length", str(len(body_bytes)).encode()),
         ]
-        await send({
-            "type": "http.response.start",
-            "status": response.status_code,
-            "headers": response.headers.raw if hasattr(response.headers, 'raw') else headers,
-        })
-        await send({
-            "type": "http.response.body",
-            "body": body_bytes,
-        })
+        await send(
+            {
+                "type": "http.response.start",
+                "status": response.status_code,
+                "headers": response.headers.raw if hasattr(response.headers, "raw") else headers,
+            }
+        )
+        await send(
+            {
+                "type": "http.response.body",
+                "body": body_bytes,
+            }
+        )
 
 
 class MaxBodySizeMiddleware(BaseHTTPMiddleware):

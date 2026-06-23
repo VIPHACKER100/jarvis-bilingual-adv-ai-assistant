@@ -8,24 +8,29 @@ def get_platform():
     """Get current platform"""
     return PLATFORM
 
+
 def is_windows():
-    return PLATFORM == 'windows'
+    return PLATFORM == "windows"
+
 
 def is_macos():
-    return PLATFORM == 'darwin'
+    return PLATFORM == "darwin"
+
 
 def is_linux():
-    return PLATFORM == 'linux'
+    return PLATFORM == "linux"
+
 
 import asyncio
 
-from utils.automation_utils import safe_automation
+from utils.automation_utils import safe_automation  # noqa: E402
 
 
 async def run_command(command, shell=True):
     """Run system command safely (async wrapper)"""
     result = await safe_automation.run_command(command, shell=shell)
     return result.get("success", False), result.get("stdout", ""), result.get("stderr", "")
+
 
 def get_whatsapp_desktop_path():
     """Auto-detect WhatsApp Desktop installation"""
@@ -56,6 +61,7 @@ def get_whatsapp_desktop_path():
 
     return None
 
+
 async def shutdown_system():
     """Shutdown computer"""
     if is_windows():
@@ -65,6 +71,7 @@ async def shutdown_system():
     elif is_linux():
         return await run_command("systemctl poweroff")
     return False, "", "Unsupported platform"
+
 
 async def restart_system():
     """Restart computer"""
@@ -76,6 +83,7 @@ async def restart_system():
         return await run_command("systemctl reboot")
     return False, "", "Unsupported platform"
 
+
 async def sleep_system():
     """Sleep computer"""
     if is_windows():
@@ -85,6 +93,7 @@ async def sleep_system():
     elif is_linux():
         return await run_command("systemctl suspend")
     return False, "", "Unsupported platform"
+
 
 def _set_volume_windows(percent):
     try:
@@ -97,7 +106,7 @@ def _set_volume_windows(percent):
         if not devices:
             return False
 
-        if not hasattr(devices, 'Activate'):
+        if not hasattr(devices, "Activate"):
             logger.debug("Audio speakers device lacks 'Activate' method - likely virtual environment")
             return False
 
@@ -112,10 +121,10 @@ def _set_volume_windows(percent):
     finally:
         try:
             import pythoncom
-            pythoncom.CoUninitialize()
-        except:
-            pass
 
+            pythoncom.CoUninitialize()
+        except Exception:
+            pass
 
 
 async def set_volume(percent):
@@ -130,6 +139,7 @@ async def set_volume(percent):
         return success
     return False
 
+
 def _get_volume_windows():
     try:
         import pythoncom
@@ -138,7 +148,7 @@ def _get_volume_windows():
 
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
-        if not devices or not hasattr(devices, 'Activate'):
+        if not devices or not hasattr(devices, "Activate"):
             return 50
 
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -152,12 +162,13 @@ def _get_volume_windows():
     finally:
         try:
             import pythoncom
+
             pythoncom.CoUninitialize()
-        except:
+        except Exception:
             pass
 
-async def get_volume():
 
+async def get_volume():
     """Get current system volume"""
     if is_windows():
         return await asyncio.to_thread(_get_volume_windows)
@@ -169,6 +180,7 @@ async def get_volume():
         return int(output.strip()) if success and output.strip() else 50
     return 50
 
+
 def _set_mute_windows(mute_state):
     try:
         import pythoncom
@@ -177,7 +189,7 @@ def _set_mute_windows(mute_state):
 
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
-        if not devices or not hasattr(devices, 'Activate'):
+        if not devices or not hasattr(devices, "Activate"):
             return False
 
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -191,10 +203,10 @@ def _set_mute_windows(mute_state):
     finally:
         try:
             import pythoncom
-            pythoncom.CoUninitialize()
-        except:
-            pass
 
+            pythoncom.CoUninitialize()
+        except Exception:
+            pass
 
 
 async def set_mute(mute_state):
@@ -202,14 +214,15 @@ async def set_mute(mute_state):
     if is_windows():
         return await asyncio.to_thread(_set_mute_windows, mute_state)
     elif is_macos():
-        state = 'true' if mute_state else 'false'
+        state = "true" if mute_state else "false"
         success, stdout, stderr = await run_command(f"osascript -e 'set volume output muted {state}'")
         return success
     elif is_linux():
-        action = 'mute' if mute_state else 'unmute'
+        action = "mute" if mute_state else "unmute"
         success, stdout, stderr = await run_command(f"amixer set Master {action}")
         return success
     return False
+
 
 def _is_muted_windows():
     try:
@@ -219,7 +232,7 @@ def _is_muted_windows():
 
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
-        if not devices or not hasattr(devices, 'Activate'):
+        if not devices or not hasattr(devices, "Activate"):
             return False
 
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
@@ -232,10 +245,10 @@ def _is_muted_windows():
     finally:
         try:
             import pythoncom
-            pythoncom.CoUninitialize()
-        except:
-            pass
 
+            pythoncom.CoUninitialize()
+        except Exception:
+            pass
 
 
 async def is_muted():
@@ -244,8 +257,8 @@ async def is_muted():
         return await asyncio.to_thread(_is_muted_windows)
     elif is_macos():
         success, output, _ = await run_command("osascript -e 'output muted of (get volume settings)'")
-        return output.strip().lower() == 'true' if success else False
+        return output.strip().lower() == "true" if success else False
     elif is_linux():
         success, output, _ = await run_command("amixer get Master")
-        return '[off]' in output if success else False
+        return "[off]" in output if success else False
     return False

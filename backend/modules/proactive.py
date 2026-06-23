@@ -44,10 +44,10 @@ class ProactiveManager:
 
                 # 1. Get current window context
                 window_info = await window_manager.get_active_window()
-                if not window_info or not window_info.get('title'):
+                if not window_info or not window_info.get("title"):
                     continue
 
-                window_title = window_info.get('title', "")
+                window_title = window_info.get("title", "")
 
                 # Skip if it's just the desktop or JARVIS itself
                 if any(x in window_title.lower() for x in ["jarvis", "taskbar", "program manager"]):
@@ -65,11 +65,10 @@ class ProactiveManager:
                 screen_context = ""
                 if any(x in window_title.lower() for x in ["vscode", "terminal", "browser", "chrome", "edge"]):
                     summary_res = await media_manager.get_screen_summary()
-                    if summary_res.get('success'):
-                        screen_context = summary_res.get('summary', "")
+                    if summary_res.get("success"):
+                        screen_context = summary_res.get("summary", "")
 
                 suggestion = await self._analyze_situation(window_title, screen_context)
-
 
                 if suggestion and suggestion != self.last_suggestion:
                     self.last_suggestion = suggestion
@@ -83,6 +82,7 @@ class ProactiveManager:
         """Re-index what the user has historically rejected so we stop repeating them"""
         try:
             from modules.memory import memory_manager
+
             node = await memory_manager.get_memory_node("decisions")
             if not node:
                 return
@@ -91,7 +91,7 @@ class ProactiveManager:
             for line in node.splitlines():
                 if "REJECTED" in line.upper() or "TIMEOUT" in line.upper():
                     # Extract the command key (usually the first quoted word)
-                    match = __import__('re').search(r"'([\w_]+)'", line)
+                    match = __import__("re").search(r"'([\w_]+)'", line)
                     if match:
                         rejected.append(match.group(1).lower())
 
@@ -106,15 +106,29 @@ class ProactiveManager:
         # 0. Check for urgent mobile alerts — highest priority, no LLM needed
         try:
             from modules.context import context_manager
-            mobile_alert = context_manager.get_context_variable('urgent_mobile_alert')
+
+            mobile_alert = context_manager.get_context_variable("urgent_mobile_alert")
             if mobile_alert:
-                context_manager.set_context_variable('urgent_mobile_alert', None)
+                context_manager.set_context_variable("urgent_mobile_alert", None)
                 return mobile_alert
         except Exception:
             pass
 
         # Heuristics to avoid calling LLM for everything
-        interests = ["github", "stackoverflow", "youtube", "whatsapp", "mail", "outlook", "excel", "vscode", "terminal", "error", "issue", "plan"]
+        interests = [
+            "github",
+            "stackoverflow",
+            "youtube",
+            "whatsapp",
+            "mail",
+            "outlook",
+            "excel",
+            "vscode",
+            "terminal",
+            "error",
+            "issue",
+            "plan",
+        ]
         if not any(x in title.lower() for x in interests) and not screen_context:
             return None
 
@@ -167,12 +181,10 @@ class ProactiveManager:
         """Send the suggestion to all connected clients"""
         message = {
             "type": "proactive_suggestion",
-            "data": {
-                "text": suggestion,
-                "timestamp": datetime.now().isoformat()
-            }
+            "data": {"text": suggestion, "timestamp": datetime.now().isoformat()},
         }
         await manager.broadcast(message)
         log_system_event("PROACTIVE_SUGGESTION", {"text": suggestion})
+
 
 proactive_manager = ProactiveManager()

@@ -42,7 +42,7 @@ class SystemModule:
         self._status_cache_ttl = 2.0  # seconds
         self._quarantined_pids: List[int] = []
 
-    async def get_system_status(self, language: str = 'en') -> SystemStatusResponse:
+    async def get_system_status(self, language: str = "en") -> SystemStatusResponse:
         """Get complete system status with intelligent caching"""
         now = time.time()
         if self._last_status_cache and (now - self._last_status_time < self._status_cache_ttl):
@@ -52,25 +52,23 @@ class SystemModule:
         try:
             cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=None)
 
-            if not hasattr(self, '_cpu_count'):
+            if not hasattr(self, "_cpu_count"):
                 self._cpu_count = await asyncio.to_thread(psutil.cpu_count)
 
             results = await asyncio.gather(
                 asyncio.to_thread(psutil.sensors_battery),
                 asyncio.to_thread(psutil.virtual_memory),
-                asyncio.to_thread(psutil.disk_usage, '/'),
+                asyncio.to_thread(psutil.disk_usage, "/"),
                 asyncio.to_thread(psutil.net_io_counters),
                 asyncio.to_thread(psutil.boot_time),
                 get_volume(),
-                return_exceptions=True
+                return_exceptions=True,
             )
 
             def _r(val, default=None):
                 return val if not isinstance(val, BaseException) else default
 
-            battery, memory, disk, net_io, boot_time, current_volume = [
-                _r(v) for v in results
-            ]
+            battery, memory, disk, net_io, boot_time, current_volume = [_r(v) for v in results]
             if boot_time is None:
                 boot_time = time.time()
             if current_volume is None:
@@ -79,37 +77,34 @@ class SystemModule:
             battery_info = BatteryInfo(
                 percent=int(battery.percent) if battery else None,
                 is_charging=battery.power_plugged if battery else None,
-                secs_left=battery.secsleft if battery else None
+                secs_left=battery.secsleft if battery else None,
             )
 
-            cpu_info = CPUInfo(
-                percent=cpu_percent,
-                count=self._cpu_count
-            )
+            cpu_info = CPUInfo(percent=cpu_percent, count=self._cpu_count)
 
             memory_info = MemoryInfo(
                 total=memory.total if memory else 0,
                 used=memory.used if memory else 0,
                 percent=memory.percent if memory else 0,
-                available=memory.available if memory else 0
+                available=memory.available if memory else 0,
             )
 
             disk_info = DiskInfo(
                 total=disk.total if disk else 0,
                 used=disk.used if disk else 0,
                 free=disk.free if disk else 0,
-                percent=(disk.used / disk.total) * 100 if disk else 0
+                percent=(disk.used / disk.total) * 100 if disk else 0,
             )
 
             network_info = NetworkIOInfo(
                 bytes_sent=net_io.bytes_sent if net_io else 0,
                 bytes_recv=net_io.bytes_recv if net_io else 0,
                 packets_sent=net_io.packets_sent if net_io else 0,
-                packets_recv=net_io.packets_recv if net_io else 0
+                packets_recv=net_io.packets_recv if net_io else 0,
             )
 
             uptime_seconds = time.time() - (boot_time or time.time())
-            platform_name = 'Windows' if is_windows() else 'macOS' if is_macos() else 'Linux'
+            platform_name = "Windows" if is_windows() else "macOS" if is_macos() else "Linux"
 
             active_window = None
             context_suggestion = None
@@ -119,10 +114,7 @@ class SystemModule:
 
                 win = await window_manager.get_active_window()
                 if win:
-                    active_window = {
-                        "title": win.get("title", "Unknown"),
-                        "process": win.get("process", "Unknown")
-                    }
+                    active_window = {"title": win.get("title", "Unknown"), "process": win.get("process", "Unknown")}
 
                 context_suggestion = await context_manager.suggest_next_action()
             except Exception:
@@ -140,7 +132,7 @@ class SystemModule:
                 platform=platform_name,
                 active_window=active_window,
                 context_suggestion=context_suggestion,
-                response_time=round(time.time() - start, 4)
+                response_time=round(time.time() - start, 4),
             )
 
             # Cache the result
@@ -155,136 +147,118 @@ class SystemModule:
                 success=False,
                 response="Failed to retrieve system status",
                 error=str(e),
-                response_time=round(time.time() - start, 4)
+                response_time=round(time.time() - start, 4),
             )
 
-    async def get_battery_status(self, language: str = 'en') -> BatteryResponse:
+    async def get_battery_status(self, language: str = "en") -> BatteryResponse:
         """Get battery information"""
         start = time.time()
         try:
             battery = await asyncio.to_thread(psutil.sensors_battery)
             if battery:
-                response_text = parser.get_response(
-                    'battery_status',
-                    language,
-                    int(battery.percent)
-                )
+                response_text = parser.get_response("battery_status", language, int(battery.percent))
                 return BatteryResponse(
                     response=response_text,
                     percent=int(battery.percent),
                     is_charging=battery.power_plugged,
-                    response_time=round(time.time() - start, 4)
+                    response_time=round(time.time() - start, 4),
                 )
             else:
                 return BatteryResponse(
                     success=False,
-                    response=parser.get_response('battery_status', language, 'unknown'),
-                    error='No battery found',
-                    response_time=round(time.time() - start, 4)
+                    response=parser.get_response("battery_status", language, "unknown"),
+                    error="No battery found",
+                    response_time=round(time.time() - start, 4),
                 )
         except Exception as e:
             duration = round(time.time() - start, 4)
             return BatteryResponse(
-                success=False,
-                response="Failed to get battery status",
-                error=str(e),
-                response_time=duration
+                success=False, response="Failed to get battery status", error=str(e), response_time=duration
             )
 
-    async def get_time(self, language: str = 'en') -> TimeResponse:
+    async def get_time(self, language: str = "en") -> TimeResponse:
         """Get current time"""
         start = time.time()
         now = datetime.now()
-        time_str = now.strftime('%I:%M %p')  # 12-hour format
-        response_text = parser.get_response('time_is', language, time_str)
+        time_str = now.strftime("%I:%M %p")  # 12-hour format
+        response_text = parser.get_response("time_is", language, time_str)
         duration = round(time.time() - start, 4)
 
         return TimeResponse(
-            success=True,
-            time=now.isoformat(),
-            formatted=time_str,
-            response=response_text,
-            response_time=duration
+            success=True, time=now.isoformat(), formatted=time_str, response=response_text, response_time=duration
         )
 
-    async def get_date(self, language: str = 'en') -> DateResponse:
+    async def get_date(self, language: str = "en") -> DateResponse:
         """Get current date"""
         start = time.time()
         now = datetime.now()
-        date_str = now.strftime('%A, %B %d, %Y')  # Full format
-        response_text = parser.get_response('date_is', language, date_str)
+        date_str = now.strftime("%A, %B %d, %Y")  # Full format
+        response_text = parser.get_response("date_is", language, date_str)
         duration = round(time.time() - start, 4)
 
         return DateResponse(
-            success=True,
-            date=now.isoformat(),
-            formatted=date_str,
-            response=response_text,
-            response_time=duration
+            success=True, date=now.isoformat(), formatted=date_str, response=response_text, response_time=duration
         )
 
-    async def shutdown(self, language: str = 'en',
-                       confirmed: bool = False) -> Dict[str, Any]:
+    async def shutdown(self, language: str = "en", confirmed: bool = False) -> Dict[str, Any]:
         """Shutdown computer"""
         if not confirmed:
             return {
-                'success': False,
-                'requires_confirmation': True,
-                'confirmation_id': None,
-                'response': parser.get_response('confirm_shutdown', language)
+                "success": False,
+                "requires_confirmation": True,
+                "confirmation_id": None,
+                "response": parser.get_response("confirm_shutdown", language),
             }
 
-        log_command('shutdown', 'shutdown', True)
+        log_command("shutdown", "shutdown", True)
         success, stdout, stderr = await shutdown_system()
 
         return {
-            'success': success,
-            'response': parser.get_response('shutdown_initiated', language),
-            'error': stderr if not success else None
+            "success": success,
+            "response": parser.get_response("shutdown_initiated", language),
+            "error": stderr if not success else None,
         }
 
-    async def restart(self, language: str = 'en',
-                      confirmed: bool = False) -> Dict[str, Any]:
+    async def restart(self, language: str = "en", confirmed: bool = False) -> Dict[str, Any]:
         """Restart computer"""
         if not confirmed:
             return {
-                'success': False,
-                'requires_confirmation': True,
-                'confirmation_id': None,
-                'response': parser.get_response('confirm_restart', language)
+                "success": False,
+                "requires_confirmation": True,
+                "confirmation_id": None,
+                "response": parser.get_response("confirm_restart", language),
             }
 
-        log_command('restart', 'restart', True)
+        log_command("restart", "restart", True)
         success, stdout, stderr = await restart_system()
 
         return {
-            'success': success,
-            'response': parser.get_response('restart_initiated', language),
-            'error': stderr if not success else None
+            "success": success,
+            "response": parser.get_response("restart_initiated", language),
+            "error": stderr if not success else None,
         }
 
-    async def sleep(self, language: str = 'en',
-                    confirmed: bool = False) -> Dict[str, Any]:
+    async def sleep(self, language: str = "en", confirmed: bool = False) -> Dict[str, Any]:
         """Sleep/suspend computer"""
         if not confirmed:
             return {
-                'success': False,
-                'requires_confirmation': True,
-                'confirmation_id': None,
+                "success": False,
+                "requires_confirmation": True,
+                "confirmation_id": None,
                 # Reuse
-                'response': parser.get_response('confirm_shutdown', language)
+                "response": parser.get_response("confirm_shutdown", language),
             }
 
-        log_command('sleep', 'sleep', True)
+        log_command("sleep", "sleep", True)
         success, stdout, stderr = await sleep_system()
 
         return {
-            'success': success,
-            'response': parser.get_response('shutdown_initiated', language),
-            'error': stderr if not success else None
+            "success": success,
+            "response": parser.get_response("shutdown_initiated", language),
+            "error": stderr if not success else None,
         }
 
-    async def volume_up(self, amount: Optional[int] = None, language: str = 'en') -> Dict[str, Any]:
+    async def volume_up(self, amount: Optional[int] = None, language: str = "en") -> Dict[str, Any]:
         """Increase volume"""
         try:
             current = await get_volume()
@@ -292,24 +266,21 @@ class SystemModule:
             new_volume = min(current + increment, 100)
             success = await set_volume(new_volume)
 
-            log_command(
-                'volume_up', 'volume_up', success, {
-                    'from': current, 'to': new_volume, 'amount': increment})
+            log_command("volume_up", "volume_up", success, {"from": current, "to": new_volume, "amount": increment})
 
             return {
-                'success': success,
-                'volume': new_volume,
-                'response': parser.get_response('volume_increased', language, new_volume)
+                "success": success,
+                "volume": new_volume,
+                "response": parser.get_response("volume_increased", language, new_volume),
             }
         except Exception as e:
             return {
-                'success': False,
-                'error': str(e),
-                'response': parser.get_response(
-                    'command_not_understood',
-                    language)}
+                "success": False,
+                "error": str(e),
+                "response": parser.get_response("command_not_understood", language),
+            }
 
-    async def volume_down(self, amount: Optional[int] = None, language: str = 'en') -> Dict[str, Any]:
+    async def volume_down(self, amount: Optional[int] = None, language: str = "en") -> Dict[str, Any]:
         """Decrease volume"""
         try:
             current = await get_volume()
@@ -317,54 +288,48 @@ class SystemModule:
             new_volume = max(current - decrement, 0)
             success = await set_volume(new_volume)
 
-            log_command(
-                'volume_down', 'volume_down', success, {
-                    'from': current, 'to': new_volume, 'amount': decrement})
+            log_command("volume_down", "volume_down", success, {"from": current, "to": new_volume, "amount": decrement})
 
             return {
-                'success': success,
-                'volume': new_volume,
-                'response': parser.get_response('volume_decreased', language, new_volume)
+                "success": success,
+                "volume": new_volume,
+                "response": parser.get_response("volume_decreased", language, new_volume),
             }
         except Exception as e:
             return {
-                'success': False,
-                'error': str(e),
-                'response': parser.get_response(
-                    'command_not_understood',
-                    language)}
+                "success": False,
+                "error": str(e),
+                "response": parser.get_response("command_not_understood", language),
+            }
 
-    async def toggle_mute(self, language: str = 'en') -> Dict[str, Any]:
+    async def toggle_mute(self, language: str = "en") -> Dict[str, Any]:
         """Toggle system mute state"""
         try:
             muted = await is_muted()
             new_state = not muted
             success = await set_mute(new_state)
 
-            log_command('mute', 'mute', success, {'state': 'muted' if new_state else 'unmuted'})
+            log_command("mute", "mute", success, {"state": "muted" if new_state else "unmuted"})
 
             if new_state:
-                response = parser.get_response('muted', language)
+                response = parser.get_response("muted", language)
             else:
-                response = parser.get_response('unmuted', language)
+                response = parser.get_response("unmuted", language)
 
-            return {
-                'success': success,
-                'is_muted': new_state,
-                'response': response
-            }
+            return {"success": success, "is_muted": new_state, "response": response}
         except Exception as e:
             logger.error(f"Error toggling mute: {e}")
             return {
-                'success': False,
-                'error': str(e),
-                'response': parser.get_response('command_not_understood', language)
+                "success": False,
+                "error": str(e),
+                "response": parser.get_response("command_not_understood", language),
             }
 
     async def get_brightness(self) -> int:
         """Get current screen brightness"""
         try:
             import screen_brightness_control as sbc
+
             return (await asyncio.to_thread(sbc.get_brightness))[0]
         except BaseException:
             return 50
@@ -373,59 +338,51 @@ class SystemModule:
         """Set screen brightness (0-100)"""
         try:
             import screen_brightness_control as sbc
+
             await asyncio.to_thread(sbc.set_brightness, level)
             return True
         except BaseException:
             return False
 
-    async def brightness_up(self, language: str = 'en') -> Dict[str, Any]:
+    async def brightness_up(self, language: str = "en") -> Dict[str, Any]:
         """Increase brightness"""
         try:
             current = await self.get_brightness()
             new_level = min(current + 10, 100)
             success = await self.set_brightness(new_level)
 
-            log_command(
-                'brightness_up', 'brightness_up', success, {
-                    'from': current, 'to': new_level})
+            log_command("brightness_up", "brightness_up", success, {"from": current, "to": new_level})
 
             return {
-                'success': success,
-                'brightness': new_level,
-                'response': parser.get_response('brightness_increased', language, new_level)
+                "success": success,
+                "brightness": new_level,
+                "response": parser.get_response("brightness_increased", language, new_level),
             }
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'response': "Failed to change brightness"}
+            return {"success": False, "error": str(e), "response": "Failed to change brightness"}
 
-    async def brightness_down(self, language: str = 'en') -> Dict[str, Any]:
+    async def brightness_down(self, language: str = "en") -> Dict[str, Any]:
         """Decrease brightness"""
         try:
             current = await self.get_brightness()
             new_level = max(current - 10, 0)
             success = await self.set_brightness(new_level)
 
-            log_command(
-                'brightness_down', 'brightness_down', success, {
-                    'from': current, 'to': new_level})
+            log_command("brightness_down", "brightness_down", success, {"from": current, "to": new_level})
 
             return {
-                'success': success,
-                'brightness': new_level,
-                'response': parser.get_response('brightness_decreased', language, new_level)
+                "success": success,
+                "brightness": new_level,
+                "response": parser.get_response("brightness_decreased", language, new_level),
             }
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'response': "Failed to change brightness"}
+            return {"success": False, "error": str(e), "response": "Failed to change brightness"}
 
-    async def get_network_info(self, language: str = 'en') -> Dict[str, Any]:
+    async def get_network_info(self, language: str = "en") -> Dict[str, Any]:
         """Get network connection information"""
         try:
             import socket
+
             hostname = await asyncio.to_thread(socket.gethostname)
             ip_address = await asyncio.to_thread(socket.gethostbyname, hostname)
 
@@ -443,79 +400,67 @@ class SystemModule:
                 if is_up:
                     for addr in addr_list:
                         if addr.family == socket.AF_INET:  # IPv4
-                            interfaces.append(
-                                {'name': name, 'ip': addr.address})
+                            interfaces.append({"name": name, "ip": addr.address})
 
-            response = f"Network Info: Connected as {hostname} (IP: {ip_address})" if language == 'en' else f"नेटवर्क जानकारी: {hostname} के रूप में जुड़ा हुआ है (IP: {ip_address})"
+            response = (
+                f"Network Info: Connected as {hostname} (IP: {ip_address})"
+                if language == "en"
+                else f"नेटवर्क जानकारी: {hostname} के रूप में जुड़ा हुआ है (IP: {ip_address})"
+            )
 
             return {
-                'success': True,
-                'hostname': hostname,
-                'ip': ip_address,
-                'interfaces': interfaces,
-                'response': response
+                "success": True,
+                "hostname": hostname,
+                "ip": ip_address,
+                "interfaces": interfaces,
+                "response": response,
             }
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'response': "Failed to get network info"}
+            return {"success": False, "error": str(e), "response": "Failed to get network info"}
 
-    async def google_search(
-            self, query: Optional[str] = None, language: str = 'en') -> Dict[str, Any]:
+    async def google_search(self, query: Optional[str] = None, language: str = "en") -> Dict[str, Any]:
         """Open web browser for Google search or home page"""
         try:
             import webbrowser
-            if not query or query.lower() in ['none', 'null', '']:
+
+            if not query or query.lower() in ["none", "null", ""]:
                 url = "https://www.google.com"
-                msg = "Opening Google" if language == 'en' else "गूगल खोल रहा हूँ"
+                msg = "Opening Google" if language == "en" else "गूगल खोल रहा हूँ"
             else:
                 url = f"https://www.google.com/search?q={query}"
-                msg = f"Searching for '{query}' on Google" if language == 'en' else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
+                msg = f"Searching for '{query}' on Google" if language == "en" else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
 
             await asyncio.to_thread(webbrowser.open, url)
             log_command(f"search {query}" if query else "open browser", "google_search", True)
 
-            return {
-                'success': True,
-                'query': query,
-                'response': msg
-            }
+            return {"success": True, "query": query, "response": msg}
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'response': "Failed to open search"}
+            return {"success": False, "error": str(e), "response": "Failed to open search"}
 
-    async def get_weather(self,
-                          city: Optional[str] = None,
-                          language: str = 'en') -> Dict[str,
-                                                        Any]:
+    async def get_weather(self, city: Optional[str] = None, language: str = "en") -> Dict[str, Any]:
         """Get weather info (simplified browser-based or API if key available)"""
         # For a production app, we'd use an API. For this, we can open a browser or use a simple scraper.
         # Let's open the browser for now as a more reliable "feature" for the
         # user.
         try:
             import webbrowser
+
             query = f"weather in {city}" if city else "weather today"
             url = f"https://www.google.com/search?q={query}"
             await asyncio.to_thread(webbrowser.open, url)
 
-            weather_target = city or ('current location' if language == 'en' else 'वर्तमान स्थान')
-            response_text = f"Checking weather for {weather_target}" if language == 'en' else f"{weather_target} के लिए मौसम की जानकारी देख रहा हूँ"
+            weather_target = city or ("current location" if language == "en" else "वर्तमान स्थान")
+            response_text = (
+                f"Checking weather for {weather_target}"
+                if language == "en"
+                else f"{weather_target} के लिए मौसम की जानकारी देख रहा हूँ"
+            )
 
-            return {
-                'success': True,
-                'city': city,
-                'response': response_text
-            }
+            return {"success": True, "city": city, "response": response_text}
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'response': "Failed to get weather"}
+            return {"success": False, "error": str(e), "response": "Failed to get weather"}
 
-    async def get_uptime(self, language: str = 'en') -> Dict[str, Any]:
+    async def get_uptime(self, language: str = "en") -> Dict[str, Any]:
         """Get system uptime"""
         try:
             boot_time = await asyncio.to_thread(psutil.boot_time)
@@ -527,20 +472,11 @@ class SystemModule:
             minutes = int((uptime_seconds % 3600) // 60)
 
             uptime_str = f"{days}d {hours}h {minutes}m"
-            response = f"System Uptime: {uptime_str}" if language == 'en' else f"सिस्टम अपटाइम: {uptime_str}"
+            response = f"System Uptime: {uptime_str}" if language == "en" else f"सिस्टम अपटाइम: {uptime_str}"
 
-            return {
-                'success': True,
-                'uptime_seconds': uptime_seconds,
-                'formatted': uptime_str,
-                'response': response
-            }
+            return {"success": True, "uptime_seconds": uptime_seconds, "formatted": uptime_str, "response": response}
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'response': "Failed to get uptime"}
-
+            return {"success": False, "error": str(e), "response": "Failed to get uptime"}
 
     async def check_system_health(self, battery: BatteryInfo, cpu_percent: float):
         """Check system health and broadcast notifications for critical events"""
@@ -550,23 +486,23 @@ class SystemModule:
             # Low Battery Alert
             if battery.percent is not None and battery.percent < 20 and not battery.is_charging:
                 # Use a flag to avoid spamming
-                if not hasattr(self, '_last_battery_alert') or time.time() - self._last_battery_alert > 300:
+                if not hasattr(self, "_last_battery_alert") or time.time() - self._last_battery_alert > 300:
                     await broadcast_notification(
                         title="Critical Battery Level",
                         message=f"Battery is at {battery.percent}%. Please connect your charger, sir.",
                         type="warning",
-                        duration=10000
+                        duration=10000,
                     )
                     self._last_battery_alert = time.time()
 
             # High CPU Alert
             if cpu_percent > 90:
-                if not hasattr(self, '_last_cpu_alert') or time.time() - self._last_cpu_alert > 600:
+                if not hasattr(self, "_last_cpu_alert") or time.time() - self._last_cpu_alert > 600:
                     await broadcast_notification(
                         title="High System Load",
                         message=f"CPU usage is at {cpu_percent}%. Performance may be impacted.",
                         type="error",
-                        duration=8000
+                        duration=8000,
                     )
                     self._last_cpu_alert = time.time()
 
@@ -576,16 +512,13 @@ class SystemModule:
     async def monitor_processes(self):
         """Scan for suspicious processes based on Neural Security Node and resource usage"""
         try:
-            from modules.memory import memory_manager
             from routers.websocket import broadcast_notification
 
             # Throttling Process Guardian
-            if hasattr(self, '_last_process_scan') and time.time() - self._last_process_scan < 10:
+            if hasattr(self, "_last_process_scan") and time.time() - self._last_process_scan < 10:
                 return
             self._last_process_scan = time.time()
 
-            # Load security node for context
-            security_content = await memory_manager.neural.get_node("security.md")
             # Simple check for blacklist titles in memory (this can be made more robust)
             blacklist = ["regedit.exe", "remote_desktop.exe"]
 
@@ -593,19 +526,19 @@ class SystemModule:
 
             def scan_processes():
                 res = []
-                for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+                for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
                     try:
                         pinfo = proc.info
                         # Skip System Idle Process (PID 0) and System process
-                        if pinfo['pid'] == 0 or pinfo['name'] == 'System Idle Process':
+                        if pinfo["pid"] == 0 or pinfo["name"] == "System Idle Process":
                             continue
 
                         # High Resource Spike Check
-                        if pinfo['cpu_percent'] > 95:
+                        if pinfo["cpu_percent"] > 95:
                             res.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Critical CPU Spike")
 
                         # Blacklist Check
-                        if pinfo['name'] in blacklist:
+                        if pinfo["name"] in blacklist:
                             res.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Blacklisted Process Detected")
                     except (psutil.NoSuchProcess, psutil.AccessDenied):
                         continue
@@ -618,7 +551,7 @@ class SystemModule:
                     title="Process Guardian Alert",
                     message=f"Suspicious activity detected: {suspicious[0]}",
                     type="error",
-                    duration=10000
+                    duration=10000,
                 )
                 self._last_process_alert = time.time()
                 logger.warning(f"Process Guardian flagged: {suspicious}")
@@ -651,24 +584,27 @@ class SystemModule:
         """Retrieve active network connections for Deep Scan analysis"""
         connections = []
         try:
+
             def scan_net():
                 res = []
                 # Use a smaller subset of kinds to speed up
-                for conn in psutil.net_connections(kind='inet4'):
-                    if conn.status == 'ESTABLISHED':
+                for conn in psutil.net_connections(kind="inet4"):
+                    if conn.status == "ESTABLISHED":
                         try:
                             proc = psutil.Process(conn.pid) if conn.pid else None
                             proc_name = proc.name() if proc else "Unknown"
                         except (psutil.NoSuchProcess, psutil.AccessDenied):
                             proc_name = "System/Protected"
 
-                        res.append({
-                            "pid": conn.pid,
-                            "process": proc_name,
-                            "local_addr": f"{conn.laddr.ip}:{conn.laddr.port}",
-                            "remote_addr": f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else "N/A",
-                            "status": conn.status
-                        })
+                        res.append(
+                            {
+                                "pid": conn.pid,
+                                "process": proc_name,
+                                "local_addr": f"{conn.laddr.ip}:{conn.laddr.port}",
+                                "remote_addr": f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else "N/A",
+                                "status": conn.status,
+                            }
+                        )
                 return res
 
             connections = await asyncio.to_thread(scan_net)
@@ -676,6 +612,7 @@ class SystemModule:
         except Exception as e:
             logger.error(f"Error in Network Deep Scan: {e}")
             return []
+
 
 # Singleton instance
 system_module = SystemModule()

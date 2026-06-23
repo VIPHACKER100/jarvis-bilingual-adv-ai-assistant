@@ -29,6 +29,7 @@ class STTService:
 
     async def _transcribe_openai(self, audio_data: bytes, language: str = "en") -> Optional[str]:
         import httpx
+
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             return None

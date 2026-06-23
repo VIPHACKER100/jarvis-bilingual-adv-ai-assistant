@@ -14,6 +14,7 @@ from models import (
 
 router = APIRouter(prefix="/settings", tags=["Settings"])
 
+
 @router.get("", response_model=SettingsResponse)
 async def get_settings():
     """Get all current settings"""
@@ -29,22 +30,24 @@ async def get_settings():
             "enable_dangerous_commands": CONFIG.get("enable_dangerous_commands", True),
             "confirmation_timeout": CONFIG.get("confirmation_timeout", 30),
             "wake_word_enabled": CONFIG.get("wake_word_enabled", True),
-            "wake_word_phrase": CONFIG.get("wake_word_phrase", "jarvis")
-        }
+            "wake_word_phrase": CONFIG.get("wake_word_phrase", "jarvis"),
+        },
     }
 
 
 @router.get("/keys", response_model=ApiKeyStatusResponse)
 async def get_keys():
     """Get status of configured API keys (redacted)"""
+
     def redact(key):
         return bool(key)
 
     return {
         "NVIDIA_API_KEY": redact(os.getenv("NVIDIA_API_KEY")),
         "OPENROUTER_API_KEY": redact(os.getenv("OPENROUTER_API_KEY")),
-        "BACKEND_API_KEY": redact(os.getenv("BACKEND_API_KEY"))
+        "BACKEND_API_KEY": redact(os.getenv("BACKEND_API_KEY")),
     }
+
 
 @router.post("", response_model=SettingsResponse)
 async def update_settings(data: SettingsUpdateRequest):
@@ -68,13 +71,13 @@ async def update_settings(data: SettingsUpdateRequest):
 async def update_keys(data: ApiKeyUpdateRequest):
     """Update API keys in the .env file"""
     try:
-        env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+        env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
 
         # Read current .env
         def read_env():
             lines = []
             if os.path.exists(env_path):
-                with open(env_path, 'r', encoding='utf-8') as f:
+                with open(env_path, "r", encoding="utf-8") as f:
                     lines = f.readlines()
             return lines
 
@@ -85,7 +88,7 @@ async def update_keys(data: ApiKeyUpdateRequest):
             "NVIDIA_API_KEY": data.nvidia_api_key,
             "OPENROUTER_API_KEY": data.openrouter_api_key,
             "GEMINI_API_KEY": data.gemini_api_key,
-            "BACKEND_API_KEY": data.backend_api_key
+            "BACKEND_API_KEY": data.backend_api_key,
         }
 
         # Filter out None values
@@ -100,8 +103,8 @@ async def update_keys(data: ApiKeyUpdateRequest):
 
         for line in env_lines:
             line_stripped = line.strip()
-            if '=' in line_stripped and not line_stripped.startswith('#'):
-                key = line_stripped.split('=')[0].strip()
+            if "=" in line_stripped and not line_stripped.startswith("#"):
+                key = line_stripped.split("=")[0].strip()
                 if key in updates:
                     new_env_lines.append(f"{key}={updates[key]}\n")
                     updated_keys.add(key)
@@ -117,7 +120,7 @@ async def update_keys(data: ApiKeyUpdateRequest):
 
         # Write back
         def write_env(lines):
-            with open(env_path, 'w', encoding='utf-8') as f:
+            with open(env_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
 
         await asyncio.to_thread(write_env, new_env_lines)
@@ -125,6 +128,7 @@ async def update_keys(data: ApiKeyUpdateRequest):
         return {"success": True, "response": f"Updated {len(updates)} keys in .env"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update API keys: {str(e)}")
+
 
 @router.post("/test-key", response_model=BaseResponse)
 async def test_key(data: KeyTestRequest):

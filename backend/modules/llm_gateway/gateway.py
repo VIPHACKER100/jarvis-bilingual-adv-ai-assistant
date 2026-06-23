@@ -88,35 +88,39 @@ class LLMGateway:
             )
 
         if google_key:
-            self._providers["google"] = GoogleAdapter(ProviderConfig(
-                api_key=google_key,
-                model=os.getenv("GOOGLE_MODEL", "gemini-2.0-flash"),
-                max_tokens=8192,
-            ))
+            self._providers["google"] = GoogleAdapter(
+                ProviderConfig(
+                    api_key=google_key,
+                    model=os.getenv("GOOGLE_MODEL", "gemini-2.0-flash"),
+                    max_tokens=8192,
+                )
+            )
 
-        self._providers["ollama"] = OllamaAdapter(ProviderConfig(
-            model=os.getenv("OLLAMA_MODEL", "llama3"),
-            timeout=60,
-        ))
+        self._providers["ollama"] = OllamaAdapter(
+            ProviderConfig(
+                model=os.getenv("OLLAMA_MODEL", "llama3"),
+                timeout=60,
+            )
+        )
 
         preferred = LLM_PROVIDER
         if preferred in self._providers:
             self._provider_order = [preferred]
             self._provider_order.extend(
-                p for p in ("openrouter", "nvidia", "openai", "google", "ollama")
+                p
+                for p in ("openrouter", "nvidia", "openai", "google", "ollama")
                 if p != preferred and p in self._providers
             )
         else:
             self._provider_order = [
-                p for p in ("openrouter", "nvidia", "openai", "google", "ollama")
-                if p in self._providers
+                p for p in ("openrouter", "nvidia", "openai", "google", "ollama") if p in self._providers
             ]
 
         self._active_provider = self._provider_order[0] if self._provider_order else None
 
-    def _build_messages(self, text: str, system_prompt: str,
-                        context: Optional[str] = None,
-                        history: Optional[List[Dict]] = None) -> List[Dict[str, str]]:
+    def _build_messages(
+        self, text: str, system_prompt: str, context: Optional[str] = None, history: Optional[List[Dict]] = None
+    ) -> List[Dict[str, str]]:
         full_system = system_prompt
         if context:
             full_system += f"\n\nCONTEXT:\n{context}"
@@ -135,17 +139,17 @@ class LLMGateway:
         }.get(language, "English")
 
     async def generate(
-        self, text: str, language: str = "en",
+        self,
+        text: str,
+        language: str = "en",
         context: Optional[str] = None,
         history: Optional[List[Dict]] = None,
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        **kwargs
+        **kwargs,
     ) -> Optional[str]:
         lang_desc = self._language_desc(language)
-        system_prompt = SYSTEM_PROMPT_TEMPLATE.format(
-            language=lang_desc, extra_context=context or ""
-        )
+        system_prompt = SYSTEM_PROMPT_TEMPLATE.format(language=lang_desc, extra_context=context or "")
         messages = self._build_messages(text, system_prompt, context, history)
 
         for provider_name in self._provider_order:
@@ -155,12 +159,7 @@ class LLMGateway:
                 continue
 
             logger.info(f"LLM Gateway → {provider_name}")
-            result = await adapter.generate(
-                messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                **kwargs
-            )
+            result = await adapter.generate(messages, max_tokens=max_tokens, temperature=temperature, **kwargs)
             if result:
                 self._active_provider = provider_name
                 return result
@@ -170,15 +169,15 @@ class LLMGateway:
         return None
 
     async def generate_stream(
-        self, text: str, language: str = "en",
+        self,
+        text: str,
+        language: str = "en",
         context: Optional[str] = None,
         history: Optional[List[Dict]] = None,
-        **kwargs
+        **kwargs,
     ) -> AsyncGenerator[str, None]:
         lang_desc = self._language_desc(language)
-        system_prompt = SYSTEM_PROMPT_TEMPLATE.format(
-            language=lang_desc, extra_context=context or ""
-        )
+        system_prompt = SYSTEM_PROMPT_TEMPLATE.format(language=lang_desc, extra_context=context or "")
         messages = self._build_messages(text, system_prompt, context, history)
 
         for provider_name in self._provider_order:
@@ -222,19 +221,19 @@ class LLMGateway:
             return None
 
         json_text = result.strip()
-        if '```json' in json_text:
-            json_text = json_text.split('```json', 1)[1].split('```', 1)[0].strip()
-        elif '```' in json_text:
-            json_text = json_text.split('```', 1)[1].split('```', 1)[0].strip()
+        if "```json" in json_text:
+            json_text = json_text.split("```json", 1)[1].split("```", 1)[0].strip()
+        elif "```" in json_text:
+            json_text = json_text.split("```", 1)[1].split("```", 1)[0].strip()
 
-        start = json_text.find('{')
-        end = json_text.rfind('}')
+        start = json_text.find("{")
+        end = json_text.rfind("}")
         if start != -1 and end != -1:
-            json_text = json_text[start:end+1]
+            json_text = json_text[start : end + 1]
 
         try:
             data = json.loads(json_text)
-            if isinstance(data, dict) and 'command_key' in data:
+            if isinstance(data, dict) and "command_key" in data:
                 return data
         except json.JSONDecodeError:
             logger.error(f"Failed to parse command extraction JSON: {json_text}")

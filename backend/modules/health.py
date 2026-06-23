@@ -21,10 +21,10 @@ class HealthMonitor:
         uptime = now - self.start_time
 
         # Memory Database Latency
-        db_latency = getattr(memory_manager, 'last_query_latency', 0.0)
+        db_latency = getattr(memory_manager, "last_query_latency", 0.0)
 
         # Background Automation Stats
-        active_macros = len(automation_manager._active_macros) if hasattr(automation_manager, '_active_macros') else 0
+        active_macros = len(automation_manager._active_macros) if hasattr(automation_manager, "_active_macros") else 0
 
         # System Resource Usage
         cpu_usage = await asyncio.to_thread(psutil.cpu_percent)
@@ -34,6 +34,7 @@ class HealthMonitor:
         # Trigger garbage collection if memory is high (>80%)
         if memory_usage > 80:
             import gc
+
             gc.collect()
             logger.info(f"High memory detected ({memory_usage}%). Garbage collection triggered.")
             # Refresh memory stats after GC
@@ -48,12 +49,13 @@ class HealthMonitor:
             "performance": {
                 "db_latency_ms": round(db_latency, 2),
                 "cpu_usage_percent": cpu_usage,
-                "memory_usage_percent": memory_usage
+                "memory_usage_percent": memory_usage,
             },
             "automation": {
                 "active_macros": active_macros,
-                "scheduler_active": True # Placeholder
-            }
+                "scheduler_active": True,  # Placeholder
+            },
         }
+
 
 health_monitor = HealthMonitor()

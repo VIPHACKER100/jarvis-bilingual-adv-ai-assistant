@@ -32,38 +32,102 @@ class TestCommandDispatch:
         assert len(DOMAIN_HANDLERS) > 0, "DOMAIN_HANDLERS is empty!"
         domain_map = {name: handler for name, handler in DOMAIN_HANDLERS}
         for name, handler in DOMAIN_HANDLERS:
-            assert hasattr(handler, 'handle') and callable(handler.handle), \
+            assert hasattr(handler, "handle") and callable(handler.handle), (
                 f"{name} handler missing callable 'handle' method"
+            )
 
         # Convention-based mapping: command key → expected domain handler
         COMMAND_TO_DOMAIN = {
-            'shutdown': 'system', 'restart': 'system', 'sleep': 'system',
-            'volume_up': 'system', 'volume_down': 'system', 'mute': 'system',
-            'time': 'system', 'date': 'system', 'battery': 'system', 'system_status': 'system',
-            'brightness_up': 'system', 'brightness_down': 'system',
-            'google_search': 'system', 'open_browser': 'system',
-            'ip_address': 'system', 'uptime': 'system', 'weather': 'system',
-            'open_app': 'window', 'close_app': 'window', 'minimize': 'window', 'maximize': 'window',
-            'close_window': 'window', 'show_desktop': 'window', 'snap_left': 'window', 'snap_right': 'window',
-            'take_screenshot': 'desktop', 'get_clipboard': 'desktop', 'set_clipboard': 'desktop',
-            'media_play': 'desktop', 'media_next': 'desktop', 'media_previous': 'desktop', 'stop_media': 'desktop',
-            'change_wallpaper': 'desktop', 'empty_recycle_bin': 'desktop', 'toggle_taskbar': 'desktop',
-            'zoom_in': 'desktop', 'zoom_out': 'desktop',
-            'move_cursor': 'input', 'click': 'input', 'double_click': 'input', 'right_click': 'input',
-            'scroll_up': 'input', 'scroll_down': 'input', 'type_text': 'input', 'press_key': 'input',
-            'hotkey': 'input', 'new_tab': 'input', 'close_tab': 'input', 'new_window': 'input', 'find': 'input',
-            'copy': 'input', 'paste': 'input', 'select_all': 'input', 'undo': 'input', 'save': 'input',
-            'open_folder': 'file', 'open_downloads': 'file', 'open_documents': 'file', 'open_desktop': 'file',
-            'open_pictures': 'file', 'open_videos': 'file', 'open_music': 'file', 'open_home': 'file',
-            'search_files': 'file', 'create_folder': 'file', 'delete_file': 'file',
-            'copy_file': 'file', 'move_file': 'file', 'rename_file': 'file',
-            'ocr_image': 'media', 'ocr_pdf': 'media', 'extract_text': 'media',
-            'convert_image': 'media', 'resize_image': 'media', 'compress_image': 'media',
-            'merge_pdfs': 'media', 'pdf_to_images': 'media', 'images_to_pdf': 'media',
-            'batch_pdf': 'media', 'scan_folder': 'media', 'make_drawing': 'media', 'get_selected_text': 'media',
-            'narrate_screen': 'media', 'get_screen_summary': 'media', 'analyze_screen': 'media',
-            'whatsapp_message': 'whatsapp', 'whatsapp_call': 'whatsapp', 'whatsapp_draft_reply': 'whatsapp',
-            'set_personality': 'personality', 'command_insights': 'memory',
+            "shutdown": "system",
+            "restart": "system",
+            "sleep": "system",
+            "volume_up": "system",
+            "volume_down": "system",
+            "mute": "system",
+            "time": "system",
+            "date": "system",
+            "battery": "system",
+            "system_status": "system",
+            "brightness_up": "system",
+            "brightness_down": "system",
+            "google_search": "system",
+            "open_browser": "system",
+            "ip_address": "system",
+            "uptime": "system",
+            "weather": "system",
+            "open_app": "window",
+            "close_app": "window",
+            "minimize": "window",
+            "maximize": "window",
+            "close_window": "window",
+            "show_desktop": "window",
+            "snap_left": "window",
+            "snap_right": "window",
+            "take_screenshot": "desktop",
+            "get_clipboard": "desktop",
+            "set_clipboard": "desktop",
+            "media_play": "desktop",
+            "media_next": "desktop",
+            "media_previous": "desktop",
+            "stop_media": "desktop",
+            "change_wallpaper": "desktop",
+            "empty_recycle_bin": "desktop",
+            "toggle_taskbar": "desktop",
+            "zoom_in": "desktop",
+            "zoom_out": "desktop",
+            "move_cursor": "input",
+            "click": "input",
+            "double_click": "input",
+            "right_click": "input",
+            "scroll_up": "input",
+            "scroll_down": "input",
+            "type_text": "input",
+            "press_key": "input",
+            "hotkey": "input",
+            "new_tab": "input",
+            "close_tab": "input",
+            "new_window": "input",
+            "find": "input",
+            "copy": "input",
+            "paste": "input",
+            "select_all": "input",
+            "undo": "input",
+            "save": "input",
+            "open_folder": "file",
+            "open_downloads": "file",
+            "open_documents": "file",
+            "open_desktop": "file",
+            "open_pictures": "file",
+            "open_videos": "file",
+            "open_music": "file",
+            "open_home": "file",
+            "search_files": "file",
+            "create_folder": "file",
+            "delete_file": "file",
+            "copy_file": "file",
+            "move_file": "file",
+            "rename_file": "file",
+            "ocr_image": "media",
+            "ocr_pdf": "media",
+            "extract_text": "media",
+            "convert_image": "media",
+            "resize_image": "media",
+            "compress_image": "media",
+            "merge_pdfs": "media",
+            "pdf_to_images": "media",
+            "images_to_pdf": "media",
+            "batch_pdf": "media",
+            "scan_folder": "media",
+            "make_drawing": "media",
+            "get_selected_text": "media",
+            "narrate_screen": "media",
+            "get_screen_summary": "media",
+            "analyze_screen": "media",
+            "whatsapp_message": "whatsapp",
+            "whatsapp_call": "whatsapp",
+            "whatsapp_draft_reply": "whatsapp",
+            "set_personality": "personality",
+            "command_insights": "memory",
         }
 
         missing = []
@@ -75,8 +139,7 @@ class TestCommandDispatch:
                 missing.append(f"{key} (domain '{expected_domain}' not in DOMAIN_HANDLERS)")
 
         assert len(missing) == 0, (
-            f"Command keys without dispatch routes: {missing}\n"
-            f"Total keys: {len(all_keys)}, Missing: {len(missing)}"
+            f"Command keys without dispatch routes: {missing}\nTotal keys: {len(all_keys)}, Missing: {len(missing)}"
         )
 
     def test_commands_dict_is_not_empty(self):
@@ -91,8 +154,9 @@ class TestCommandDispatch:
         from modules.bilingual_parser import BilingualParser
 
         parser = BilingualParser()
-        assert hasattr(parser, "command_map") or hasattr(parser, "hindi_commands"), \
+        assert hasattr(parser, "command_map") or hasattr(parser, "hindi_commands"), (
             "Hindi command mappings not found in BilingualParser"
+        )
 
 
 class TestCommandExecution:
@@ -104,11 +168,9 @@ class TestCommandExecution:
         with patch("handlers.system.system_handler.system_module", mock_system):
             from handlers.command_handler import handle_command
 
-            mock_system.get_time = AsyncMock(return_value={
-                "time": "10:00:00",
-                "formatted": "10:00 AM",
-                "response": "It is 10:00 AM"
-            })
+            mock_system.get_time = AsyncMock(
+                return_value={"time": "10:00:00", "formatted": "10:00 AM", "response": "It is 10:00 AM"}
+            )
 
             result = await handle_command(None, "what time is it", "en", None)
 
@@ -132,8 +194,10 @@ class TestCommandExecution:
         """Unknown commands should fall back to agent, not crash."""
         mock_agent = AsyncMock()
         mock_agent.run_loop = AsyncMock(return_value="I could not find a direct command for that, Sir.")
-        with patch("handlers.command_handler.memory_manager", mock_memory), \
-             patch("modules.agent.agent_controller", mock_agent):
+        with (
+            patch("handlers.command_handler.memory_manager", mock_memory),
+            patch("modules.agent.agent_controller", mock_agent),
+        ):
             from handlers.command_handler import handle_command
 
             result = await handle_command(None, "some random text", "en", None)
@@ -155,8 +219,7 @@ class TestResponseShape:
 
             if result:
                 # Must have at minimum these fields for frontend compatibility
-                assert "success" in result or "response" in result, \
-                    f"Response missing required fields: {result.keys()}"
+                assert "success" in result or "response" in result, f"Response missing required fields: {result.keys()}"
 
     @pytest.mark.asyncio
     async def test_hindi_response_contains_hindi_text(self, mock_system):

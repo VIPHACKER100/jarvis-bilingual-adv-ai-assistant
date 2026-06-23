@@ -4,6 +4,7 @@ from utils.logger_structured import logger
 
 router = APIRouter(tags=["Probes"])
 
+
 @router.get("/ready")
 async def readiness_probe():
     """Kubernetes readiness probe — checks DB connectivity"""
@@ -17,6 +18,7 @@ async def readiness_probe():
     if db_healthy:
         return {"status": "ready", "database": "connected"}
     return {"status": "not ready", "database": "disconnected"}
+
 
 @router.get("/live")
 async def liveness_probe():

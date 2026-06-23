@@ -38,4 +38,5 @@ class ConnectionManager:
         for client_id in disconnected:
             self.disconnect(client_id)
 
+
 manager = ConnectionManager()

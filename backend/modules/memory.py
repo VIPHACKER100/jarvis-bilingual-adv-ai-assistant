@@ -14,6 +14,7 @@ from utils.logger_structured import logger
 @dataclass
 class ConversationEntry:
     """Single conversation entry"""
+
     id: Optional[int] = None
     timestamp: str = ""
     user_input: str = ""
@@ -28,6 +29,7 @@ class ConversationEntry:
 @dataclass
 class MemoryEntry:
     """User memory/fact storage"""
+
     id: Optional[int] = None
     key: str = ""  # e.g., "favorite_color", "boss_name"
     value: str = ""
@@ -56,7 +58,7 @@ class NeuralMemoryManager:
             return None
 
         try:
-            async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
+            async with aiofiles.open(file_path, mode="r", encoding="utf-8") as f:
                 return await f.read()
         except Exception as e:
             logger.error(f"Error reading memory node {name}: {e}")
@@ -69,7 +71,7 @@ class NeuralMemoryManager:
 
         file_path = self.memory_dir / name
         try:
-            async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
+            async with aiofiles.open(file_path, mode="w", encoding="utf-8") as f:
                 await f.write(content)
             logger.info(f"Updated memory node: {name}")
             return True
@@ -79,18 +81,21 @@ class NeuralMemoryManager:
 
     async def list_nodes(self) -> List[Dict[str, Any]]:
         """List all available memory nodes with metadata"""
+
         def _list_task():
             nodes = []
             for file_path in self.memory_dir.glob("*.md"):
                 try:
                     stats = file_path.stat()
-                    nodes.append({
-                        "name": file_path.name,
-                        "path": str(file_path),
-                        "size": stats.st_size,
-                        "updated_at": datetime.fromtimestamp(stats.st_mtime).isoformat(),
-                        "is_core": file_path.name in self.core_nodes
-                    })
+                    nodes.append(
+                        {
+                            "name": file_path.name,
+                            "path": str(file_path),
+                            "size": stats.st_size,
+                            "updated_at": datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                            "is_core": file_path.name in self.core_nodes,
+                        }
+                    )
                 except Exception as e:
                     logger.error(f"Error listing node {file_path.name}: {e}")
             return nodes
@@ -100,7 +105,10 @@ class NeuralMemoryManager:
     async def log_decision(self, command: str, action: str, result: str, reason: str = ""):
         """Log a user decision (Approval/Rejection) to decisions.md"""
         node_name = "decisions.md"
-        content = await self.get_node(node_name) or "# Decision Log\n\nTracked approvals and rejections of dangerous commands.\n\n"
+        content = (
+            await self.get_node(node_name)
+            or "# Decision Log\n\nTracked approvals and rejections of dangerous commands.\n\n"
+        )
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         entry = f"### [{timestamp}] {command}\n"
@@ -129,6 +137,7 @@ class NeuralMemoryManager:
                 parts = content.split("---", 2)
                 if len(parts) >= 3:
                     import yaml
+
                     metadata = yaml.safe_load(parts[1]) or {}
                     content = parts[2].strip()
             except Exception as e:
@@ -152,7 +161,7 @@ class NeuralMemoryManager:
         selected_nodes_with_scores = []
         for n in nodes:
             if n["name"] in core_node_names:
-                selected_nodes_with_scores.append((n, 200)) # Core nodes get max priority
+                selected_nodes_with_scores.append((n, 200))  # Core nodes get max priority
 
         # If we have a query, find additional relevant nodes
         if query:
@@ -189,7 +198,7 @@ class NeuralMemoryManager:
                 if node["name"] not in seen:
                     top_nodes.append(node)
                     seen.add(node["name"])
-                if len(top_nodes) >= 6: # Total limit
+                if len(top_nodes) >= 6:  # Total limit
                     break
             selected_nodes = top_nodes
         else:
@@ -223,7 +232,7 @@ class NeuralMemoryManager:
 
         rows = await db_manager.fetchall(
             "SELECT filename, 1 - (embedding <=> ?::vector) AS similarity FROM neural_vectors WHERE embedding IS NOT NULL ORDER BY embedding <=> ?::vector LIMIT 20",
-            (query_vector, query_vector)
+            (query_vector, query_vector),
         )
         return {row["filename"]: row["similarity"] for row in rows}
 
@@ -238,19 +247,19 @@ class NeuralMemoryManager:
         for node in nodes:
             try:
                 content = await self.get_node(node["name"])
-                if not content: continue
+                if not content:
+                    continue
 
                 # Calculate hash to see if it changed
-                content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
+                content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
 
                 # Check DB for existing hash
                 row = await db_manager.fetchone(
-                    "SELECT content_hash FROM neural_vectors WHERE filename = ?",
-                    (node["name"],)
+                    "SELECT content_hash FROM neural_vectors WHERE filename = ?", (node["name"],)
                 )
 
                 if row and row[0] == content_hash:
-                    continue # Already up to date
+                    continue  # Already up to date
 
                 # Generate new embedding
                 embedding = await llm_client.get_embedding(content)
@@ -261,12 +270,12 @@ class NeuralMemoryManager:
                 if row:
                     await db_manager.execute(
                         "UPDATE neural_vectors SET content_hash = ?, embedding = ?::vector, updated_at = ? WHERE filename = ?",
-                        (content_hash, embedding, datetime.now().isoformat(), node["name"])
+                        (content_hash, embedding, datetime.now().isoformat(), node["name"]),
                     )
                 else:
                     await db_manager.execute(
                         "INSERT INTO neural_vectors (filename, content_hash, embedding) VALUES (?, ?, ?::vector)",
-                        (node["name"], content_hash, embedding)
+                        (node["name"], content_hash, embedding),
                     )
 
                 synced_count += 1
@@ -278,7 +287,6 @@ class NeuralMemoryManager:
             logger.info(f"Semantic memory sync complete. Updated {synced_count} vectors.")
         else:
             logger.info("Semantic memory already synchronized.")
-
 
 
 class MemoryManager:
@@ -298,20 +306,23 @@ class MemoryManager:
             if not entry.timestamp:
                 entry.timestamp = datetime.now().isoformat()
 
-            cursor = await db_manager.execute('''
+            cursor = await db_manager.execute(
+                """
                 INSERT INTO conversations
                 (timestamp, user_input, jarvis_response, command_type, success, context, language, session_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                entry.timestamp,
-                entry.user_input,
-                entry.jarvis_response,
-                entry.command_type,
-                entry.success,
-                entry.context,
-                entry.language,
-                entry.session_id
-            ))
+            """,
+                (
+                    entry.timestamp,
+                    entry.user_input,
+                    entry.jarvis_response,
+                    entry.command_type,
+                    entry.success,
+                    entry.context,
+                    entry.language,
+                    entry.session_id,
+                ),
+            )
 
             entry.id = cursor.lastrowid
             logger.info(f"Saved conversation entry: {entry.id}")
@@ -322,24 +333,29 @@ class MemoryManager:
             return False
 
     async def get_recent_conversations(
-            self,
-            limit: int = 10,
-            session_id: Optional[str] = None) -> List[ConversationEntry]:
+        self, limit: int = 10, session_id: Optional[str] = None
+    ) -> List[ConversationEntry]:
         """Get recent conversation history"""
         try:
             if session_id:
-                rows = await db_manager.fetchall('''
+                rows = await db_manager.fetchall(
+                    """
                     SELECT * FROM conversations
                     WHERE session_id = ?
                     ORDER BY timestamp DESC
                     LIMIT ?
-                ''', (session_id, limit))
+                """,
+                    (session_id, limit),
+                )
             else:
-                rows = await db_manager.fetchall('''
+                rows = await db_manager.fetchall(
+                    """
                     SELECT * FROM conversations
                     ORDER BY timestamp DESC
                     LIMIT ?
-                ''', (limit,))
+                """,
+                    (limit,),
+                )
 
             entries = []
             for row in rows:
@@ -352,7 +368,7 @@ class MemoryManager:
                     success=bool(row[5]),
                     context=row[6],
                     language=row[7],
-                    session_id=row[8]
+                    session_id=row[8],
                 )
                 entries.append(entry)
 
@@ -362,19 +378,19 @@ class MemoryManager:
             logger.error(f"Error getting conversations: {e}")
             return []
 
-    async def search_conversations(
-            self,
-            query: str,
-            limit: int = 10) -> List[ConversationEntry]:
+    async def search_conversations(self, query: str, limit: int = 10) -> List[ConversationEntry]:
         """Search conversation history"""
         try:
             search_term = f"%{query}%"
-            rows = await db_manager.fetchall('''
+            rows = await db_manager.fetchall(
+                """
                 SELECT * FROM conversations
                 WHERE user_input LIKE ? OR jarvis_response LIKE ?
                 ORDER BY timestamp DESC
                 LIMIT ?
-            ''', (search_term, search_term, limit))
+            """,
+                (search_term, search_term, limit),
+            )
 
             entries = []
             for row in rows:
@@ -387,7 +403,7 @@ class MemoryManager:
                     success=bool(row[5]),
                     context=row[6],
                     language=row[7],
-                    session_id=row[8]
+                    session_id=row[8],
                 )
                 entries.append(entry)
 
@@ -403,36 +419,48 @@ class MemoryManager:
             since = (datetime.now() - timedelta(days=days)).isoformat()
 
             # Total conversations
-            row = await db_manager.fetchone('''
+            row = await db_manager.fetchone(
+                """
                 SELECT COUNT(*) FROM conversations
                 WHERE timestamp > ?
-            ''', (since,))
+            """,
+                (since,),
+            )
             total = row[0] if row else 0
 
             # Successful commands
-            row = await db_manager.fetchone('''
+            row = await db_manager.fetchone(
+                """
                 SELECT COUNT(*) FROM conversations
                 WHERE timestamp > ? AND success = 1
-            ''', (since,))
+            """,
+                (since,),
+            )
             successful = row[0] if row else 0
 
             # Command types breakdown
-            rows = await db_manager.fetchall('''
+            rows = await db_manager.fetchall(
+                """
                 SELECT command_type, COUNT(*) as count
                 FROM conversations
                 WHERE timestamp > ?
                 GROUP BY command_type
                 ORDER BY count DESC
-            ''', (since,))
+            """,
+                (since,),
+            )
             command_types = {row[0]: row[1] for row in rows}
 
             # Language distribution
-            rows = await db_manager.fetchall('''
+            rows = await db_manager.fetchall(
+                """
                 SELECT language, COUNT(*) as count
                 FROM conversations
                 WHERE timestamp > ?
                 GROUP BY language
-            ''', (since,))
+            """,
+                (since,),
+            )
             languages = {row[0]: row[1] for row in rows}
 
             return {
@@ -441,7 +469,7 @@ class MemoryManager:
                 "success_rate": (successful / total * 100) if total > 0 else 0,
                 "command_types": command_types,
                 "languages": languages,
-                "period_days": days
+                "period_days": days,
             }
 
         except Exception as e:
@@ -450,7 +478,7 @@ class MemoryManager:
 
     async def get_command_insights(self, days: int = 30) -> Dict:
         """Mines command history to produce behavioral usage insights.
-        
+
         Uses PostgreSQL-native date functions:
           - DATE(timestamp)     → (timestamp AT TIME ZONE 'UTC')::date
           - STRFTIME('%H', ts)  → EXTRACT(HOUR FROM timestamp AT TIME ZONE 'UTC')::int
@@ -483,9 +511,7 @@ class MemoryManager:
                 ORDER BY day ASC
                 """,
             )
-            daily_activity = [
-                {"day": str(r["day"]), "count": r["count"]} for r in daily_rows
-            ]
+            daily_activity = [{"day": str(r["day"]), "count": r["count"]} for r in daily_rows]
 
             # Peak usage hour (0-23)
             peak_row = await db_manager.fetchone(
@@ -534,16 +560,14 @@ class MemoryManager:
     async def save_performance_metric(self, lag: float, cpu: float, memory: float) -> bool:
         """Save system performance metrics to database"""
         try:
-            await db_manager.execute('''
+            await db_manager.execute(
+                """
                 INSERT INTO performance_metrics
                 (timestamp, event_loop_lag, cpu_percent, memory_percent)
                 VALUES (?, ?, ?, ?)
-            ''', (
-                datetime.now().isoformat(),
-                lag,
-                cpu,
-                memory
-            ))
+            """,
+                (datetime.now().isoformat(), lag, cpu, memory),
+            )
             return True
         except Exception as e:
             logger.error(f"Error saving performance metric: {e}")
@@ -552,20 +576,18 @@ class MemoryManager:
     async def get_performance_history(self, limit: int = 60) -> List[Dict[str, Any]]:
         """Retrieve recent performance history"""
         try:
-            rows = await db_manager.fetchall('''
+            rows = await db_manager.fetchall(
+                """
                 SELECT timestamp, event_loop_lag, cpu_percent, memory_percent
                 FROM performance_metrics
                 ORDER BY timestamp DESC
                 LIMIT ?
-            ''', (limit,))
+            """,
+                (limit,),
+            )
 
             return [
-                {
-                    "timestamp": row[0],
-                    "event_loop_lag": row[1],
-                    "cpu_percent": row[2],
-                    "memory_percent": row[3]
-                }
+                {"timestamp": row[0], "event_loop_lag": row[1], "cpu_percent": row[2], "memory_percent": row[3]}
                 for row in rows
             ]
         except Exception as e:
@@ -578,15 +600,18 @@ class MemoryManager:
             now = datetime.now().isoformat()
 
             # Check if key already exists
-            row = await db_manager.fetchone('SELECT id FROM memory WHERE key = ?', (entry.key,))
+            row = await db_manager.fetchone("SELECT id FROM memory WHERE key = ?", (entry.key,))
 
             if row:
                 # Update existing
-                await db_manager.execute('''
+                await db_manager.execute(
+                    """
                     UPDATE memory
                     SET value = ?, updated_at = ?, confidence = ?, source = ?
                     WHERE key = ?
-                ''', (entry.value, now, entry.confidence, entry.source, entry.key))
+                """,
+                    (entry.value, now, entry.confidence, entry.source, entry.key),
+                )
             else:
                 # Insert new
                 if not entry.created_at:
@@ -594,19 +619,22 @@ class MemoryManager:
                 if not entry.updated_at:
                     entry.updated_at = now
 
-                await db_manager.execute('''
+                await db_manager.execute(
+                    """
                     INSERT INTO memory
                     (key, value, category, created_at, updated_at, confidence, source)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    entry.key,
-                    entry.value,
-                    entry.category,
-                    entry.created_at,
-                    entry.updated_at,
-                    entry.confidence,
-                    entry.source
-                ))
+                """,
+                    (
+                        entry.key,
+                        entry.value,
+                        entry.category,
+                        entry.created_at,
+                        entry.updated_at,
+                        entry.confidence,
+                        entry.source,
+                    ),
+                )
 
             logger.info(f"Saved memory: {entry.key} = {entry.value}")
             return True
@@ -618,7 +646,7 @@ class MemoryManager:
     async def get_memory(self, key: str) -> Optional[MemoryEntry]:
         """Get a specific memory entry"""
         try:
-            row = await db_manager.fetchone('SELECT * FROM memory WHERE key = ?', (key,))
+            row = await db_manager.fetchone("SELECT * FROM memory WHERE key = ?", (key,))
 
             if row:
                 return MemoryEntry(
@@ -629,7 +657,7 @@ class MemoryManager:
                     created_at=row[4],
                     updated_at=row[5],
                     confidence=row[6],
-                    source=row[7]
+                    source=row[7],
                 )
             return None
 
@@ -640,11 +668,14 @@ class MemoryManager:
     async def get_memories_by_category(self, category: str) -> List[MemoryEntry]:
         """Get all memories in a category"""
         try:
-            rows = await db_manager.fetchall('''
+            rows = await db_manager.fetchall(
+                """
                 SELECT * FROM memory
                 WHERE category = ?
                 ORDER BY updated_at DESC
-            ''', (category,))
+            """,
+                (category,),
+            )
 
             entries = []
             for row in rows:
@@ -656,7 +687,7 @@ class MemoryManager:
                     created_at=row[4],
                     updated_at=row[5],
                     confidence=row[6],
-                    source=row[7]
+                    source=row[7],
                 )
                 entries.append(entry)
 
@@ -670,11 +701,14 @@ class MemoryManager:
         """Search memory entries"""
         try:
             search_term = f"%{query}%"
-            rows = await db_manager.fetchall('''
+            rows = await db_manager.fetchall(
+                """
                 SELECT * FROM memory
                 WHERE key LIKE ? OR value LIKE ?
                 ORDER BY confidence DESC, updated_at DESC
-            ''', (search_term, search_term))
+            """,
+                (search_term, search_term),
+            )
 
             entries = []
             for row in rows:
@@ -686,7 +720,7 @@ class MemoryManager:
                     created_at=row[4],
                     updated_at=row[5],
                     confidence=row[6],
-                    source=row[7]
+                    source=row[7],
                 )
                 entries.append(entry)
 
@@ -699,7 +733,7 @@ class MemoryManager:
     async def delete_memory(self, key: str) -> bool:
         """Delete a memory entry"""
         try:
-            await db_manager.execute('DELETE FROM memory WHERE key = ?', (key,))
+            await db_manager.execute("DELETE FROM memory WHERE key = ?", (key,))
             logger.info(f"Deleted memory: {key}")
             return True
 
@@ -710,10 +744,13 @@ class MemoryManager:
     async def start_session(self, session_id: str) -> bool:
         """Start a new conversation session"""
         try:
-            await db_manager.execute('''
+            await db_manager.execute(
+                """
                 INSERT INTO sessions (session_id, started_at, command_count)
                 VALUES (?, ?, 0)
-            ''', (session_id, datetime.now().isoformat()))
+            """,
+                (session_id, datetime.now().isoformat()),
+            )
 
             logger.info(f"Started session: {session_id}")
             return True
@@ -726,16 +763,22 @@ class MemoryManager:
         """End a conversation session"""
         try:
             # Count commands in session
-            row = await db_manager.fetchone('''
+            row = await db_manager.fetchone(
+                """
                 SELECT COUNT(*) FROM conversations WHERE session_id = ?
-            ''', (session_id,))
+            """,
+                (session_id,),
+            )
             count = row[0] if row else 0
 
-            await db_manager.execute('''
+            await db_manager.execute(
+                """
                 UPDATE sessions
                 SET ended_at = ?, command_count = ?
                 WHERE session_id = ?
-            ''', (datetime.now().isoformat(), count, session_id))
+            """,
+                (datetime.now().isoformat(), count, session_id),
+            )
 
             logger.info(f"Ended session: {session_id} with {count} commands")
             return True
@@ -749,9 +792,12 @@ class MemoryManager:
         try:
             cutoff = (datetime.now() - timedelta(days=days)).isoformat()
 
-            cursor = await db_manager.execute('''
+            cursor = await db_manager.execute(
+                """
                 DELETE FROM conversations WHERE timestamp < ?
-            ''', (cutoff,))
+            """,
+                (cutoff,),
+            )
 
             deleted = cursor.rowcount
             logger.info(f"Cleaned up {deleted} old conversation entries")
@@ -764,7 +810,7 @@ class MemoryManager:
     async def delete_all_conversations(self) -> bool:
         """Wipe all conversion history"""
         try:
-            await db_manager.execute('DELETE FROM conversations')
+            await db_manager.execute("DELETE FROM conversations")
             logger.info("All conversation history deleted")
             return True
         except Exception as e:
@@ -779,18 +825,24 @@ class MemoryManager:
         try:
             # Identify entries to keep
             if session_id:
-                rows = await db_manager.fetchall('''
+                rows = await db_manager.fetchall(
+                    """
                     SELECT id FROM conversations 
                     WHERE session_id = ? 
                     ORDER BY timestamp DESC 
                     LIMIT ?
-                ''', (session_id, limit))
+                """,
+                    (session_id, limit),
+                )
             else:
-                rows = await db_manager.fetchall('''
+                rows = await db_manager.fetchall(
+                    """
                     SELECT id FROM conversations 
                     ORDER BY timestamp DESC 
                     LIMIT ?
-                ''', (limit,))
+                """,
+                    (limit,),
+                )
 
             keep_ids = [row[0] for row in rows]
 
@@ -798,17 +850,23 @@ class MemoryManager:
                 return 0
 
             # Delete everything else
-            placeholders = ','.join(['?'] * len(keep_ids))
+            placeholders = ",".join(["?"] * len(keep_ids))
             if session_id:
-                cursor = await db_manager.execute(f'''
+                cursor = await db_manager.execute(
+                    f"""
                     DELETE FROM conversations 
                     WHERE session_id = ? AND id NOT IN ({placeholders})
-                ''', (session_id,) + tuple(keep_ids))
+                """,
+                    (session_id,) + tuple(keep_ids),
+                )
             else:
-                cursor = await db_manager.execute(f'''
+                cursor = await db_manager.execute(
+                    f"""
                     DELETE FROM conversations 
                     WHERE id NOT IN ({placeholders})
-                ''', tuple(keep_ids))
+                """,
+                    tuple(keep_ids),
+                )
 
             deleted = cursor.rowcount
 
@@ -823,7 +881,7 @@ class MemoryManager:
     async def delete_memory_by_id(self, memory_id: int) -> bool:
         """Delete specific memory fact by ID"""
         try:
-            await db_manager.execute('DELETE FROM memory WHERE id = ?', (memory_id,))
+            await db_manager.execute("DELETE FROM memory WHERE id = ?", (memory_id,))
             logger.info(f"Deleted memory fact ID: {memory_id}")
             return True
         except Exception as e:
@@ -832,12 +890,14 @@ class MemoryManager:
 
     async def save_setting(self, key: str, value: Any) -> bool:
         """Save a system setting to memory"""
-        return await self.save_memory(MemoryEntry(
-            key=f"setting_{key}",
-            value=json.dumps(value) if not isinstance(value, str) else value,
-            category="settings",
-            source="system"
-        ))
+        return await self.save_memory(
+            MemoryEntry(
+                key=f"setting_{key}",
+                value=json.dumps(value) if not isinstance(value, str) else value,
+                category="settings",
+                source="system",
+            )
+        )
 
     async def get_setting(self, key: str, default: Any = None) -> Any:
         """Get a system setting from memory"""

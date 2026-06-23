@@ -58,26 +58,25 @@ from utils.middleware_security import MaxBodySizeMiddleware, SecurityHeadersMidd
 # Security
 BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     logger.info("JARVIS Backend starting up (Modular Architecture)...")
-    startup_info = {
-        "port": BACKEND_PORT,
-        "platform": PLATFORM,
-        "version": VERSION
-    }
+    startup_info = {"port": BACKEND_PORT, "platform": PLATFORM, "version": VERSION}
     log_system_event("STARTUP", startup_info)
 
     # Initialize managers
     from config import CONFIG
     from modules.personalities import personality_manager
+
     personality_manager.set_personality(CONFIG.get("personality", "stark"))
 
     # Initialize OpenTelemetry if enabled
     if OTEL_ENABLED:
         try:
             from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
             FastAPIInstrumentor.instrument_app(app)
             logger.info("FastAPI OpenTelemetry instrumentation enabled.")
         except ImportError:
@@ -93,6 +92,7 @@ async def lifespan(app: FastAPI):
 
     # Initialize and start Wake-Word Engine if enabled
     from config import WAKE_WORD_ENABLED
+
     logger.info(f"DEBUG: WAKE_WORD_ENABLED is {WAKE_WORD_ENABLED}")
     if WAKE_WORD_ENABLED:
         try:
@@ -101,13 +101,16 @@ async def lifespan(app: FastAPI):
             def on_wake(model, score):
                 # Broadcast wake event to all WebSocket clients
                 from utils.websocket_manager import manager
+
                 asyncio.run_coroutine_threadsafe(
-                    manager.broadcast({
-                        "type": "wake_detected",
-                        "data": {"model": model, "score": score},
-                        "timestamp": datetime.now().isoformat()
-                    }),
-                    asyncio.get_event_loop()
+                    manager.broadcast(
+                        {
+                            "type": "wake_detected",
+                            "data": {"model": model, "score": score},
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    ),
+                    asyncio.get_event_loop(),
                 )
                 logger.info("Wake event broadcasted to clients.")
 
@@ -123,6 +126,7 @@ async def lifespan(app: FastAPI):
     # Start mDNS Broadcaster
     from config import MDNS_ENABLED, MDNS_SERVICE_NAME
     from utils.mdns import mdns_broadcaster
+
     if MDNS_ENABLED:
         mdns_broadcaster.port = BACKEND_PORT
         mdns_broadcaster.service_name = MDNS_SERVICE_NAME or "JARVIS-CORE"
@@ -144,6 +148,7 @@ async def lifespan(app: FastAPI):
     logger.info("JARVIS Backend shutting down...")
     log_system_event("SHUTDOWN", {})
 
+
 # Initialize Limiter
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per minute"])
 
@@ -151,7 +156,7 @@ app = FastAPI(
     title="JARVIS Backend",
     description="Modular AI assistant backend with high-fidelity HUD support",
     version=VERSION,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Set limiter state and handler
@@ -163,8 +168,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         FRONTEND_URL,
-        "http://localhost:5173", "http://127.0.0.1:5173",
-        "http://localhost:3000", "http://127.0.0.1:3000"
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -176,6 +183,7 @@ app.add_middleware(MaxBodySizeMiddleware)
 app.add_middleware(SQLInjectionMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 
+
 # Request timing middleware for all routes
 @app.middleware("http")
 async def response_time_middleware(request: Request, call_next):
@@ -184,10 +192,7 @@ async def response_time_middleware(request: Request, call_next):
         response = await call_next(request)
     except Exception as e:
         logger.error(f"Error processing request {request.url.path}: {e}")
-        return JSONResponse(
-            status_code=500,
-            content={"success": False, "error": "Internal server error"}
-        )
+        return JSONResponse(status_code=500, content={"success": False, "error": "Internal server error"})
 
     process_time = round(time.time() - start_time, 4)
     response.headers["X-Response-Time"] = str(process_time)
@@ -198,7 +203,7 @@ async def response_time_middleware(request: Request, call_next):
         try:
             # Only attempt if it's a standard JSONResponse or has body already read
             # Note: For many responses, .body is not available in middleware
-            pass # We keep headers updated, but skip body mutation to avoid stream issues
+            pass  # We keep headers updated, but skip body mutation to avoid stream issues
         except Exception:
             pass
 
@@ -209,14 +214,17 @@ async def response_time_middleware(request: Request, call_next):
 @app.middleware("http")
 async def add_request_id(request: Request, call_next):
     import uuid
+
     request_id = str(uuid.uuid4())
     request.state.request_id = request_id
     response = await call_next(request)
     response.headers["X-Request-ID"] = request_id
     return response
 
+
 # Authentication Middleware for REST API
 HEALTH_EXEMPT_PREFIXES = ("/api/v1/health", "/api/v1/agent/health", "/api/v1/ready", "/api/v1/live")
+
 
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
@@ -230,10 +238,7 @@ async def api_key_middleware(request: Request, call_next):
             return await call_next(request)
 
         if not api_key or not hmac.compare_digest(api_key, BACKEND_API_KEY):
-            return JSONResponse(
-                status_code=403,
-                content={"success": False, "detail": "Invalid or missing API Key"}
-            )
+            return JSONResponse(status_code=403, content={"success": False, "detail": "Invalid or missing API Key"})
     return await call_next(request)
 
 
@@ -248,9 +253,10 @@ async def global_exception_handler(request: Request, exc: Exception):
             "success": False,
             "error": "An internal server error occurred",
             "request_id": request_id,
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     )
+
 
 # Register Routers
 from fastapi import APIRouter
@@ -284,6 +290,7 @@ app.include_router(api_v1)
 # WebSocket does not need prefix as it is typically handled separately
 app.include_router(websocket.router)
 
+
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     """Serve favicon.ico"""
@@ -292,8 +299,10 @@ async def favicon():
         return FileResponse(favicon_path)
     return Response(status_code=404)
 
+
 # Global state for performance monitoring
 current_event_loop_lag = 0.0
+
 
 async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 100.0):
     """Monitor event loop latency to detect blocking calls"""
@@ -305,7 +314,7 @@ async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 10
             end = time.perf_counter()
 
             # The lag is the difference between intended sleep and actual sleep
-            actual_delay = (end - start)
+            actual_delay = end - start
             lag_ms = (actual_delay - interval) * 1000
 
             global current_event_loop_lag
@@ -321,11 +330,13 @@ async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 10
             logger.error(f"Error in event loop monitor: {e}")
             await asyncio.sleep(interval)
 
+
 async def broadcast_system_status():
     """Broadcast system status to all connected clients every 5 seconds"""
     from modules.memory import memory_manager
     from modules.personalities import personality_manager
     from utils.websocket_manager import manager
+
     while True:
         try:
             await asyncio.sleep(5)
@@ -337,16 +348,14 @@ async def broadcast_system_status():
 
             # Save to database for history
             await memory_manager.save_performance_metric(
-                current_event_loop_lag,
-                status.cpu.percent,
-                status.memory.percent
+                current_event_loop_lag, status.cpu.percent, status.memory.percent
             )
 
             if manager.active_connections:
                 message = {
                     "type": "system_status",
                     "data": jsonable_encoder(status),
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
                 }
                 await manager.broadcast(message)
 
@@ -354,6 +363,7 @@ async def broadcast_system_status():
             break
         except Exception as e:
             logger.error(f"Error in status broadcast: {e}")
+
 
 async def periodic_prune_conversations():
     """Periodically prune old conversations to prevent unbounded table growth."""
@@ -369,38 +379,40 @@ async def periodic_prune_conversations():
         except Exception as e:
             logger.error(f"Error in periodic pruning: {e}")
 
+
 # Frontend static file serving logic extracted from original main.py
 def _find_frontend_dir() -> Optional[Path]:
     """Find the frontend directory in various environments (dev, bundled)"""
     candidates = []
 
     # 1. Check if we're running as a PyInstaller bundle
-    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         mei_path = Path(sys._MEIPASS)
-        candidates.extend([
-            mei_path / "frontend",
-            mei_path / "dist",
-            mei_path / "_internal" / "frontend",
-            mei_path / "_internal" / "dist"
-        ])
+        candidates.extend(
+            [
+                mei_path / "frontend",
+                mei_path / "dist",
+                mei_path / "_internal" / "frontend",
+                mei_path / "_internal" / "dist",
+            ]
+        )
 
     # 2. Check relative to current file (works in dev)
     try:
         base_path = Path(__file__).resolve().parent.parent
-        candidates.extend([
-            base_path / "dist",
-            base_path / "frontend"
-        ])
+        candidates.extend([base_path / "dist", base_path / "frontend"])
     except Exception:
         pass
 
     # 3. Check relative to CWD
     cwd = Path.cwd()
-    candidates.extend([
-        cwd / "dist",
-        cwd / "frontend",
-        cwd / "release" / "backend" / "_internal" / "frontend" # Extra backup for local release testing
-    ])
+    candidates.extend(
+        [
+            cwd / "dist",
+            cwd / "frontend",
+            cwd / "release" / "backend" / "_internal" / "frontend",  # Extra backup for local release testing
+        ]
+    )
 
     for c in candidates:
         # logger.debug(f"Checking frontend candidate: {c}")
@@ -416,6 +428,7 @@ if frontend_dir is not None:
     logger.info(f"Serving frontend from {frontend_dir}")
     app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 else:
+
     @app.get("/")
     async def root():
         """Health check and root info (Frontend fallback)"""
@@ -425,9 +438,11 @@ else:
             "version": VERSION,
             "platform": PLATFORM,
             "developer": "VIPHACKER100",
-            "note": "Frontend directory not found"
+            "note": "Frontend directory not found",
         }
+
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=BACKEND_PORT)
