@@ -6,6 +6,7 @@ The JARVIS Advanced AI Assistant team is committed to addressing security vulner
 
 | Version | Supported          | Notes |
 | ------- | ------------------ | ----- |
+| 4.0.0-alpha.x | :white_check_mark: | Latest development release (72/72 tests passing) |
 | 3.9.x   | :white_check_mark: | Latest stable production release |
 | 3.8.x   | :white_check_mark: | Maintained |
 | 3.7.x   | :x:                | Deprecated |

@@ -13,15 +13,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Health probes**: New `/api/v1/ready` (DB connectivity check) and `/api/v1/live` (always-200) endpoints for Kubernetes readiness/liveness probes
 - **Nginx security headers**: Added `Strict-Transport-Security`, `X-XSS-Protection`, `Permissions-Policy`, `Content-Security-Policy`, `server_tokens off`
+- **Dependabot config**: `.github/dependabot.yml` for npm + pip ecosystems with weekly schedule and group minor/patch updates
+- **CI matrix expansion**: Node 18/20/22 + Python 3.11/3.12/3.13 matrix, dependency caching, Trivy container scan, dependency review
+- **Docker healthchecks**: HEALTHCHECK added to all Docker images
+- **Non-root user**: All Dockerfiles now run as non-root user for security
 
 ### Changed
 
+- **TypeScript 5.8.3→5.9.3**: Major TypeScript upgrade with modern syntax support
+- **Vite 6.4.2→6.4.3**: Build tool patch update
+- **Vitest 4.1.5→4.1.9**: Test runner patch update
+- **npm patch upgrades**: 11 packages updated (framer-motion, lucide-react, react, react-dom, react-router-dom, @types/node, @types/react, @vitejs/plugin-react)
+- **Python target 3.13**: pyproject.toml target-version changed to py313, Dockerfile.backend→python:3.13-slim
+- **pip patch upgrades**: 14 packages updated (fastapi, uvicorn, python-dotenv, slowapi, Pillow, openai, zeroconf, pywin32, comtypes, screen-brightness-control, rapidfuzz, pytest, pytest-asyncio, httptools)
+- **pgvector Docker image**: postgres:16-alpine → pgvector/pgvector:0.7.4-pg16 for native vector search
+- **Database fixes**: Alembic schema fixed (embedding: Text + quick_actions table + pgvector index), script.py.mako rewritten as async-compatible, database_async.py deleted
+- **Code review cleanup**: 47 __pycache__ files untracked, jaeger pinned to 1.62.0, duplicate rapidfuzz removed, docker-compose.dev.yml got postgres+redis services
+- **Docker hardening**: All Dockerfiles use pinned base images, non-root user, HEALTHCHECK
 - **Version bumped** from 4.0.0-alpha.1 to 4.0.0-alpha.2
+
+### Fixed
+
+- **Pydantic v2 migration**: `.dict()`→`.model_dump()` across all backend models
+- **Bare except→except Exception**: 7 instances fixed across backend
+- **Lambda→def**: 2 lambda expressions converted to named functions
+- **Unused imports**: 6 unused imports removed
+- **CommandInput.tsx bug**: Language enum comparison fixed
+- **npm audit**: 0 vulnerabilities across all 248 packages
 
 ### Security
 
 - **Security hardening**: Hardened nginx.conf with HSTS, XSS protection, permission restrictions, and strict CSP
 - **Probe endpoint exemption**: `/api/v1/ready` and `/api/v1/live` added to auth-exempt prefixes for health check access without API keys
+- **Trivy security scan**: Added to CI pipeline for container vulnerability scanning
+- **Dependency review**: GitHub Action added for PR dependency change review
 
 ## [4.0.0-alpha.1] - 2026-06-22
 
