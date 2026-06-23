@@ -130,7 +130,7 @@ def build_frontend():
     
     # Build frontend
     try:
-        subprocess.run(['npm', 'run', 'build'], check=True, cwd=PROJECT_ROOT)
+        subprocess.run(['npm.cmd', 'run', 'build'], check=True, cwd=PROJECT_ROOT)
         log("  [OK] Frontend built successfully")
         return True
     except subprocess.CalledProcessError as e:
