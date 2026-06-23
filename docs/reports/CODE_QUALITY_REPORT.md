@@ -1,6 +1,6 @@
-# Code Quality Report — JARVIS v4.0.0-alpha.1
+# Code Quality Report — JARVIS v4.0.0-alpha.2
 
-**Generated:** June 22, 2026  
+**Generated:** June 23, 2026  
 **Scope:** Backend (Python/FastAPI) + Frontend (React/TypeScript)
 
 ---
@@ -18,7 +18,7 @@
 | **Maintainability Index** | 3 files rated B (low maintainability) |
 | **console.log/warn/error in src** | 42 occurrences |
 | **TODO/FIXME markers** | 0 |
-| **Code Review Score** | **7.5/10 (Good)** |
+| **Code Review Score** | **8.5/10 (Good)** |
 
 ---
 
@@ -124,8 +124,9 @@
 
 ### 2.5 Recent Code Review Findings
 
-**Overall Score:** 7.5/10 (Good)
+**Overall Score:** 8.5/10 (Good)
 **Review Date:** June 23, 2026
+**10 bug-analysis fixes applied, merged to main (commit 6853324d)**
 
 | # | Severity | Category | Finding | File | Line(s) | Suggestion | Resolution Status | Resolution Date |
 |---|----------|----------|---------|------|---------|------------|-------------------|-----------------|
@@ -136,6 +137,10 @@
 | 5 | Medium | Readability | TypeScript `any` cast undermines type safety — `const w = window as any` bypasses compile-time checks | `src/services/voiceService.ts` | 25 | Augment the `Window` interface with the optional `SpeechRecognition` property instead of casting to `any` | RESOLVED | 2026-06-23 |
 | 6 | Low | Performance | Duplicate `getVoices()` call in `speak()` — called on line 183, then again inside the deferred callback on line 189 | `src/services/voiceService.ts` | 183–189 | Reuse the already-fetched `voices` array to avoid the redundant API call | RESOLVED | 2026-06-23 |
 | 7 | **High** | **Correctness** | Missing error handling in streaming event generator — `event_stream()` can raise unhandled exceptions mid-stream | `backend/routers/agent.py` | 63–73 | Wrap the `async for` loop in a `try-except` block and yield a JSON error event before re-raising or logging | — | — |
+| 8 | Low | Standards | Permissions-Policy includes camera/geolocation which may be unnecessary | nginx/nginx.conf | — | Review and remove camera/geolocation if not used by the app | — | — |
+| 9 | Medium | Maintainability | Pyproject.toml missing classifiers and description in [project] section | pyproject.toml | — | Add classifiers and description to aid packaging and documentation generation | — | — |
+| 10 | Low | Build | Ruff version alignment should be confirmed after pyproject.toml config consolidation | pyproject.toml | — | Pin ruff version across CI and local environments to ensure consistent results | — | — |
+| 11 | Medium | Compatibility | Existing DB migration may not handle old neural_vectors.embedding schema | migrations/ | — | Verify and test migration path for databases created before the Text→vector(1024) change | — | — |
 
 ---
 

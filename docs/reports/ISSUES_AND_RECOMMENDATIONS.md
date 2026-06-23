@@ -162,9 +162,9 @@ if isinstance(params, str) and command_key in FILE_PARAM_KEYS:
 
 Remove from dangerous set or add `hibernate` command + handler.
 
-### 16. `shutdown` vs `close_app` phrase overlap
+### 16. `shutdown` vs `close_app` phrase overlap ✅ RESOLVED
 
-Both use `band karo` — disambiguate by requiring `pc` / `computer` for shutdown.
+- **Fix (2026-06-23):** `"band karo"` removed from `close_app` and `close_window` phrase lists. It now maps only to `shutdown`, which requires confirmation. This eliminates the ambiguity without needing `pc` / `computer` qualifiers.
 
 ---
 
@@ -225,6 +225,23 @@ Run with backend + frontend dev servers:
 
 ---
 
+## Bug-fix Merge (commit 6853324d)
+
+All 10 fixes from the bug-analysis pass have been applied and merged to main. CODEX review score: 8.5/10 (Good).
+
+| # | Fix | Status |
+|---|-----|--------|
+| 1 | Alembic migration: neural_vectors.embedding Text→vector(1024) | ✅ RESOLVED |
+| 2 | nginx Permissions-Policy: microphone=()→microphone=(self) | ✅ RESOLVED |
+| 3 | CI Python version 3.12→3.13, matrix includes 3.13, fixed pip-audit flag | ✅ RESOLVED |
+| 4 | Removed "band karo" from close_app/close_window (ambiguous Hindi command) | ✅ RESOLVED |
+| 5 | Added requires-python = ">=3.11", updated ruff select rules in pyproject.toml | ✅ RESOLVED |
+| 6 | Added PYTHONDONTWRITEBYTECODE=1 to combined Dockerfile | ✅ RESOLVED |
+| 7 | Removed dead hasattr(result, "model_dump") guard from command_handler.py | ✅ RESOLVED |
+| 8 | Moved rapidfuzz imports from lazy to top-level in 3 files | ✅ RESOLVED |
+| 9 | Added X-Real-IP, X-Forwarded-For, X-Forwarded-Proto to /ws nginx location | ✅ RESOLVED |
+| 10 | Version bumped to 4.0.0-alpha.2 | ✅ RESOLVED |
+
 ## Suggested fix order
 
 1. **P1 Security** — Add authentication guard to agent routes (`backend/routers/agent.py`)
@@ -242,6 +259,7 @@ Run with backend + frontend dev servers:
 13. **P2** — Add param normalizer for file commands
 14. **P2** — Expand integration tests
 15. **P3** — Run CodeQL analysis after any security-related changes
+16. ~~**P1 UX** — Fix `shutdown` vs `close_app` phrase overlap (`band karo`)~~ **RESOLVED** in 2026-06-23 bug-fix merge
 
 ---
 
@@ -258,3 +276,11 @@ Run with backend + frontend dev servers:
 | `src/services/securityService.ts` | CodeQL: bad HTML regex & incomplete sanitization fixes |
 | `src/services/voiceService.ts` | Code review: 4 findings (correctness, maintainability, readability, performance) — **all resolved** in 2026-06-23 fix cycle |
 | `backend/routers/agent.py` | Code review: 3 findings (security, style, correctness) |
+| `backend/migrations/` | Alembic schema fix: neural_vectors.embedding Text→vector(1024) |
+| `nginx/nginx.conf` | Permissions-Policy fix + WebSocket header additions |
+| `.github/workflows/` | CI Python 3.13, matrix expansion, pip-audit flag fix |
+| `backend/config/commands.py` | Removed "band karo" from close_app/close_window |
+| `pyproject.toml` | requires-python, ruff select rules |
+| `backend/handlers/command_handler.py` | Dead code removal (hasattr guard) |
+| `backend/modules/bilingual_parser.py` (+2 files) | rapidfuzz imports moved to top-level |
+| `VERSION` / config | Version bumped to 4.0.0-alpha.2 |

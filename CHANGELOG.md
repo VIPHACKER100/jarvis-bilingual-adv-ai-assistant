@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.0-alpha.2] - 2026-06-23
 
+### Bug-fix Merge (commit 6853324d)
+
+10 fixes applied from bug-analysis pass. CODEX review score: 8.5/10 (Good). All 72 tests pass (47 backend + 25 frontend).
+
+### Fixed
+
+- **Alembic migration**: Changed `neural_vectors.embedding` from `sa.Text()` to raw SQL `vector(1024)` — fixes pgvector index creation on existing DBs
+- **nginx Permissions-Policy**: Changed `microphone=()` to `microphone=(self)` — fixes browser mic blocking
+- **CI Python version**: `PYTHON_VERSION: '3.12'`→`'3.13'`, matrix now includes `'3.13'`, fixed `pip-audit --desc on`→`--desc` flag
+- **Ambiguous Hindi command**: Removed `"band karo"` from `close_app` and `close_window` (now maps only to `shutdown` which requires confirmation)
+- **pyproject.toml**: Added `requires-python = ">=3.11"`, updated ruff `select` rules
+- **Dockerfile**: Added `PYTHONDONTWRITEBYTECODE=1` to combined Dockerfile
+- **Dead code**: Removed `hasattr(result, "model_dump")` guard from command_handler.py
+- **rapidfuzz imports**: Moved from lazy (inside functions) to top-level in 3 files
+- **nginx WebSocket headers**: Added `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto` to `/ws` location
+- **VERSION**: Project bumped to 4.0.0-alpha.2
+
 ### Added
 
 - **Health probes**: New `/api/v1/ready` (DB connectivity check) and `/api/v1/live` (always-200) endpoints for Kubernetes readiness/liveness probes

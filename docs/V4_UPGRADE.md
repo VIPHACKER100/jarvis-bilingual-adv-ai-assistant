@@ -21,6 +21,25 @@
 - `command_handler.py` now dispatches to 9 domain handlers in `handlers/` — custom commands may need re-registration.
 - Docker deployment requires PostgreSQL — set `DATABASE_URL` in `.env`.
 
+## Database Migration Notes
+
+### Schema Change: neural_vectors.embedding
+
+In v4.0.0-alpha.2, `neural_vectors.embedding` was changed from `sa.Text()` to raw SQL `vector(1024)` to fix pgvector index creation on existing databases.
+
+**If you already ran `alembic upgrade head` with the old schema**, run the following to fix the column type:
+
+```sql
+ALTER TABLE neural_vectors ALTER COLUMN embedding TYPE vector(1024) USING embedding::vector(1024);
+CREATE INDEX IF NOT EXISTS idx_neural_vectors_embedding ON neural_vectors USING hnsw (embedding vector_cosine_ops);
+```
+
+Then verify the index:
+
+```sql
+SELECT tablename, indexname, indexdef FROM pg_indexes WHERE tablename = 'neural_vectors';
+```
+
 ## Quick Start (Docker)
 
 ```bash

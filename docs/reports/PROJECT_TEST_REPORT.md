@@ -1,8 +1,8 @@
 # JARVIS Project Test Report
 
 **Date:** 2026-06-23  
-**Version:** 4.0.0-alpha.1  
-**Environment:** Windows 11, Python 3.11/3.12, Node/Vitest 4.x  
+**Version:** 4.0.0-alpha.2  
+**Environment:** Windows 11, Python 3.11/3.12/3.13, Node/Vitest 4.x  
 **Auditor:** Automated audit + pytest + vitest
 
 ---
@@ -19,7 +19,8 @@ JARVIS is a **bilingual (English / Hindi / Hinglish) voice-first AI assistant** 
 | Command parser accuracy | **80/90** phrases match expected key | 89% |
 | Parser + dispatch coverage | **79/90** fully wired | 88% |
 | Tesseract OCR | **Not installed** on test machine | N/A |
-| Recent critical fix | All 72 tests passing (47 backend + 25 frontend) | Fixed |
+| Bug-fix merge (6853324d) | All 72 tests passing (47 backend + 25 frontend) | Fixed |
+| CODEX review score | 8.5/10 (Good) — 10 bug-analysis fixes applied | Fixed |
 
 **Overall project health: Excellent (A)** — core stack is solid; all 72 tests passing with full Phase 1-4 upgrades complete.
 
@@ -182,6 +183,23 @@ OCR commands return a clear message when Tesseract is missing (graceful degradat
 | Incomplete multi-character sanitization (CodeQL High) | Iterative 3-pass sanitization with `\s*` coverage |
 | Information exposure via exception (CodeQL Medium) | All error responses return generic messages |
 | `test_api_system_status` `RecursionError` on CI | Changed `asyncio.gather` to `return_exceptions=True` in `system.py`; replaced bare `except:` with `except Exception:` |
+
+## Bug-fix merge (commit 6853324d)
+
+10 fixes applied from bug-analysis, CODEX score 8.5/10 (Good):
+
+| # | Fix | File(s) | Impact |
+|---|-----|---------|--------|
+| 1 | Alembic migration: neural_vectors.embedding Text→vector(1024) | `backend/migrations/` | pgvector index creation works on existing DBs |
+| 2 | nginx Permissions-Policy: microphone=()→microphone=(self) | `nginx/nginx.conf` | Browser mic no longer blocked |
+| 3 | CI Python version 3.12→3.13, matrix includes 3.13, fixed pip-audit flag | `.github/workflows/` | CI runs on Python 3.13; pip-audit works correctly |
+| 4 | Removed "band karo" from close_app/close_window phrases | `backend/config/commands.py` | Ambiguous Hindi command now maps only to shutdown (needs confirmation) |
+| 5 | Added requires-python = ">=3.11", updated ruff select rules | `pyproject.toml` | Explicit Python version constraint; modernized lint rules |
+| 6 | Added PYTHONDONTWRITEBYTECODE=1 to combined Dockerfile | `docker-compose.yml` / Dockerfile | Prevents .pyc generation in containers |
+| 7 | Removed dead hasattr(result, "model_dump") guard | `backend/handlers/command_handler.py` | Cleaner dispatch logic |
+| 8 | Moved rapidfuzz imports from lazy to top-level in 3 files | `backend/modules/bilingual_parser.py`, etc. | Consistent import style, minor perf gain |
+| 9 | Added X-Real-IP, X-Forwarded-For, X-Forwarded-Proto to /ws location | `nginx/nginx.conf` | Proper WebSocket proxy headers |
+| 10 | Version bumped to 4.0.0-alpha.2 | `VERSION` / config | Tracks current release |
 
 ---
 

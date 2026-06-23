@@ -112,6 +112,7 @@ jarvis-bilingual-adv-ai-assistant/
 - **Type hints**: All function signatures must have complete type annotations.
 - **Docstrings**: Module-level docstrings required. Function docstrings for public APIs.
 - **Linting**: Ruff with project defaults in `pyproject.toml`. Run `ruff check backend/` before committing.
+- **Ruff version alignment**: Ensure the Ruff version in CI (`pip-audit --desc` in workflows) matches your local version. Pin ruff in `pyproject.toml` if needed to avoid inconsistent lint results across environments.
 - **Imports**: Sorted with `ruff` auto-fix. No `from X import *`.
 
 ### TypeScript (Frontend)
