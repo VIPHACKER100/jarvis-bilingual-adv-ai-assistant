@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional, List
+from fastapi import APIRouter
+from models import AutomationTaskRequest, BaseResponse, MacroRequest
 from modules.automation import automation_manager
-from models import BaseResponse, AutomationTaskRequest, MacroRequest
 
 router = APIRouter(prefix="/automation", tags=["Automation"])
 

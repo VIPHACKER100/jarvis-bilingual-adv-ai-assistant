@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List
+
+from fastapi import APIRouter, HTTPException
 from modules.context import context_manager
 from modules.memory import memory_manager
 from utils.logger_structured import logger

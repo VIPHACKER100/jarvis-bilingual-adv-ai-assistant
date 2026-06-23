@@ -1,11 +1,11 @@
-import random
 import asyncio
-from typing import Dict, Tuple, Optional, List
+import random
+from typing import Dict, List, Optional
+
 import pyautogui
-from modules.bilingual_parser import parser
-from utils.platform_utils import is_windows, is_macos
-from utils.logger_structured import logger, log_command
 from utils.automation_utils import safe_automation
+from utils.logger_structured import log_command, logger
+from utils.platform_utils import is_macos
 
 
 class InputController:
@@ -412,14 +412,13 @@ class InputController:
             height: int) -> Dict:
         """Take screenshot of specific region"""
         try:
-            from PIL import Image
-            import io
             import base64
+            import io
 
             result = await safe_automation.screenshot(region=(x, y, width, height))
             if not result.get("success"):
                 return result
-            
+
             screenshot = result["result"]
 
             # Convert to base64 for sending to frontend

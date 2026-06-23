@@ -3,20 +3,26 @@ JARVIS v4.0 — Command Handler (Orchestrator)
 Delegates to domain-specific handlers. Falls through to Autonomous Agent.
 """
 
-from typing import Dict, Any, Optional, List
-from fastapi import WebSocket
-from utils.logger_structured import logger, log_command
-from models import CommandResult, ConversationEntryModel
-from modules.bilingual_parser import parser
-from modules.memory import memory_manager, ConversationEntry
-from modules.context import context_manager
-from modules.security import security
+from typing import Any, Dict, Optional
 
+from fastapi import WebSocket
 from handlers import (
-    system_handler, window_handler, desktop_handler,
-    input_handler, file_handler, media_handler,
-    whatsapp_handler, personality_handler, memory_handler,
+    desktop_handler,
+    file_handler,
+    input_handler,
+    media_handler,
+    memory_handler,
+    personality_handler,
+    system_handler,
+    whatsapp_handler,
+    window_handler,
 )
+from models import CommandResult
+from modules.bilingual_parser import parser
+from modules.context import context_manager
+from modules.memory import ConversationEntry, memory_manager
+from modules.security import security
+from utils.logger_structured import log_command, logger
 
 DOMAIN_HANDLERS = [
     ("system", system_handler),

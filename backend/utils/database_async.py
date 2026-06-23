@@ -4,11 +4,11 @@ Drop-in replacement for the SQLite DatabaseManager using asyncpg.
 """
 
 import os
-import asyncpg
-from pathlib import Path
-from typing import Optional, AsyncGenerator, Any
 from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Any, AsyncGenerator, Optional
 
+import asyncpg
 from utils.logger_structured import logger
 
 DATABASE_URL = os.getenv(

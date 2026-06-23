@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, Any, Optional
-from modules.media import media_processor
+from fastapi import APIRouter
 from models import OCRResultResponse
+from modules.media import media_processor
 
 router = APIRouter(prefix="/media", tags=["Media (OCR)"])
 

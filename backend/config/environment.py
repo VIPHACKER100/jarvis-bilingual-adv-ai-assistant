@@ -1,7 +1,8 @@
 import os
-import sys
 import platform
+import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -46,4 +47,4 @@ MDNS_SERVICE_NAME = os.getenv("MDNS_SERVICE_NAME", "JARVIS-CORE")
 PAIRING_SECRET = os.getenv("PAIRING_SECRET", "JARVIS-SECRET-KEY")
 
 # Version
-VERSION = "4.0.0-alpha.1"
+VERSION = "4.0.0-alpha.2"

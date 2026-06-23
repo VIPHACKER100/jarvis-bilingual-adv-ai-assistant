@@ -4,8 +4,9 @@ Embedding Service — generates vector embeddings via available LLM providers.
 
 import asyncio
 from typing import List, Optional
-from utils.logger_structured import logger
+
 from utils.database import db_manager
+from utils.logger_structured import logger
 
 # Maximum concurrent embedding API calls to avoid rate-limit / 429 errors
 _MAX_CONCURRENT_EMBEDS = 5

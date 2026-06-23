@@ -1,15 +1,15 @@
 import asyncio
-import os
 import json
+import os
 import webbrowser
-import pyperclip
 from typing import Dict, Optional
+
 import aiofiles
-from config import DATA_DIR, BACKEND_PORT, FRONTEND_URL, CONFIG, PLATFORM
-from modules.bilingual_parser import parser
-from utils.platform_utils import get_whatsapp_desktop_path, is_windows, is_macos, is_linux, run_command
-from utils.logger_structured import logger, log_command
+import pyperclip
+from config import DATA_DIR
 from utils.automation_utils import safe_automation
+from utils.logger_structured import log_command, logger
+from utils.platform_utils import get_whatsapp_desktop_path, is_macos, is_windows, run_command
 
 
 class WhatsAppManager:
@@ -40,34 +40,34 @@ class WhatsAppManager:
         """Resolve contact alias (e.g. 'mom' -> actual name)"""
         if not contact:
             return contact
-        
+
         info = self._get_contact_info(contact)
         if info:
             return info.get('name', contact)
-            
+
         return contact
 
     def _get_contact_info(self, contact: str) -> Optional[Dict[str, str]]:
         """Get full contact info (name, phone) for an alias or name"""
         if not contact:
             return None
-            
+
         contact_lower = contact.lower()
-        
+
         # Check direct match in map
         if contact_lower in self.contacts_map:
             val = self.contacts_map[contact_lower]
             if isinstance(val, dict):
                 return val
             return {"name": val, "phone": ""}
-            
+
         # Check partial alias matches
         for alias, info in self.contacts_map.items():
             if alias in contact_lower:
                 if isinstance(info, dict):
                     return info
                 return {"name": info, "phone": ""}
-                
+
         # If no alias match, return as-is
         return {"name": contact, "phone": ""}
 
@@ -92,7 +92,7 @@ class WhatsAppManager:
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     pass
             return False
-        
+
         return await asyncio.to_thread(check)
 
     async def _focus_whatsapp_window(self) -> bool:
@@ -100,8 +100,8 @@ class WhatsAppManager:
         try:
             if is_windows():
                 def focus_win():
-                    import win32gui
                     import win32con
+                    import win32gui
                     found = False
 
                     def callback(hwnd, extra):
@@ -236,7 +236,7 @@ class WhatsAppManager:
         """Send message via WhatsApp Web"""
         try:
             import urllib.parse
-            
+
             info = self._get_contact_info(contact)
             contact_name = info.get('name', contact)
             phone = info.get('phone', '').replace(' ', '').replace('-', '')
@@ -295,7 +295,7 @@ class WhatsAppManager:
             confirmed: bool = False) -> Dict:
         """Send message via WhatsApp Desktop automation"""
         contact = self._resolve_contact(contact)
-        
+
         if not confirmed:
             return {
                 'success': False,
@@ -430,7 +430,7 @@ class WhatsAppManager:
                     "name": info,
                     "phone": ""
                 })
-        
+
         return {
             "success": True,
             "contacts": contacts,
@@ -441,13 +441,13 @@ class WhatsAppManager:
         """Check WhatsApp status and availability"""
         desktop_available = self._find_whatsapp_desktop() is not None
         is_running = await self._is_whatsapp_running()
-        
+
         status_text = "WhatsApp Desktop is available" if desktop_available else "WhatsApp Desktop is not installed (using Web fallback)"
         if is_running:
             status_text += " and currently running."
         else:
             status_text += " but not currently running."
-            
+
         return {
             "success": True,
             "desktop_installed": desktop_available,
@@ -460,48 +460,48 @@ class WhatsAppManager:
         try:
             from modules.context import context_manager
             from modules.llm_wrapper import llm_module
-            
+
             visual_context = await context_manager.get_visual_context()
-            
+
             if not visual_context or "[Visual Context:" not in visual_context:
                 return {
                     "success": False,
                     "response": "I cannot see any active chat, sir. Please ensure WhatsApp is open and focused.",
                     "error": "No visual context available"
                 }
-            
+
             prompt = (
                 "Based on the following screen text from a WhatsApp conversation, "
                 "draft a concise, natural, and helpful reply. "
                 f"The reply should be in {language}. "
                 "Output ONLY the reply text, no quotes or explanations."
             )
-            
+
             draft = await llm_module.get_response(
                 text=visual_context,
                 language=language,
                 context=prompt
             )
-            
+
             if draft:
                 await asyncio.to_thread(pyperclip.copy, draft)
-                
+
                 response = f"I've drafted a reply based on the conversation: '{draft[:50]}...'. It's been copied to your clipboard, sir."
                 if language == 'hi':
                     response = f"मैंने बातचीत के आधार पर एक उत्तर तैयार किया है: '{draft[:50]}...'। इसे आपके क्लिपबोर्ड पर कॉपी कर दिया गया है।"
-                
+
                 return {
                     "success": True,
                     "draft": draft,
                     "response": response
                 }
-            
+
             return {
                 "success": False,
                 "response": "I was unable to draft a reply at this time.",
                 "error": "LLM failed to generate draft"
             }
-            
+
         except Exception as e:
             logger.error(f"Error drafting smart reply: {e}")
             return {

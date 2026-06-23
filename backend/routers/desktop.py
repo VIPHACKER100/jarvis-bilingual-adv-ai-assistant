@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional
-from modules.desktop import desktop_manager
+from fastapi import APIRouter, Body
 from models import BaseResponse, ClipboardResponse, ScreenshotResponse
+from modules.desktop import desktop_manager
 
 router = APIRouter(prefix="/desktop", tags=["Desktop Utilities"])
 

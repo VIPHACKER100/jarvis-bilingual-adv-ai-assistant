@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, Any, Optional, List
+from typing import Optional
+
+from fastapi import APIRouter
+from models import BaseResponse, FileInfoResponse, FileListResponse
 from modules.file_manager import file_manager
-from models import BaseResponse, FileListResponse, FileInfoResponse
 
 router = APIRouter(prefix="/files", tags=["Files"])
 

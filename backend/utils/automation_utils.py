@@ -1,13 +1,13 @@
 import asyncio
-import subprocess
-import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import pyautogui
 from utils.logger_structured import logger
 
+
 class SafeAutomation:
     """Wrapper for GUI and system automation to ensure safety and reliability"""
-    
+
     def __init__(self, default_timeout: float = 10.0):
         self.default_timeout = default_timeout
         # Configure pyautogui safety

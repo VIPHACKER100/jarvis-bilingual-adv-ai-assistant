@@ -4,33 +4,33 @@ Backend-Frontend Sync Test Script
 Tests WebSocket connection and command processing
 """
 
-import asyncio
-import json
-from datetime import datetime
-from fastapi.testclient import TestClient
-
 # Import the app
 import sys
+from datetime import datetime
 from pathlib import Path
+
+from fastapi.testclient import TestClient
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 from main import app
+
 
 def test_rest_endpoints():
     """Test REST API endpoints"""
     print("=" * 60)
     print("Testing REST API Endpoints")
     print("=" * 60)
-    
+
     client = TestClient(app)
-    
+
     tests = [
         ("GET", "/api/system/status", None, "System Status"),
         ("GET", "/api/windows/list", None, "Window List"),
         ("GET", "/api/apps/list", None, "App List"),
         ("GET", "/api/input/cursor", None, "Cursor Position"),
     ]
-    
+
     results = []
     for method, endpoint, data, name in tests:
         try:
@@ -38,7 +38,7 @@ def test_rest_endpoints():
                 response = client.get(endpoint)
             else:
                 response = client.post(endpoint, json=data)
-            
+
             success = response.status_code == 200
             results.append((name, success))
             status = "✓" if success else "✗"
@@ -46,13 +46,13 @@ def test_rest_endpoints():
         except Exception as e:
             results.append((name, False))
             print(f"✗ {name:30s} - Error: {e}")
-    
+
     print("\n" + "=" * 60)
     passed = sum(1 for _, success in results if success)
     total = len(results)
     print(f"Results: {passed}/{total} endpoints passed")
     print("=" * 60)
-    
+
     return passed == total
 
 def test_websocket():
@@ -60,32 +60,32 @@ def test_websocket():
     print("\n" + "=" * 60)
     print("Testing WebSocket Endpoint")
     print("=" * 60)
-    
+
     client = TestClient(app)
-    
+
     try:
         with client.websocket_connect("/ws") as websocket:
             print("✓ WebSocket connection established")
-            
+
             # Test ping/pong
             websocket.send_json({
                 "type": "ping",
                 "timestamp": datetime.now().timestamp()
             })
-            
+
             response = websocket.receive_json()
             if response.get("type") == "pong":
                 print("✓ Ping/Pong working")
             else:
                 print("✗ Ping/Pong failed")
                 return False
-            
+
             # Test get_status
             websocket.send_json({
                 "type": "get_status",
                 "timestamp": datetime.now().timestamp()
             })
-            
+
             response = websocket.receive_json()
             if response.get("type") == "system_status":
                 print("✓ System status request working")
@@ -96,7 +96,7 @@ def test_websocket():
             else:
                 print("✗ System status request failed")
                 return False
-            
+
             # Test command
             websocket.send_json({
                 "type": "command",
@@ -104,7 +104,7 @@ def test_websocket():
                 "language": "en",
                 "timestamp": datetime.now().timestamp()
             })
-            
+
             response = websocket.receive_json()
             if response.get("type") == "command_response":
                 print("✓ Command processing working")
@@ -113,12 +113,12 @@ def test_websocket():
             else:
                 print("✗ Command processing failed")
                 return False
-            
+
             print("\n" + "=" * 60)
             print("WebSocket Test: PASSED")
             print("=" * 60)
             return True
-            
+
     except Exception as e:
         print(f"✗ WebSocket test failed: {e}")
         print("\n" + "=" * 60)
@@ -131,16 +131,16 @@ def test_command_routing():
     print("\n" + "=" * 60)
     print("Testing Command Routing")
     print("=" * 60)
-    
+
     client = TestClient(app)
-    
+
     commands = [
         ("time", "en", "System Time"),
         ("date", "en", "System Date"),
         ("battery", "en", "Battery Status"),
         ("system status", "en", "System Status"),
     ]
-    
+
     results = []
     for command, language, name in commands:
         try:
@@ -148,11 +148,11 @@ def test_command_routing():
                 "command": command,
                 "language": language
             })
-            
+
             success = response.status_code == 200
             data = response.json()
             results.append((name, success))
-            
+
             status = "✓" if success else "✗"
             print(f"{status} {name:30s} - Success: {data.get('success', False)}")
             if success and data.get('response'):
@@ -160,13 +160,13 @@ def test_command_routing():
         except Exception as e:
             results.append((name, False))
             print(f"✗ {name:30s} - Error: {e}")
-    
+
     print("\n" + "=" * 60)
     passed = sum(1 for _, success in results if success)
     total = len(results)
     print(f"Results: {passed}/{total} commands passed")
     print("=" * 60)
-    
+
     return passed == total
 
 def main():
@@ -175,21 +175,21 @@ def main():
     print("JARVIS Backend-Frontend Sync Test")
     print("=" * 60)
     print()
-    
+
     results = {
         "REST Endpoints": test_rest_endpoints(),
         "WebSocket": test_websocket(),
         "Command Routing": test_command_routing(),
     }
-    
+
     print("\n" + "=" * 60)
     print("FINAL RESULTS")
     print("=" * 60)
-    
+
     for test_name, passed in results.items():
         status = "✓ PASSED" if passed else "✗ FAILED"
         print(f"{status:10s} - {test_name}")
-    
+
     print("\n" + "=" * 60)
     all_passed = all(results.values())
     if all_passed:
@@ -197,7 +197,7 @@ def main():
     else:
         print("⚠ SOME TESTS FAILED - Check errors above")
     print("=" * 60)
-    
+
     return 0 if all_passed else 1
 
 if __name__ == "__main__":

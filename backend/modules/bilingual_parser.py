@@ -1,8 +1,10 @@
-from config import HINDI_COMMANDS, RESPONSES  # type: ignore
-from typing import Dict, Tuple, Optional
-import sys
 import re
+import sys
 from pathlib import Path
+from typing import Dict, Optional, Tuple
+
+from config import HINDI_COMMANDS, RESPONSES  # type: ignore
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
@@ -114,10 +116,10 @@ class BilingualParser:
         lang = self.detect_language(text_lower)
 
         from rapidfuzz import fuzz
-        
+
         # Try to match against Hindi command phrases (sorted by length to match longest first)
         sorted_phrases = sorted(self.command_map.items(), key=lambda x: len(x[0]), reverse=True)
-        
+
         best_match = None
         best_score = 0
         best_phrase = ""
@@ -145,11 +147,11 @@ class BilingualParser:
                     best_score = score
                     best_match = cmd_key
                     best_phrase = phrase
-        
+
         if best_match:
             command_key = best_match
             phrase = best_phrase
-            
+
             # Special handling for "search" to avoid matching "search file" incorrectly
             if phrase == 'search' and 'search file' in text_lower:
                 pass # Don't return here, let English fallback handle it if no other match
@@ -165,13 +167,13 @@ class BilingualParser:
                     # For fuzzy, we can't easily split. Assume the whole text (minus some noise) is the param or there are no params
                     params_after = text_lower
                     params_before = ""
-                
+
                 # Clean up Hindi trailing noise words
                 noise_hindi_words = {
-                    'karo', 'khol', 'chalao', 'kholiye', 'dikhaiye', 'bataiye', 
+                    'karo', 'khol', 'chalao', 'kholiye', 'dikhaiye', 'bataiye',
                     'kijiye', 'kar', 'kardo', 'dijiye', 'nikalo', 'banao', 'dikhao',
                     'dekhoo', 'dekhao', 'mein', 'me', 'se', 'ka', 'ki',
-                    'करो', 'खोलें', 'चालू करो', 'चलाओ', 'कीजिए', 
+                    'करो', 'खोलें', 'चालू करो', 'चलाओ', 'कीजिए',
                     'बताओ', 'दिखाओ', 'में', 'को', 'पर', 'कर', 'दो', 'करदो', 'निकालो', 'बनाओ'
                 }
                 clean_after = params_after
@@ -185,7 +187,7 @@ class BilingualParser:
                             clean_after = clean_after[len(word)+1:].strip()
                         elif clean_after == word:
                             clean_after = ""
-                
+
                 # Parameter extraction logic
                 if lang == 'hi':
                     if params_before and clean_after:
@@ -196,23 +198,23 @@ class BilingualParser:
                         params = clean_after if clean_after else params_after
                 else:
                     params = params_after
-                
+
                 # Cleanup parameters
                 prev_params = None
                 clean_params = params
                 while clean_params != prev_params:
                     prev_params = clean_params
                     clean_params = re.sub(r'^(?:and|for|ki|ka|ko|se|mein|me|search|search\s+for|google|google\s+search|open|start|with)\s+', '', clean_params, flags=re.IGNORECASE).strip()
-                
+
                 # If parameters were cleaned but now look like a search, change command_key
                 if clean_params and command_key in ['open_browser', 'open_app'] and ('search' in text_lower or 'new tab' in text_lower):
                     return 'google_search', lang, clean_params
-                    
-                # If fuzzy match, clean_params might just be the whole string. 
+
+                # If fuzzy match, clean_params might just be the whole string.
                 # That's fine for search, but for things like 'shutdown' we don't want params.
                 if best_score < 100 and command_key in ['shutdown', 'restart', 'sleep', 'mute', 'volume_up', 'volume_down']:
                     clean_params = None
-                    
+
                 return command_key, lang, clean_params if clean_params else None
 
         # Try English patterns
@@ -228,7 +230,7 @@ class BilingualParser:
                 while query != prev_query:
                     prev_query = query
                     query = re.sub(r'^(?:and|for|ki|ko|search|search\s+for|google|google\s+search|open|start|with)\s+', '', query, flags=re.IGNORECASE).strip()
-                
+
                 if query:
                     return 'google_search', lang, query
             return 'open_browser', lang, None

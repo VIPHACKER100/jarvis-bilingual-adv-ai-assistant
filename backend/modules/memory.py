@@ -1,15 +1,14 @@
-import aiofiles
 import asyncio
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
+from typing import Any, Dict, List, Optional
 
-from config import DATA_DIR, PROJECT_ROOT
-from utils.logger_structured import logger
+import aiofiles
+from config import PROJECT_ROOT
 from utils.database import db_manager
+from utils.logger_structured import logger
 
 
 @dataclass
@@ -51,11 +50,11 @@ class NeuralMemoryManager:
         """Read content of a specific memory node"""
         if not name.endswith(".md"):
             name += ".md"
-        
+
         file_path = self.memory_dir / name
         if not file_path.exists():
             return None
-        
+
         try:
             async with aiofiles.open(file_path, mode='r', encoding='utf-8') as f:
                 return await f.read()
@@ -67,7 +66,7 @@ class NeuralMemoryManager:
         """Update content of a specific memory node"""
         if not name.endswith(".md"):
             name += ".md"
-        
+
         file_path = self.memory_dir / name
         try:
             async with aiofiles.open(file_path, mode='w', encoding='utf-8') as f:
@@ -95,14 +94,14 @@ class NeuralMemoryManager:
                 except Exception as e:
                     logger.error(f"Error listing node {file_path.name}: {e}")
             return nodes
-        
+
         return await asyncio.to_thread(_list_task)
-    
+
     async def log_decision(self, command: str, action: str, result: str, reason: str = ""):
         """Log a user decision (Approval/Rejection) to decisions.md"""
         node_name = "decisions.md"
         content = await self.get_node(node_name) or "# Decision Log\n\nTracked approvals and rejections of dangerous commands.\n\n"
-        
+
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         entry = f"### [{timestamp}] {command}\n"
         entry += f"- **Action**: {action}\n"
@@ -110,11 +109,11 @@ class NeuralMemoryManager:
         if reason:
             entry += f"- **Reason**: {reason}\n"
         entry += "\n"
-        
+
         # Append to the end
         new_content = content + entry
         await self.update_node(node_name, new_content)
-        
+
         # Also sync vectors so the agent 'learns' immediately
         asyncio.create_task(self.sync_vectors())
 
@@ -123,7 +122,7 @@ class NeuralMemoryManager:
         content = await self.get_node(name)
         if not content:
             return {"content": "", "metadata": {}}
-        
+
         metadata = {}
         if content.startswith("---"):
             try:
@@ -134,7 +133,7 @@ class NeuralMemoryManager:
                     content = parts[2].strip()
             except Exception as e:
                 logger.error(f"Error parsing metadata for {name}: {e}")
-        
+
         return {"content": content, "metadata": metadata}
 
     async def get_neural_context(self, query: Optional[str] = None) -> str:
@@ -143,7 +142,7 @@ class NeuralMemoryManager:
         Uses hybrid search (fuzzy + semantic) if a query is provided.
         """
         from rapidfuzz import fuzz
-        
+
         nodes = await self.list_nodes()
         if not nodes:
             return ""
@@ -154,34 +153,34 @@ class NeuralMemoryManager:
         for n in nodes:
             if n["name"] in core_node_names:
                 selected_nodes_with_scores.append((n, 200)) # Core nodes get max priority
-        
+
         # If we have a query, find additional relevant nodes
         if query:
             query_lower = query.lower()
-            
+
             # 1. Semantic Search (Vector)
             semantic_scores = await self._get_semantic_scores(query)
-            
+
             # 2. Fuzzy/Keyword Search
             other_nodes = [n for n in nodes if n["name"] not in core_node_names]
-            
+
             for node in other_nodes:
                 name_clean = node["name"].replace(".md", "").lower()
                 fuzzy_score = fuzz.partial_ratio(query_lower, name_clean)
-                
+
                 # Bonus for exact keyword matches
                 if any(word in query_lower for word in name_clean.split("_")):
                     fuzzy_score += 20
-                
+
                 # Combine with semantic score (if available)
                 semantic_score = semantic_scores.get(node["name"], 0) * 100
-                
+
                 # Hybrid score: 40% Fuzzy, 60% Semantic
                 total_score = (fuzzy_score * 0.4) + (semantic_score * 0.6)
-                
+
                 if total_score >= 50:
                     selected_nodes_with_scores.append((node, total_score))
-            
+
             # Sort by score and take top 5
             selected_nodes_with_scores.sort(key=lambda x: x[1], reverse=True)
             top_nodes = []
@@ -202,26 +201,26 @@ class NeuralMemoryManager:
             if node["name"] in seen_names:
                 continue
             seen_names.add(node["name"])
-            
+
             content = await self.get_node(node["name"])
             if content:
                 if content.startswith("---"):
                     parts = content.split("---", 2)
                     if len(parts) >= 3:
                         content = parts[2].strip()
-                
+
                 context_parts.append(f"### {node['name'].replace('.md', '').upper()} ###\n{content}")
-        
+
         return "\n\n".join(context_parts)
 
     async def _get_semantic_scores(self, query: str) -> Dict[str, float]:
         """Calculate semantic similarity scores via pgvector cosine distance"""
         from modules.llm_wrapper import llm_client
-        
+
         query_vector = await llm_client.get_embedding(query)
         if not query_vector:
             return {}
-        
+
         rows = await db_manager.fetchall(
             "SELECT filename, 1 - (embedding <=> ?::vector) AS similarity FROM neural_vectors WHERE embedding IS NOT NULL ORDER BY embedding <=> ?::vector LIMIT 20",
             (query_vector, query_vector)
@@ -232,33 +231,33 @@ class NeuralMemoryManager:
         """Synchronize Markdown nodes with vector embeddings in the database"""
         logger.info("Synchronizing semantic memory vectors...")
         from modules.llm_wrapper import llm_client
-        
+
         nodes = await self.list_nodes()
         synced_count = 0
-        
+
         for node in nodes:
             try:
                 content = await self.get_node(node["name"])
                 if not content: continue
-                
+
                 # Calculate hash to see if it changed
                 content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
-                
+
                 # Check DB for existing hash
                 row = await db_manager.fetchone(
-                    "SELECT content_hash FROM neural_vectors WHERE filename = ?", 
+                    "SELECT content_hash FROM neural_vectors WHERE filename = ?",
                     (node["name"],)
                 )
-                
+
                 if row and row[0] == content_hash:
                     continue # Already up to date
-                
+
                 # Generate new embedding
                 embedding = await llm_client.get_embedding(content)
                 if not embedding:
                     logger.warning(f"Could not generate embedding for {node['name']}")
                     continue
-                
+
                 if row:
                     await db_manager.execute(
                         "UPDATE neural_vectors SET content_hash = ?, embedding = ?::vector, updated_at = ? WHERE filename = ?",
@@ -269,12 +268,12 @@ class NeuralMemoryManager:
                         "INSERT INTO neural_vectors (filename, content_hash, embedding) VALUES (?, ?, ?::vector)",
                         (node["name"], content_hash, embedding)
                     )
-                
+
                 synced_count += 1
-                
+
             except Exception as e:
                 logger.error(f"Error syncing vector for {node['name']}: {e}")
-                
+
         if synced_count > 0:
             logger.info(f"Semantic memory sync complete. Updated {synced_count} vectors.")
         else:
@@ -559,7 +558,7 @@ class MemoryManager:
                 ORDER BY timestamp DESC
                 LIMIT ?
             ''', (limit,))
-            
+
             return [
                 {
                     "timestamp": row[0],
@@ -792,12 +791,12 @@ class MemoryManager:
                     ORDER BY timestamp DESC 
                     LIMIT ?
                 ''', (limit,))
-                
+
             keep_ids = [row[0] for row in rows]
-            
+
             if not keep_ids:
                 return 0
-                
+
             # Delete everything else
             placeholders = ','.join(['?'] * len(keep_ids))
             if session_id:
@@ -810,13 +809,13 @@ class MemoryManager:
                     DELETE FROM conversations 
                     WHERE id NOT IN ({placeholders})
                 ''', tuple(keep_ids))
-                
+
             deleted = cursor.rowcount
-            
+
             if deleted > 0:
                 logger.info(f"Pruned {deleted} conversation entries to maintain performance.")
             return deleted
-            
+
         except Exception as e:
             logger.error(f"Error pruning conversations: {e}")
             return 0
@@ -845,7 +844,7 @@ class MemoryManager:
         entry = await self.get_memory(f"setting_{key}")
         if not entry:
             return default
-        
+
         try:
             return json.loads(entry.value)
         except (json.JSONDecodeError, ValueError, TypeError):

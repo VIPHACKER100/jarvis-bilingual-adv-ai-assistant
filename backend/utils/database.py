@@ -5,11 +5,11 @@ Drop-in replacement for the SQLite DatabaseManager using asyncpg.
 
 import os
 import re
-import asyncpg
-from pathlib import Path
-from typing import Optional, AsyncGenerator, Any, List, Dict
 from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Any, AsyncGenerator, Optional
 
+import asyncpg
 from utils.logger_structured import logger
 
 DATABASE_URL = os.getenv(
@@ -56,7 +56,7 @@ class MockCursor:
         async def _ret():
             return self
         return _ret().__await__()
-        
+
     async def __aenter__(self):
         return self
 
@@ -78,10 +78,10 @@ class MockCursorWrapper:
     async def _execute(self):
         is_insert = self.sql.strip().upper().startswith("INSERT")
         pg_sql = _translate_sql(self.sql)
-        
+
         if is_insert and "RETURNING" not in pg_sql.upper():
             pg_sql = f"{pg_sql.rstrip(';')} RETURNING id"
-            
+
         async with self.pool.acquire() as conn:
             if is_insert:
                 try:

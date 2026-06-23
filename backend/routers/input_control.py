@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, Body
-from typing import Dict, Any, Optional, List
-from modules.input_control import input_controller
+from fastapi import APIRouter, Body
 from models import BaseResponse, CursorPositionResponse, ShortcutRequest
+from modules.input_control import input_controller
 
 router = APIRouter(prefix="/input", tags=["Input Control"])
 

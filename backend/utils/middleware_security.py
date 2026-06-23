@@ -3,19 +3,19 @@ Security Middleware — CSP headers, input sanitization, body limits, per-route 
 and API key authentication dependency.
 """
 
+import hmac
+import json
 import os
 import re
 import time
-import json
-import hmac
-from typing import Dict, Tuple, Callable, Awaitable, Optional
-from fastapi import Request, Response, HTTPException, Depends
-from fastapi.security import APIKeyHeader
-from fastapi.responses import JSONResponse
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import ASGIApp, Scope, Receive, Send, Message
-from utils.logger_structured import logger
+from typing import Dict, Optional, Tuple
 
+from fastapi import Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
+from fastapi.security import APIKeyHeader
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
+from utils.logger_structured import logger
 
 BLOCKED_PATTERNS = re.compile(
     r"(?:--\s*$|\b(?:DROP|DELETE|TRUNCATE|EXEC|EXECUTE|INSERT)\b)",

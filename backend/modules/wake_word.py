@@ -1,13 +1,11 @@
-import os
-import time
-import numpy as np
-import openwakeword
-from openwakeword.model import Model
-from typing import Callable, Optional
 import threading
+import time
+from typing import Callable, Optional
 
+import numpy as np
+from config import WAKE_WORD_MODEL, WAKE_WORD_THRESHOLD
+from openwakeword.model import Model
 from utils.logger_structured import logger
-from config import WAKE_WORD_THRESHOLD, WAKE_WORD_MODEL
 
 
 class WakeWordEngine:
@@ -23,13 +21,13 @@ class WakeWordEngine:
         self.is_running = False
         self._thread: Optional[threading.Thread] = None
         self.callback: Optional[Callable] = None
-        
+
         # Audio parameters
         self.CHUNK_SIZE = 1280
         self.FORMAT = None
         self.CHANNELS = 1
         self.RATE = 16000
-        
+
         self._audio = None
         self._stream = None
         self._pyaudio_available = False
@@ -60,7 +58,7 @@ class WakeWordEngine:
         """Start listening for the wake word"""
         if self.is_running or not self._pyaudio_available:
             return
-        
+
         self.callback = callback
         self.is_running = True
         self._thread = threading.Thread(target=self._run, daemon=True)
@@ -72,20 +70,20 @@ class WakeWordEngine:
         self.is_running = False
         if self._thread:
             self._thread.join(timeout=2.0)
-        
+
         if self._stream:
             try:
                 self._stream.stop_stream()
                 self._stream.close()
             except Exception:
                 pass
-        
+
         if self._audio:
             try:
                 self._audio.terminate()
             except Exception:
                 pass
-            
+
         logger.info("Wake-Word Detection stopped.")
 
     def _noise_gate(self, audio_frame: np.ndarray, threshold: float = 30.0) -> bool:
@@ -115,7 +113,7 @@ class WakeWordEngine:
                 input=True,
                 frames_per_buffer=self.CHUNK_SIZE
             )
-            
+
             logger.debug("Microphone stream opened.")
             consecutive_silence = 0
 
@@ -128,24 +126,24 @@ class WakeWordEngine:
 
                 if not data or len(data) < self.CHUNK_SIZE:
                     continue
-                
+
                 audio_frame = np.frombuffer(data, dtype=np.int16)
-                
+
                 # Noise gate
                 if not self._noise_gate(audio_frame):
                     consecutive_silence += 1
                     continue
                 consecutive_silence = 0
-                
+
                 prediction = self.model.predict(audio_frame)
-                
+
                 for model_name, score in prediction.items():
                     if score >= threshold:
                         logger.info(f"WAKE WORD DETECTED: {model_name} (Score: {score:.2f})")
                         if self.callback:
                             self.callback(model_name, score)
                             time.sleep(self._dynamic_cooldown(score))
-                            
+
         except Exception as e:
             logger.error(f"Error in Wake-Word loop: {e}")
             self.is_running = False

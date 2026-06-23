@@ -1,5 +1,6 @@
-from typing import Dict, Any, List
 from enum import Enum
+from typing import Any, Dict, List
+
 
 class PersonalityType(str, Enum):
     STARK = "stark"
@@ -9,7 +10,7 @@ class PersonalityType(str, Enum):
 
 class PersonalityManager:
     """Manages JARVIS personalities, themes, and conversational styles"""
-    
+
     PERSONALITIES = {
         PersonalityType.STARK: {
             "name": "Stark Legacy",

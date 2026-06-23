@@ -1,17 +1,18 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional, List
-from modules.memory import memory_manager, ConversationEntry, MemoryEntry
+from typing import Optional
+
+from fastapi import APIRouter, Body, HTTPException
 from models import (
     BaseResponse,
     ConversationEntryRequest,
     ConversationListResponse,
-    FactRequest,
     FactListResponse,
-    StatsResponse,
+    FactRequest,
     MemoryNodeListResponse,
     MemoryNodeResponse,
-    MemoryNodeUpdateRequest
+    MemoryNodeUpdateRequest,
+    StatsResponse,
 )
+from modules.memory import ConversationEntry, MemoryEntry, memory_manager
 
 router = APIRouter(prefix="/memory", tags=["Memory & Analytics"])
 
@@ -94,7 +95,7 @@ async def get_memory_node(name: str):
     content = await memory_manager.neural.get_node(name)
     if content is None:
         raise HTTPException(status_code=404, detail=f"Memory node {name} not found")
-    
+
     return {
         "success": True,
         "name": name,
@@ -108,7 +109,7 @@ async def update_memory_node(name: str, update: MemoryNodeUpdateRequest):
     success = await memory_manager.neural.update_node(name, update.content)
     if not success:
         raise HTTPException(status_code=500, detail=f"Failed to update memory node {name}")
-    
+
     return {
         "success": True,
         "response": f"Memory node {name} updated successfully"

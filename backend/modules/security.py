@@ -1,8 +1,9 @@
 import asyncio
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, Optional, Callable
-from config import DANGEROUS_COMMANDS, CONFIRMATION_TIMEOUT
+from typing import Callable, Dict, Optional
+
+from config import CONFIRMATION_TIMEOUT, DANGEROUS_COMMANDS
 from utils.logger_structured import log_command, log_system_event
 
 
@@ -67,7 +68,7 @@ class SecurityManager:
                     'confirmation_id': confirmation_id,
                     'command': confirmation['command_key']
                 })
-                
+
                 # Log to neural memory as undesirable (timed out)
                 await memory_manager.neural.log_decision(
                     command=confirmation['command_text'],
@@ -105,7 +106,7 @@ class SecurityManager:
             success=approved,
             details={'confirmed': approved, 'confirmation_id': confirmation_id}
         )
-        
+
         # Log to neural memory for long-term learning
         from modules.memory import memory_manager
         await memory_manager.neural.log_decision(

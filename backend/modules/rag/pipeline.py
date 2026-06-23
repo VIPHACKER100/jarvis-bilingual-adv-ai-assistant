@@ -3,12 +3,11 @@ RAG Pipeline — retrieves relevant context from memory and formats it for LLM c
 Orchestrates: embedding → hybrid search → re-ranking → context assembly.
 """
 
-from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
+from typing import List
 
-from utils.logger_structured import logger
 from modules.rag.embeddings import embedding_service
-from modules.rag.search import hybrid_search, SearchResult
+from modules.rag.search import SearchResult, hybrid_search
 
 
 @dataclass

@@ -1,7 +1,8 @@
+from typing import Dict
+
 from fastapi import WebSocket
-from typing import Dict, Any, List
 from utils.logger_structured import logger
-import json
+
 
 class ConnectionManager:
     def __init__(self):
@@ -33,7 +34,7 @@ class ConnectionManager:
             except Exception as e:
                 logger.error(f"Error broadcasting to {client_id}: {e}")
                 disconnected.append(client_id)
-                
+
         for client_id in disconnected:
             self.disconnect(client_id)
 

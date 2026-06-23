@@ -1,13 +1,19 @@
 import asyncio
 import heapq
+from typing import Any, Optional
+
 from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, Any, Optional, List
-from modules.system import system_module
 from models import (
-    BaseResponse, SystemStatusResponse, BatteryResponse, 
-    TimeResponse, DateResponse, VolumeResponse,
-    UptimeResponse, NetworkInfoResponse
+    BaseResponse,
+    BatteryResponse,
+    DateResponse,
+    NetworkInfoResponse,
+    SystemStatusResponse,
+    TimeResponse,
+    UptimeResponse,
+    VolumeResponse,
 )
+from modules.system import system_module
 
 router = APIRouter(prefix="/system", tags=["System"])
 

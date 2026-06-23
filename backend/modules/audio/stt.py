@@ -3,9 +3,9 @@ Speech-to-Text streaming service.
 Providers: OpenAI Whisper, local fallback
 """
 
-import io
 import os
-from typing import Optional, AsyncGenerator, List
+from typing import AsyncGenerator, Optional
+
 from utils.logger_structured import logger
 
 

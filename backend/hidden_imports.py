@@ -10,30 +10,30 @@ hidden_imports = [
     'websockets',
     'python-dotenv',
     'python-multipart',
-    
+
     # System utilities
     'psutil',
-    
+
     # Display & audio
     'screen-brightness-control',
     'pycaw',
-    
+
     # Automation
     'pyautogui',
     'pyperclip',
-    
+
     # Image & OCR
     'Pillow',
     'pytesseract',
-    
+
     # PDF tools
     'PyPDF2',
     'pdf2image',
-    
+
     # Fuzzy matching
     'fuzzywuzzy',
     'python-Levenshtein',
-    
+
     # Windows-specific
     'pywin32',
     'win32api',
@@ -41,15 +41,15 @@ hidden_imports = [
     'win32api',
     'win32con',
     'win32gui',
-    
+
     # PDF & PDF tools
     'reportlab',  # for reportlab usage (if any)
     'reportlab.pdfgen',
-    
+
     # Tesseract dependencies
     'PIL._tkinter_imageset',
     'PIL._tkinter_tools',
-    
+
     # Platform-specific
     'comtypes',
     'pycaw.pycaw',
@@ -58,23 +58,23 @@ hidden_imports = [
     'win32gui',
     'win32process',
     'win32evtCfg',
-    
+
     # System utilities
     'os',
     'subprocess',
     'shutil',
-    
+
     # Windows-Win32 API specific
     'win32api',
     'win32con',
     'win32event',
     'win32process',
     'win32clipboard',
-    
+
     # Library_PATH imports to make hiddenimports work
     'importlib',
     'importlib.util',
-    
+
     # JARVIS modules (to ensure they are not excluded)
     'modules.system',
     'modules.window_manager',
@@ -112,6 +112,7 @@ LOG_RETENTION_DAYS = int(os.getenv("LOG_RETENTION_DAYS", 30))
 
 # Platform detection
 import platform
+
 PLATFORM = platform.system().lower()  # 'windows', 'darwin', 'linux'
 
 # Dangerous commands (require confirmation)
@@ -128,31 +129,31 @@ HINDI_COMMANDS = {
     'shutdown': ['shutdown', 'band karo', 'band', 'pc band', 'computer band', 'system band'],
     'restart': ['restart', 'dobara shuru', 'fir se chalu', 'reboot'],
     'sleep': ['sleep', 'sone do', 'suspend'],
-    
+
     # Volume
     'volume_up': ['volume up', 'aawaz badhao', 'awaz badhao', 'tez karo', 'sound badhao', 'volume badao'],
     'volume_down': ['volume down', 'aawaz kam karo', 'awaz kam karo', 'dheere karo', 'sound kam', 'volume ghatao'],
     'mute': ['mute', 'silent', 'khamosh', 'band karo'],
-    
+
     # System
     'time': ['time', 'samay', 'samay kya hai', 'time kya hai', 'baje kya hue', 'kitne baje hai'],
     'date': ['date', 'tareekh', 'din', 'aaj ka din', 'date kya hai'],
     'battery': ['battery', 'charge', 'power', 'kitni charge hai'],
     'system_status': ['system status', 'pc status', 'computer status', 'system check'],
-    
+
     # Apps
     'open_app': ['open', 'kholo', 'start karo', 'chalu karo', 'run karo'],
     'close_app': ['close', 'band karo', 'exit', 'quit', 'band'],
-    
+
     # Window
     'minimize': ['minimize', 'chhota karo', 'niche karo'],
     'maximize': ['maximize', 'bada karo', 'pura screen'],
     'close_window': ['close window', 'window band', 'band karo'],
-    
+
     # WhatsApp
     'whatsapp_message': ['whatsapp', 'message bhejo', 'msg bhejo', 'send message', 'sandesh bhejo'],
     'whatsapp_call': ['call', 'phone karo', 'baat karo', 'whatsapp call'],
-    
+
     # Input
     'move_cursor': ['move cursor', 'cursor move', 'mouse move', 'pointer move'],
     'click': ['click', 'press', 'select', 'choose'],
@@ -163,13 +164,13 @@ HINDI_COMMANDS = {
     'type_text': ['type', 'likho', 'enter', 'input'],
     'press_key': ['press', 'daba', 'click key'],
     'hotkey': ['hotkey', 'shortcut', 'combination', 'saath dabao'],
-    
+
     # Desktop
     'show_desktop': ['show desktop', 'desktop dikhavo', 'sab band karo'],
     'snap_left': ['snap left', 'left side', 'bayan taraf'],
     'snap_right': ['snap right', 'right side', 'dayan taraf'],
 }
-    
+
 # Response templates (bilingual)
 RESPONSES = {
     'en': {

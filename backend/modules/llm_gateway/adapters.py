@@ -7,20 +7,18 @@ Each adapter wraps a specific LLM provider and exposes:
 - get_embedding() for embeddings (optional)
 """
 
+import json
 import os
 import time
-import json
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List, AsyncGenerator
 from dataclasses import dataclass
-from pathlib import Path
+from typing import AsyncGenerator, Dict, List, Optional
 
 import httpx
-from openai import AsyncOpenAI
-
-from utils.logger_structured import logger
-from modules.llm_gateway.cost import cost_tracker
 from modules.llm_gateway.circuit import CircuitBreaker
+from modules.llm_gateway.cost import cost_tracker
+from openai import AsyncOpenAI
+from utils.logger_structured import logger
 
 
 @dataclass

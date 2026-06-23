@@ -9,28 +9,29 @@ sys.path.insert(0, str(backend_dir))
 
 from modules.llm_wrapper import llm_module
 
+
 async def test_all_providers():
     print("--- JARVIS LLM API Multi-Provider Test ---")
-    
+
     providers = ["nvidia", "openrouter"]
     test_queries = [
         "Hello JARVIS, who are you?",
         "नमस्ते जार्विस, आप कैसे हैं?"
     ]
-    
+
     for provider in providers:
         print(f"\n{'='*20}")
         print(f"Testing Provider: {provider.upper()}")
         print(f"{'='*20}")
-        
+
         # Temporarily set provider
         llm_module.provider = provider
-        
+
         key = os.getenv("NVIDIA_API_KEY" if provider == "nvidia" else "OPENROUTER_API_KEY")
         if not key:
             print(f"SKIPPING: No API key found for {provider}")
             continue
-            
+
         for query in test_queries:
             print(f"\nUser: {query}")
             lang = 'hi' if any('\u0900' <= c <= '\u097f' for c in query) else 'en'

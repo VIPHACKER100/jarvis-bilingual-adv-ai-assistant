@@ -3,21 +3,20 @@ LLM Gateway — unified entry point for all LLM interactions.
 Auto-selects provider, handles failover, tracks costs.
 """
 
-import os
 import json
-import time
-from typing import Dict, Any, Optional, List, AsyncGenerator
-from pathlib import Path
+import os
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
-from utils.logger_structured import logger
 from config import LLM_PROVIDER
-
 from modules.llm_gateway.adapters import (
-    ProviderAdapter, ProviderConfig,
-    OpenAICompatibleAdapter, GoogleAdapter, OllamaAdapter,
+    GoogleAdapter,
+    OllamaAdapter,
+    OpenAICompatibleAdapter,
+    ProviderAdapter,
+    ProviderConfig,
 )
 from modules.llm_gateway.cost import cost_tracker
-
+from utils.logger_structured import logger
 
 SYSTEM_PROMPT_TEMPLATE = """You are JARVIS, a highly intelligent and helpful AI assistant.
 Respond in {language}.

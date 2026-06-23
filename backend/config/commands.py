@@ -12,11 +12,11 @@ HINDI_COMMANDS = {
     'shutdown': ['shutdown', 'band karo', 'band kijiye', 'band kardo', 'pc band', 'computer band', 'system band', 'शटडाउन', 'बंद करो', 'कंप्यूटर बंद करो', 'सिस्टम बंद करो', 'पीसी बंद करो'],
     'restart': ['restart', 'dobara shuru', 'fir se chalu', 'reboot', 'restart karo', 'restart kardo', 'रीस्टार्ट', 'दोबारा शुरू', 'दोबारा चालू', 'फिर से चालू', 'रिबूट'],
     'sleep': ['sleep', 'sone do', 'suspend', 'sleep mode', 'स्लीप', 'सोने दो'],
-    
+
     # Volume
     'volume_up': [
         'volume up', 'aawaz badhao', 'awaz badhao', 'tez karo', 'sound badhao', 'volume badao', 'volume zyada karo', 'aawaz tez karo',
-        'आवाज़ बढ़ाओ', 'आवाज बढ़ाओ', 'वॉल्यूम बढ़ाओ', 'तेज़ करो', 'तेज करो', 'साउंड बढ़ाओ', 
+        'आवाज़ बढ़ाओ', 'आवाज बढ़ाओ', 'वॉल्यूम बढ़ाओ', 'तेज़ करो', 'तेज करो', 'साउंड बढ़ाओ',
         # English synonyms
         'increase volume', 'increase sound', 'increase audio',
         'raise volume', 'raise sound', 'raise audio',
@@ -36,27 +36,27 @@ HINDI_COMMANDS = {
         # English synonyms
         'silence', 'no sound', 'toggle mute', 'mute audio', 'mute sound', 'mute volume',
     ],
-    
+
     # System
     'time': ['time', 'samay', 'samay kya hai', 'time kya hai', 'baje kya hue', 'kitne baje hai', 'kya time', 'समय', 'समय क्या है', 'क्या समय हुआ है', 'कितने बजे हैं', 'कितने बजे है'],
     'date': ['date', 'tareekh', 'din', 'aaj ka din', 'date kya hai', 'kya date', 'तारीख', 'क्या तारीख है', 'आज कौन सा दिन है', 'दिन क्या है'],
     'battery': ['battery', 'charge', 'power', 'kitni charge hai', 'battery kitni', 'charge kitna', 'बैटरी', 'कितनी चार्ज है', 'बैटरी प्रतिशत', 'बैटरी कितनी है'],
     'system_status': ['system status', 'pc status', 'computer status', 'system check', 'kaisa chal raha hai', 'सिस्टम स्टेटस', 'कंप्यूटर स्टेटस', 'सिस्टम चेक', 'पीसी स्टेटस'],
-    
+
     # Apps
     'open_app': ['open', 'kholo', 'start karo', 'chalu karo', 'khol do', 'run karo', 'start kardo', 'chalao', 'kholiye', 'खोलें', 'खोलो', 'चालू करो', 'स्टार्ट करो', 'चलाओ'],
     'close_app': ['close', 'band karo', 'exit', 'quit', 'band kardo', 'hatao', 'हटाओ', 'बंद करो', 'एग्जिट', 'क्विट', 'निकलो'],
-    
+
     # Window
     'minimize': ['minimize', 'chhota karo', 'niche karo', 'minimize kardo', 'मिनिमाइज', 'छोटा करो', 'नीचे करो'],
     'maximize': ['maximize', 'bada karo', 'pura screen', 'maximize kardo', 'मैक्सिमाइज', 'बड़ा करो', 'पूरी स्क्रीन'],
     'close_window': ['close window', 'window band', 'band karo', 'window hatao', 'विंडो बंद करो', 'खिड़की बंद करो'],
-    
+
     # WhatsApp
     'whatsapp_message': ['whatsapp', 'message bhejo', 'msg bhejo', 'whatsapp karo', 'whatsapp bhjeo', 'send message', 'sandesh bhejo', 'व्हाट्सएप', 'मैसेज भेजो', 'संदेश भेजो', 'व्हाट्सएप मैसेज'],
     'whatsapp_call': ['call', 'phone karo', 'baat karo', 'call lagao', 'whatsapp call', 'कॉल करो', 'फ़ोन करो', 'फोन करो', 'बात करो', 'व्हाट्सएप कॉल'],
     'whatsapp_draft_reply': ['draft a reply', 'reply draft', 'draft reply', 'draft answer', 'smart reply', 'uttar likho', 'reply likho', 'jawab likho', 'reply dhoondo', 'उत्तर लिखो', 'जवाब लिखो', 'रिप्लाई ड्राफ्ट', 'स्मार्ट रिप्लाई'],
-    
+
     # Input
     'move_cursor': ['move cursor', 'cursor move', 'mouse move', 'pointer move', 'कर्सर मूव', 'माउस मूव', 'कर्सर घुमाओ'],
     'click': ['click', 'select', 'choose', 'click karo', 'क्लिक', 'चुनो'],
@@ -67,12 +67,12 @@ HINDI_COMMANDS = {
     'type_text': ['type', 'likho', 'enter', 'input', 'type karo', 'लिखो', 'टाइप करो', 'टाइप'],
     'press_key': ['press', 'daba', 'click key', 'press karo', 'दबाओ'],
     'hotkey': ['hotkey', 'shortcut', 'combination', 'saath dabao', 'शॉर्टकट', 'हॉटकी', 'साथ दबाओ'],
-    
+
     # Desktop
     'show_desktop': ['show desktop', 'desktop dikhavo', 'sab band karo', 'desktop show', 'डेस्कटॉप दिखाओ', 'सब बंद करो', 'सब कुछ बंद करो'],
     'snap_left': ['snap left', 'left side', 'bayan taraf', 'left karo', 'स्नैप लेफ्ट', 'बाईं तरफ', 'बायें तरफ', 'बाएं तरफ'],
     'snap_right': ['snap right', 'right side', 'dayan taraf', 'right karo', 'स्नैप राइट', 'दायीं तरफ', 'दायें तरफ', 'दाएं तरफ'],
-    
+
     # Phase 3: File Manager
     'open_folder': ['open folder', 'folder kholo', 'directory kholo', 'explore', 'folder open karo', 'folder chalao', 'फोल्डर खोलो', 'फ़ोल्डर खोलो', 'डायरेक्टरी खोलो', 'फोल्डर ओपन करो'],
     'open_downloads': ['open downloads', 'open download', 'downloads kholo', 'download folder', 'downloads', 'download', 'download dikhao', 'डाउनलोड ओपन करो', 'डाउनलोड्स खोलो', 'डाउनलोड'] ,
@@ -88,7 +88,7 @@ HINDI_COMMANDS = {
     'copy_file': ['copy file', 'file copy karo', 'duplicate', 'copy kardo', 'कॉपी फ़ाइल', 'फ़ाइल कॉपी करो', 'फाइल कॉपी करो'],
     'move_file': ['move file', 'file move karo', 'shift karo', 'move kardo', 'move करो', 'फाइल स्थानांतरित करो', 'फाइल मूव करो'],
     'rename_file': ['rename file', 'file ka naam badlo', 'naam badlo', 'rename karo', 'नाम बदलो', 'फाइल का नाम बदलो', 'rename करो'],
-    
+
     # Phase 3: Media Processing
     'ocr_image': ['extract text from image', 'image se text nikalo', 'ocr image', 'text nikalo', 'photo padho', 'padh ke batao', 'इमेज से टेक्स्ट निकालो', 'फोटो से टेक्स्ट निकालो', 'टेक्स्ट निकालो'],
     'ocr_pdf': ['extract text from pdf', 'pdf se text nikalo', 'read pdf', 'pdf padho', 'pdf me kya hai', 'पीडीएफ से टेक्स्ट निकालो', 'पीडीएफ पढ़ो'],
@@ -99,7 +99,7 @@ HINDI_COMMANDS = {
     'merge_pdfs': ['merge pdfs', 'pdfs jodo', 'combine pdfs', 'pdf merge karo', 'ek karo pdf', 'पीडीएफ मिलाओ', 'पीडीएफ जोड़ो'],
     'pdf_to_images': ['pdf to images', 'pdf ko image \nbanao', 'pdf image me badlo', 'pdf ko images mein convert karo', 'पीडीएफ को इमेज में बदलो'],
     'images_to_pdf': ['images to pdf', 'images ko pdf \nmein convert karo', 'photo se pdf banao', 'इमेज को पीडीएफ में बदलो'],
-    
+
     # Phase 3: Desktop
     'take_screenshot': [
         'take screenshot', 'screenshot lo', 'screen capture karo', 'photo lo', 'screenshot nikal', 'screenshot khicho',
@@ -120,20 +120,20 @@ HINDI_COMMANDS = {
     ],
     'media_next': ['next track', 'agla gaana', 'next song', 'next music', 'skip song', 'skip track', 'agla chalao', 'अगला गाना', 'नेक्स्ट ट्रैक', 'अगला', 'आगे वाला गाना', 'आगे बढ़ाओ'],
     'media_previous': ['previous track', 'pichla gaana', 'previous song', 'prev track', 'previous music', 'pichla chalao', 'पिछला गाना', 'पीछे का गाना', 'पिछला', 'पीछे वाला गाना', 'पीछे करो'],
-    
+
     # Advanced Desktop
     'change_wallpaper': ['change wallpaper', 'wallpaper badlo', 'background badlo', 'desktop picture', 'wallpaper change karo', 'वॉलपेपर बदलो', 'बैकग्राउंड बदलो', 'वॉलपेपर चेंज करो'],
     'empty_recycle_bin': ['empty recycle bin', 'recycle bin khali karo', 'trash saaf karo', 'kachra saaf karo', 'delete sab kuch', 'रीसायकल बिन खाली करो', 'रिसाइकिल बिन खाली करो', 'कूड़ा साफ करो', 'कचरा साफ करो'],
     'toggle_taskbar': ['toggle taskbar', 'taskbar chhupao', 'taskbar dikhao', 'taskbar hide', 'taskbar show', 'टास्कबार छुपाओ', 'टास्कबार दिखाओ', 'टास्कबार हाइड करो'],
     'zoom_in': ['zoom in', 'screen zoom karo', 'bada dikhao', 'zoom badhao', 'zoom karo', 'ज़ूम इन', 'ज़ूम करो', 'स्क्रीन बड़ी करो', 'बड़ा दिखाओ'],
     'zoom_out': ['zoom out', 'screen zoom kam karo', 'chhota dikhao', 'zoom ghatao', 'zoom kam karo', 'ज़ूम आउट', 'ज़ूम कम करो', 'छोटा दिखाओ'],
-    
+
     # Advanced Media
     'batch_pdf': ['batch images to pdf', 'sare photo pdf banao', 'folder pdf banao', 'batch pdf', 'sabka pdf banao', 'सारी फोटो पीडीएफ बनाओ', 'फोल्डर पीडीएफ बनाओ', 'सभी इमेज की पीडीएफ बनाओ'],
     'scan_folder': ['scan folder', 'folder scan karo', 'file dhoondo folder mein', 'folder dekho', 'फोल्डर स्कैन करो', 'फोल्डर में ढूंढो'],
     'make_drawing': ['make drawing', 'drawing banao', 'paint kholo', 'sketch banao', 'paint chalao', 'ड्राइंग बनाओ', 'पेंट खोलो', 'स्केच बनाओ'],
     'get_selected_text': ['get selected text', 'select kiya hua text', 'selected text padho', 'text copy karo selection se', 'kya select kiya', 'सेलेक्ट किया हुआ टेक्स्ट', 'चुना हुआ टेक्स्ट पढ़ो', 'सेलेक्टेड टेक्स्ट'],
-    
+
     # Search & Browser
     'google_search': ['search', 'google search', 'dhoondo', 'dhundo', 'pata karo', 'khojo', 'search karo', 'baar mein batao', 'सर्च', 'गूगल सर्च', 'ढूंढो', 'पता करो', 'खोजो', 'सर्च करो'],
     'open_browser': ['open browser', 'browser kholo', 'open new', 'internet kholo', 'chrome kholo', 'edge kholo', 'ब्राउज़र खोलो', 'ब्राउज़र खोलो', 'इंटरनेट खोलो'],

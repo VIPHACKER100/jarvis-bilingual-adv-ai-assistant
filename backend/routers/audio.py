@@ -3,16 +3,16 @@ Audio Streaming Router — WebSocket endpoint for bidirectional TTS/STT streamin
 Supports streaming TTS (incremental audio chunks) and full-audio STT.
 """
 
-import os
-import json
 import base64
 import hmac
-import asyncio
+import json
+import os
 from typing import Optional
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from utils.logger_structured import logger
-from modules.audio.tts import tts_service
 from modules.audio.stt import stt_service
+from modules.audio.tts import tts_service
+from utils.logger_structured import logger
 
 router = APIRouter(prefix="/audio", tags=["Audio"])
 

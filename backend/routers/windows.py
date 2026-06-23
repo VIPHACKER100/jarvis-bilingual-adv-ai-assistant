@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Body
-from typing import Dict, Any, Optional, List
+from typing import Optional
+
+from fastapi import APIRouter
+from models import AppListResponse, BaseResponse, WindowListResponse
 from modules.window_manager import window_manager
-from models import BaseResponse, WindowListResponse, AppListResponse
 
 router = APIRouter(prefix="", tags=["Windows & Applications"])
 

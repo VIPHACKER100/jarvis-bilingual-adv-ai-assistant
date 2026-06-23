@@ -6,12 +6,10 @@ Maintains backward compatibility for all existing imports.
 
 import asyncio
 import os
-import json
-from typing import Dict, Any, Optional, List, AsyncGenerator
 from pathlib import Path
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
-from modules.llm_gateway import llm_gateway, cost_tracker
-from modules.llm_gateway.gateway import SYSTEM_PROMPT_TEMPLATE
+from modules.llm_gateway import llm_gateway
 from utils.logger_structured import logger
 
 AGENT_SYSTEM_PROMPT = """You are JARVIS, an autonomous AI agent. 
@@ -68,6 +66,7 @@ class LLMModule:
     async def get_visual_response(self, image_path: str, prompt: str = "Analyze this image and describe what you see.",
                                    language: str = 'en') -> Optional[str]:
         import base64
+
         import httpx
         path = Path(image_path).expanduser().resolve()
         if not path.exists():

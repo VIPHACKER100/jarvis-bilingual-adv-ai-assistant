@@ -3,7 +3,6 @@ Circuit Breaker — prevents cascading failures across providers.
 """
 
 import time
-from typing import Optional
 
 
 class CircuitBreaker:

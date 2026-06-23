@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Body, Request
-from typing import Dict, Any, Optional, List
+from fastapi import APIRouter, HTTPException, Request
+from models import BaseResponse, CommandRequest, CommandResult, ConfirmationRequest
 from modules.security import security
-from models import CommandRequest, CommandResult, ConfirmationRequest, BaseResponse
 
 router = APIRouter(prefix="", tags=["Commands"])
 
@@ -9,14 +8,14 @@ router = APIRouter(prefix="", tags=["Commands"])
 async def execute_command(request: Request, data: CommandRequest):
     """Execute a single command via REST"""
     from handlers.command_handler import handle_command
-    
+
     command = data.command
     language = data.language or "en"
     session_id = data.session_id
-    
+
     if not command:
         raise HTTPException(status_code=400, detail="Command not provided")
-        
+
     # Execute via handler (same logic as WebSocket)
     result = await handle_command(None, command, language, session_id=session_id)
     return result
@@ -25,11 +24,11 @@ async def execute_command(request: Request, data: CommandRequest):
 async def confirm_command(confirmation_id: str, data: ConfirmationRequest):
     """Confirm or deny a pending dangerous command"""
     from modules.security import security
-    
+
     approved = data.approved
     result = await security.confirm_command(confirmation_id, approved)
     return {
-        "success": result, 
+        "success": result,
         "response": "Action confirmed" if approved else "Action cancelled"
     }
 

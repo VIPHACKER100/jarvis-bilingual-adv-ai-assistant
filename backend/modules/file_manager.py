@@ -1,15 +1,15 @@
-import os
 import asyncio
+import os
 import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
-from fuzzywuzzy import fuzz, process
+from typing import Dict, Optional
 
+from fuzzywuzzy import fuzz, process
 from modules.bilingual_parser import parser
-from utils.platform_utils import is_windows, is_macos, is_linux, run_command
-from utils.logger_structured import logger, log_command
+from utils.logger_structured import log_command, logger
+from utils.platform_utils import is_macos, is_windows
 
 
 class FileManager:
@@ -82,7 +82,7 @@ class FileManager:
                     subprocess.run(['open', str(folder_path)])
                 else:
                     subprocess.run(['xdg-open', str(folder_path)])
-            
+
             await asyncio.to_thread(do_open)
 
             log_command(f'open folder {folder_name}', 'open_folder', True)
@@ -128,7 +128,7 @@ class FileManager:
             def get_items_info():
                 files = []
                 folders = []
-                
+
                 def get_size_human(size: int) -> str:
                     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
                         if size < 1024:
@@ -156,11 +156,11 @@ class FileManager:
 
                     except (PermissionError, OSError):
                         continue
-                
+
                 return folders, files
 
             folders, files = await asyncio.to_thread(get_items_info)
-            
+
             # Sort: folders first, then files
             all_items = folders + files
 
@@ -335,7 +335,7 @@ class FileManager:
                     # Linux - move to ~/.local/share/Trash/files
                     trash_path = Path.home() / '.local/share/Trash/files' / path.name
                     shutil.move(str(path), str(trash_path))
-            
+
             await asyncio.to_thread(move_to_trash)
 
             log_command(f'delete file {file_path}', 'delete_file', True)
@@ -382,7 +382,7 @@ class FileManager:
                         dirs_exist_ok=True)
                 else:
                     shutil.copy2(src_path, dst_path)
-            
+
             await asyncio.to_thread(do_copy)
 
             log_command(f'copy {source} to {destination}', 'copy_file', True)
@@ -565,7 +565,7 @@ class FileManager:
                     return f.read(max_chars)
 
             content = await asyncio.to_thread(do_read)
-            
+
             return {
                 'success': True,
                 'action_type': 'READ_FILE',

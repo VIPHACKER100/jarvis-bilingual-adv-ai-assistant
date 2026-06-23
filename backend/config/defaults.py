@@ -1,9 +1,7 @@
-import os
 import json
-from .environment import (
-    DATA_DIR, BACKEND_PORT, WAKE_WORD_ENABLED, WAKE_WORD_PHRASE,
-    LOG_LEVEL
-)
+import os
+
+from .environment import BACKEND_PORT, DATA_DIR, LOG_LEVEL, WAKE_WORD_ENABLED, WAKE_WORD_PHRASE
 
 # LLM Config
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "nvidia").lower()

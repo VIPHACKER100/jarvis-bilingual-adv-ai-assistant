@@ -1,21 +1,18 @@
-import os
-import io
-import base64
 import asyncio
+import os
 import shutil
 import subprocess
-import pyperclip
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Any, cast
-from PIL import Image, ImageFilter, ImageEnhance
-import pytesseract
-from PyPDF2 import PdfMerger, PdfReader, PdfWriter
-from pdf2image import convert_from_path
-import pyautogui
+from typing import Any, Dict, List, Optional
 
-from modules.bilingual_parser import parser
-from utils.platform_utils import is_windows, is_macos, is_linux
-from utils.logger_structured import logger, log_command
+import pyautogui
+import pyperclip
+import pytesseract
+from pdf2image import convert_from_path
+from PIL import Image
+from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+from utils.logger_structured import log_command, logger
+from utils.platform_utils import is_macos, is_windows
 
 
 class MediaProcessor:
@@ -176,7 +173,7 @@ class MediaProcessor:
                     str(path),
                     first_page=page_number,
                     last_page=page_number)
-            
+
             images = await asyncio.to_thread(convert_pdf)
 
             if not images:
@@ -251,7 +248,7 @@ class MediaProcessor:
     def categorize_ocr_text(self, text: str) -> Dict[str, Any]:
         """Categorize OCR text into workspace types (Code, Browser, Doc, etc.)"""
         text_lower = text.lower()
-        
+
         # Keywords for categorization
         indicators = {
             'code': ['def ', 'import ', 'const ', 'function', 'class ', 'void ', '{', '}', 'public ', 'private '],
@@ -259,13 +256,13 @@ class MediaProcessor:
             'document': ['abstract', 'introduction', 'conclusion', 'section', 'table of contents', 'page ', 'chapter'],
             'terminal': ['$', '>', 'C:\\', '/home/', 'sudo ', 'apt ', 'npm ', 'git ', 'python ']
         }
-        
+
         scores = {cat: 0 for cat in indicators}
         for cat, keywords in indicators.items():
             for kw in keywords:
                 if kw in text_lower:
                     scores[cat] += 1
-        
+
         # Determine the category with highest score
         best_cat = 'unknown'
         max_score = 0
@@ -273,10 +270,10 @@ class MediaProcessor:
             if score > max_score:
                 max_score = score
                 best_cat = cat
-        
+
         # Normalize confidence (simple heuristic)
         confidence = min(max_score / 3.0, 1.0) if max_score > 0 else 0.0
-        
+
         return {
             'category': best_cat,
             'confidence': confidence,
@@ -286,21 +283,21 @@ class MediaProcessor:
     async def analyze_screen(self, query: Optional[str] = None, language: str = 'en') -> Dict:
         """Capture screenshot and analyze it using a multimodal LLM"""
         try:
-            from modules.llm_wrapper import llm_module
             from modules.desktop import desktop_manager
-            
+            from modules.llm_wrapper import llm_module
+
             # 1. Take a screenshot (saving to file for multimodal processing)
             screenshot_res = await desktop_manager.take_screenshot(save=True, language=language)
             if not screenshot_res.get('success'):
                 return screenshot_res
-            
+
             image_path = screenshot_res.get('file_path')
-            
+
             # 2. Prepare prompt
             prompt = query or "Describe what is on my screen right now. Be specific about open windows, text, and any visible UI elements."
             if language == 'hi':
                 prompt = query or "बताएं कि अभी मेरी स्क्रीन पर क्या है। खुले हुए विंडोज़, टेक्स्ट और यूआई एलिमेंट्स के बारे में विस्तार से बताएं।"
-            
+
             # 3. Analyze with Vision LLM
             try:
                 analysis = await llm_module.get_visual_response(image_path, prompt, language)
@@ -311,7 +308,7 @@ class MediaProcessor:
                     'error': str(ve),
                     'response': str(ve)
                 }
-            
+
             if not analysis:
                 return {
                     'success': False,
@@ -319,9 +316,9 @@ class MediaProcessor:
                     'error': 'Visual analysis failed or model returned empty response',
                     'response': 'I tried to look at your screen but couldn\'t process the image.'
                 }
-            
+
             log_command('Screen analysis', 'vision_analysis', True)
-            
+
             return {
                 'success': True,
                 'action_type': 'VISION_ANALYSIS',
@@ -407,7 +404,7 @@ class MediaProcessor:
             def write_pdf():
                 with open(output, 'wb') as output_file:
                     writer.write(output_file)
-            
+
             await asyncio.to_thread(write_pdf)
 
             log_command(f'split PDF {path.name}', 'pdf_split', True)
@@ -465,7 +462,7 @@ class MediaProcessor:
                     image.save(str(image_path), 'PNG')
                     saved_files.append(str(image_path))
                 return saved_files
-            
+
             saved_files = await asyncio.to_thread(save_images)
 
             log_command(f'PDF to images: {path.name}', 'pdf_to_images', True)
@@ -842,7 +839,7 @@ class MediaProcessor:
                     subprocess.run(['open', '-a', 'Preview'])
                 else:
                     subprocess.run(['pinta'])
-            
+
             await asyncio.to_thread(do_draw)
 
             return {
@@ -861,7 +858,7 @@ class MediaProcessor:
                     pyautogui.hotkey('command', 'c')
                 else:
                     pyautogui.hotkey('ctrl', 'c')
-            
+
             await asyncio.to_thread(copy_to_clipboard)
 
             # Wait a bit for clipboard update
@@ -933,17 +930,17 @@ class MediaProcessor:
     async def get_screen_summary(self, language: str = 'en') -> Dict:
         """Get a coherent summary of what's on screen using LLM"""
         from modules.llm_wrapper import llm_client
-        
+
         result = await self.extract_text_from_screenshot(language)
         if result['success']:
             text = result['text']
             if not text.strip():
                 return {'success': True, 'summary': "The screen appears empty.", 'response': "Screen summary: Empty."}
-            
+
             # Use LLM to summarize
             prompt = f"The following text was extracted from a screenshot via OCR. Summarize what is on the screen in one or two clear sentences. Response language: {language}. Text: {text[:2000]}"
             summary = await llm_client.get_response(prompt, language)
-            
+
             return {
                 'success': True,
                 'summary': summary,
@@ -954,14 +951,14 @@ class MediaProcessor:
     async def analyze_screen(self, query: str, language: str = 'en') -> Dict:
         """Answer a specific question about the current screen content"""
         from modules.llm_wrapper import llm_client
-        
+
         result = await self.extract_text_from_screenshot(language)
         if result['success']:
             text = result['text']
-            
+
             prompt = f"The following text was extracted from a screenshot via OCR. Based ONLY on this text, answer the user's question: '{query}'. Response language: {language}. If you cannot find the answer, say so. Text: {text[:3000]}"
             answer = await llm_client.get_response(prompt, language)
-            
+
             return {
                 'success': True,
                 'answer': answer,

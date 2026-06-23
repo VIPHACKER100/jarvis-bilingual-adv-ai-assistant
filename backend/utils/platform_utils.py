@@ -1,9 +1,8 @@
-import platform
 import os
-import subprocess
-from pathlib import Path
+
 from config import PLATFORM
 from utils.logger_structured import logger
+
 
 def get_platform():
     """Get current platform"""
@@ -18,8 +17,10 @@ def is_macos():
 def is_linux():
     return PLATFORM == 'linux'
 
-from utils.automation_utils import safe_automation
 import asyncio
+
+from utils.automation_utils import safe_automation
+
 
 async def run_command(command, shell=True):
     """Run system command safely (async wrapper)"""
@@ -29,7 +30,7 @@ async def run_command(command, shell=True):
 def get_whatsapp_desktop_path():
     """Auto-detect WhatsApp Desktop installation"""
     possible_paths = []
-    
+
     if is_windows():
         possible_paths = [
             os.path.expandvars(r"%LOCALAPPDATA%\WhatsApp\WhatsApp.exe"),
@@ -48,11 +49,11 @@ def get_whatsapp_desktop_path():
             "/snap/bin/whatsapp",
             "/var/lib/flatpak/app/com.whatsapp.WhatsApp",
         ]
-    
+
     for path in possible_paths:
         if os.path.exists(path):
             return path
-    
+
     return None
 
 async def shutdown_system():
@@ -90,19 +91,19 @@ def _set_volume_windows(percent):
         import pythoncom
         from comtypes import CLSCTX_ALL
         from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-        
+
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
         if not devices:
             return False
-            
+
         if not hasattr(devices, 'Activate'):
             logger.debug("Audio speakers device lacks 'Activate' method - likely virtual environment")
             return False
 
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
-        
+
         volume.SetMasterVolumeLevelScalar(percent / 100.0, None)
         return True
     except Exception as e:
@@ -134,15 +135,15 @@ def _get_volume_windows():
         import pythoncom
         from comtypes import CLSCTX_ALL
         from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-        
+
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
         if not devices or not hasattr(devices, 'Activate'):
             return 50
-            
+
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
-        
+
         vol_scalar = volume.GetMasterVolumeLevelScalar()
         return int(vol_scalar * 100)
     except Exception as e:
@@ -173,15 +174,15 @@ def _set_mute_windows(mute_state):
         import pythoncom
         from comtypes import CLSCTX_ALL
         from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-        
+
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
         if not devices or not hasattr(devices, 'Activate'):
             return False
-            
+
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
-        
+
         volume.SetMute(1 if mute_state else 0, None)
         return True
     except Exception as e:
@@ -215,15 +216,15 @@ def _is_muted_windows():
         import pythoncom
         from comtypes import CLSCTX_ALL
         from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-        
+
         pythoncom.CoInitialize()
         devices = AudioUtilities.GetSpeakers()
         if not devices or not hasattr(devices, 'Activate'):
             return False
-            
+
         interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
         volume = interface.QueryInterface(IAudioEndpointVolume)
-        
+
         return volume.GetMute() == 1
     except Exception as e:
         logger.debug(f"Error checking mute on Windows: {e}")

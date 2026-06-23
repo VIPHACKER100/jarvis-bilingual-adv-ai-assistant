@@ -1,8 +1,10 @@
-import socket
-from zeroconf.asyncio import AsyncZeroconf
-from zeroconf import IPVersion, ServiceInfo
-from utils.logger_structured import logger
 import os
+import socket
+
+from utils.logger_structured import logger
+from zeroconf import IPVersion, ServiceInfo
+from zeroconf.asyncio import AsyncZeroconf
+
 
 class mDNSBroadcaster:
     """
@@ -30,7 +32,7 @@ class mDNSBroadcaster:
                 s.close()
 
             desc = {'version': '3.9.0', 'platform': os.name}
-            
+
             self.service_info = ServiceInfo(
                 "_jarvis._tcp.local.",
                 f"{self.service_name}._jarvis._tcp.local.",
@@ -42,7 +44,7 @@ class mDNSBroadcaster:
 
             self.zeroconf = AsyncZeroconf(ip_version=IPVersion.V4Only)
             await self.zeroconf.async_register_service(self.service_info)
-            
+
             logger.info(f"mDNS Broadcaster started: {self.service_name} at {ip_address}:{self.port}")
         except Exception as e:
             import traceback

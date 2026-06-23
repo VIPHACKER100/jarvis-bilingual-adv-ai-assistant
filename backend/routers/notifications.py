@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Body, HTTPException
-from typing import Dict, Any, Optional
-from datetime import datetime
+
+from fastapi import APIRouter, HTTPException
+from models import NotificationRequest, NotificationResponse
 from routers.websocket import broadcast_notification
 from utils.logger_structured import logger
-from models import NotificationRequest, NotificationResponse
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
 

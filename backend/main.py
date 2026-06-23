@@ -1,47 +1,59 @@
+import asyncio
+import hmac
 import os
 import sys
-import asyncio
 import time
-import json
-import hmac
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Optional
 
 # Add current directory to path for imports when run from elsewhere
 sys.path.insert(0, str(Path(__file__).parent))
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Response, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.encoders import jsonable_encoder
 from contextlib import asynccontextmanager
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 
 from config import BACKEND_PORT, FRONTEND_URL, PLATFORM, VERSION
-from utils.middleware_security import (
-    SecurityHeadersMiddleware, SQLInjectionMiddleware,
-    MaxBodySizeMiddleware, per_route_limiter
-)
-from modules.system import system_module
+from fastapi import FastAPI, Request, Response
+from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from modules.automation import automation_manager
-from utils.logger_structured import logger, log_system_event, OTEL_ENABLED
+from modules.memory import memory_manager
+from modules.proactive import proactive_manager
+from modules.system import system_module
+from modules.wake_word import wake_word_engine
+from modules.whatsapp import whatsapp_manager
 
 # Import routers
 from routers import (
-    system, windows, files, media, pdf_tools, 
-    image_tools, desktop, memory, automation, 
-    commands, websocket, settings, whatsapp,
-    input_control, notifications, sync, health, context,
-    agent, audio
+    agent,
+    audio,
+    automation,
+    commands,
+    context,
+    desktop,
+    files,
+    health,
+    image_tools,
+    input_control,
+    media,
+    memory,
+    notifications,
+    pdf_tools,
+    probes,
+    settings,
+    sync,
+    system,
+    websocket,
+    whatsapp,
+    windows,
 )
-from modules.memory import memory_manager
-from modules.whatsapp import whatsapp_manager
-from modules.proactive import proactive_manager
-from modules.wake_word import wake_word_engine
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from utils.logger_structured import OTEL_ENABLED, log_system_event, logger
+from utils.middleware_security import MaxBodySizeMiddleware, SecurityHeadersMiddleware, SQLInjectionMiddleware
 
 # Security
 BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
@@ -51,17 +63,17 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     logger.info("JARVIS Backend starting up (Modular Architecture)...")
     startup_info = {
-        "port": BACKEND_PORT, 
+        "port": BACKEND_PORT,
         "platform": PLATFORM,
         "version": VERSION
     }
     log_system_event("STARTUP", startup_info)
-    
+
     # Initialize managers
-    from modules.personalities import personality_manager
     from config import CONFIG
+    from modules.personalities import personality_manager
     personality_manager.set_personality(CONFIG.get("personality", "stark"))
-    
+
     # Initialize OpenTelemetry if enabled
     if OTEL_ENABLED:
         try:
@@ -70,7 +82,7 @@ async def lifespan(app: FastAPI):
             logger.info("FastAPI OpenTelemetry instrumentation enabled.")
         except ImportError:
             logger.warning("FastAPI OpenTelemetry packages missing.")
-            
+
     await memory_manager.initialize()
     # Trigger semantic vector sync in background to avoid blocking startup
     asyncio.create_task(memory_manager.neural.sync_vectors())
@@ -78,14 +90,14 @@ async def lifespan(app: FastAPI):
     await automation_manager.initialize()
     await automation_manager.start()
     await proactive_manager.start()
-    
+
     # Initialize and start Wake-Word Engine if enabled
     from config import WAKE_WORD_ENABLED
     logger.info(f"DEBUG: WAKE_WORD_ENABLED is {WAKE_WORD_ENABLED}")
     if WAKE_WORD_ENABLED:
         try:
             wake_word_engine.initialize()
-            
+
             def on_wake(model, score):
                 # Broadcast wake event to all WebSocket clients
                 from utils.websocket_manager import manager
@@ -102,26 +114,26 @@ async def lifespan(app: FastAPI):
             wake_word_engine.start(callback=on_wake)
         except Exception as e:
             logger.error(f"Failed to start Wake-Word Engine: {e}")
-    
+
     # Start background tasks
     status_broadcast_task = asyncio.create_task(broadcast_system_status())
     lag_monitor_task = asyncio.create_task(monitor_event_loop_lag())
     prune_task = asyncio.create_task(periodic_prune_conversations())
-    
+
     # Start mDNS Broadcaster
-    from utils.mdns import mdns_broadcaster
     from config import MDNS_ENABLED, MDNS_SERVICE_NAME
+    from utils.mdns import mdns_broadcaster
     if MDNS_ENABLED:
         mdns_broadcaster.port = BACKEND_PORT
         mdns_broadcaster.service_name = MDNS_SERVICE_NAME or "JARVIS-CORE"
         await mdns_broadcaster.start()
-    
+
     yield
-    
+
     # Cleanup
     if MDNS_ENABLED:
         await mdns_broadcaster.stop()
-        
+
     status_broadcast_task.cancel()
     lag_monitor_task.cancel()
     prune_task.cancel()
@@ -150,7 +162,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        FRONTEND_URL, 
+        FRONTEND_URL,
         "http://localhost:5173", "http://127.0.0.1:5173",
         "http://localhost:3000", "http://127.0.0.1:3000"
     ],
@@ -204,7 +216,7 @@ async def add_request_id(request: Request, call_next):
     return response
 
 # Authentication Middleware for REST API
-HEALTH_EXEMPT_PREFIXES = ("/api/v1/health", "/api/v1/agent/health")
+HEALTH_EXEMPT_PREFIXES = ("/api/v1/health", "/api/v1/agent/health", "/api/v1/ready", "/api/v1/live")
 
 @app.middleware("http")
 async def api_key_middleware(request: Request, call_next):
@@ -265,6 +277,7 @@ api_v1.include_router(health.router)
 api_v1.include_router(context.router)
 api_v1.include_router(agent.router)
 api_v1.include_router(audio.router)
+api_v1.include_router(probes.router)
 
 app.include_router(api_v1)
 
@@ -290,18 +303,18 @@ async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 10
             start = time.perf_counter()
             await asyncio.sleep(interval)
             end = time.perf_counter()
-            
+
             # The lag is the difference between intended sleep and actual sleep
             actual_delay = (end - start)
             lag_ms = (actual_delay - interval) * 1000
-            
+
             global current_event_loop_lag
             current_event_loop_lag = round(lag_ms, 2)
-            
+
             if lag_ms > threshold_ms:
                 logger.warning(f"CRITICAL: Event loop lag detected! {lag_ms:.2f}ms. Some code is blocking the loop.")
                 log_system_event("EVENT_LOOP_LAG", {"lag_ms": current_event_loop_lag})
-            
+
         except asyncio.CancelledError:
             break
         except Exception as e:
@@ -310,25 +323,25 @@ async def monitor_event_loop_lag(interval: float = 1.0, threshold_ms: float = 10
 
 async def broadcast_system_status():
     """Broadcast system status to all connected clients every 5 seconds"""
-    from utils.websocket_manager import manager
     from modules.memory import memory_manager
     from modules.personalities import personality_manager
+    from utils.websocket_manager import manager
     while True:
         try:
             await asyncio.sleep(5)
             status = await system_module.get_system_status()
-            
+
             # Update status with current lag and personality before broadcasting
             status.event_loop_lag = current_event_loop_lag
             status.personality = personality_manager.get_config()
-            
+
             # Save to database for history
             await memory_manager.save_performance_metric(
                 current_event_loop_lag,
                 status.cpu.percent,
                 status.memory.percent
             )
-            
+
             if manager.active_connections:
                 message = {
                     "type": "system_status",
@@ -336,7 +349,7 @@ async def broadcast_system_status():
                     "timestamp": datetime.now().isoformat()
                 }
                 await manager.broadcast(message)
-                        
+
         except asyncio.CancelledError:
             break
         except Exception as e:
@@ -360,7 +373,7 @@ async def periodic_prune_conversations():
 def _find_frontend_dir() -> Optional[Path]:
     """Find the frontend directory in various environments (dev, bundled)"""
     candidates = []
-    
+
     # 1. Check if we're running as a PyInstaller bundle
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         mei_path = Path(sys._MEIPASS)
@@ -370,7 +383,7 @@ def _find_frontend_dir() -> Optional[Path]:
             mei_path / "_internal" / "frontend",
             mei_path / "_internal" / "dist"
         ])
-    
+
     # 2. Check relative to current file (works in dev)
     try:
         base_path = Path(__file__).resolve().parent.parent
@@ -380,7 +393,7 @@ def _find_frontend_dir() -> Optional[Path]:
         ])
     except:
         pass
-        
+
     # 3. Check relative to CWD
     cwd = Path.cwd()
     candidates.extend([
@@ -388,12 +401,12 @@ def _find_frontend_dir() -> Optional[Path]:
         cwd / "frontend",
         cwd / "release" / "backend" / "_internal" / "frontend" # Extra backup for local release testing
     ])
-    
+
     for c in candidates:
         # logger.debug(f"Checking frontend candidate: {c}")
         if c.exists() and (c / "index.html").exists():
             return c
-            
+
     logger.warning(f"Frontend directory not found! Checked {len(candidates)} candidates.")
     return None
 

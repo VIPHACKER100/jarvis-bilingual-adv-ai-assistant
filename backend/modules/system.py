@@ -1,19 +1,32 @@
-import psutil
-import time
 import asyncio
+import time
 from datetime import datetime
-from typing import Dict, Any, List, Optional, cast
-from modules.bilingual_parser import parser
-from utils.platform_utils import (
-    shutdown_system, restart_system, sleep_system,
-    set_volume, get_volume, set_mute, is_muted,
-    is_windows, is_macos, is_linux
-)
-from utils.logger_structured import log_command, logger
+from typing import Any, Dict, List, Optional
+
+import psutil
 from models import (
-    SystemStatusResponse, BatteryInfo, CPUInfo, MemoryInfo, 
-    DiskInfo, NetworkIOInfo, BatteryResponse, TimeResponse, 
-    DateResponse, VolumeResponse, UptimeResponse, NetworkInfoResponse
+    BatteryInfo,
+    BatteryResponse,
+    CPUInfo,
+    DateResponse,
+    DiskInfo,
+    MemoryInfo,
+    NetworkIOInfo,
+    SystemStatusResponse,
+    TimeResponse,
+)
+from modules.bilingual_parser import parser
+from utils.logger_structured import log_command, logger
+from utils.platform_utils import (
+    get_volume,
+    is_macos,
+    is_muted,
+    is_windows,
+    restart_system,
+    set_mute,
+    set_volume,
+    shutdown_system,
+    sleep_system,
 )
 
 
@@ -38,7 +51,7 @@ class SystemModule:
         start = now
         try:
             cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=None)
-            
+
             if not hasattr(self, '_cpu_count'):
                 self._cpu_count = await asyncio.to_thread(psutil.cpu_count)
 
@@ -101,16 +114,16 @@ class SystemModule:
             active_window = None
             context_suggestion = None
             try:
-                from modules.window_manager import window_manager
                 from modules.context import context_manager
-                
+                from modules.window_manager import window_manager
+
                 win = await window_manager.get_active_window()
                 if win:
                     active_window = {
                         "title": win.get("title", "Unknown"),
                         "process": win.get("process", "Unknown")
                     }
-                
+
                 context_suggestion = await context_manager.suggest_next_action()
             except Exception:
                 pass
@@ -129,11 +142,11 @@ class SystemModule:
                 context_suggestion=context_suggestion,
                 response_time=round(time.time() - start, 4)
             )
-            
+
             # Cache the result
             self._last_status_cache = status
             self._last_status_time = time.time()
-            
+
             return status
 
         except Exception as e:
@@ -426,7 +439,7 @@ class SystemModule:
                     is_up = stats.get(name).isup
                 else:
                     is_up = False
-                
+
                 if is_up:
                     for addr in addr_list:
                         if addr.family == socket.AF_INET:  # IPv4
@@ -459,7 +472,7 @@ class SystemModule:
             else:
                 url = f"https://www.google.com/search?q={query}"
                 msg = f"Searching for '{query}' on Google" if language == 'en' else f"गूगल पर '{query}' के लिए खोज रहा हूँ"
-            
+
             await asyncio.to_thread(webbrowser.open, url)
             log_command(f"search {query}" if query else "open browser", "google_search", True)
 
@@ -490,10 +503,10 @@ class SystemModule:
 
             weather_target = city or ('current location' if language == 'en' else 'वर्तमान स्थान')
             response_text = f"Checking weather for {weather_target}" if language == 'en' else f"{weather_target} के लिए मौसम की जानकारी देख रहा हूँ"
-            
+
             return {
-                'success': True, 
-                'city': city, 
+                'success': True,
+                'city': city,
                 'response': response_text
             }
         except Exception as e:
@@ -533,7 +546,7 @@ class SystemModule:
         """Check system health and broadcast notifications for critical events"""
         try:
             from routers.websocket import broadcast_notification
-            
+
             # Low Battery Alert
             if battery.percent is not None and battery.percent < 20 and not battery.is_charging:
                 # Use a flag to avoid spamming
@@ -545,7 +558,7 @@ class SystemModule:
                         duration=10000
                     )
                     self._last_battery_alert = time.time()
-            
+
             # High CPU Alert
             if cpu_percent > 90:
                 if not hasattr(self, '_last_cpu_alert') or time.time() - self._last_cpu_alert > 600:
@@ -556,7 +569,7 @@ class SystemModule:
                         duration=8000
                     )
                     self._last_cpu_alert = time.time()
-                    
+
         except Exception as e:
             logger.debug(f"Notification broadcast skipped: {e}")
 
@@ -565,7 +578,7 @@ class SystemModule:
         try:
             from modules.memory import memory_manager
             from routers.websocket import broadcast_notification
-            
+
             # Throttling Process Guardian
             if hasattr(self, '_last_process_scan') and time.time() - self._last_process_scan < 10:
                 return
@@ -575,9 +588,9 @@ class SystemModule:
             security_content = await memory_manager.neural.get_node("security.md")
             # Simple check for blacklist titles in memory (this can be made more robust)
             blacklist = ["regedit.exe", "remote_desktop.exe"]
-            
+
             suspicious = []
-            
+
             def scan_processes():
                 res = []
                 for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
@@ -586,11 +599,11 @@ class SystemModule:
                         # Skip System Idle Process (PID 0) and System process
                         if pinfo['pid'] == 0 or pinfo['name'] == 'System Idle Process':
                             continue
-                            
+
                         # High Resource Spike Check
                         if pinfo['cpu_percent'] > 95:
                             res.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Critical CPU Spike")
-                        
+
                         # Blacklist Check
                         if pinfo['name'] in blacklist:
                             res.append(f"{pinfo['name']} (PID: {pinfo['pid']}) - Blacklisted Process Detected")
@@ -599,7 +612,7 @@ class SystemModule:
                 return res
 
             suspicious = await asyncio.to_thread(scan_processes)
-            
+
             if suspicious and (time.time() - self._last_process_alert > 300):
                 await broadcast_notification(
                     title="Process Guardian Alert",
@@ -609,7 +622,7 @@ class SystemModule:
                 )
                 self._last_process_alert = time.time()
                 logger.warning(f"Process Guardian flagged: {suspicious}")
-                
+
         except Exception as e:
             logger.error(f"Error in Process Guardian: {e}")
 
@@ -648,7 +661,7 @@ class SystemModule:
                             proc_name = proc.name() if proc else "Unknown"
                         except (psutil.NoSuchProcess, psutil.AccessDenied):
                             proc_name = "System/Protected"
-                            
+
                         res.append({
                             "pid": conn.pid,
                             "process": proc_name,

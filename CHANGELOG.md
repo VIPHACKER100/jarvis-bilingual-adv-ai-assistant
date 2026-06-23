@@ -7,6 +7,22 @@ All notable changes to the JARVIS AI Assistant will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0-alpha.2] - 2026-06-23
+
+### Added
+
+- **Health probes**: New `/api/v1/ready` (DB connectivity check) and `/api/v1/live` (always-200) endpoints for Kubernetes readiness/liveness probes
+- **Nginx security headers**: Added `Strict-Transport-Security`, `X-XSS-Protection`, `Permissions-Policy`, `Content-Security-Policy`, `server_tokens off`
+
+### Changed
+
+- **Version bumped** from 4.0.0-alpha.1 to 4.0.0-alpha.2
+
+### Security
+
+- **Security hardening**: Hardened nginx.conf with HSTS, XSS protection, permission restrictions, and strict CSP
+- **Probe endpoint exemption**: `/api/v1/ready` and `/api/v1/live` added to auth-exempt prefixes for health check access without API keys
+
 ## [4.0.0-alpha.1] - 2026-06-22
 
 ### Changed

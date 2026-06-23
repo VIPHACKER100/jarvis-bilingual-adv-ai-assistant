@@ -3,7 +3,6 @@ JARVIS v3.8.0 — Bilingual Parser Tests
 """
 import sys
 from pathlib import Path
-import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 

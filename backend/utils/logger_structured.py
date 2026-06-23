@@ -3,10 +3,11 @@ JARVIS v4.0 — Structured Logging
 Replaces the basic logging with structlog + OpenTelemetry tracing.
 """
 
-import os
-import structlog
 import logging
-from typing import Dict, Any
+import os
+from typing import Any
+
+import structlog
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 OTEL_ENABLED = os.getenv("OTEL_ENABLED", "false").lower() == "true"
@@ -48,11 +49,11 @@ def configure_logging(service_name: str = "jarvis-backend") -> None:
 def _setup_opentelemetry(service_name: str) -> None:
     try:
         from opentelemetry import trace
-        from opentelemetry.sdk.trace import TracerProvider
-        from opentelemetry.sdk.trace.export import BatchSpanProcessor
         from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
         from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
         provider = TracerProvider()
         otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318/v1/traces")

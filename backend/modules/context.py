@@ -1,11 +1,11 @@
-import re
-import json
 import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Any
+import re
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from modules.bilingual_parser import parser
-from modules.memory import memory_manager, ConversationEntry, MemoryEntry
+from modules.memory import MemoryEntry, memory_manager
 from utils.logger_structured import logger
 
 
@@ -148,7 +148,7 @@ class ContextManager:
 
         # Detect user mood
         self.current_context.user_mood = self._detect_mood(user_input)
-        
+
         # NEW: Extract and save personal facts from input
         asyncio.create_task(self.extract_and_save_facts(user_input))
 
@@ -157,7 +157,7 @@ class ContextManager:
     async def update_mobile_context(self, device_id: str, data: Dict[str, Any]) -> None:
         """Update context with mobile sensor data (battery, network, etc.)"""
         await self._ensure_initialized()
-        
+
         mobile_data = self.get_context_variable('mobile_devices') or {}
         mobile_data[device_id] = {
             'last_sync': datetime.now().isoformat(),
@@ -166,10 +166,10 @@ class ContextManager:
             'location': data.get('location'),
             'device_name': data.get('device_name')
         }
-        
+
         self.set_context_variable('mobile_devices', mobile_data)
         logger.info(f"Mobile context updated for device: {device_id}")
-        
+
         # Check for immediate proactive alerts (e.g. low battery)
         battery = data.get('battery', {})
         if battery.get('level') and battery.get('level') < 15 and not battery.get('is_charging'):
@@ -250,7 +250,7 @@ class ContextManager:
         """Extract entities from user input"""
         entities = {}
         user_input_lower = user_input.lower()
-        
+
         # Extract file paths
         file_pattern = r'[\w\s-]+\.(txt|pdf|jpg|png|doc|docx|xls|xlsx|mp3|mp4)'
         files = re.findall(file_pattern, user_input, re.IGNORECASE)
@@ -334,7 +334,7 @@ class ContextManager:
                 text = result.get('text', '')
                 # Clean and limit
                 text_clean = re.sub(r'\s+', ' ', text).strip()
-                
+
                 # Deep Contextual Enrichment: Identify document type
                 doc_type = "Generic Text"
                 if re.search(r'\b(invoice|bill|amount|total|tax|gst)\b', text_clean, re.I):
@@ -345,23 +345,23 @@ class ContextManager:
                     doc_type = "Technical / Source Code"
                 elif re.search(r'\b(dear|hello|regards|sincerely|subject:)\b', text_clean, re.I):
                     doc_type = "Correspondence / Email"
-                
+
                 # Extract potential entities for bridge
                 entities = {
                     "document_type": doc_type,
                     "length": len(text_clean),
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
                 # Look for specific IDs or amounts if it's financial
                 if doc_type == "Financial Document":
                     amounts = re.findall(r'(\d+\.\d{2})', text_clean)
                     if amounts:
                         entities["total_amount"] = amounts[-1]
-                
+
                 self.set_context_variable('last_visual_analysis', entities)
                 self.set_context_variable('last_screen_text', text_clean[:500])
-                
+
                 logger.info(f"Visual analysis complete: Identified as {doc_type}")
                 return f"[Visual Context: {doc_type}] " + text_clean[:1000]
             return ""
@@ -386,7 +386,7 @@ class ContextManager:
             for key, url in web_mappings.items():
                 if key in app_name:
                     return f"Sir, I couldn't find {key} on your system. Would you like me to open the web version at {url} instead?" if language == 'en' else f"सर, मुझे आपके सिस्टम पर {key} नहीं मिला। क्या आप चाहेंगे कि मैं इसके बजाय {url} पर वेब वर्शन खोलूँ?"
-            
+
             return f"Sir, I couldn't find '{params}'. Should I search for it online?" if language == 'en' else f"सर, मुझे '{params}' नहीं मिला। क्या मुझे इसे ऑनलाइन खोजना चाहिए?"
 
         if command_key == 'file_management':
@@ -399,7 +399,7 @@ class ContextManager:
         # 1. If last command failed, offer alternative
         if not self.current_context.last_successful and self.current_context.last_command_type:
             alt = self.get_alternative_suggestion(
-                self.current_context.last_command_type, 
+                self.current_context.last_command_type,
                 self.current_context.last_command
             )
             if alt: return alt
@@ -451,13 +451,13 @@ class ContextManager:
 
             from modules.window_manager import window_manager
             active_win = await window_manager.get_active_window()
-            
+
             if not active_win:
                 return None
-                
+
             title = active_win['title'].lower()
             proc_name = active_win['process_name'].lower()
-            
+
             # Application specific proactive suggestions
             if any(b in proc_name for b in ["chrome", "edge", "firefox", "browser"]):
                 if "youtube" in title:
@@ -467,11 +467,11 @@ class ContextManager:
                 if "stackoverflow" in title or "docs." in title:
                     return "Researching? I can summarize this documentation or help you find specific code snippets."
                 return "I see you're browsing. Need help searching for something specific or summarizing a page?"
-                
+
             if any(c in proc_name for c in ["code", "visual studio", "jetbrains", "pycharm", "sublime"]):
                 # Try to detect language from title
                 langs = {
-                    '.py': 'Python', '.js': 'JavaScript', '.ts': 'TypeScript', 
+                    '.py': 'Python', '.js': 'JavaScript', '.ts': 'TypeScript',
                     '.rs': 'Rust', '.go': 'Go', '.html': 'HTML', '.css': 'CSS'
                 }
                 detected_lang = None
@@ -479,19 +479,19 @@ class ContextManager:
                     if ext in title:
                         detected_lang = name
                         break
-                
+
                 if detected_lang:
                     return f"Coding in {detected_lang}. Should I look for relevant documentation or check your syntax?"
                 return "Coding session in progress. Should I look for documentation or help you manage your files?"
-                
+
             if any(d in proc_name for d in ["word", "notepad", "text", "edit", "acrobat"]):
                 if ".pdf" in title:
                     return "Reading a PDF? I can extract key points or summarize the entire document for you."
                 return "Working on a document? I can help you with spell check, formatting, or summarization."
-                
+
             if "whatsapp" in proc_name or "slack" in proc_name or "discord" in proc_name:
                 return "Checking messages? I can help you send a quick reply to any of your contacts."
-                
+
             if "spotify" in proc_name or "vlc" in proc_name:
                 return "Listening to media. Should I find similar tracks or look up the lyrics for you?"
 
@@ -500,7 +500,7 @@ class ContextManager:
             status = await system_module.get_system_status()
             if status.cpu.percent > 85:
                 return f"Sir, CPU usage is critical ({status.cpu.percent}%). Should I terminate heavy background processes?"
-                
+
             if status.battery.percent and status.battery.percent < 25 and status.battery.is_charging is False:
                 return f"Your battery is at {status.battery.percent}%. Would you like me to enable power saving or dim the screen?"
 
@@ -512,7 +512,7 @@ class ContextManager:
                 return "Mid-afternoon check. Should I summarize your recent activities or check for any urgent notifications?"
 
             return "I'm monitoring your system. Let me know if you need any assistance with your current task."
-            
+
         except Exception as e:
             logger.error(f"Error in proactive suggestions: {e}")
             return None
@@ -574,29 +574,28 @@ class ContextManager:
 
     async def extract_and_save_facts(self, text: str) -> None:
         """Extract personal facts from text and save to memory"""
-        from modules.memory import MemoryEntry
-        
+
         # Simple extraction patterns
         patterns = [
             # Personal Info
             (r"(?:my name is|i am|called|naam hai)\s+([a-zA-Z\s]{2,20})", "name", "personal"),
             (r"(?:i live in|i'm from|rehta hoon|living in)\s+([a-zA-Z\s]{2,30})", "location", "personal"),
             (r"(?:my birthday is|born on|janamdin)\s+([a-zA-Z0-9\s]{4,20})", "birthday", "personal"),
-            
+
             # Profession & Role
             (r"(?:i work as|my job is|i am a)\s+([a-zA-Z\s]{2,30})", "profession", "personal"),
             (r"(?:i study|student of)\s+([a-zA-Z\s]{2,30})", "education", "personal"),
-            
+
             # Preferences & Hobbies
             (r"(?:i love|i like|i enjoy|pasand hai)\s+([a-zA-Z\s]{2,30})", "preference", "preferences"),
             (r"(?:i play|hobby is)\s+([a-zA-Z\s]{2,30})", "hobby", "preferences"),
-            
+
             # Contacts & Relations
             (r"(?:my boss is|work with)\s+([a-zA-Z\s]{2,20})", "boss", "contacts"),
             (r"(?:my friend is|friend named)\s+([a-zA-Z\s]{2,20})", "friend", "contacts"),
             (r"(?:my (wife|husband|son|daughter|brother|sister) is)\s+([a-zA-Z\s]{2,20})", "family", "contacts")
         ]
-        
+
         text_lower = text.lower()
         for pattern, base_key, category in patterns:
             match = re.search(pattern, text_lower)
@@ -605,7 +604,7 @@ class ContextManager:
                 # Clean up if matched "favorite color" instead of just "color"
                 if "favorite" in base_key and "is" in value:
                     value = value.split("is")[-1].strip()
-                
+
                 # Check for "my favorite X is Y"
                 if "my favorite" in text_lower:
                     pref_match = re.search(r"my favorite\s+([\w\s]+)\s+is\s+([\w\s]+)", text_lower)

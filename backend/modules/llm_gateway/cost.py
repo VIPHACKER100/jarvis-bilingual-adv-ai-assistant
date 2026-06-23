@@ -5,9 +5,8 @@ Bounded to 1000 most recent records via collections.deque.
 
 import time
 from collections import deque
-from typing import Dict, Optional, List
 from dataclasses import dataclass, field
-
+from typing import Dict, List, Optional
 
 # Approximate cost per 1K tokens (USD) — update as prices change
 PROVIDER_COST_MAP: Dict[str, float] = {

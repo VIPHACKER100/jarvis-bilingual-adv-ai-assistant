@@ -3,9 +3,8 @@ JARVIS v4.0 — Tests for LLM Gateway, RAG Pipeline, Agent Router, Security Midd
 """
 
 import sys
-import json
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -91,7 +90,7 @@ class TestLLMGateway:
             assert result is None
 
     async def test_gateway_import(self):
-        from modules.llm_wrapper import llm_module, llm_client
+        from modules.llm_wrapper import llm_client, llm_module
         assert llm_module is not None
         assert llm_client is not None
 

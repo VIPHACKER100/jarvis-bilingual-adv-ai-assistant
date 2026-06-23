@@ -4,9 +4,9 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-4.0.0--alpha.1-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-4.0.0--alpha.2-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org/)
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 
 ![JARVIS Banner](docs/assets/banner.png)
@@ -20,7 +20,7 @@
 
 ---
 
-## 🌟 Modern Capabilities (v4.0.0-alpha.1)
+## 🌟 Modern Capabilities (v4.0.0-alpha.2)
 
 - 🎙️ **Local Voice Activation** - "Hey JARVIS" wake-word detection using `openwakeword` for a hands-free experience.
 - 📱 **Mobile Companion Ecosystem** - Secure pairing and real-time remote control via the new JARVIS Mobile app.
@@ -33,7 +33,7 @@
 - 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models.
 - 🛡️ **Security Hardening** - All CodeQL SAST findings resolved: bad HTML regex, incomplete sanitization, information exposure through exceptions.
 
-### 🚀 **What's New? (v4.0.0-alpha.1)**
+### 🚀 **What's New? (v4.0.0-alpha.2)**
 
 - 🗄️ **PostgreSQL + pgvector** — Migrated from SQLite to PostgreSQL with pgvector extension for native semantic vector search. In-memory numpy cosine similarity replaced with `<=>` SQL queries.
 - 🔌 **LLM Gateway Unification** — Collapsed 3 OpenAI-compatible adapters into a single `OpenAICompatibleAdapter`. Switched from synchronous `OpenAI()` + `asyncio.to_thread()` to native `AsyncOpenAI()`. Added Google Gemini adapter.
@@ -301,7 +301,7 @@ graph TD
 ### **The Tech Stack**
 
 - **Frontend**: `React 19`, `TypeScript 5.8`, `Vite`, `Tailwind CSS`, `Framer Motion`
-- **Backend**: `Python 3.11`, `FastAPI`, `PyAutoGUI`, `SQLAlchemy`
+- **Backend**: `Python 3.13`, `FastAPI`, `PyAutoGUI`, `SQLAlchemy`
 - **Architecture**: `Modular Router System`, `Centralized Command Handlers`, `Proactive Intelligence API`
 - **Intelligence**: `Neural Proactive Engine`, `Bilingual LLM Parser`, `Contextual Action Recommender`
 - **Processing**: `Tesseract OCR`, `Pillow`, `PyPDF2`, `PostgreSQL + pgvector`
@@ -314,7 +314,7 @@ graph TD
 
 - **Total Code**: ~6,800 lines
 - **Frontend**: React 19, TypeScript 5.8, 3,800+ lines
-- **Backend**: Python 3.11, FastAPI, 3,000+ lines
+- **Backend**: Python 3.13, FastAPI, 3,000+ lines
 - **Architecture**: Modular 10+ Routers, 15+ Handlers
 - **API Endpoints**: 65+ REST + WebSocket
 - **Voice Commands**: 100+ bilingual

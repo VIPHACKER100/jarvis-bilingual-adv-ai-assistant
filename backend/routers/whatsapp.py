@@ -1,11 +1,12 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional, List
-from modules.whatsapp import whatsapp_manager
+from fastapi import APIRouter
 from models import (
-    BaseResponse, WhatsAppMessageRequest, 
-    WhatsAppCallRequest, WhatsAppContactListResponse,
-    WhatsAppDraftResponse
+    BaseResponse,
+    WhatsAppCallRequest,
+    WhatsAppContactListResponse,
+    WhatsAppDraftResponse,
+    WhatsAppMessageRequest,
 )
+from modules.whatsapp import whatsapp_manager
 
 router = APIRouter(prefix="/whatsapp", tags=["WhatsApp Automation"])
 

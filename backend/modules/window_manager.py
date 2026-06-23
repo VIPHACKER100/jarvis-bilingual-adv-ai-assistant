@@ -1,19 +1,18 @@
-import psutil
 import asyncio
-
-import subprocess
-import time
 import platform
 import re
+import subprocess
 import webbrowser
-from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
+import psutil
+import pyautogui
 from fuzzywuzzy import fuzz, process
 from modules.bilingual_parser import parser
-from utils.platform_utils import is_windows, is_macos, is_linux, run_command
-from utils.logger_structured import logger, log_command
 from utils.automation_utils import safe_automation
-import pyautogui
+from utils.logger_structured import log_command, logger
+from utils.platform_utils import is_macos, is_windows
 
 
 @dataclass
@@ -38,8 +37,8 @@ class WindowManager:
         """Initialize platform-specific components"""
         if is_windows():
             try:
-                import win32gui
                 import win32con
+                import win32gui
                 self.win32gui = win32gui
                 self.win32con = win32con
             except ImportError:
@@ -64,7 +63,7 @@ class WindowManager:
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     pass
             return processes
-        
+
         return await asyncio.to_thread(scan_procs)
 
     async def _fuzzy_match_app(
@@ -220,7 +219,7 @@ class WindowManager:
                     'gmail': 'https://mail.google.com',
                     'netflix': 'https://www.netflix.com',
                 }
-                
+
                 app_name_lower = app_name.lower()
                 for key, url in web_mappings.items():
                     if key in app_name_lower:
@@ -406,7 +405,7 @@ class WindowManager:
 
             self.win32gui.EnumWindows(callback, None)
             return windows
-        
+
         return await asyncio.to_thread(scan_windows)
 
     async def get_window_list(self) -> Dict:
@@ -743,7 +742,7 @@ class WindowManager:
                 title = await asyncio.to_thread(self.win32gui.GetWindowText, hwnd)
                 if not title:
                     return None
-                
+
                 # Get PID
                 def get_proc_info():
                     try:
@@ -753,9 +752,9 @@ class WindowManager:
                         return pid, proc.name()
                     except:
                         return 0, "Unknown"
-                
+
                 pid, name = await asyncio.to_thread(get_proc_info)
-                
+
                 return {
                     'title': title,
                     'pid': pid,

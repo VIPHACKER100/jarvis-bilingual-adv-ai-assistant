@@ -7,9 +7,9 @@ and that the handler produces correct response shapes.
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
+
 import pytest
-import pytest_asyncio
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -22,8 +22,8 @@ class TestCommandDispatch:
         Every command key in HINDI_COMMANDS must be coverable by
         the DOMAIN_HANDLERS dispatch mechanism.
         """
-        from modules.bilingual_parser import BilingualParser
         from handlers.command_handler import DOMAIN_HANDLERS
+        from modules.bilingual_parser import BilingualParser
 
         parser = BilingualParser()
         all_keys = set(parser.commands.keys())

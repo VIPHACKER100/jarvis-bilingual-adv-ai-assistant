@@ -1,4 +1,4 @@
-from .environment import *
 from .commands import *
-from .responses import *
 from .defaults import *
+from .environment import *
+from .responses import *

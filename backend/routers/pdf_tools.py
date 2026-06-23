@@ -1,10 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional, List
+from fastapi import APIRouter
+from models import BaseResponse, ImageToPDFRequest, PDFMergeRequest, PDFSplitRequest, PDFToImageRequest
 from modules.media import media_processor
-from models import (
-    BaseResponse, PDFMergeRequest, PDFSplitRequest, 
-    PDFToImageRequest, ImageToPDFRequest
-)
 
 router = APIRouter(prefix="/pdf", tags=["PDF Tools"])
 

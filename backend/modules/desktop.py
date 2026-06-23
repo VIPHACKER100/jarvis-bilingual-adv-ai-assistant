@@ -1,20 +1,18 @@
-import os
-import io
-import base64
 import asyncio
-import pyautogui
-import pyperclip
+import base64
 import ctypes
-import subprocess
+import io
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, List
-from PIL import Image
+from typing import Dict, Optional
 
+import pyautogui
+import pyperclip
 from modules.bilingual_parser import parser
-from utils.platform_utils import is_windows, is_macos, is_linux
-from utils.logger_structured import logger, log_command
+from PIL import Image
 from utils.automation_utils import safe_automation
+from utils.logger_structured import log_command, logger
+from utils.platform_utils import is_macos, is_windows
 
 
 class DesktopManager:
@@ -418,7 +416,7 @@ class DesktopManager:
                     from win10toast import ToastNotifier
                     toaster = ToastNotifier()
                     toaster.show_toast(title, message, duration=5)
-                
+
                 await asyncio.to_thread(_notify_task)
             elif is_macos():
                 script = f'display notification "{message}" with title "{title}"'
@@ -453,11 +451,11 @@ class DesktopManager:
         """Change desktop wallpaper"""
         try:
             path = Path(image_path).expanduser().resolve()
-            
+
             # Use to_thread for file path validation and ctypes calls
             def _validate_path():
                 return path.exists()
-            
+
             if not await asyncio.to_thread(_validate_path):
                 return {
                     'success': False,
@@ -469,7 +467,7 @@ class DesktopManager:
                     SPI_SETDESKWALLPAPER = 20
                     ctypes.windll.user32.SystemParametersInfoW(
                         SPI_SETDESKWALLPAPER, 0, str(path), 3)  # type: ignore
-                
+
                 await asyncio.to_thread(_set_wallpaper_task)
             elif is_macos():
                 script = f'tell application "System Events" to set picture of every desktop to POSIX file "{path}"'
@@ -514,7 +512,7 @@ class DesktopManager:
                 def _empty_task():
                     import winshell
                     winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=True)
-                
+
                 await asyncio.to_thread(_empty_task)
             elif is_macos():
                 await safe_automation.run_command(
@@ -613,7 +611,7 @@ class DesktopManager:
                 # Refresh desktop to apply changes
                 ctypes.windll.user32.SendMessageW(
                     0xffff, 0x0111, 0x1a221, 0)  # type: ignore (WM_COMMAND, refresh)
-                
+
                 return 'hidden' if should_hide else 'shown'
 
             status = await asyncio.to_thread(_toggle_icons_task)

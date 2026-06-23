@@ -1,12 +1,12 @@
+from handlers.media.media_handler import MediaHandler
+from handlers.memory.memory_handler import MemoryHandler
+from handlers.system.desktop_handler import DesktopHandler
+from handlers.system.file_handler import FileHandler
+from handlers.system.input_handler import InputHandler
+from handlers.system.personality_handler import PersonalityHandler
 from handlers.system.system_handler import SystemHandler
 from handlers.system.window_handler import WindowHandler
-from handlers.system.desktop_handler import DesktopHandler
-from handlers.system.input_handler import InputHandler
-from handlers.system.file_handler import FileHandler
-from handlers.media.media_handler import MediaHandler
 from handlers.web.whatsapp_handler import WhatsAppHandler
-from handlers.system.personality_handler import PersonalityHandler
-from handlers.memory.memory_handler import MemoryHandler
 
 system_handler = SystemHandler()
 window_handler = WindowHandler()

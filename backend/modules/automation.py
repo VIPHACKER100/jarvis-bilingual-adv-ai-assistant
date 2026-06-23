@@ -1,10 +1,8 @@
 import asyncio
 import json
-import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Callable, Any, cast
-from dataclasses import dataclass, asdict
-from pathlib import Path
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional, cast
 
 from config import DATA_DIR
 from utils.logger_structured import logger
@@ -165,11 +163,11 @@ class AutomationManager:
                 for task in list(self.tasks.values()):
                     if not task.enabled:
                         continue
-                    
+
                     if await self._should_run_task(task, now):
                         # Run task in background to not block the loop
                         asyncio.create_task(self._execute_task(task.id))
-                
+
                 # Check every minute for precision
                 await asyncio.sleep(60)
             except Exception as e:
@@ -203,7 +201,7 @@ class AutomationManager:
             elif task.schedule_type == 'interval':
                 if not task.last_run:
                     return True # Run once at startup if never run
-                
+
                 last_run_dt = datetime.fromisoformat(task.last_run)
                 interval_minutes = int(task.schedule_time)
                 return (now - last_run_dt).total_seconds() >= (interval_minutes * 60)
@@ -222,15 +220,15 @@ class AutomationManager:
         try:
             from modules.system import system_module
             status = await system_module.get_system_status()
-            
+
             # Simple expression parser (battery < 20, cpu > 80)
             parts = condition.split()
             if len(parts) != 3:
                 return False
-                
+
             variable, operator, value = parts
             value = float(value)
-            
+
             actual_value = 0.0
             if variable == 'battery':
                 actual_value = float(status.battery.percent or 0)
@@ -240,13 +238,13 @@ class AutomationManager:
                 actual_value = float(status.memory.percent)
             else:
                 return False
-                
+
             if operator == '<': return actual_value < value
             if operator == '>': return actual_value > value
             if operator == '<=': return actual_value <= value
             if operator == '>=': return actual_value >= value
             if operator == '==': return actual_value == value
-            
+
             return False
         except Exception as e:
             logger.error(f"Error evaluating condition '{condition}': {e}")

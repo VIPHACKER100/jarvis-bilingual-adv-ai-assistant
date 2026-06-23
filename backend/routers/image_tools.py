@@ -1,10 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional, List
+from fastapi import APIRouter
+from models import BaseResponse, ImageCompressRequest, ImageConvertRequest, ImageResizeRequest
 from modules.media import media_processor
-from models import (
-    BaseResponse, ImageConvertRequest, 
-    ImageResizeRequest, ImageCompressRequest
-)
 
 router = APIRouter(prefix="/image", tags=["Image Tools"])
 
