@@ -40,18 +40,18 @@ export const SystemMetricsWidget: FC = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
       {metrics.map((m) => (
-        <Card key={m.id} elevation="mid" interactive className="group border-border-subtle hover:border-accent/30 overflow-hidden">
+        <Card key={m.id} elevation="mid" interactive className="group border-border-subtle hover:border-accent-cyan/30 overflow-hidden card-hover-lift">
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-[0.2em]">{m.label}</span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold tracking-tight text-foreground">{Math.round(m.value)}</span>
+                  <span className="text-xl font-bold font-mono tracking-tight text-foreground glow-text group-hover:text-accent-cyan transition-colors">{Math.round(m.value)}</span>
                   <span className="text-xs font-mono text-foreground-subtle uppercase">{m.unit}</span>
                 </div>
               </div>
               <div 
-                className="p-2 rounded-lg bg-surface-low transition-colors group-hover:bg-accent/10"
+                className="p-2 rounded-lg bg-surface-low transition-colors group-hover:bg-accent-cyan/10"
                 style={{ color: m.color }}
               >
                 {m.icon}

@@ -63,7 +63,7 @@ const NotificationItem: FC<{
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-[9px] font-mono font-bold uppercase tracking-wider" style={{ color: config.color }}>
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider animate-shimmer drop-shadow-md" style={{ color: config.color }}>
                 {config.label}
               </span>
             </div>

@@ -31,17 +31,17 @@ export const Header: FC = () => {
       initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b border-accent/20 shadow-[0_1px_0_0_rgba(var(--accent-rgb),0.15)] ${
         scrolled
-          ? 'bg-background-overlay backdrop-blur-xl border-b border-border-subtle shadow-lg'
+          ? 'bg-background-overlay backdrop-blur-xl shadow-lg'
           : 'bg-transparent'
       }`}
     >
-      <div className="container-fluid flex items-center justify-between h-16">
+      <div className="w-full px-4 md:px-6 lg:px-8 flex items-center justify-between h-16 flex-nowrap">
         <div className="flex items-center gap-4">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2">
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight gradient-text">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight glow-text">
                 JARVIS
               </h1>
               <span className="text-[10px] font-bold text-accent px-1.5 py-0.5 rounded-md bg-accent/10 border border-accent/20">
@@ -50,7 +50,7 @@ export const Header: FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <span
-                className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-success' : 'bg-danger'} shadow-[0_0_8px_rgba(16,185,129,0.5)]`}
+                className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-success status-dot-live' : 'bg-danger'} shadow-[0_0_8px_rgba(16,185,129,0.5)]`}
               />
               <span className="text-[8px] font-mono text-foreground-subtle uppercase tracking-[0.15em]">
                 Neural_Interface
@@ -156,7 +156,7 @@ export const Header: FC = () => {
             <Settings className="w-4 h-4 text-foreground-muted hover:text-foreground transition-colors" />
           </button>
 
-          <div className="hidden lg:flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle">
+          <div className="hidden md:flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle">
             <Command className="w-3 h-3" />
             <span className="text-[8px] font-mono font-bold uppercase tracking-wider leading-none gap-0.5 flex items-center">
               <kbd className="px-1 py-0.5 rounded bg-surface-high border border-border-subtle text-[8px]">^</kbd>
@@ -164,7 +164,7 @@ export const Header: FC = () => {
               <kbd className="px-1 py-0.5 rounded bg-surface-high border border-border-subtle text-[8px]">Space</kbd>
             </span>
           </div>
-          <kbd className="hidden sm:inline-flex xl:hidden items-center justify-center w-7 h-7 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle text-[10px] font-mono" title="Ctrl+Space to toggle voice">
+          <kbd className="inline-flex md:hidden items-center justify-center w-7 h-7 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle text-[10px] font-mono" title="Ctrl+Space to toggle voice">
             <Command className="w-3 h-3" />
           </kbd>
         </div>
@@ -192,11 +192,11 @@ const HealthIndicator: FC<{ icon: React.ReactNode; label: string; value: string 
         {Array.from({ length: segments }).map((_, i) => (
           <div
             key={i}
-            className={`w-1.5 h-2.5 rounded-sm transition-colors duration-300 ${
+            className={`w-1.5 h-3 rounded-sm transition-colors duration-300 ${
               i < filledSegments
                 ? numericValue > 80
-                  ? 'bg-danger shadow-[0_0_4px_rgba(244,63,94,0.5)]'
-                  : 'bg-accent shadow-[0_0_4px_rgba(var(--accent-rgb),0.5)]'
+                  ? 'bg-danger shadow-[0_0_8px_rgba(244,63,94,0.8)]'
+                  : 'bg-accent-cyan shadow-[0_0_8px_rgba(var(--accent-cyan-rgb),0.6)]'
                 : 'bg-surface-high'
             }`}
           />
@@ -217,14 +217,20 @@ const NavButton: FC<{
 }> = ({ active, onClick, icon, label }) => (
   <button
     onClick={onClick}
-    className={`flex items-center gap-2 px-3 py-2 transition-all duration-300 ${
+    className={`relative flex items-center gap-2 px-3 py-2 transition-all duration-300 rounded-lg ${
       active
-        ? 'bg-accent/10 text-accent border border-accent/20 shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)] rounded-lg'
-        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent rounded-lg'
+        ? 'text-accent-cyan bg-surface-high'
+        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low'
     }`}
     aria-current={active ? 'page' : undefined}
   >
     {icon}
-    <span className="text-[10px] font-mono font-bold uppercase tracking-[0.08em]">{label}</span>
+    <span className="text-[10px] font-mono font-bold uppercase tracking-[0.08em] z-10">{label}</span>
+    {active && (
+      <motion.div 
+        layoutId="nav-indicator"
+        className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent-cyan shadow-[0_0_10px_rgba(var(--accent-cyan-rgb),0.8)] rounded-full"
+      />
+    )}
   </button>
 );

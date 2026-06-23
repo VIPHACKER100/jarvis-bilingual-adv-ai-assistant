@@ -48,7 +48,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
   }, [agentThought]);
 
   return (
-    <main className="relative z-10 flex flex-col items-center w-full max-w-5xl space-y-16 md:space-y-24 px-4 py-12 md:py-24">
+    <main className="relative z-10 flex flex-col items-center w-full max-w-5xl space-y-8 md:space-y-12 px-4 py-12 md:py-24">
       {/* HUD Scanner & Status Overlay */}
       <div className="w-full flex flex-col items-center gap-6">
         <div className="flex items-center gap-4">
@@ -115,7 +115,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
               exit={{ opacity: 0, y: -10 }}
               className="absolute top-[115%] w-full max-w-lg"
             >
-              <div className="hud-panel p-4 border-accent/20 bg-accent/[0.02] flex flex-col items-center gap-3">
+              <div className="hud-panel p-4 border-l-2 border-l-accent-cyan bg-accent/[0.02] flex flex-col items-center gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 flex items-center justify-center">
                     <Sparkles className="w-3 h-3 text-accent animate-pulse" />
@@ -123,7 +123,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
                   <span className="label-caps text-[10px] text-accent tracking-[0.4em] font-bold">Neural_Thought_Stream</span>
                 </div>
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-                <p className="text-sm font-mono text-center text-foreground-muted leading-relaxed max-w-sm px-4">
+                <p className="text-sm font-mono text-center text-foreground-muted leading-relaxed max-w-sm px-4 glow-text">
                   {typedThought || "Initializing heuristic analysis pipeline..."}
                 </p>
                 {/* Visual Telemetry Bars */}
@@ -175,7 +175,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
                   <div className="absolute top-0 right-0 p-2 opacity-5">
                     <Sparkles className="w-12 h-12 text-accent" />
                   </div>
-                  <p className="text-lg text-foreground font-medium italic border-l-2 border-accent/30 pl-6 leading-relaxed">
+                  <p className="text-lg text-foreground font-medium italic border-l-2 border-accent/30 pl-6 leading-relaxed opacity-60 hover:opacity-100 transition-opacity">
                     "{currentSuggestion}"
                   </p>
                   <div className="mt-6 flex items-center justify-between">
@@ -307,9 +307,9 @@ const StatusBadge: FC<{ mode: AppMode, isThinking: boolean, language: Language }
 
   if (isThinking) {
     return (
-      <div className="flex items-center gap-3 px-5 py-2 bg-accent/10 border border-accent/30 rounded-sm">
+      <div className="relative flex items-center gap-3 px-6 py-2 bg-accent/10 border border-accent/40 rounded-sm shadow-[0_0_15px_rgba(var(--accent-rgb),0.15)] before:content-[''] before:absolute before:left-[-6px] before:w-1 before:h-4 before:bg-accent after:content-[''] after:absolute after:right-[-6px] after:w-1 after:h-4 after:bg-accent">
         <div className="w-2 h-2 rounded-full bg-accent animate-ping opacity-75" />
-        <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+        <span className="label-caps text-[11px] text-accent font-bold tracking-[0.3em]">
           {showHi ? 'सोच रहा हूँ...' : 'Thinking...'}
         </span>
       </div>
@@ -319,36 +319,36 @@ const StatusBadge: FC<{ mode: AppMode, isThinking: boolean, language: Language }
   switch (mode) {
     case AppMode.LISTENING:
       return (
-        <div className="flex items-center gap-3 px-5 py-2 bg-accent/10 border border-accent/30 rounded-sm">
-          <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+        <div className="relative flex items-center gap-3 px-6 py-2 bg-accent-cyan/10 border border-accent-cyan/40 rounded-sm neon-border before:content-[''] before:absolute before:left-[-6px] before:w-1 before:h-4 before:bg-accent-cyan after:content-[''] after:absolute after:right-[-6px] after:w-1 after:h-4 after:bg-accent-cyan">
+          <div className="w-2 h-2 rounded-full bg-accent-cyan animate-pulse shadow-[0_0_8px_rgba(var(--accent-cyan-rgb),0.8)]" />
+          <span className="label-caps text-[11px] text-accent-cyan font-bold tracking-[0.3em]">
             {showHi ? 'LISTENING / सुन रहा हूँ...' : 'LISTENING'}
           </span>
         </div>
       );
     case AppMode.PROCESSING:
       return (
-        <div className="flex items-center gap-3 px-5 py-2 bg-accent/10 border border-accent/30 rounded-sm">
+        <div className="relative flex items-center gap-3 px-6 py-2 bg-accent/10 border border-accent/40 rounded-sm shadow-[0_0_15px_rgba(var(--accent-rgb),0.15)] before:content-[''] before:absolute before:left-[-6px] before:w-1 before:h-4 before:bg-accent after:content-[''] after:absolute after:right-[-6px] after:w-1 after:h-4 after:bg-accent">
           <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+          <span className="label-caps text-[11px] text-accent font-bold tracking-[0.3em]">
             {showHi ? 'PROCESSING / कार्य हो रहा है...' : 'PROCESSING'}
           </span>
         </div>
       );
     case AppMode.SPEAKING:
       return (
-        <div className="flex items-center gap-3 px-5 py-2 bg-accent/5 border border-accent/20 rounded-sm">
+        <div className="relative flex items-center gap-3 px-6 py-2 bg-accent/10 border border-accent/40 rounded-sm shadow-[0_0_15px_rgba(var(--accent-rgb),0.15)] before:content-[''] before:absolute before:left-[-6px] before:w-1 before:h-4 before:bg-accent after:content-[''] after:absolute after:right-[-6px] after:w-1 after:h-4 after:bg-accent">
           <Activity className="w-3 h-3 text-accent animate-pulse" />
-          <span className="label-caps text-[10px] text-accent tracking-[0.3em]">
+          <span className="label-caps text-[11px] text-accent font-bold tracking-[0.3em]">
             {showHi ? 'RESPONDING / बोल रहा हूँ...' : 'RESPONDING'}
           </span>
         </div>
       );
     default:
       return (
-        <div className="flex items-center gap-3 px-5 py-2 bg-surface-low/50 border border-border-default rounded-sm opacity-50">
+        <div className="relative flex items-center gap-3 px-6 py-2 bg-surface-low/50 border border-border-default rounded-sm opacity-50 before:content-[''] before:absolute before:left-[-6px] before:w-1 before:h-4 before:bg-border-default after:content-[''] after:absolute after:right-[-6px] after:w-1 after:h-4 after:bg-border-default">
           <div className="w-2 h-2 rounded-full bg-foreground-subtle" />
-          <span className="label-caps text-[10px] text-foreground-subtle tracking-[0.3em]">
+          <span className="label-caps text-[11px] text-foreground-subtle font-bold tracking-[0.3em]">
             {showHi ? 'STANDBY / प्रतीक्षा' : 'STANDBY'}
           </span>
         </div>

@@ -56,8 +56,8 @@ export const ArcReactor: FC<ArcReactorProps> = ({
             <motion.div
               initial={{ rotate: 0 }}
               animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-              className="absolute -inset-8 border border-dashed border-accent/10 rounded-full pointer-events-none"
+              transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+              className="absolute -inset-8 border border-dashed border-accent-cyan/30 rounded-full pointer-events-none shadow-[0_0_15px_rgba(var(--accent-cyan-rgb),0.1)]"
             />
           </>
         )}
@@ -84,13 +84,13 @@ export const ArcReactor: FC<ArcReactorProps> = ({
         {/* Dynamic Rotation Rings */}
         <motion.div 
           animate={{ rotate: isActive ? 360 : 0 }}
-          transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
-          className="absolute inset-4 rounded-full border border-accent/20 border-t-accent/40 opacity-40" 
+          transition={{ repeat: Infinity, duration: isActive ? 5 : 20, ease: "linear" }}
+          className="absolute inset-4 rounded-full border border-accent/20 border-t-accent-cyan/80 opacity-60" 
         />
         <motion.div 
           animate={{ rotate: isActive ? -360 : 0 }}
-          transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
-          className="absolute inset-10 rounded-full border border-dashed border-accent/20 opacity-30" 
+          transition={{ repeat: Infinity, duration: isActive ? 8 : 25, ease: "linear" }}
+          className="absolute inset-10 rounded-full border border-dashed border-accent/30 opacity-40" 
         />
 
         {/* Sector Markers */}
@@ -173,7 +173,7 @@ export const ArcReactor: FC<ArcReactorProps> = ({
 
           {/* Tactical Readouts */}
           <div className="mt-6 flex flex-col items-center gap-1">
-            <span className="label-caps text-[11px] text-accent font-bold tracking-[0.4em] drop-shadow-[0_0_8px_rgba(76,215,246,0.4)]">
+            <span className={`label-caps text-[11px] font-extrabold drop-shadow-[0_0_8px_rgba(76,215,246,0.4)] transition-all duration-1000 ${isActive ? 'text-accent-cyan tracking-[0.5em] glow-text' : 'text-foreground-subtle tracking-[0.2em] opacity-60'}`}>
               {isActive
                 ? (language === 'hi' ? 'ONLINE / चालू' : 'System_Active')
                 : (language === 'hi' ? 'STANDBY / बंद' : 'Standby_Mode')

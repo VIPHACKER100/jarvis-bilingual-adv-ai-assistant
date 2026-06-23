@@ -78,10 +78,10 @@ export const StatusPanels: FC = () => {
 };
 
 const ModuleCard: FC<{ name: string, status: string, uptime: string, color: string }> = ({ name, status, uptime, color }) => (
-  <Card elevation="mid" interactive className="border-border-subtle group">
+  <Card elevation="mid" interactive className="border-border-subtle group card-hover-lift hover:border-accent-cyan/30">
     <div className="flex justify-between items-center">
       <div className="flex flex-col">
-        <span className="text-xs font-bold text-foreground group-hover:text-accent transition-colors">{name}</span>
+        <span className="text-xs font-bold text-foreground group-hover:text-accent-cyan transition-colors">{name}</span>
         <span className="text-[10px] font-mono text-foreground-subtle uppercase tracking-widest mt-1">Uptime: {uptime}</span>
       </div>
       <div className="flex flex-col items-end gap-1">

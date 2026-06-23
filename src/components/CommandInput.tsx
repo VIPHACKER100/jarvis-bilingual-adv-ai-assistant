@@ -93,11 +93,11 @@ export const CommandInput: FC = () => {
     <>
       <button
         onClick={() => setShowInput(prev => !prev)}
-        className="fixed bottom-24 right-6 z-40 p-2.5 rounded-full glass-panel border border-border-default hover:border-accent/40 hover:bg-accent/5 transition-all group"
+        className="fixed bottom-24 right-6 z-40 p-2.5 rounded-full glass-panel border border-border-default hover:border-accent-cyan/40 hover:bg-accent-cyan/10 hover:shadow-[0_0_15px_rgba(var(--accent-cyan-rgb),0.3)] transition-all duration-300 group"
         title="Toggle command input (Ctrl+I)"
         aria-label="Toggle text command input"
       >
-        <Terminal className={`w-4 h-4 transition-all ${showInput ? 'text-accent' : 'text-foreground-muted'} group-hover:scale-110`} />
+        <Terminal className={`w-4 h-4 transition-all ${showInput ? 'text-accent-cyan glow-text' : 'text-foreground-muted'} group-hover:scale-110`} />
       </button>
 
       <AnimatePresence>
@@ -109,10 +109,10 @@ export const CommandInput: FC = () => {
             transition={{ duration: 0.15, ease: [0.19, 1, 0.22, 1] }}
             className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-4"
           >
-            <div className="glass-panel--high border border-accent/20 bg-surface-low/90 backdrop-blur-xl shadow-[0_0_40px_rgba(76,215,246,0.1)] rounded-xl overflow-hidden">
+            <div className="glass-panel--high border border-accent/20 bg-surface-low/90 backdrop-blur-xl shadow-[0_0_40px_rgba(76,215,246,0.1)] rounded-xl overflow-hidden focus-within:border-accent-cyan focus-within:shadow-[0_0_20px_rgba(var(--accent-cyan-rgb),0.3)] transition-all duration-300">
               <div className="flex items-center gap-3 px-4 py-2 border-b border-border-subtle bg-surface-mid/50">
-                <Terminal className="w-3.5 h-3.5 text-accent" />
-                <span className="text-[8px] font-mono text-accent tracking-[0.3em] uppercase font-bold">Text_Command_Interface</span>
+                <Terminal className="w-3.5 h-3.5 text-accent-cyan" />
+                <span className="text-[8px] font-mono text-accent-cyan tracking-[0.3em] uppercase font-bold">Text_Command_Interface</span>
                 <div className="flex-1" />
                 <span className="text-[8px] font-mono text-foreground-subtle opacity-50">Ctrl+I</span>
               </div>
@@ -128,7 +128,7 @@ export const CommandInput: FC = () => {
                     if (e.key === 'Escape') { setShowInput(false); setText(''); }
                   }}
                   placeholder="Type a command..."
-                  className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-foreground placeholder:text-foreground-subtle/30"
+                  className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-foreground placeholder:text-foreground-subtle/50 focus:placeholder:text-foreground-subtle transition-colors"
                   disabled={isProcessing}
                   aria-label="Command text input"
                 />
@@ -143,7 +143,7 @@ export const CommandInput: FC = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={!text.trim() || isProcessing}
-                  className="p-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  className="p-1.5 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                   title="Send command"
                   aria-label="Send command"
                 >
@@ -177,9 +177,9 @@ export const CommandInput: FC = () => {
                 <div className="flex-1" />
                 {isStreaming && (
                   <div className="flex gap-1">
-                    <div className="w-1 h-1 rounded-full bg-accent animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-1 h-1 rounded-full bg-accent animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-1 h-1 rounded-full bg-accent animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="w-1 h-1 rounded-full bg-accent-cyan animate-bounce shadow-[0_0_8px_rgba(var(--accent-cyan-rgb),0.8)]" style={{ animationDelay: '0ms' }} />
+                    <div className="w-1 h-1 rounded-full bg-accent-cyan animate-bounce shadow-[0_0_8px_rgba(var(--accent-cyan-rgb),0.8)]" style={{ animationDelay: '150ms' }} />
+                    <div className="w-1 h-1 rounded-full bg-accent-cyan animate-bounce shadow-[0_0_8px_rgba(var(--accent-cyan-rgb),0.8)]" style={{ animationDelay: '300ms' }} />
                   </div>
                 )}
                 <button

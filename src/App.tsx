@@ -104,7 +104,7 @@ const App: FC = () => {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="flex-1 w-full pt-20 pb-20"
+        className="flex-1 w-full pt-28 pb-20"
       >
         {activeTacticalView === 'HUD' && (
           <div className="container-fluid flex flex-col items-center gap-8 mt-4">
