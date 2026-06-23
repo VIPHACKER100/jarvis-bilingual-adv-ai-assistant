@@ -391,7 +391,7 @@ def _find_frontend_dir() -> Optional[Path]:
             base_path / "dist",
             base_path / "frontend"
         ])
-    except:
+    except Exception:
         pass
 
     # 3. Check relative to CWD

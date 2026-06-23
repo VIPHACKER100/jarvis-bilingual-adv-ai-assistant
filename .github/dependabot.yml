@@ -1,0 +1,68 @@
+# JARVIS Dependabot Configuration
+# Auto-updates for npm (frontend) and pip (backend) dependencies
+# See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # ── npm (Frontend) ──────────────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Kolkata"
+    versioning-strategy: "auto"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    reviewers:
+      - "VIPHACKER100"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/plugin-react"
+          - "vitest"
+          - "@tailwindcss/vite"
+      testing:
+        patterns:
+          - "@testing-library/*"
+          - "jsdom"
+          - "vitest"
+
+  # ── pip (Backend) ───────────────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "backend"
+    reviewers:
+      - "VIPHACKER100"
+    commit-message:
+      prefix: "chore(deps)"
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "pip"

@@ -948,8 +948,8 @@ class MediaProcessor:
             }
         return result
 
-    async def analyze_screen(self, query: str, language: str = 'en') -> Dict:
-        """Answer a specific question about the current screen content"""
+    async def analyze_screen_text(self, query: str, language: str = 'en') -> Dict:
+        """Answer a specific question about the current screen content using OCR + text LLM"""
         from modules.llm_wrapper import llm_client
 
         result = await self.extract_text_from_screenshot(language)

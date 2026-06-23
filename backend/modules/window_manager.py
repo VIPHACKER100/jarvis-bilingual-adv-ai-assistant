@@ -750,7 +750,7 @@ class WindowManager:
                         _, pid = win32process.GetWindowThreadProcessId(hwnd)
                         proc = psutil.Process(pid)
                         return pid, proc.name()
-                    except:
+                    except Exception:
                         return 0, "Unknown"
 
                 pid, name = await asyncio.to_thread(get_proc_info)

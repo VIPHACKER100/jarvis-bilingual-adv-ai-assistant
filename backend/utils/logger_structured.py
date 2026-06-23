@@ -82,8 +82,10 @@ def log_event(event: str, **kwargs: Any) -> None:
 # Compatibility aliases for existing code
 logger = get_logger("jarvis")
 
-log_command = lambda cmd, cmd_type, success: log_event(
-    "command", command=cmd, command_type=cmd_type, success=success
-)
+def log_command(cmd, cmd_type, success):
+    """Log a command event (compatibility alias)."""
+    log_event("command", command=cmd, command_type=cmd_type, success=success)
 
-log_system_event = lambda event, data: log_event(event, **data)
+def log_system_event(event, data):
+    """Log a system event (compatibility alias)."""
+    log_event(event, **data)

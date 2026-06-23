@@ -90,6 +90,9 @@ hidden_imports = [
     'utils.logger'
 ]
 
+import os
+from pathlib import Path
+
 # Base paths
 BASE_DIR = Path(__file__).parent
 DATA_DIR = Path(__file__).parent / "data"
