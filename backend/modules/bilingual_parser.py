@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+from rapidfuzz import fuzz
+
 from config import HINDI_COMMANDS, RESPONSES  # type: ignore
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -118,8 +120,6 @@ class BilingualParser:
         """
         text_lower = text.lower().strip()
         lang = self.detect_language(text_lower)
-
-        from rapidfuzz import fuzz
 
         # Try to match against Hindi command phrases (sorted by length to match longest first)
         sorted_phrases = sorted(self.command_map.items(), key=lambda x: len(x[0]), reverse=True)

@@ -38,6 +38,7 @@ COPY --from=frontend-builder /app/dist ./dist
 # Set environment variables
 ENV FRONTEND_URL=http://localhost:5173
 ENV BACKEND_PORT=8000
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONPATH=/app
 
 RUN chown -R jarvis:jarvis /app

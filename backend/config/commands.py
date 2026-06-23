@@ -197,7 +197,6 @@ HINDI_COMMANDS = {
     ],
     "close_app": [
         "close",
-        "band karo",
         "exit",
         "quit",
         "band kardo",
@@ -211,7 +210,7 @@ HINDI_COMMANDS = {
     # Window
     "minimize": ["minimize", "chhota karo", "niche karo", "minimize kardo", "मिनिमाइज", "छोटा करो", "नीचे करो"],
     "maximize": ["maximize", "bada karo", "pura screen", "maximize kardo", "मैक्सिमाइज", "बड़ा करो", "पूरी स्क्रीन"],
-    "close_window": ["close window", "window band", "band karo", "window hatao", "विंडो बंद करो", "खिड़की बंद करो"],
+    "close_window": ["close window", "window band", "window hatao", "विंडो बंद करो", "खिड़की बंद करो"],
     # WhatsApp
     "whatsapp_message": [
         "whatsapp",

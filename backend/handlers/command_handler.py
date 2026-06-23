@@ -114,9 +114,6 @@ async def handle_command(
             }
             log_command(command, "unknown", False)
 
-    if hasattr(result, "model_dump"):
-        result = result.model_dump()
-
     details = result.get("details") or (params if isinstance(params, dict) else None)
     suggestion = await context_manager.suggest_next_action()
 
