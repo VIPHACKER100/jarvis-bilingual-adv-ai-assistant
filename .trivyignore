@@ -1,0 +1,11 @@
+# JARVIS Project — Trivy Ignore Rules
+# Format: CVE-ID or GHSA-ID [optional expiration date] [optional comment]
+
+# Temporarily ignored — will be addressed in next dependency upgrade pass
+# CVE-2023-XXXXX expires: 2024-12-31
+
+# Python stdlib CVEs not applicable to JARVIS runtime context
+# (e.g., denial-of-service vectors requiring local interactive access)
+
+# Node.js transitive dev dependency false positives
+# (e.g., vulnerabilities in build-only tools not shipped in production image)

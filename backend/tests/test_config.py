@@ -1,5 +1,5 @@
-import pytest
-from backend.config import HINDI_COMMANDS, RESPONSES, BACKEND_PORT
+from backend.config import BACKEND_PORT, HINDI_COMMANDS, RESPONSES
+
 
 def test_config_loading():
     assert BACKEND_PORT is not None
@@ -7,6 +7,7 @@ def test_config_loading():
     assert "open_browser" in HINDI_COMMANDS
     assert isinstance(RESPONSES, dict)
     assert "greeting" in RESPONSES
+
 
 def test_bilingual_responses():
     greeting = RESPONSES.get("greeting")

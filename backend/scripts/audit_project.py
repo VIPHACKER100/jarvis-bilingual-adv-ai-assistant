@@ -2,6 +2,7 @@
 JARVIS Project Audit — parser, dispatch coverage, module imports, pytest summary.
 Run: python scripts/audit_project.py
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -20,10 +21,14 @@ sys.path.insert(0, str(BACKEND))
 def run_pytest() -> dict:
     """Run fast unit tests only. Full suite: python -m pytest tests/ -q"""
     cmd = [
-        sys.executable, "-m", "pytest",
+        sys.executable,
+        "-m",
+        "pytest",
         "tests/test_bilingual_parser.py",
         "tests/test_config.py",
-        "-q", "--tb=no", "-ra",
+        "-q",
+        "--tb=no",
+        "-ra",
         "--import-mode=importlib",
     ]
     try:
@@ -48,6 +53,7 @@ def run_pytest() -> dict:
     out = proc.stdout + proc.stderr
     passed = failed = skipped = 0
     import re
+
     m = re.search(r"(\d+) passed", out)
     if m:
         passed = int(m.group(1))
@@ -90,17 +96,19 @@ def audit_parser() -> list[dict]:
                 or f"command_key in ['{key}'" in handler_src
                 or f"'{key}'" in handler_src
             )
-            rows.append({
-                "command_key": key,
-                "sample": sample,
-                "sample_type": label,
-                "parsed_key": cmd_key,
-                "parsed_ok": parsed_ok,
-                "language": lang,
-                "has_params": params is not None,
-                "in_dispatch": in_dispatch,
-                "status": _status(parsed_ok, in_dispatch),
-            })
+            rows.append(
+                {
+                    "command_key": key,
+                    "sample": sample,
+                    "sample_type": label,
+                    "parsed_key": cmd_key,
+                    "parsed_ok": parsed_ok,
+                    "language": lang,
+                    "has_params": params is not None,
+                    "in_dispatch": in_dispatch,
+                    "status": _status(parsed_ok, in_dispatch),
+                }
+            )
             break  # one sample per key is enough for matrix
     return rows
 
@@ -133,6 +141,7 @@ def audit_module_imports() -> list[dict]:
 def audit_tesseract() -> dict:
     try:
         from modules.media import MediaProcessor
+
         m = MediaProcessor()
         return {"tesseract_ready": m._tesseract_ready}
     except Exception as e:
@@ -141,6 +150,7 @@ def audit_tesseract() -> dict:
 
 def audit_env() -> dict:
     import os
+
     keys = [
         "OPENROUTER_API_KEY",
         "NVIDIA_API_KEY",
@@ -168,19 +178,23 @@ async def smoke_dispatch() -> list[dict]:
     for key, params, lang, raw in tests:
         try:
             result = await dispatch_command(key, params, lang, raw, None, "audit")
-            rows.append({
-                "command_key": key,
-                "success": result.get("success"),
-                "action_type": result.get("action_type"),
-                "error": result.get("error"),
-            })
+            rows.append(
+                {
+                    "command_key": key,
+                    "success": result.get("success"),
+                    "action_type": result.get("action_type"),
+                    "error": result.get("error"),
+                }
+            )
         except Exception as e:
-            rows.append({
-                "command_key": key,
-                "success": False,
-                "action_type": "EXCEPTION",
-                "error": str(e)[:300],
-            })
+            rows.append(
+                {
+                    "command_key": key,
+                    "success": False,
+                    "action_type": "EXCEPTION",
+                    "error": str(e)[:300],
+                }
+            )
     return rows
 
 
@@ -199,9 +213,7 @@ def main() -> None:
     report["env_keys"] = audit_env()
     print("Smoke dispatch (optional)...")
     try:
-        report["smoke_dispatch"] = asyncio.run(
-            asyncio.wait_for(smoke_dispatch(), timeout=30)
-        )
+        report["smoke_dispatch"] = asyncio.run(asyncio.wait_for(smoke_dispatch(), timeout=30))
     except Exception as e:
         report["smoke_dispatch"] = {"skipped": True, "error": str(e)[:200]}
 

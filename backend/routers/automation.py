@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional, List
+from fastapi import APIRouter
+from models import AutomationTaskRequest, BaseResponse, MacroRequest
 from modules.automation import automation_manager
-from models import BaseResponse, AutomationTaskRequest, MacroRequest
 
 router = APIRouter(prefix="/automation", tags=["Automation"])
 
@@ -14,9 +13,7 @@ async def create_task(data: AutomationTaskRequest):
         description=data.name,
         command=data.command,
         schedule_type=data.schedule_type,
-        schedule_time=str(data.interval_seconds)
-        if data.interval_seconds
-        else data.cron_expression or "",
+        schedule_time=str(data.interval_seconds) if data.interval_seconds else data.cron_expression or "",
         parameters={},
         enabled=data.enabled,
     )
@@ -86,7 +83,7 @@ async def get_macros():
             "description": m.description,
             "trigger": m.trigger,
             "enabled": m.enabled,
-            "commands": m.commands # Ensure commands are returned to avoid frontend crash
+            "commands": m.commands,  # Ensure commands are returned to avoid frontend crash
         }
         for m in macros
     ]

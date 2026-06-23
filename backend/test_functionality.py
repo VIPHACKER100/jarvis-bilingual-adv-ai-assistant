@@ -4,8 +4,8 @@ Module Functionality Test Script
 Tests specific functionality of each module
 """
 
-import sys
 import asyncio
+import sys
 from pathlib import Path
 
 # Add backend to path
@@ -62,7 +62,7 @@ async def main():
     print("=" * 60)
     print("JARVIS Module Functionality Test")
     print("=" * 60)
-    
+
     tests = [
         ('Input Control', test_input_control),
         ('LLM', test_llm),
@@ -73,7 +73,7 @@ async def main():
         ('WhatsApp', test_whatsapp),
         ('Vision Capability', test_vision),
     ]
-    
+
     results = {}
     for name, test_func in tests:
         try:
@@ -84,13 +84,13 @@ async def main():
         except Exception as e:
             results[name] = False
             print(f"✗ ERROR   - {name}: {e}")
-    
+
     print("\n" + "=" * 60)
     passed = sum(results.values())
     total = len(results)
     print(f"Results: {passed}/{total} tests passed")
     print("=" * 60)
-    
+
     if passed == total:
         print("\n✓ All functionality tests passed!")
         return 0

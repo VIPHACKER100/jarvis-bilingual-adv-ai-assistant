@@ -1,7 +1,20 @@
 from . import (
-    system, windows, files, media, pdf_tools, 
-    image_tools, desktop, memory, automation, 
-    commands, settings, whatsapp, websocket,
-    input_control, notifications, sync, health,
-    context,
+    automation,  # noqa: F401
+    commands,  # noqa: F401
+    context,  # noqa: F401
+    desktop,  # noqa: F401
+    files,  # noqa: F401
+    health,  # noqa: F401
+    image_tools,  # noqa: F401
+    input_control,  # noqa: F401
+    media,  # noqa: F401
+    memory,  # noqa: F401
+    notifications,  # noqa: F401
+    pdf_tools,  # noqa: F401
+    settings,  # noqa: F401
+    sync,  # noqa: F401
+    system,  # noqa: F401
+    websocket,  # noqa: F401
+    whatsapp,  # noqa: F401
+    windows,  # noqa: F401
 )

@@ -1,14 +1,19 @@
-from fastapi import APIRouter, HTTPException, Query, Body, Request
-from typing import Dict, Any, Optional
-import os
 import asyncio
-from config import CONFIG, NVIDIA_MODEL, OPENROUTER_MODEL, BACKEND_PORT, LOG_LEVEL, save_config
+import os
+
+from config import BACKEND_PORT, CONFIG, LOG_LEVEL, NVIDIA_MODEL, OPENROUTER_MODEL, save_config
+from fastapi import APIRouter, HTTPException
 from models import (
-    BaseResponse, SettingsResponse, ApiKeyStatusResponse, 
-    SettingsUpdateRequest, ApiKeyUpdateRequest, KeyTestRequest
+    ApiKeyStatusResponse,
+    ApiKeyUpdateRequest,
+    BaseResponse,
+    KeyTestRequest,
+    SettingsResponse,
+    SettingsUpdateRequest,
 )
 
 router = APIRouter(prefix="/settings", tags=["Settings"])
+
 
 @router.get("", response_model=SettingsResponse)
 async def get_settings():
@@ -25,35 +30,37 @@ async def get_settings():
             "enable_dangerous_commands": CONFIG.get("enable_dangerous_commands", True),
             "confirmation_timeout": CONFIG.get("confirmation_timeout", 30),
             "wake_word_enabled": CONFIG.get("wake_word_enabled", True),
-            "wake_word_phrase": CONFIG.get("wake_word_phrase", "jarvis")
-        }
+            "wake_word_phrase": CONFIG.get("wake_word_phrase", "jarvis"),
+        },
     }
 
 
 @router.get("/keys", response_model=ApiKeyStatusResponse)
 async def get_keys():
     """Get status of configured API keys (redacted)"""
+
     def redact(key):
         return bool(key)
 
     return {
         "NVIDIA_API_KEY": redact(os.getenv("NVIDIA_API_KEY")),
         "OPENROUTER_API_KEY": redact(os.getenv("OPENROUTER_API_KEY")),
-        "BACKEND_API_KEY": redact(os.getenv("BACKEND_API_KEY"))
+        "BACKEND_API_KEY": redact(os.getenv("BACKEND_API_KEY")),
     }
+
 
 @router.post("", response_model=SettingsResponse)
 async def update_settings(data: SettingsUpdateRequest):
     """Update system configuration"""
     try:
-        settings_dict = data.dict(exclude_unset=True)
+        settings_dict = data.model_dump(exclude_unset=True)
         # Update the in-memory CONFIG
         for key, value in settings_dict.items():
             CONFIG[key] = value
-        
+
         # Save to config.json
         await asyncio.to_thread(save_config, CONFIG)
-        
+
         # Return full updated settings
         return await get_settings()
     except Exception as e:
@@ -64,40 +71,40 @@ async def update_settings(data: SettingsUpdateRequest):
 async def update_keys(data: ApiKeyUpdateRequest):
     """Update API keys in the .env file"""
     try:
-        env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-        
+        env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+
         # Read current .env
         def read_env():
             lines = []
             if os.path.exists(env_path):
-                with open(env_path, 'r', encoding='utf-8') as f:
+                with open(env_path, "r", encoding="utf-8") as f:
                     lines = f.readlines()
             return lines
 
         env_lines = await asyncio.to_thread(read_env)
-        
+
         # Map of keys to update
         updates = {
             "NVIDIA_API_KEY": data.nvidia_api_key,
             "OPENROUTER_API_KEY": data.openrouter_api_key,
             "GEMINI_API_KEY": data.gemini_api_key,
-            "BACKEND_API_KEY": data.backend_api_key
+            "BACKEND_API_KEY": data.backend_api_key,
         }
-        
+
         # Filter out None values
         updates = {k: v for k, v in updates.items() if v is not None}
-        
+
         if not updates:
             return {"success": False, "response": "No valid keys provided"}
-            
+
         # Update or add lines
         new_env_lines = []
         updated_keys = set()
-        
+
         for line in env_lines:
             line_stripped = line.strip()
-            if '=' in line_stripped and not line_stripped.startswith('#'):
-                key = line_stripped.split('=')[0].strip()
+            if "=" in line_stripped and not line_stripped.startswith("#"):
+                key = line_stripped.split("=")[0].strip()
                 if key in updates:
                     new_env_lines.append(f"{key}={updates[key]}\n")
                     updated_keys.add(key)
@@ -105,32 +112,32 @@ async def update_keys(data: ApiKeyUpdateRequest):
                     new_env_lines.append(line)
             else:
                 new_env_lines.append(line)
-                
+
         # Add remaining new keys
         for key, value in updates.items():
             if key not in updated_keys:
                 new_env_lines.append(f"{key}={value}\n")
-                
+
         # Write back
         def write_env(lines):
-            with open(env_path, 'w', encoding='utf-8') as f:
+            with open(env_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
-        
+
         await asyncio.to_thread(write_env, new_env_lines)
-            
+
         return {"success": True, "response": f"Updated {len(updates)} keys in .env"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update API keys: {str(e)}")
+
 
 @router.post("/test-key", response_model=BaseResponse)
 async def test_key(data: KeyTestRequest):
     """Verify an API key by making a test request"""
     provider = data.provider
     api_key = data.api_key
-    
+
     if not provider or not api_key:
         raise HTTPException(status_code=400, detail="Missing provider or api_key")
-        
-    from modules.llm_wrapper import llm_module
+
     # Future: Implement per-provider validation
     return {"success": True, "response": f"Verified {provider} key (simulated)"}

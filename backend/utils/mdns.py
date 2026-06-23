@@ -1,14 +1,17 @@
-import socket
-from zeroconf.asyncio import AsyncZeroconf
-from zeroconf import IPVersion, ServiceInfo
-from utils.logger_structured import logger
 import os
+import socket
+
+from utils.logger_structured import logger
+from zeroconf import IPVersion, ServiceInfo
+from zeroconf.asyncio import AsyncZeroconf
+
 
 class mDNSBroadcaster:
     """
     Broadcasts the JARVIS service on the local network using mDNS (ZeroConf).
     Allows mobile apps to discover the server automatically.
     """
+
     def __init__(self, port: int = 8000, service_name: str = "JARVIS-CORE"):
         self.port = port
         self.service_name = service_name
@@ -22,15 +25,15 @@ class mDNSBroadcaster:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             try:
                 # Doesn't even have to be reachable
-                s.connect(('8.8.8.8', 1))
+                s.connect(("8.8.8.8", 1))
                 ip_address = s.getsockname()[0]
             except Exception:
-                ip_address = '127.0.0.1'
+                ip_address = "127.0.0.1"
             finally:
                 s.close()
 
-            desc = {'version': '3.9.0', 'platform': os.name}
-            
+            desc = {"version": "3.9.0", "platform": os.name}
+
             self.service_info = ServiceInfo(
                 "_jarvis._tcp.local.",
                 f"{self.service_name}._jarvis._tcp.local.",
@@ -42,10 +45,11 @@ class mDNSBroadcaster:
 
             self.zeroconf = AsyncZeroconf(ip_version=IPVersion.V4Only)
             await self.zeroconf.async_register_service(self.service_info)
-            
+
             logger.info(f"mDNS Broadcaster started: {self.service_name} at {ip_address}:{self.port}")
         except Exception as e:
             import traceback
+
             logger.error(f"Failed to start mDNS Broadcaster: {e}")
             logger.error(traceback.format_exc())
 
@@ -58,5 +62,6 @@ class mDNSBroadcaster:
                 logger.info("mDNS Broadcaster stopped.")
             except Exception as e:
                 logger.error(f"Error stopping mDNS Broadcaster: {e}")
+
 
 mdns_broadcaster = mDNSBroadcaster()

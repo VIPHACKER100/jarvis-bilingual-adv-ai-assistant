@@ -4,11 +4,8 @@ Uses rapidfuzz for keyword scores and pgvector cosine distance for semantic scor
 """
 
 import asyncio
-import os
-from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass, field
-
-from utils.logger_structured import logger
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -24,10 +21,9 @@ class HybridSearch:
         self.keyword_weight = keyword_weight
         self.semantic_weight = semantic_weight
 
-    async def search(self, query: str, nodes: List[Dict[str, Any]],
-                     use_semantic: bool = True) -> List[SearchResult]:
-        from rapidfuzz import fuzz
+    async def search(self, query: str, nodes: List[Dict[str, Any]], use_semantic: bool = True) -> List[SearchResult]:
         from modules.rag.embeddings import embedding_service
+        from rapidfuzz import fuzz
         from utils.database import db_manager
 
         query_lower = query.lower()
@@ -39,7 +35,7 @@ class HybridSearch:
             if query_embedding:
                 rows = await db_manager.fetchall(
                     "SELECT filename, 1 - (embedding <=> ?::vector) AS similarity FROM neural_vectors WHERE embedding IS NOT NULL ORDER BY embedding <=> ?::vector LIMIT 20",
-                    (query_embedding, query_embedding)
+                    (query_embedding, query_embedding),
                 )
                 for row in rows:
                     semantic_scores[row["filename"]] = row["similarity"]
@@ -78,6 +74,7 @@ class HybridSearch:
     async def _read_node_content(self, name: str) -> Optional[str]:
         try:
             from modules.memory import memory_manager
+
             return await memory_manager.neural.get_node(name)
         except Exception:
             return None

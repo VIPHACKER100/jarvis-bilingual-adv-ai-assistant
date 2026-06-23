@@ -5,12 +5,11 @@ Provides isolated test database, mock LLM client, and mock system modules
 for reliable, repeatable backend testing.
 """
 
-import sys
 import asyncio
-from pathlib import Path
-from typing import AsyncGenerator
-from unittest.mock import AsyncMock, MagicMock, patch
+import sys
 from dataclasses import dataclass
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import pytest_asyncio
@@ -20,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 # ─── Event Loop ──────────────────────────────────────────────────────────────
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -31,8 +31,10 @@ def event_loop():
 
 # ─── Mock Database ───────────────────────────────────────────────────────────
 
+
 class MockConnection:
     """Mock asyncpg-compatible connection backed by in-memory dicts."""
+
     def __init__(self):
         self._tables = {
             "conversations": [],
@@ -57,8 +59,11 @@ class MockConnection:
     def cursor(self, *args, **kwargs):
         return self
 
-    async def __aenter__(self): return self
-    async def __aexit__(self, *args): pass
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        pass
 
     async def close(self):
         pass
@@ -66,6 +71,7 @@ class MockConnection:
 
 class MockPool:
     """Mock asyncpg.Pool."""
+
     def __init__(self):
         self._conn = MockConnection()
 
@@ -82,12 +88,12 @@ class MockPool:
 @pytest_asyncio.fixture
 async def test_db():
     pool = MockPool()
-    with patch("utils.database.db_manager._pool", pool), \
-         patch("utils.database.db_manager._initialized", True):
+    with patch("utils.database.db_manager._pool", pool), patch("utils.database.db_manager._initialized", True):
         yield pool._conn
 
 
 # ─── Mock LLM Client ─────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_llm():
@@ -98,10 +104,7 @@ def mock_llm():
     llm = MagicMock()
     llm.get_response = AsyncMock(return_value="Mock JARVIS response.")
     llm.get_visual_response = AsyncMock(return_value="Mock visual analysis.")
-    llm.extract_command = AsyncMock(return_value={
-        "command_key": "unknown",
-        "params": None
-    })
+    llm.extract_command = AsyncMock(return_value={"command_key": "unknown", "params": None})
     llm.ping_llm = AsyncMock(return_value=True)
     llm.summarize_context = AsyncMock(return_value="Mock context summary.")
     return llm
@@ -109,48 +112,58 @@ def mock_llm():
 
 # ─── Mock System Module ──────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def mock_system():
     """Mock system module to avoid real OS interactions in tests."""
     system = MagicMock()
-    system.get_battery_status = AsyncMock(return_value={
-        "success": True,
-        "percent": 85,
-        "is_charging": True,
-        "secs_left": -1,
-        "response": "Battery is at 85%"
-    })
-    system.get_time = AsyncMock(return_value={
-        "success": True,
-        "time": "2026-05-15T10:00:00",
-        "formatted": "10:00 AM",
-        "response": "It is 10:00 AM"
-    })
-    system.get_date = AsyncMock(return_value={
-        "success": True,
-        "date": "2026-05-15T10:00:00",
-        "formatted": "Friday, May 15, 2026",
-        "response": "Today is Friday, May 15, 2026"
-    })
+    system.get_battery_status = AsyncMock(
+        return_value={
+            "success": True,
+            "percent": 85,
+            "is_charging": True,
+            "secs_left": -1,
+            "response": "Battery is at 85%",
+        }
+    )
+    system.get_time = AsyncMock(
+        return_value={
+            "success": True,
+            "time": "2026-05-15T10:00:00",
+            "formatted": "10:00 AM",
+            "response": "It is 10:00 AM",
+        }
+    )
+    system.get_date = AsyncMock(
+        return_value={
+            "success": True,
+            "date": "2026-05-15T10:00:00",
+            "formatted": "Friday, May 15, 2026",
+            "response": "Today is Friday, May 15, 2026",
+        }
+    )
     system.get_volume = AsyncMock(return_value=50)
     system.set_volume = AsyncMock(return_value=True)
-    system.get_system_status = AsyncMock(return_value={
-        "success": True,
-        "battery": {"percent": 85, "is_charging": True, "secs_left": -1},
-        "cpu": {"percent": 25.0, "count": 8},
-        "memory": {"total": 16000000000, "used": 8000000000, "percent": 50.0, "available": 8000000000},
-        "disk": {"total": 500000000000, "used": 250000000000, "free": 250000000000, "percent": 50.0},
-        "network": {"bytes_sent": 1000, "bytes_recv": 2000, "packets_sent": 10, "packets_recv": 20},
-        "uptime": 3600.0,
-        "volume": 50,
-        "platform": "Windows",
-        "timestamp": "2026-05-15T10:00:00",
-        "response": "System is stable, sir."
-    })
+    system.get_system_status = AsyncMock(
+        return_value={
+            "success": True,
+            "battery": {"percent": 85, "is_charging": True, "secs_left": -1},
+            "cpu": {"percent": 25.0, "count": 8},
+            "memory": {"total": 16000000000, "used": 8000000000, "percent": 50.0, "available": 8000000000},
+            "disk": {"total": 500000000000, "used": 250000000000, "free": 250000000000, "percent": 50.0},
+            "network": {"bytes_sent": 1000, "bytes_recv": 2000, "packets_sent": 10, "packets_recv": 20},
+            "uptime": 3600.0,
+            "volume": 50,
+            "platform": "Windows",
+            "timestamp": "2026-05-15T10:00:00",
+            "response": "System is stable, sir.",
+        }
+    )
     return system
 
 
 # ─── Mock Desktop Module ─────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def mock_desktop():
@@ -164,6 +177,7 @@ def mock_desktop():
 
 # ─── Mock Memory Manager ─────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def mock_memory():
     """Mock memory manager for conversation/fact operations."""
@@ -174,13 +188,15 @@ def mock_memory():
     memory.save_memory = AsyncMock(return_value=True)
     memory.get_memory = AsyncMock(return_value=None)
     memory.search_memory = AsyncMock(return_value=[])
-    memory.get_command_insights = AsyncMock(return_value={
-        "top_commands": [],
-        "daily_activity": [],
-        "peak_hour": {"hour": None, "count": 0},
-        "failure_patterns": [],
-        "period_days": 30
-    })
+    memory.get_command_insights = AsyncMock(
+        return_value={
+            "top_commands": [],
+            "daily_activity": [],
+            "peak_hour": {"hour": None, "count": 0},
+            "failure_patterns": [],
+            "period_days": 30,
+        }
+    )
     memory.get_neural_context = AsyncMock(return_value="")
     memory.list_nodes = AsyncMock(return_value=[])
     memory.save_performance_metric = AsyncMock(return_value=True)
@@ -192,9 +208,11 @@ def mock_memory():
 
 # ─── Sample Data Factories ───────────────────────────────────────────────────
 
+
 @dataclass
 class SampleConversation:
     """Factory for creating test conversation entries."""
+
     user_input: str = "What time is it?"
     jarvis_response: str = "It is 10:00 AM."
     command_type: str = "get_time"
@@ -213,6 +231,7 @@ def sample_conversation():
 @dataclass
 class SampleFact:
     """Factory for creating test memory facts."""
+
     key: str = "favorite_color"
     value: str = "indigo"
     category: str = "preferences"

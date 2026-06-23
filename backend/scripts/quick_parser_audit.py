@@ -1,5 +1,7 @@
-import json, sys
+import json
+import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config.commands import HINDI_COMMANDS
 from modules.bilingual_parser import BilingualParser

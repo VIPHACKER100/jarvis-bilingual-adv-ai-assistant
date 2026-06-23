@@ -5,22 +5,20 @@ Drop-in replacement for the SQLite DatabaseManager using asyncpg.
 
 import os
 import re
-import asyncpg
-from pathlib import Path
-from typing import Optional, AsyncGenerator, Any, List, Dict
 from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Any, AsyncGenerator, Optional
 
+import asyncpg
 from utils.logger_structured import logger
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://jarvis:jarvis_dev_password@localhost:5432/jarvis"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://jarvis:jarvis_dev_password@localhost:5432/jarvis")
 
 
 def _parse_url(url: str) -> dict:
     raw = url.replace("postgresql+asyncpg://", "postgresql://")
     from urllib.parse import urlparse
+
     parsed = urlparse(raw)
     return {
         "host": parsed.hostname or "localhost",
@@ -33,12 +31,15 @@ def _parse_url(url: str) -> dict:
 
 def _translate_sql(sql: str) -> str:
     count = 1
+
     def repl(m):
         nonlocal count
         res = f"${count}"
         count += 1
         return res
-    return re.sub(r'\?', repl, sql)
+
+    return re.sub(r"\?", repl, sql)
+
 
 class MockCursor:
     def __init__(self, lastrowid=None, rowcount=0, rows=None):
@@ -55,13 +56,15 @@ class MockCursor:
     def __await__(self):
         async def _ret():
             return self
+
         return _ret().__await__()
-        
+
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         pass
+
 
 class MockCursorWrapper:
     def __init__(self, pool: asyncpg.Pool, sql: str, params: tuple):
@@ -78,10 +81,10 @@ class MockCursorWrapper:
     async def _execute(self):
         is_insert = self.sql.strip().upper().startswith("INSERT")
         pg_sql = _translate_sql(self.sql)
-        
+
         if is_insert and "RETURNING" not in pg_sql.upper():
             pg_sql = f"{pg_sql.rstrip(';')} RETURNING id"
-            
+
         async with self.pool.acquire() as conn:
             if is_insert:
                 try:
@@ -129,7 +132,7 @@ class DatabaseManager:
         self.dsn = dsn or DATABASE_URL
         self._pool: Optional[asyncpg.Pool] = None
         self._initialized = False
-        self.row_factory = None # Absorb SQLite row factory assignments
+        self.row_factory = None  # Absorb SQLite row factory assignments
 
     async def initialize(self) -> None:
         if self._initialized:
@@ -154,7 +157,7 @@ class DatabaseManager:
     @asynccontextmanager
     async def connection(self) -> AsyncGenerator[Any, None]:
         """Yield a real asyncpg Connection from the pool.
-        
+
         Usage:
             async with db_manager.connection() as conn:
                 row = await conn.fetchrow("SELECT ...")
@@ -171,7 +174,7 @@ class DatabaseManager:
     @asynccontextmanager
     async def transaction(self) -> AsyncGenerator[Any, None]:
         """Yield a real asyncpg Connection inside a transaction.
-        
+
         Usage:
             async with db_manager.transaction() as conn:
                 await conn.execute("INSERT ...")
@@ -258,9 +261,7 @@ class DatabaseManager:
         for migration_file in migration_files:
             version = migration_file.stem  # e.g. "001_initial_pg" or "002_pgvector"
 
-            row = await self.fetchrow(
-                "SELECT version FROM schema_version WHERE version = ?", (version,)
-            )
+            row = await self.fetchrow("SELECT version FROM schema_version WHERE version = ?", (version,))
             if row:
                 logger.debug(f"Migration {version} already applied")
                 continue
@@ -269,9 +270,7 @@ class DatabaseManager:
             async with self._pool.acquire() as conn:
                 async with conn.transaction():
                     await conn.execute(sql)
-                    await conn.execute(
-                        "INSERT INTO schema_version (version) VALUES ($1)", version
-                    )
+                    await conn.execute("INSERT INTO schema_version (version) VALUES ($1)", version)
             logger.info(f"Migration {version} applied successfully")
 
 

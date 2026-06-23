@@ -3,9 +3,8 @@ JARVIS v4.0 — Tests for LLM Gateway, RAG Pipeline, Agent Router, Security Midd
 """
 
 import sys
-import json
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -15,10 +14,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # ─── LLM Gateway Tests ────────────────────────────────────────────────────────
 
+
 class TestCostTracker:
     @pytest.fixture
     def cost_tracker(self):
         from modules.llm_gateway.cost import CostTracker
+
         ct = CostTracker()
         ct.record(provider="test_provider", model="test-model", prompt_tokens=100, completion_tokens=50, latency_ms=200)
         ct.record(provider="test_provider", model="test-model", prompt_tokens=50, completion_tokens=25, latency_ms=100)
@@ -31,12 +32,14 @@ class TestCostTracker:
 
     def test_reset(self, cost_tracker):
         from modules.llm_gateway.cost import CostTracker
+
         ct = CostTracker()
         stats = ct.stats()
         assert stats["total_calls"] == 0
 
     def test_estimate_cost(self):
         from modules.llm_gateway.cost import CostTracker
+
         ct = CostTracker()
         ct.record(provider="nvidia", model="test-model", prompt_tokens=100, completion_tokens=50)
         cost = ct.total_cost()
@@ -48,6 +51,7 @@ class TestCircuitBreaker:
     @pytest.fixture
     def cb(self):
         from modules.llm_gateway.circuit import CircuitBreaker
+
         return CircuitBreaker(failure_threshold=2, recovery_timeout=1.0)
 
     @pytest.mark.asyncio
@@ -66,6 +70,7 @@ class TestCircuitBreaker:
         cb.record_failure()
         assert cb.state == "open"
         import asyncio
+
         await asyncio.sleep(1.1)
         assert cb.state == "half-open"
 
@@ -75,6 +80,7 @@ class TestCircuitBreaker:
         cb.record_failure()
         assert cb.state == "open"
         import asyncio
+
         await asyncio.sleep(1.1)
         assert cb.is_available()
         cb.record_success()
@@ -86,43 +92,51 @@ class TestLLMGateway:
     async def test_no_provider_returns_none(self):
         with patch.dict("os.environ", {}, clear=True):
             from modules.llm_gateway.gateway import LLMGateway
+
             gw = LLMGateway()
             result = await gw.generate("hello")
             assert result is None
 
     async def test_gateway_import(self):
-        from modules.llm_wrapper import llm_module, llm_client
+        from modules.llm_wrapper import llm_client, llm_module
+
         assert llm_module is not None
         assert llm_client is not None
 
 
 # ─── RAG Pipeline Tests ───────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 class TestRAGPipeline:
     async def test_empty_context(self):
         from modules.rag import rag_pipeline
+
         ctx = await rag_pipeline.retrieve("hello world", force_refresh=False)
         assert ctx is not None
         assert ctx.query == "hello world"
 
     async def test_format_context(self):
         from modules.rag import rag_pipeline
+
         result = await rag_pipeline.format_context_for_llm("test query", max_tokens=100)
         assert isinstance(result, str)
 
 
 # ─── Agent Router Tests ───────────────────────────────────────────────────────
 
+
 class TestAgentRouter:
     def test_health_endpoint(self):
         from backend.main import app
+
         client = TestClient(app)
         resp = client.get("/api/v1/agent/health")
         assert resp.status_code == 403 or resp.status_code == 200
 
     def test_chat_endpoint_validation(self):
         from backend.main import app
+
         client = TestClient(app)
         resp = client.post("/api/v1/agent/chat", json={"query": ""})
         # Empty query should fail validation
@@ -130,6 +144,7 @@ class TestAgentRouter:
 
     def test_rag_endpoint(self):
         from backend.main import app
+
         client = TestClient(app)
         resp = client.post("/api/v1/agent/rag", json={"query": "test"})
         assert resp.status_code in (200, 403)
@@ -137,9 +152,11 @@ class TestAgentRouter:
 
 # ─── Security Middleware Tests ─────────────────────────────────────────────────
 
+
 class TestSecurityMiddleware:
     def test_security_headers(self):
         from backend.main import app
+
         client = TestClient(app)
         resp = client.get("/health")
         headers = resp.headers
@@ -149,6 +166,7 @@ class TestSecurityMiddleware:
 
     def test_sqli_blocked(self):
         from backend.main import app
+
         client = TestClient(app)
         # SQL injection attempt in JSON body
         resp = client.post(
@@ -160,6 +178,7 @@ class TestSecurityMiddleware:
 
     def test_per_route_limiter(self):
         from utils.middleware_security import per_route_limiter
+
         key = "test_key"
         # First 3 calls should pass
         assert per_route_limiter.check(key, max_calls=3, window_sec=60)
@@ -171,11 +190,14 @@ class TestSecurityMiddleware:
 
 # ─── Audio Module Tests ───────────────────────────────────────────────────────
 
+
 class TestAudioServices:
     def test_tts_service_init(self):
         from modules.audio import tts_service
+
         assert tts_service is not None
 
     def test_stt_service_init(self):
         from modules.audio import stt_service
+
         assert stt_service is not None

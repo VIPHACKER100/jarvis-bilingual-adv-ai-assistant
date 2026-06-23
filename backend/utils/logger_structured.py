@@ -3,10 +3,11 @@ JARVIS v4.0 — Structured Logging
 Replaces the basic logging with structlog + OpenTelemetry tracing.
 """
 
-import os
-import structlog
 import logging
-from typing import Dict, Any
+import os
+from typing import Any
+
+import structlog
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 OTEL_ENABLED = os.getenv("OTEL_ENABLED", "false").lower() == "true"
@@ -29,8 +30,7 @@ def configure_logging(service_name: str = "jarvis-backend") -> None:
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.UnicodeDecoder(),
-            structlog.dev.ConsoleRenderer() if os.isatty(1)
-            else structlog.processors.JSONRenderer(),
+            structlog.dev.ConsoleRenderer() if os.isatty(1) else structlog.processors.JSONRenderer(),
         ],
         wrapper_class=structlog.stdlib.BoundLogger,
         context_class=dict,
@@ -48,11 +48,9 @@ def configure_logging(service_name: str = "jarvis-backend") -> None:
 def _setup_opentelemetry(service_name: str) -> None:
     try:
         from opentelemetry import trace
+        from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
-        from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-        from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
 
         provider = TracerProvider()
         otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318/v1/traces")
@@ -81,8 +79,12 @@ def log_event(event: str, **kwargs: Any) -> None:
 # Compatibility aliases for existing code
 logger = get_logger("jarvis")
 
-log_command = lambda cmd, cmd_type, success: log_event(
-    "command", command=cmd, command_type=cmd_type, success=success
-)
 
-log_system_event = lambda event, data: log_event(event, **data)
+def log_command(cmd, cmd_type, success):
+    """Log a command event (compatibility alias)."""
+    log_event("command", command=cmd, command_type=cmd_type, success=success)
+
+
+def log_system_event(event, data):
+    """Log a system event (compatibility alias)."""
+    log_event(event, **data)

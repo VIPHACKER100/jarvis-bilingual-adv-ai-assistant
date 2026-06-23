@@ -3,12 +3,11 @@ RAG Pipeline — retrieves relevant context from memory and formats it for LLM c
 Orchestrates: embedding → hybrid search → re-ranking → context assembly.
 """
 
-from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
+from typing import List
 
-from utils.logger_structured import logger
 from modules.rag.embeddings import embedding_service
-from modules.rag.search import hybrid_search, SearchResult
+from modules.rag.search import SearchResult, hybrid_search
 
 
 @dataclass
@@ -42,7 +41,7 @@ class RAGPipeline:
                 if n["name"] == core_name:
                     content = await memory_manager.neural.get_node(core_name)
                     if content:
-                        core_content_parts.append(f"=== {core_name.replace('.md','').upper()} ===\n{content.strip()}")
+                        core_content_parts.append(f"=== {core_name.replace('.md', '').upper()} ===\n{content.strip()}")
                     break
 
         if force_refresh:
@@ -71,13 +70,13 @@ class RAGPipeline:
         relevant = [r for r in results if r.score >= 0.3][:5]
         for r in relevant:
             excerpt = r.content[:500].strip()
-            parts.append(f"[{r.node_name.replace('.md','')} (relevance: {r.score:.2f})]\n{excerpt}")
+            parts.append(f"[{r.node_name.replace('.md', '')} (relevance: {r.score:.2f})]\n{excerpt}")
 
         return "\n\n".join(parts) if parts else ""
 
     async def format_context_for_llm(self, query: str, max_tokens: int = 2000) -> str:
         context = await self.retrieve(query)
-        return context.assembled_prompt[:max_tokens * 4]
+        return context.assembled_prompt[: max_tokens * 4]
 
 
 rag_pipeline = RAGPipeline()

@@ -6,12 +6,10 @@ Maintains backward compatibility for all existing imports.
 
 import asyncio
 import os
-import json
-from typing import Dict, Any, Optional, List, AsyncGenerator
 from pathlib import Path
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
-from modules.llm_gateway import llm_gateway, cost_tracker
-from modules.llm_gateway.gateway import SYSTEM_PROMPT_TEMPLATE
+from modules.llm_gateway import llm_gateway
 from utils.logger_structured import logger
 
 AGENT_SYSTEM_PROMPT = """You are JARVIS, an autonomous AI agent. 
@@ -46,18 +44,20 @@ class LLMModule:
     def __init__(self):
         pass
 
-    async def get_response(self, text: str, language: str = 'en',
-                           context: Optional[str] = None) -> Optional[str]:
+    async def get_response(self, text: str, language: str = "en", context: Optional[str] = None) -> Optional[str]:
         from modules.memory import memory_manager
+
         neural_context = await memory_manager.neural.get_neural_context(text)
         full_context = context or ""
         if neural_context:
             full_context += f"\n\nNEURAL MEMORY MAP (Core Identity & Behavioral Matrix):\n{neural_context}"
         return await llm_gateway.generate(text, language=language, context=full_context)
 
-    async def get_response_stream(self, text: str, language: str = 'en',
-                                   context: Optional[str] = None) -> AsyncGenerator[str, None]:
+    async def get_response_stream(
+        self, text: str, language: str = "en", context: Optional[str] = None
+    ) -> AsyncGenerator[str, None]:
         from modules.memory import memory_manager
+
         neural_context = await memory_manager.neural.get_neural_context(text)
         full_context = context or ""
         if neural_context:
@@ -65,10 +65,13 @@ class LLMModule:
         async for chunk in llm_gateway.generate_stream(text, language=language, context=full_context):
             yield chunk
 
-    async def get_visual_response(self, image_path: str, prompt: str = "Analyze this image and describe what you see.",
-                                   language: str = 'en') -> Optional[str]:
+    async def get_visual_response(
+        self, image_path: str, prompt: str = "Analyze this image and describe what you see.", language: str = "en"
+    ) -> Optional[str]:
         import base64
+
         import httpx
+
         path = Path(image_path).expanduser().resolve()
         if not path.exists():
             logger.error(f"Image not found: {path}")
@@ -76,7 +79,7 @@ class LLMModule:
 
         def read_image():
             with open(path, "rb") as f:
-                return base64.b64encode(f.read()).decode('utf-8')
+                return base64.b64encode(f.read()).decode("utf-8")
 
         b64 = await asyncio.to_thread(read_image)
 
@@ -93,19 +96,20 @@ class LLMModule:
             for model in vision_models:
                 payload = {
                     "model": model,
-                    "messages": [{
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": prompt},
-                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
-                        ],
-                    }],
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                            ],
+                        }
+                    ],
                 }
                 try:
                     async with httpx.AsyncClient() as client:
                         resp = await client.post(
-                            "https://openrouter.ai/api/v1/chat/completions",
-                            headers=headers, json=payload, timeout=30.0
+                            "https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=30.0
                         )
                     if resp.status_code == 200:
                         data = resp.json()
@@ -120,10 +124,15 @@ class LLMModule:
             try:
                 content = await nvidia._client.chat.completions.create(
                     model="nvidia/llama-3.2-11b-vision-instruct",
-                    messages=[{"role": "user", "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
-                    ]}],
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                            ],
+                        }
+                    ],
                     max_tokens=1024,
                 )
                 return content.choices[0].message.content.strip()
@@ -149,21 +158,20 @@ class LLMModule:
             "Focus on the core intent and current user needs. Keep it under 100 words."
         )
         conversation_text = "\n".join(
-            f"User: {e.user_input}\nJARVIS: {e.jarvis_response}"
-            for e in conversation_entries
+            f"User: {e.user_input}\nJARVIS: {e.jarvis_response}" for e in conversation_entries
         )
         try:
             summary = await self.get_response(
-                text=f"Conversation to summarize:\n{conversation_text}",
-                language='en', context=summary_prompt
+                text=f"Conversation to summarize:\n{conversation_text}", language="en", context=summary_prompt
             )
             return summary or ""
         except Exception as e:
             logger.error(f"Summarization error: {e}")
             return ""
 
-    async def get_agent_response(self, query: str, tools_context: str, neural_context: str,
-                                  history: List[Dict[str, Any]], language: str = "en") -> str:
+    async def get_agent_response(
+        self, query: str, tools_context: str, neural_context: str, history: List[Dict[str, Any]], language: str = "en"
+    ) -> str:
         system_prompt = AGENT_SYSTEM_PROMPT.format(
             tools_context=tools_context, neural_context=neural_context, language=language
         )

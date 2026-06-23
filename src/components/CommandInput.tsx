@@ -4,8 +4,7 @@ import { Terminal, Send, X, Sparkles } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { processTranscript } from '../services/commandProcessor';
 import { useAgentStream } from '../hooks/useAgentStream';
-import { AppMode } from '../types';
-import { API_BASE_URL } from '../config';
+import { AppMode, Language } from '../types';
 
 export const CommandInput: FC = () => {
   const [showInput, setShowInput] = useState(false);
@@ -72,7 +71,7 @@ export const CommandInput: FC = () => {
         setTimeout(() => setMode(AppMode.IDLE), 2000);
       } else {
         setShowAgentResponse(true);
-        const langCode = language === 2 ? 'hinglish' : language === 1 ? 'hi' : 'en';
+        const langCode = language === Language.HINGLISH ? 'hinglish' : language === Language.HINDI ? 'hi' : 'en';
         stream(cmd, { language: langCode as any, useRag: true });
       }
     } catch {

@@ -1,13 +1,13 @@
 import asyncio
-import subprocess
-import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import pyautogui
 from utils.logger_structured import logger
 
+
 class SafeAutomation:
     """Wrapper for GUI and system automation to ensure safety and reliability"""
-    
+
     def __init__(self, default_timeout: float = 10.0):
         self.default_timeout = default_timeout
         # Configure pyautogui safety
@@ -26,7 +26,9 @@ class SafeAutomation:
             logger.error(f"GUI action failed: {e}")
             return {"success": False, "error": str(e)}
 
-    async def run_command(self, command: Union[str, List[str]], shell: bool = False, timeout: Optional[float] = None) -> Dict[str, Any]:
+    async def run_command(
+        self, command: Union[str, List[str]], shell: bool = False, timeout: Optional[float] = None
+    ) -> Dict[str, Any]:
         """Run a system command asynchronously with timeout and safety"""
         try:
             # Use asyncio.create_subprocess_exec/shell for true async
@@ -34,13 +36,13 @@ class SafeAutomation:
                 process = await asyncio.create_subprocess_shell(
                     command if isinstance(command, str) else " ".join(command),
                     stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
+                    stderr=asyncio.subprocess.PIPE,
                 )
             else:
                 process = await asyncio.create_subprocess_exec(
                     *command if isinstance(command, list) else command.split(),
                     stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
+                    stderr=asyncio.subprocess.PIPE,
                 )
 
             try:
@@ -49,7 +51,7 @@ class SafeAutomation:
                     "success": process.returncode == 0,
                     "stdout": stdout.decode().strip(),
                     "stderr": stderr.decode().strip(),
-                    "returncode": process.returncode
+                    "returncode": process.returncode,
                 }
             except asyncio.TimeoutError:
                 process.kill()
@@ -59,10 +61,11 @@ class SafeAutomation:
         except Exception as e:
             logger.error(f"System command failed: {e}")
             return {"success": False, "error": str(e)}
+
     async def moveTo(self, x: int, y: int, duration: float = 0.0):
         return await self.run_gui_action(pyautogui.moveTo, x, y, duration=duration)
 
-    async def click(self, x: Optional[int] = None, y: Optional[int] = None, button: str = 'left', clicks: int = 1):
+    async def click(self, x: Optional[int] = None, y: Optional[int] = None, button: str = "left", clicks: int = 1):
         return await self.run_gui_action(pyautogui.click, x=x, y=y, button=button, clicks=clicks)
 
     async def doubleClick(self, x: Optional[int] = None, y: Optional[int] = None):
@@ -98,6 +101,7 @@ class SafeAutomation:
         if not result.get("success"):
             raise RuntimeError(result.get("error", "Screenshot failed"))
         return result["result"]
+
 
 # Singleton instance
 safe_automation = SafeAutomation()

@@ -3,9 +3,9 @@ Speech-to-Text streaming service.
 Providers: OpenAI Whisper, local fallback
 """
 
-import io
 import os
-from typing import Optional, AsyncGenerator, List
+from typing import AsyncGenerator, Optional
+
 from utils.logger_structured import logger
 
 
@@ -29,6 +29,7 @@ class STTService:
 
     async def _transcribe_openai(self, audio_data: bytes, language: str = "en") -> Optional[str]:
         import httpx
+
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             return None

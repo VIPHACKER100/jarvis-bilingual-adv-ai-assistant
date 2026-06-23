@@ -21,14 +21,18 @@ env:
 
 jobs:
   frontend-lint-typecheck:
-    name: Frontend — Lint & Typecheck
+    name: Frontend — Lint & Typecheck (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -43,21 +47,31 @@ jobs:
       - name: Check build
         run: npm run build
 
+      - name: npm audit
+        continue-on-error: true
+        run: npm audit --audit-level=high
+
   backend-lint:
-    name: Backend — Lint
+    name: Backend — Lint (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
 
       - name: Install dependencies
         working-directory: backend
         run: |
           pip install --upgrade pip
-          pip install ruff mypy
+          pip install ruff mypy pip-audit
           pip install -r requirements.txt
 
       - name: Ruff lint check
@@ -67,6 +81,10 @@ jobs:
       - name: Import check
         working-directory: backend
         run: python -c "import main; import models; print('Backend imports OK')"
+
+      - name: pip-audit
+        continue-on-error: true
+        run: pip-audit --desc on -r backend/requirements.txt
 
   test:
     name: Tests — ${{ matrix.component }}
@@ -98,6 +116,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
 
       - name: Install backend deps
         if: matrix.component == 'backend'
@@ -112,6 +132,31 @@ jobs:
         working-directory: backend
         run: python -m pytest tests/ -v --timeout=30 -x --ignore=venv
         continue-on-error: true
+
+  dependency-scan:
+    name: Dependency — Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: npm audit (strict)
+        run: npm audit --audit-level=high
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: pip-audit (strict)
+        run: |
+          pip install pip-audit
+          pip-audit --desc on -r backend/requirements.txt --strict
 
   docker-build:
     name: Docker — Build Check
@@ -139,6 +184,16 @@ jobs:
           file: Dockerfile.frontend
           push: false
           tags: jarvis-frontend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build combined image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          tags: jarvis-combined:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -170,7 +225,7 @@ jobs:
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/main'
-    needs: [frontend-lint-typecheck, backend-lint, test, docker-build, security-scan]
+    needs: [frontend-lint-typecheck, backend-lint, test, dependency-scan, docker-build, security-scan]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -187,4 +242,4 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Deploy notification
-        run: echo "✅ Deployment would trigger here"
+        run: echo "Deployment would trigger here"

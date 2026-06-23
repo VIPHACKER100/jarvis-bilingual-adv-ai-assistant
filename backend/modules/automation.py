@@ -1,10 +1,8 @@
 import asyncio
 import json
-import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Callable, Any, cast
-from dataclasses import dataclass, asdict
-from pathlib import Path
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional, cast
 
 from config import DATA_DIR
 from utils.logger_structured import logger
@@ -13,6 +11,7 @@ from utils.logger_structured import logger
 @dataclass
 class ScheduledTask:
     """A scheduled task"""
+
     id: str
     name: str
     description: str
@@ -33,6 +32,7 @@ class ScheduledTask:
 @dataclass
 class Macro:
     """A macro - sequence of commands"""
+
     id: str
     name: str
     description: str
@@ -80,7 +80,6 @@ class AutomationManager:
                 pass
         logger.info("AutomationManager stopped")
 
-
     async def _load_data(self):
         """Load tasks and macros from file asynchronously"""
         tasks_file = DATA_DIR / "scheduled_tasks.json"
@@ -88,7 +87,7 @@ class AutomationManager:
 
         def read_file(path):
             if path.exists():
-                with open(path, 'r') as f:
+                with open(path, "r") as f:
                     return json.load(f)
             return None
 
@@ -116,17 +115,16 @@ class AutomationManager:
 
     async def _save_data(self):
         """Save tasks and macros to file asynchronously"""
+
         def write_files():
             try:
                 tasks_file = DATA_DIR / "scheduled_tasks.json"
-                with open(tasks_file, 'w') as f:
-                    json.dump([asdict(cast(Any, task))
-                              for task in self.tasks.values()], f, indent=2)
+                with open(tasks_file, "w") as f:
+                    json.dump([asdict(cast(Any, task)) for task in self.tasks.values()], f, indent=2)
 
                 macros_file = DATA_DIR / "macros.json"
-                with open(macros_file, 'w') as f:
-                    json.dump([asdict(cast(Any, macro))
-                              for macro in self.macros.values()], f, indent=2)
+                with open(macros_file, "w") as f:
+                    json.dump([asdict(cast(Any, macro)) for macro in self.macros.values()], f, indent=2)
                 return True
             except Exception as e:
                 logger.error(f"Error saving automation data in thread: {e}")
@@ -165,11 +163,11 @@ class AutomationManager:
                 for task in list(self.tasks.values()):
                     if not task.enabled:
                         continue
-                    
+
                     if await self._should_run_task(task, now):
                         # Run task in background to not block the loop
                         asyncio.create_task(self._execute_task(task.id))
-                
+
                 # Check every minute for precision
                 await asyncio.sleep(60)
             except Exception as e:
@@ -193,22 +191,22 @@ class AutomationManager:
             current_time = now.strftime("%H:%M")
             current_day = now.strftime("%A").lower()
 
-            if task.schedule_type == 'daily':
+            if task.schedule_type == "daily":
                 return current_time == task.schedule_time
 
-            elif task.schedule_type == 'weekly':
+            elif task.schedule_type == "weekly":
                 if task.days and current_day in [d.lower() for d in task.days]:
                     return current_time == task.schedule_time
 
-            elif task.schedule_type == 'interval':
+            elif task.schedule_type == "interval":
                 if not task.last_run:
-                    return True # Run once at startup if never run
-                
+                    return True  # Run once at startup if never run
+
                 last_run_dt = datetime.fromisoformat(task.last_run)
                 interval_minutes = int(task.schedule_time)
                 return (now - last_run_dt).total_seconds() >= (interval_minutes * 60)
 
-            elif task.schedule_type == 'conditional_only':
+            elif task.schedule_type == "conditional_only":
                 # Only runs if condition is met, checked every minute
                 return True if task.condition else False
 
@@ -221,32 +219,38 @@ class AutomationManager:
         """Evaluate a simple automation condition"""
         try:
             from modules.system import system_module
+
             status = await system_module.get_system_status()
-            
+
             # Simple expression parser (battery < 20, cpu > 80)
             parts = condition.split()
             if len(parts) != 3:
                 return False
-                
+
             variable, operator, value = parts
             value = float(value)
-            
+
             actual_value = 0.0
-            if variable == 'battery':
+            if variable == "battery":
                 actual_value = float(status.battery.percent or 0)
-            elif variable == 'cpu':
+            elif variable == "cpu":
                 actual_value = float(status.cpu.percent)
-            elif variable == 'memory':
+            elif variable == "memory":
                 actual_value = float(status.memory.percent)
             else:
                 return False
-                
-            if operator == '<': return actual_value < value
-            if operator == '>': return actual_value > value
-            if operator == '<=': return actual_value <= value
-            if operator == '>=': return actual_value >= value
-            if operator == '==': return actual_value == value
-            
+
+            if operator == "<":
+                return actual_value < value
+            if operator == ">":
+                return actual_value > value
+            if operator == "<=":
+                return actual_value <= value
+            if operator == ">=":
+                return actual_value >= value
+            if operator == "==":
+                return actual_value == value
+
             return False
         except Exception as e:
             logger.error(f"Error evaluating condition '{condition}': {e}")
@@ -280,18 +284,20 @@ class AutomationManager:
         self.task_callbacks[task_id] = callback
 
     async def create_task(
-            self,
-            name: str,
-            description: str,
-            command: str,
-            schedule_type: str,
-            schedule_time: str,
-            days: List[str] = None,
-            parameters: Dict = None,
-            enabled: bool = True) -> Optional[ScheduledTask]:
+        self,
+        name: str,
+        description: str,
+        command: str,
+        schedule_type: str,
+        schedule_time: str,
+        days: List[str] = None,
+        parameters: Dict = None,
+        enabled: bool = True,
+    ) -> Optional[ScheduledTask]:
         """Create a new scheduled task asynchronously"""
         try:
             import uuid
+
             task_id = str(uuid.uuid4())[:8]
 
             task = ScheduledTask(
@@ -304,7 +310,7 @@ class AutomationManager:
                 days=days or [],
                 enabled=enabled,
                 created_at=datetime.now().isoformat(),
-                parameters=parameters or {}
+                parameters=parameters or {},
             )
 
             self.tasks[task_id] = task
@@ -369,24 +375,25 @@ class AutomationManager:
         task.enabled = not task.enabled
 
         await self._save_data()
-        logger.info(
-            f"{'Enabled' if task.enabled else 'Disabled'} task: {task.name}")
+        logger.info(f"{'Enabled' if task.enabled else 'Disabled'} task: {task.name}")
         return True
 
     # ==================== MACROS ====================
 
     async def create_macro(
-            self,
-            name: str,
-            description: str,
-            commands: List[Dict],
-            trigger: str,
-            trigger_phrase: str = "",
-            hotkey: str = "",
-            enabled: bool = True) -> Optional[Macro]:
+        self,
+        name: str,
+        description: str,
+        commands: List[Dict],
+        trigger: str,
+        trigger_phrase: str = "",
+        hotkey: str = "",
+        enabled: bool = True,
+    ) -> Optional[Macro]:
         """Create a new macro asynchronously"""
         try:
             import uuid
+
             macro_id = str(uuid.uuid4())[:8]
 
             macro = Macro(
@@ -398,7 +405,7 @@ class AutomationManager:
                 trigger_phrase=trigger_phrase,
                 hotkey=hotkey,
                 enabled=enabled,
-                created_at=datetime.now().isoformat()
+                created_at=datetime.now().isoformat(),
             )
 
             self.macros[macro_id] = macro
@@ -454,10 +461,7 @@ class AutomationManager:
         """Get a specific macro"""
         return self.macros.get(macro_id)
 
-    async def run_macro(
-            self,
-            macro_id: str,
-            callback: Callable = None) -> bool:
+    async def run_macro(self, macro_id: str, callback: Callable = None) -> bool:
         """Execute a macro asynchronously"""
         if macro_id not in self.macros:
             return False
@@ -471,9 +475,9 @@ class AutomationManager:
         # Execute each command in sequence
         for cmd_data in macro.commands:
             try:
-                command = cmd_data.get('command', '')
-                delay = cmd_data.get('delay', 1)
-                parameters = cmd_data.get('parameters', {})
+                command = cmd_data.get("command", "")
+                delay = cmd_data.get("delay", 1)
+                parameters = cmd_data.get("parameters", {})
 
                 if callback:
                     res = callback(command, parameters)
@@ -499,7 +503,7 @@ class AutomationManager:
         trigger_lower = trigger_phrase.lower()
 
         for macro in self.macros.values():
-            if macro.enabled and macro.trigger == 'voice':
+            if macro.enabled and macro.trigger == "voice":
                 if macro.trigger_phrase.lower() in trigger_lower:
                     return macro
 
@@ -514,8 +518,7 @@ class AutomationManager:
         macro.enabled = not macro.enabled
 
         await self._save_data()
-        logger.info(
-            f"{'Enabled' if macro.enabled else 'Disabled'} macro: {macro.name}")
+        logger.info(f"{'Enabled' if macro.enabled else 'Disabled'} macro: {macro.name}")
         return True
 
     # ==================== PRESETS ====================
@@ -524,49 +527,50 @@ class AutomationManager:
         """Create useful preset tasks (Synchronous as called during init)"""
         presets = [
             {
-                'name': 'Good Morning',
-                'description': 'Daily morning routine',
-                'command': 'show_desktop',
-                'schedule_type': 'daily',
-                'schedule_time': '08:00',
-                'enabled': False  # Disabled by default
+                "name": "Good Morning",
+                "description": "Daily morning routine",
+                "command": "show_desktop",
+                "schedule_type": "daily",
+                "schedule_time": "08:00",
+                "enabled": False,  # Disabled by default
             },
             {
-                'name': 'System Check',
-                'description': 'Check system status',
-                'command': 'system_status',
-                'schedule_type': 'interval',
-                'schedule_time': '60',  # Every hour
-                'enabled': False
+                "name": "System Check",
+                "description": "Check system status",
+                "command": "system_status",
+                "schedule_type": "interval",
+                "schedule_time": "60",  # Every hour
+                "enabled": False,
             },
             {
-                'name': 'Weekly Cleanup',
-                'description': 'Clean up old files',
-                'command': 'cleanup_temp',
-                'schedule_type': 'weekly',
-                'schedule_time': '10:00',
-                'days': ['sunday'],
-                'enabled': False
-            }
+                "name": "Weekly Cleanup",
+                "description": "Clean up old files",
+                "command": "cleanup_temp",
+                "schedule_type": "weekly",
+                "schedule_time": "10:00",
+                "days": ["sunday"],
+                "enabled": False,
+            },
         ]
 
         # Use synchronous file check here for simplicity since it's startup
         # and we wrap the whole thing in initialize()
         for preset in presets:
-            if not any(t.name == preset['name'] for t in self.tasks.values()):
+            if not any(t.name == preset["name"] for t in self.tasks.values()):
                 # Create basic task object without saving yet
                 import uuid
+
                 task_id = str(uuid.uuid4())[:8]
                 task = ScheduledTask(
                     id=task_id,
-                    name=preset['name'],
-                    description=preset['description'],
-                    command=preset['command'],
-                    schedule_type=preset['schedule_type'],
-                    schedule_time=preset['schedule_time'],
-                    days=preset.get('days', []),
-                    enabled=preset['enabled'],
-                    created_at=datetime.now().isoformat()
+                    name=preset["name"],
+                    description=preset["description"],
+                    command=preset["command"],
+                    schedule_type=preset["schedule_type"],
+                    schedule_time=preset["schedule_time"],
+                    days=preset.get("days", []),
+                    enabled=preset["enabled"],
+                    created_at=datetime.now().isoformat(),
                 )
                 self.tasks[task_id] = task
 
@@ -574,45 +578,46 @@ class AutomationManager:
 
     def create_preset_macros(self):
         """Create useful preset macros (Synchronous as called during init)"""
-        presets = [{'name': 'Work Mode',
-                    'description': 'Open work applications',
-                    'commands': [{'command': 'open_app',
-                                   'delay': 2,
-                                   'parameters': {'app': 'chrome'}},
-                                 {'command': 'open_app',
-                                   'delay': 2,
-                                   'parameters': {'app': 'vscode'}},
-                                 {'command': 'open_app',
-                                   'delay': 2,
-                                   'parameters': {'app': 'spotify'}}],
-                    'trigger': 'voice',
-                    'trigger_phrase': 'work mode',
-                    'enabled': True},
-                   {'name': 'End Work Day',
-                    'description': 'Close work applications and show desktop',
-                    'commands': [{'command': 'close_app',
-                                   'delay': 1,
-                                   'parameters': {'app': 'vscode'}},
-                                 {'command': 'show_desktop',
-                                   'delay': 0,
-                                   'parameters': {}}],
-                    'trigger': 'voice',
-                    'trigger_phrase': 'end work',
-                    'enabled': True}]
+        presets = [
+            {
+                "name": "Work Mode",
+                "description": "Open work applications",
+                "commands": [
+                    {"command": "open_app", "delay": 2, "parameters": {"app": "chrome"}},
+                    {"command": "open_app", "delay": 2, "parameters": {"app": "vscode"}},
+                    {"command": "open_app", "delay": 2, "parameters": {"app": "spotify"}},
+                ],
+                "trigger": "voice",
+                "trigger_phrase": "work mode",
+                "enabled": True,
+            },
+            {
+                "name": "End Work Day",
+                "description": "Close work applications and show desktop",
+                "commands": [
+                    {"command": "close_app", "delay": 1, "parameters": {"app": "vscode"}},
+                    {"command": "show_desktop", "delay": 0, "parameters": {}},
+                ],
+                "trigger": "voice",
+                "trigger_phrase": "end work",
+                "enabled": True,
+            },
+        ]
 
         for preset in presets:
-            if not any(m.name == preset['name'] for m in self.macros.values()):
+            if not any(m.name == preset["name"] for m in self.macros.values()):
                 import uuid
+
                 macro_id = str(uuid.uuid4())[:8]
                 macro = Macro(
                     id=macro_id,
-                    name=preset['name'],
-                    description=preset['description'],
-                    commands=preset['commands'],
-                    trigger=preset['trigger'],
-                    trigger_phrase=preset['trigger_phrase'],
-                    enabled=preset['enabled'],
-                    created_at=datetime.now().isoformat()
+                    name=preset["name"],
+                    description=preset["description"],
+                    commands=preset["commands"],
+                    trigger=preset["trigger"],
+                    trigger_phrase=preset["trigger_phrase"],
+                    enabled=preset["enabled"],
+                    created_at=datetime.now().isoformat(),
                 )
                 self.macros[macro_id] = macro
 
@@ -621,11 +626,11 @@ class AutomationManager:
     def get_scheduler_status(self) -> Dict:
         """Get scheduler status"""
         return {
-            'running': self.running,
-            'total_tasks': len(self.tasks),
-            'enabled_tasks': sum(1 for t in self.tasks.values() if t.enabled),
-            'total_macros': len(self.macros),
-            'enabled_macros': sum(1 for m in self.macros.values() if m.enabled)
+            "running": self.running,
+            "total_tasks": len(self.tasks),
+            "enabled_tasks": sum(1 for t in self.tasks.values() if t.enabled),
+            "total_macros": len(self.macros),
+            "enabled_macros": sum(1 for m in self.macros.values() if m.enabled),
         }
 
 

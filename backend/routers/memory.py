@@ -1,17 +1,18 @@
-from fastapi import APIRouter, HTTPException, Query, Body
-from typing import Dict, Any, Optional, List
-from modules.memory import memory_manager, ConversationEntry, MemoryEntry
+from typing import Optional
+
+from fastapi import APIRouter, Body, HTTPException
 from models import (
     BaseResponse,
     ConversationEntryRequest,
     ConversationListResponse,
-    FactRequest,
     FactListResponse,
-    StatsResponse,
+    FactRequest,
     MemoryNodeListResponse,
     MemoryNodeResponse,
-    MemoryNodeUpdateRequest
+    MemoryNodeUpdateRequest,
+    StatsResponse,
 )
+from modules.memory import ConversationEntry, MemoryEntry, memory_manager
 
 router = APIRouter(prefix="/memory", tags=["Memory & Analytics"])
 
@@ -77,15 +78,12 @@ async def delete_fact(fact_id: int):
 
 # --- Neural Memory (Markdown Nodes) ---
 
+
 @router.get("/nodes", response_model=MemoryNodeListResponse)
 async def list_memory_nodes():
     """List all Markdown memory nodes"""
     nodes = await memory_manager.neural.list_nodes()
-    return {
-        "success": True,
-        "nodes": nodes,
-        "count": len(nodes)
-    }
+    return {"success": True, "nodes": nodes, "count": len(nodes)}
 
 
 @router.get("/nodes/{name}", response_model=MemoryNodeResponse)
@@ -94,12 +92,8 @@ async def get_memory_node(name: str):
     content = await memory_manager.neural.get_node(name)
     if content is None:
         raise HTTPException(status_code=404, detail=f"Memory node {name} not found")
-    
-    return {
-        "success": True,
-        "name": name,
-        "content": content
-    }
+
+    return {"success": True, "name": name, "content": content}
 
 
 @router.put("/nodes/{name}", response_model=BaseResponse)
@@ -108,8 +102,5 @@ async def update_memory_node(name: str, update: MemoryNodeUpdateRequest):
     success = await memory_manager.neural.update_node(name, update.content)
     if not success:
         raise HTTPException(status_code=500, detail=f"Failed to update memory node {name}")
-    
-    return {
-        "success": True,
-        "response": f"Memory node {name} updated successfully"
-    }
+
+    return {"success": True, "response": f"Memory node {name} updated successfully"}
