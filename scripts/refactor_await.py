@@ -1,3 +1,23 @@
+"""
+DEPRECATED — DO NOT RUN on current codebase.
+
+This script was a one-time migration tool for adding `await` to
+`memory_manager.method()` calls during the v3.4.1 async migration.
+
+The project is now fully async-first (since v3.4.1). All targeted files
+already use await correctly. Running this script would introduce
+double-await syntax errors wherever the negative lookbehind fails
+(e.g., with multi-space whitespace or newlines between await and the call).
+
+Kept for historical reference only.
+"""
+
+import sys
+
+sys.exit(0)
+
+# === Everything below is legacy and should NOT be run ===
+
 import re
 from pathlib import Path
 

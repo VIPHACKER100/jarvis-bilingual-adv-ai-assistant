@@ -1,14 +1,38 @@
+"""
+DEPRECATED — DO NOT RUN on current codebase.
+
+This script was a one-time migration tool for converting MemoryManager from
+synchronous sqlite3 to async aiosqlite during the v3.4.1 async migration.
+
+The project has since migrated to PostgreSQL via asyncpg (Phase 1, 2026-06-22):
+- aiosqlite was removed from requirements
+- SQLite migration files were deleted
+- All database access now uses db_manager from utils.database
+- backend/modules/memory.py is fully async with no sqlite3 or aiosqlite imports
+
+Running this script on the current codebase will corrupt memory.py by:
+- Double-prefixing already-async methods with "async async" (syntax error)
+- Reintroducing SQLite patterns into a PostgreSQL codebase
+- Mangling source code via naive string replacements inside comments/strings
+
+Kept for historical reference only.
+"""
+
+import sys
+
+sys.exit(0)
+
+# === Everything below is legacy and should NOT be run ===
+
 import re
 from pathlib import Path
 
 memory_path = Path("backend/modules/memory.py")
 content = memory_path.read_text(encoding="utf-8")
 
-# Replace sqlite3 import with aiosqlite (or just add it)
 if "import aiosqlite" not in content:
     content = content.replace("import sqlite3", "import sqlite3\nimport aiosqlite")
 
-# We want to change the methods inside MemoryManager to be async
 methods_to_async = [
     "save_conversation",
     "get_recent_conversations",
@@ -31,17 +55,8 @@ methods_to_async = [
 ]
 
 for method in methods_to_async:
-    # Change def to async def
     content = re.sub(rf"def {method}\(", f"async def {method}(", content)
 
-# Replace sqlite3.connect with aiosqlite.connect
-# Old: conn = sqlite3.connect(str(self.db_path))
-#      cursor = conn.cursor()
-# New: async with aiosqlite.connect(str(self.db_path)) as db:
-#          cursor = await db.cursor()
-
-# Pattern for sqlite3 connection block
-# Replace simple cursor.execute
 content = content.replace("conn = sqlite3.connect(str(self.db_path))", "db = await aiosqlite.connect(str(self.db_path))")
 content = content.replace("cursor = conn.cursor()", "cursor = await db.cursor()")
 content = content.replace("cursor.execute(", "await cursor.execute(")
@@ -50,9 +65,6 @@ content = content.replace("conn.close()", "await db.close()")
 content = content.replace("cursor.fetchone()", "await cursor.fetchone()")
 content = content.replace("cursor.fetchall()", "await cursor.fetchall()")
 
-# Note: _init_database should remain synchronous or be initialized elsewhere
-# Wait, if we use await aiosqlite, _init_database has to be async or kept as sqlite3
-# Let's revert _init_database back to standard sqlite3 since it's just setup
 init_db_start = content.find("def _init_database(self):")
 init_db_end = content.find("def save_conversation(self, entry:", init_db_start)
 if init_db_start != -1 and init_db_end != -1:
@@ -64,6 +76,5 @@ if init_db_start != -1 and init_db_end != -1:
     init_db_block = init_db_block.replace("await db.close()", "conn.close()")
     content = content[:init_db_start] + init_db_block + content[init_db_end:]
 
-# Now save
 memory_path.write_text(content, encoding="utf-8")
 print("Refactored memory.py to async")

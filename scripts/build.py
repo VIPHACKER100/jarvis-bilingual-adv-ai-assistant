@@ -10,7 +10,6 @@ import shutil
 import subprocess
 import zipfile
 from pathlib import Path
-from typing import List
 import itertools
 import json
 from datetime import datetime
@@ -32,18 +31,18 @@ def log(msg, end='\n'):
     
     # Auto-colorize standard tags
     colored_msg = msg
-    if '[OK]' in colored_msg:
-        colored_msg = colored_msg.replace('[OK]', f'{Colors.OKGREEN}[OK]{Colors.ENDC}')
-    if '[FAIL]' in colored_msg:
-        colored_msg = colored_msg.replace('[FAIL]', f'{Colors.FAIL}[FAIL]{Colors.ENDC}')
-    if '[BACKEND]' in colored_msg:
-        colored_msg = colored_msg.replace('[BACKEND]', f'{Colors.OKBLUE}[BACKEND]{Colors.ENDC}')
-    if '[FRONTEND]' in colored_msg:
-        colored_msg = colored_msg.replace('[FRONTEND]', f'{Colors.OKCYAN}[FRONTEND]{Colors.ENDC}')
-    if 'WARNING' in colored_msg:
-        colored_msg = colored_msg.replace('WARNING', f'{Colors.WARNING}WARNING{Colors.ENDC}')
-    if '[ZIP]' in colored_msg or '[CLEAN]' in colored_msg or '[RELEASE]' in colored_msg:
+    if '[ZIP]' in msg or '[CLEAN]' in msg or '[RELEASE]' in msg:
         colored_msg = colored_msg.replace('[', f'{Colors.HEADER}[').replace(']', f']{Colors.ENDC}')
+    if '[OK]' in msg:
+        colored_msg = colored_msg.replace('[OK]', f'{Colors.OKGREEN}[OK]{Colors.ENDC}')
+    if '[FAIL]' in msg:
+        colored_msg = colored_msg.replace('[FAIL]', f'{Colors.FAIL}[FAIL]{Colors.ENDC}')
+    if '[BACKEND]' in msg:
+        colored_msg = colored_msg.replace('[BACKEND]', f'{Colors.OKBLUE}[BACKEND]{Colors.ENDC}')
+    if '[FRONTEND]' in msg:
+        colored_msg = colored_msg.replace('[FRONTEND]', f'{Colors.OKCYAN}[FRONTEND]{Colors.ENDC}')
+    if 'WARNING' in msg:
+        colored_msg = colored_msg.replace('WARNING', f'{Colors.WARNING}WARNING{Colors.ENDC}')
         
     sys.stdout.write(f"{Colors.BOLD}[{timestamp}]{Colors.ENDC} {colored_msg}{end}")
     sys.stdout.flush()
@@ -83,6 +82,7 @@ def build_backend():
     """Build backend executable with PyInstaller"""
     log("\n[BACKEND] Building JARVIS Backend...")
     
+    orig_cwd = os.getcwd()
     os.chdir(BACKEND_DIR)
     
     # Run PyInstaller with warning suppression for known issues
@@ -98,14 +98,14 @@ def build_backend():
         # Use Popen to capture output in real-time and display a progress bar
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         
-        line_count = 0
+        start_time_local = time.time()
         spinner = itertools.cycle(['-', '\\', '|', '/'])
         
         for line in iter(process.stdout.readline, ''):
-            line_count += 1
-            if line_count % 10 == 0:  # Update every 10 lines to reduce flicker
+            elapsed = time.time() - start_time_local
+            if int(elapsed) % 2 == 0:
                 timestamp = datetime.now().strftime('%H:%M:%S')
-                sys.stdout.write(f"\r[{timestamp}] [BACKEND] Compiling modules... {next(spinner)} ({line_count} ops)")
+                sys.stdout.write(f"\r[{timestamp}] [BACKEND] Compiling... {next(spinner)} ({elapsed:.0f}s)")
                 sys.stdout.flush()
                 
         process.stdout.close()
@@ -118,22 +118,19 @@ def build_backend():
         else:
             log(f"  [FAIL] Backend build failed with return code {return_code}")
             return False
-    except subprocess.CalledProcessError as e:
-        log(f"  [FAIL] Backend build failed: {e}")
-        return False
     except Exception as e:
         log(f"  [FAIL] Unexpected error during build: {e}")
         return False
+    finally:
+        os.chdir(orig_cwd)
 
 def build_frontend():
     """Build frontend with Vite"""
     log("\n[FRONTEND] Building JARVIS Frontend...")
     
-    os.chdir(PROJECT_ROOT)
-    
     # Build frontend
     try:
-        subprocess.run(['npm', 'run', 'build'], check=True, shell=True)
+        subprocess.run(['npm', 'run', 'build'], check=True, cwd=PROJECT_ROOT)
         log("  [OK] Frontend built successfully")
         return True
     except subprocess.CalledProcessError as e:
@@ -344,6 +341,7 @@ def zip_release_package():
 def filter_build_warnings(warning_file):
     """Filter and categorize build warnings to reduce noise"""
     if not warning_file.exists():
+        log("[WARNING] PyInstaller warning file not found at expected path")
         return
     
     try:
@@ -466,7 +464,7 @@ def filter_build_warnings(warning_file):
         ]
         
         lines = content.split('\n')
-        filtered_warnings: List[str] = []
+        filtered_warnings: list[str] = []
         ignored_count: int = 0
         
         for raw_line in lines:
@@ -476,7 +474,7 @@ def filter_build_warnings(warning_file):
                 
             # Check if line matches any ignorable pattern
             if any(pattern in stripped for pattern in ignorable_patterns):
-                ignored_count = sum([ignored_count, 1])
+                ignored_count += 1
                 continue
                 
             # Skip warning file header/footer text
@@ -498,7 +496,7 @@ def filter_build_warnings(warning_file):
         
         if filtered_warnings:
             log("\nWARNING: Important build warnings:")
-            top_warnings: List[str] = list(itertools.islice(filtered_warnings, 10))  # Show only first 10
+            top_warnings: list[str] = list(itertools.islice(filtered_warnings, 10))  # Show only first 10
             for warning in top_warnings:
                 log(f"  {warning}")
             if len(filtered_warnings) > 10:
