@@ -117,6 +117,16 @@ This roadmap documents the transition from a monolithic architecture (v2.1.0) to
 
 ---
 
+### Utility Scripts
+
+The `scripts/` directory contains automation tools used during development:
+
+- **`scripts/build.py`** — Active build automation script that creates standalone Windows executables via PyInstaller. Used for release packaging.
+- **`scripts/refactor_await.py`** — Historical one-time script that added `await` to `memory_manager.method()` calls across 6 backend files during the async migration (Phase 10, v3.4.1).
+- **`scripts/refactor_memory_async.py`** — Historical one-time script that converted `MemoryManager` from synchronous `sqlite3` to async `aiosqlite`.
+
+These scripts are preserved in the repository for reference and ongoing use (build.py) or historical audit trail (refactoring scripts).
+
 ## Technical Debt & Maintenance
 
 - [x] **Redesign Finalization**: Ensure all components follow the V3.1 Linear System.

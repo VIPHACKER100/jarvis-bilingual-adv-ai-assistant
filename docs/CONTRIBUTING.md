@@ -57,6 +57,32 @@ python -m uvicorn main:app --reload --port 8000
 npm run dev
 ```
 
+### Utility scripts
+
+The `scripts/` directory contains three Python utility scripts:
+
+| Script | Purpose | When to use |
+|--------|---------|-------------|
+| `build.py` | Creates a standalone Windows executable via PyInstaller. Orchestrates: cleaning build artifacts, building the frontend (`npm run build`), building the backend (`PyInstaller`), filtering warnings, packaging a release ZIP with launcher (`START_JARVIS.bat`), README, and `config.env` template. | **Active/ongoing** — run before every release |
+| `refactor_await.py` | One-time regex-based script that added `await` to `memory_manager.method()` calls across 6 backend files during the async migration. | **Historical** — run once during async migration (v3.4.1 era) |
+| `refactor_memory_async.py` | One-time regex-based script that converted `MemoryManager` from synchronous `sqlite3` to async `aiosqlite`, including connection patterns and cursor operations. | **Historical** — run once during async migration (v3.4.1 era) |
+
+**Prerequisites by script:**
+
+- `build.py` requires Node.js/npm (for frontend build) and PyInstaller (installed via `pip install pyinstaller`).
+- The refactoring scripts (`refactor_await.py`, `refactor_memory_async.py`) have no external dependencies beyond Python 3.11+ and are **not intended for re-use** — they are preserved for historical reference.
+
+**Running:**
+
+```bash
+# Build a standalone release (output in dist/JARVIS_v{VERSION}.zip)
+python scripts/build.py
+
+# Historical refactoring scripts (do not re-run):
+python scripts/refactor_await.py
+python scripts/refactor_memory_async.py
+```
+
 ---
 
 ## Project structure

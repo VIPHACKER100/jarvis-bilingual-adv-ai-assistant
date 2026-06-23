@@ -371,6 +371,16 @@ jarvis-bilingual-adv-ai-assistant/
 
 ## 🛠️ Development
 
+### Build for production
+
+To create a standalone Windows executable, run the build script from the project root:
+
+```bash
+python scripts/build.py
+```
+
+This produces `JARVIS_v{VERSION}.zip` in the `dist/` directory containing the backend executable, a `START_JARVIS.bat` launcher, and a `config.env` template. Requires Node.js/npm and PyInstaller.
+
 ### Environment Setup
 
 Create `backend/.env`:

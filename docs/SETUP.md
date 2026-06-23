@@ -425,10 +425,27 @@ Terminal 2:
 npm run dev
 ```
 
-**Production Mode** (Coming Soon):
+**Production Mode**:
 
 ```bash
-# Build frontend
+# Build standalone executable (Windows)
+python scripts/build.py
+```
+
+This orchestrates:
+1. Cleaning previous build artifacts
+2. Building the frontend via `npm run build` (Vite)
+3. Building the backend via `PyInstaller` using `JARVIS_Backend.spec`
+4. Parsing and filtering PyInstaller warning output
+5. Creating a release package with `START_JARVIS.bat` launcher, `README.txt` quick-start guide, and `config.env` template
+6. Zipping the final release as `JARVIS_v{VERSION}.zip` in `dist/`
+
+**Prerequisites:** Node.js/npm, PyInstaller (`pip install pyinstaller`). The script runs from the project root.
+
+Alternatively, you can build individually:
+
+```bash
+# Build frontend only
 npm run build
 
 # Start production server
