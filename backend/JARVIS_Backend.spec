@@ -48,6 +48,7 @@ hidden_imports = [
     'fuzzywuzzy.process',
     'Levenshtein',
     'rapidfuzz',
+    'yaml',
     
     # Scheduling
     'schedule',
@@ -94,11 +95,12 @@ hidden_imports = [
     'modules.memory',
     'modules.context',
     'modules.automation',
-    'modules.llm',
+    'modules.llm_wrapper',
+    'modules.llm_gateway',
     
     # Utilities
     'utils.platform_utils',
-    'utils.logger',
+    'utils.logger_structured',
     'utils.mdns',
     'config',
     'numpy',
@@ -117,8 +119,8 @@ hidden_imports += collect_submodules('onnxruntime')
 hidden_imports += collect_submodules('sklearn')
 hidden_imports += collect_submodules('zeroconf')
 hidden_imports += collect_submodules('ifaddr')
-
-# Collect all data files
+hidden_imports += collect_submodules('asyncpg')
+hidden_imports += collect_submodules('rapidfuzz')
 data_files = [
     # Config files
     (str(backend_dir / 'config.py'), '.'),
@@ -137,8 +139,7 @@ data_files += collect_data_files('onnxruntime')
 data_files += collect_data_files('sklearn')
 data_files += collect_data_files('zeroconf')
 data_files += collect_data_files('ifaddr')
-
-# Ensure native C/C++ DLLs are collected
+data_files += collect_data_files('asyncpg')
 extra_binaries = []
 extra_binaries += collect_dynamic_libs('scipy')
 extra_binaries += collect_dynamic_libs('numpy')
@@ -147,8 +148,11 @@ extra_binaries += collect_dynamic_libs('onnxruntime')
 extra_binaries += collect_dynamic_libs('sklearn')
 extra_binaries += collect_dynamic_libs('zeroconf')
 extra_binaries += collect_dynamic_libs('ifaddr')
-
-# Add data directory structure
+extra_binaries += collect_dynamic_libs('asyncpg')
+extra_binaries += collect_dynamic_libs('rapidfuzz')
+extra_binaries += collect_dynamic_libs('Levenshtein')
+extra_binaries += collect_dynamic_libs('pydantic_core')
+extra_binaries += collect_dynamic_libs('yaml')
 data_dir = backend_dir / 'data'
 logs_dir = backend_dir / 'logs'
 data_dir.mkdir(exist_ok=True)
