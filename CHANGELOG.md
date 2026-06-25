@@ -7,6 +7,38 @@ All notable changes to the JARVIS AI Assistant will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0-alpha.3] - 2026-06-25
+
+### Added
+
+- **10 new React/TypeScript components** (generated from FRD reverse-engineered via backend-frontend-mapper):
+  - `FileBrowser.tsx` — Full CRUD file explorer (list, search, create, rename, copy, move, delete)
+  - `WindowManager.tsx` — Window & app list with activate/minimize/maximize/restore/close
+  - `PersonalitySelector.tsx` — 4 themes (Stark, Midnight, Avenue, Linear) with visual preview
+  - `WhatsAppPanel.tsx` — Send messages, AI drafts, contacts, call
+  - `DeviceSyncPanel.tsx` — Pairing code, trusted device list, unpair
+  - `InputSimulator.tsx` — Mouse move/click/drag/scroll, keyboard type/press/hotkeys
+  - `MediaToolsPanel.tsx` — OCR (screen/file), image convert/resize/compress, PDF tools
+  - `SystemControls.tsx` — Shutdown/restart/sleep/lock/hibernate/logout with 5s countdown
+  - `PerformanceMonitor.tsx` — Real-time CPU/memory/disk/network with sparkline history
+  - `CloudSettings.tsx` — API key management (NVIDIA/OpenRouter/Backend) with visibility toggle + test
+- **Modified components**: `JarvisModals.tsx`, `QuickAccess.tsx`, `App.tsx` — integrated new panels into existing UI framework
+- **Modified services**: `apiClient.ts` — added methods for all 10 new component API integrations
+- **Modified hooks**: `useSystemQuery.ts` — added TanStack Query hooks for all new system endpoints
+- **147 new frontend tests**: Tests for all 10 new components + useSystemQuery (172 total, 14 test files)
+- **`docs/FRONTEND_COMPONENT_CATALOG.md`**: New living catalog document listing all frontend components, props, backend endpoints, and test coverage status
+
+### Fixed
+
+- **`main.tsx` missing `QueryClientProvider`**: Runtime crash fix — application now boots correctly with TanStack Query context provider wrapping the component tree
+- **12 TypeScript errors**: Removed unused `React` imports from 9 test files and 1 unused variable (`useConvertImage`) in `useSystemQuery.test.tsx`
+
+### Tests
+
+- **172 frontend tests passing** (was 25) — 14 test files covering all 10 new components + existing services/stores
+- **47 backend tests passing** (unchanged)
+- **Total: 219/219 tests passing** across the entire project
+
 ## [4.0.0-alpha.2] - 2026-06-23
 
 ### Bug-fix Merge (commit 6853324d)

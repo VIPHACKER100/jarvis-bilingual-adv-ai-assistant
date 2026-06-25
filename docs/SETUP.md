@@ -31,6 +31,7 @@
 - **Storage**: 5GB free space
 - **Browser**: Latest Chrome or Edge
 - **Python**: 3.13
+- **Python**: 3.11+ (3.13 recommended — see `pyproject.toml`)
 - **Node.js**: 20 LTS
 
 ---
@@ -223,7 +224,7 @@ copy .env.example .env  # Windows
 cp .env.example .env    # macOS/Linux
 ```
 
-Edit `.env`:
+Edit `backend/.env`:
 
 ```env
 # Server Configuration
@@ -231,8 +232,36 @@ BACKEND_PORT=8000
 FRONTEND_URL=http://localhost:5173
 
 # Authentication (required for all API requests)
-# Generate a secure random key (e.g., openssl rand -hex 32)
+# Generate a secure random key: openssl rand -hex 32
 BACKEND_API_KEY=your-secure-api-key-here
+
+# Database (PostgreSQL with pgvector)
+DATABASE_URL=postgresql+asyncpg://postgres:your-password@localhost:5432/jarvis
+
+# Redis (optional, for task scheduling)
+# REDIS_URL=redis://localhost:6379/0
+
+# LLM Provider Selection (nvidia | openrouter | openai | google | ollama)
+LLM_PROVIDER=nvidia
+
+# NVIDIA API (primary provider)
+NVIDIA_API_KEY=nvapi-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NVIDIA_MODEL=deepseek-ai/deepseek-v4-pro
+
+# OpenRouter API (secondary provider)
+OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+OPENROUTER_MODEL=google/gemini-2.0-flash-001
+
+# OpenAI API
+# OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# OPENAI_MODEL=gpt-4o-mini
+
+# Google / Gemini
+# GEMINI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Ollama (local — no API key needed)
+# OLLAMA_URL=http://localhost:11434/api/chat
+# OLLAMA_MODEL=llama3
 
 # Security
 CONFIRMATION_TIMEOUT=30
@@ -242,13 +271,26 @@ ENABLE_DANGEROUS_COMMANDS=true
 LOG_LEVEL=INFO
 LOG_RETENTION_DAYS=30
 
+# Wake Word (Windows only)
+WAKE_WORD_ENABLED=false
+WAKE_WORD_PHRASE=jarvis
+
+# Mobile Sync & Discovery
+MDNS_ENABLED=true
+MDNS_SERVICE_NAME=JARVIS-CORE
+PAIRING_SECRET=your-pairing-secret-here
+
 # WhatsApp
 WHATSAPP_DESKTOP_PATH=
 AUTO_DETECT_WHATSAPP=true
 
-# Optional: API Keys for future features
-GEMINI_API_KEY=
-OPENROUTER_API_KEY=
+# Audio & TTS
+TTS_VOICE=alloy
+TTS_LANGUAGE=en
+
+# OpenTelemetry (optional tracing)
+# OTEL_ENABLED=false
+# OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
 ```
 
 Also create a `.env` file in the project root for the frontend:
@@ -256,12 +298,39 @@ Also create a `.env` file in the project root for the frontend:
 ```env
 # Frontend .env (project root)
 VITE_JARVIS_API_KEY=your-secure-api-key-here
-# Must match BACKEND_API_KEY above — used for WebSocket auth
+# Must match BACKEND_API_KEY in backend/.env — used for API + WebSocket auth
+VITE_BACKEND_URL=http://localhost:8000
 ```
 
-> **Frontend URL configuration**: WebSocket and API URLs are computed automatically in `src/config.ts` from the detected hostname and `BACKEND_PORT`. For remote deployments, edit `src/config.ts` to set custom `WS_API_BASE_URL` and `AUDIO_WS_URL` values, or set `VITE_BACKEND_PORT` in `.env` to change the port.
+> **Frontend URL configuration**: WebSocket and API URLs are computed automatically in `src/config.ts` from the detected hostname and `BACKEND_PORT`. For remote deployments, edit `src/config.ts` to set custom `WS_API_BASE_URL` and `AUDIO_WS_URL` values.
 
-### Step 7: Verify Installation
+### Step 7: Run Tests (Optional)
+
+#### Frontend Tests
+
+```bash
+# From project root — runs 172+ frontend tests via vitest
+npm test
+
+# Watch mode during development
+npm run test:watch
+```
+
+#### Backend Tests
+
+```bash
+cd backend
+source venv/bin/activate   # or venv\Scripts\activate on Windows
+pytest                     # runs 47+ backend tests
+```
+
+#### Full Validation
+
+```bash
+npm run check              # typecheck + lint + format check + build
+```
+
+### Step 8: Verify Installation
 
 #### Test Backend
 
@@ -302,7 +371,9 @@ You should see:
   ➜  Network: use --host to expose
 ```
 
-### Step 8: First Run
+> **Important**: The frontend `.env` (project root) and backend `.env` (`backend/`) must share the same `BACKEND_API_KEY` / `VITE_JARVIS_API_KEY` value. Both `.env` files use the same secret for API authentication.
+
+### Step 9: First Run
 
 1. Open browser to: `http://localhost:5173`
 2. Allow microphone permissions when prompted

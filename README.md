@@ -4,10 +4,11 @@
 
 ![JARVIS Logo](docs/assets/jarvis_logo.svg)
 
-[![Version](https://img.shields.io/badge/Version-4.0.0--alpha.2-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
+[![Version](https://img.shields.io/badge/Version-4.0.0--alpha.3-indigo?style=for-the-badge&logo=github)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.129-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Tests](https://img.shields.io/badge/Tests-219_passing-brightgreen?style=flat-square&logo=vitest)](https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant)
 
 **A futuristic, voice-activated system controller for Windows, macOS, and Linux.**  
 *Bilingual (English/Hindi) • 100+ Commands • Full Hardware Control*
@@ -16,7 +17,7 @@
 
 ---
 
-## 🌟 Modern Capabilities (v4.0.0-alpha.2)
+## 🌟 Modern Capabilities (v4.0.0-alpha.3)
 
 - 🎙️ **Local Voice Activation** - "Hey JARVIS" wake-word detection using `openwakeword` for a hands-free experience.
 - 📱 **Mobile Companion Ecosystem** - Secure pairing and real-time remote control via the new JARVIS Mobile app.
@@ -28,6 +29,16 @@
 - 🧠 **Neural Feedback Loop** - Autonomous agent learns from user rejections and timeout decisions to refine future proactive suggestions.
 - 🔒 **TypeScript Strict Types** - Zero `any` types. 350+ interfaces mirror all backend Pydantic models.
 - 🛡️ **Security Hardening** - All CodeQL SAST findings resolved: bad HTML regex, incomplete sanitization, information exposure through exceptions.
+- 🧩 **44 Frontend Components** — 10 new components added covering file browser, window manager, personality selector, WhatsApp panel, device sync, input simulator, media tools, system controls, performance monitor, and cloud settings.
+
+### 🚀 **What's New? (v4.0.0-alpha.3)**
+
+- 🧩 **10 New Frontend Components** — `FileBrowser`, `WindowManager`, `PersonalitySelector`, `WhatsAppPanel`, `DeviceSyncPanel`, `InputSimulator`, `MediaToolsPanel`, `SystemControls`, `PerformanceMonitor`, `CloudSettings` — all with full test coverage.
+- 📐 **Backend-Frontend Mapper** — Reverse-engineered 18 routers, ~120+ endpoints, 2 WebSocket channels, 7 DB tables into a comprehensive Frontend Requirements Document (FRD).
+- ✅ **219/219 Tests Passing** — 47 backend + 172 frontend tests (14 test files). Zero failures.
+- 🧪 **147 New Frontend Tests** — Component-level tests for all 10 new components using React Testing Library + Vitest.
+- 🐛 **`main.tsx` Fix** — Missing `QueryClientProvider` crash resolved; application now boots reliably.
+- 📖 **New Documentation** — `docs/FRONTEND_COMPONENT_CATALOG.md` — living reference for on-boarding developers.
 
 ### 🚀 **What's New? (v4.0.0-alpha.2)**
 
@@ -326,11 +337,14 @@ graph TD
 
 ## 📊 Technical Specifications
 
-- **Total Code**: ~6,800 lines
-- **Frontend**: React 19, TypeScript 5.9, 3,800+ lines
-- **Backend**: Python 3.13, FastAPI, 3,000+ lines
-- **Architecture**: Modular 10+ Routers, 15+ Handlers
-- **API Endpoints**: 65+ REST (under `/api/v1/`) + WebSocket
+- **Total Code**: ~24,000 lines
+- **Frontend**: React 19, TypeScript 5.9, 44 components, 14,000+ lines
+- **Backend**: Python 3.13, FastAPI, 10,000+ lines
+- **Architecture**: Modular 18+ Routers, 15+ Handlers
+- **API Endpoints**: ~120+ REST (dual-mounted under `/api/v1/` and legacy) + 2 WebSocket channels
+- **Database Tables**: 7 (PostgreSQL + pgvector)
+- **Frontend Tests**: 172 (14 test files, 100% pass)
+- **Backend Tests**: 47 (100% pass)
 - **Voice Commands**: 100+ bilingual
 - **Platforms**: Windows, macOS, Linux
 

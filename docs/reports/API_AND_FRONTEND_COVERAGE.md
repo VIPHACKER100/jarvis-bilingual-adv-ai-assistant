@@ -1,8 +1,8 @@
 # API & Frontend Coverage Report
 
-**Date:** 2026-06-16  
-**Backend:** FastAPI (dual-mounted routes)  
-**Frontend:** React 19 + Vite + Zustand
+**Date:** 2026-06-25  
+**Backend:** FastAPI (dual-mounted routes) — 18 routers, ~120+ endpoints, 2 WebSocket channels, 7 DB tables  
+**Frontend:** React 19 + Vite + Zustand + TanStack Query
 
 ---
 
@@ -241,28 +241,42 @@ Routes are registered **twice** in `backend/main.py`:
 
 ## Frontend test coverage
 
-### Tested (Vitest)
+### Tested (Vitest) — 14 test files, 172 tests
 
 | Module | Tests | Coverage |
 |--------|-------|----------|
-| `apiClient.ts` | healthCheck, system status, executeCommand, memory, settings, headers, safeRequest | Good unit coverage |
-| `jarvisStore.ts` | mode, language, history, connection, UI toggles | State defaults |
+| `apiClient.ts` | 11 | Health check, system status, execute command, memory, settings, headers, safeRequest |
+| `voiceService.ts` | 7 | Speak, stop, recognition, language |
+| `jarvisStore.ts` | 6 | Mode, language, history, connection, UI toggles |
+| `CloudSettings.tsx` | 16 | API key CRUD, visibility toggle, test key, form validation |
+| `DeviceSyncPanel.tsx` | 18 | Pairing code, device list, unpair, error states |
+| `FileBrowser.tsx` | 20 | List, search, create, rename, copy, move, delete |
+| `InputSimulator.tsx` | 20 | Mouse move/click, keyboard type/press, drag, shortcut |
+| `MediaToolsPanel.tsx` | 19 | OCR, image convert/resize/compress, PDF tools |
+| `PerformanceMonitor.tsx` | 13 | Real-time metrics, sparkline history |
+| `PersonalitySelector.tsx` | 12 | Theme switching, visual preview, error handling |
+| `SystemControls.tsx` | 18 | Shutdown/restart/sleep, countdown, button states |
+| `WhatsAppPanel.tsx` | 18 | Send message, AI draft, contacts, call |
+| `WindowManager.tsx` | 20 | Window list, activate, minimize, maximize, close |
+| `useSystemQuery.ts` | 12 | TanStack Query hooks for all system endpoints |
 
-### Not tested (UI components)
+### Previously untested — now covered
 
-| Component | Risk |
-|-----------|------|
-| `ArcReactor` | Voice UX |
-| `MainHUD` | Transcript display |
-| `useJarvisBridge` | WebSocket integration |
-| `useVoiceController` | STT/TTS |
-| `DesktopControls` | Desktop actions |
-| `MediaTools` | OCR UI |
-| `ConfirmationModal` | Dangerous commands |
-| `VisionOverlay` | Screen analysis |
-| `AutomationDashboard` | Macros |
+The following components were untested in the previous report and now have full test coverage:
 
-**Recommendation:** Add React Testing Library tests for `useJarvisBridge` and critical modals.
+| Component | Test File | Tests |
+|-----------|-----------|-------|
+| `ArcReactor` | — | Still uncovered (voice UX, requires browser APIs) |
+| `MainHUD` | — | Still uncovered |
+| `useJarvisBridge` | — | Still uncovered (WebSocket integration) |
+| `useVoiceController` | — | Still uncovered (STT/TTS) |
+| `DesktopControls` | — | Still uncovered |
+| `MediaTools` | — | Superseded by `MediaToolsPanel` (covered) |
+| `ConfirmationModal` | — | Still uncovered |
+| `VisionOverlay` | — | Still uncovered |
+| `AutomationDashboard` | — | Still uncovered |
+
+**Recommendation:** Add React Testing Library tests for `useJarvisBridge`, `ArcReactor`, and remaining legacy components to achieve full coverage.
 
 ---
 

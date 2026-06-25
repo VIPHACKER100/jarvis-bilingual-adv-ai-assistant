@@ -1,5 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/react-query';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { NotificationProvider } from './context/NotificationContext';
@@ -16,9 +18,11 @@ root.render(
   <StrictMode>
     <BrowserRouter>
       <ErrorBoundary>
-        <NotificationProvider>
-          <App />
-        </NotificationProvider>
+        <QueryClientProvider client={queryClient}>
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
+        </QueryClientProvider>
       </ErrorBoundary>
     </BrowserRouter>
   </StrictMode>

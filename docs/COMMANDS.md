@@ -366,6 +366,119 @@ Complete reference of all voice commands supported by JARVIS.
 
 ---
 
+## 🤖 Automation & Macro Commands
+
+### Scheduled Tasks
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Create task [name]" | "Task banao [name]" | Schedule a new recurring task |
+| "Schedule [command] at [time]" | "[time] par [command] schedule karo" | Schedule command execution |
+| "List my tasks" | "Saare tasks dikhao" | List all scheduled tasks |
+| "Toggle task [name]" | "Task [name] on/off karo" | Enable/disable a task |
+| "Delete task [name]" | "Task [name] hatao" | Remove a scheduled task |
+| "Show task status" | "Task status dikhao" | Scheduler health & queue status |
+
+### Macros
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Create macro [name]" | "Macro banao [name]" | Record a macro (sequence of actions) |
+| "List macros" | "Macros dikhao" | List saved macros |
+| "Run macro [name]" | "Macro [name] chalao" | Execute a saved macro |
+
+---
+
+## 🧠 Memory Commands
+
+### Conversation History
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Show history" | "History dikhao" | View recent conversation history |
+| "Clear my history" | "History saaf karo" | Delete all conversation history |
+| "What did I ask yesterday?" | "Maine kal kya poocha tha?" | Recall past conversations |
+
+### Facts & Knowledge
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Remember that [fact]" | "Yaad rakho ki [fact]" | Save a memory fact |
+| "What do you know about me?" | "Mere baare mein kya jaante ho?" | List saved facts |
+| "Recall [topic]" | "[topic] yaad karo" | Retrieve a specific fact |
+| "Forget [fact]" | "[fact] bhool jao" | Delete a memory fact |
+
+### Neural Memory Nodes
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Show memory nodes" | "Memory nodes dikhao" | List neural memory documents |
+| "Read memory [name]" | "Memory [name] padho" | View node content |
+| "Update memory [name]" | "Memory [name] update karo" | Modify node content |
+
+---
+
+## ⚙️ Settings Commands
+
+### Configuration
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Open settings" | "Settings kholo" | Open Cloud Settings panel |
+| "Change language to [en/hi]" | "Language [en/hi] karo" | Switch between English/Hindi |
+| "Set provider to [nvidia/openrouter/openai/ollama]" | "Provider [name] karo" | Change LLM provider |
+| "Show current settings" | "Current settings dikhao" | View all configuration |
+| "Enable dangerous commands" | "Dangerous commands on karo" | Allow shutdown/delete without prompt |
+| "Disable dangerous commands" | "Dangerous commands off karo" | Require confirmation for dangerous actions |
+
+### API Keys
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Manage API keys" | "API keys management karo" | Open API key panel |
+| "Test API key" | "API key test karo" | Verify current provider key works |
+| "Show key status" | "Key status dikhao" | List which keys are configured |
+
+---
+
+## 📊 Performance & Analytics Commands
+
+### System Metrics
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Show performance" | "Performance dikhao" | Open live Performance Monitor |
+| "CPU usage" | "CPU usage batao" | Current CPU utilization |
+| "Memory usage" | "Memory usage batao" | Current RAM utilization |
+| "Disk usage" | "Disk usage batao" | Storage usage |
+| "Network stats" | "Network statistics" | Network throughput |
+| "Show performance history" | "Performance history dikhao" | Historical metrics chart |
+
+### Command Analytics
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Command insights" | "Command insights dikhao" | Usage analytics dashboard |
+| "Most used commands" | "Sabse zyada use commands" | Top command frequency |
+| "Peak usage time" | "Sabse active time" | Peak activity hour |
+
+---
+
+## 🖥️ UI Panel Navigation Commands
+
+| English | Hindi | Description |
+| :--- | :--- | :--- |
+| "Open file browser" | "File browser kholo" | Open File Explorer panel |
+| "Show windows" | "Windows dikhao" | Open Window Manager panel |
+| "Show performance monitor" | "Performance monitor kholo" | Open Performance Monitor panel |
+| "Open WhatsApp panel" | "WhatsApp panel kholo" | Open WhatsApp messaging panel |
+| "Show devices" | "Devices dikhao" | Open Device Sync panel |
+| "Open Cloud settings" | "Cloud settings kholo" | Open API key management panel |
+| "Switch to [HUD/Timeline/Sync/Training]" | "[view] mein jao" | Switch tactical view |
+| "Show home" | "Home screen dikhao" | Return to main HUD |
+
+---
+
 ## 🆘 Help Commands
 
 | English | Hindi | Description |
@@ -449,10 +562,14 @@ Commands marked with ⚠️ require confirmation:
 | Image Processing | 10 | 10 | 20 |
 | Desktop Utilities | 8 | 8 | 16 |
 | WhatsApp | 5 | 5 | 10 |
-| Analytics | 5 | 5 | 10 |
+| Automation & Macros | 8 | 8 | 16 |
+| Memory | 10 | 10 | 20 |
+| Settings | 7 | 7 | 14 |
+| Performance & Analytics | 8 | 8 | 16 |
+| UI Navigation | 8 | 8 | 16 |
 | Persona | 5 | 5 | 10 |
 | Mobile Sync | 7 | 7 | 14 |
-| **Total** | **117** | **117** | **234+** |
+| **Total** | **158** | **158** | **316+** |
 
 ---
 

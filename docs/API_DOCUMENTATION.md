@@ -1310,6 +1310,213 @@ Authorization: Bearer <token>
 
 ---
 
+## Complete Backend API Inventory
+
+The following table lists all REST endpoints discovered during a full reverse-engineering pass of the backend. Endpoints marked with \* are documented with examples elsewhere in this document; unmarked endpoints are documented here for completeness.
+
+### Health & Probes
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/` | Health check / SPA |
+| GET | `/health` | Backend health |
+| GET | `/api/v1/ready` | Kubernetes readiness probe (DB check) |
+| GET | `/api/v1/live` | Kubernetes liveness probe (always 200) |
+
+### System
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/system/status` \* | CPU/RAM/disk/battery/network status |
+| GET | `/system/battery` | Battery info |
+| GET | `/system/time` | Current time |
+| GET | `/system/date` | Current date |
+| GET | `/system/uptime` | System uptime |
+| GET | `/system/network` | IP / network info |
+| GET | `/system/weather` | Weather query |
+| POST | `/system/shutdown` \* | Shutdown PC |
+| POST | `/system/restart` \* | Restart PC |
+| POST | `/system/sleep` \* | Sleep PC |
+| POST | `/system/volume/up` | Volume up |
+| POST | `/system/volume/down` | Volume down |
+| POST | `/system/mute` | Toggle mute |
+| POST | `/system/search` \* | Google search |
+| GET | `/system/performance/history` | Metrics history |
+| GET | `/system/personalities` | List personality themes |
+| POST | `/system/personality/{p_id}` | Set personality theme |
+| GET | `/system/command-insights` \* | Usage analytics |
+| GET | `/system/security/processes` | Running process list |
+| GET | `/system/security/connections` | Network connections |
+| POST | `/system/security/quarantine` | Quarantine process |
+
+### Windows & Apps
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/windows/list` \* | List open windows |
+| GET | `/apps/list` | List running apps |
+| POST | `/apps/open` \* | Open application |
+| POST | `/apps/close` \* | Close application |
+| POST | `/windows/minimize` | Minimize window |
+| POST | `/windows/maximize` | Maximize window |
+| POST | `/windows/restore` | Restore window |
+| POST | `/windows/activate` | Activate window |
+| POST | `/windows/focus` | Focus window |
+
+### Files
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/files/open` \* | Open folder |
+| GET | `/files/list` \* | List directory |
+| POST | `/files/search` \* | Search files |
+| POST | `/files/create` \* | Create folder |
+| POST | `/files/delete` \* | Delete file |
+| POST | `/files/copy` \* | Copy file |
+| POST | `/files/move` \* | Move file |
+| POST | `/files/rename` \* | Rename file |
+| GET | `/files/info` \* | File metadata |
+| POST | `/files/read` | Read file content |
+
+### Media & OCR
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/media/ocr/image` \* | OCR image file |
+| POST | `/media/ocr/pdf` \* | OCR PDF |
+| POST | `/media/ocr/screen` \* | Screenshot OCR |
+
+### PDF Tools
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/pdf/merge` \* | Merge PDFs |
+| POST | `/pdf/split` \* | Split PDF |
+| POST | `/pdf/to-images` \* | PDF to images |
+| POST | `/pdf/from-images` \* | Images to PDF |
+
+### Image Tools
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/image/convert` \* | Convert format |
+| POST | `/image/resize` \* | Resize image |
+| POST | `/image/compress` \* | Compress image |
+
+### Desktop
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/desktop/screenshot` \* | Full screenshot |
+| POST | `/desktop/screenshot/region` \* | Region screenshot |
+| GET | `/desktop/clipboard/text` \* | Read clipboard |
+| POST | `/desktop/clipboard/text` \* | Write clipboard |
+| DELETE | `/desktop/clipboard` \* | Clear clipboard |
+| POST | `/desktop/media/play` \* | Play/pause |
+| POST | `/desktop/media/next` \* | Next track |
+| POST | `/desktop/media/previous` | Previous track |
+| POST | `/desktop/media/stop` | Stop media |
+| POST | `/desktop/wallpaper` \* | Change wallpaper |
+| POST | `/desktop/zoom` \* | Screen zoom |
+| POST | `/desktop/recycle-bin/empty` | Empty recycle bin |
+| POST | `/desktop/taskbar/toggle` | Toggle taskbar |
+
+### Memory
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/memory/conversation` \* | Save conversation |
+| GET | `/memory/conversations` \* | List conversations |
+| GET | `/memory/stats` \* | Memory stats |
+| DELETE | `/memory/conversations` \* | Clear history |
+| POST | `/memory/fact` \* | Add fact |
+| GET | `/memory/facts` \* | List facts |
+| PUT | `/memory/fact/{fact_id}` \* | Update fact |
+| DELETE | `/memory/fact/{fact_id}` \* | Delete fact |
+| GET | `/memory/nodes` | List neural nodes |
+| GET | `/memory/nodes/{name}` | Get neural node |
+| PUT | `/memory/nodes/{name}` | Update neural node |
+
+### Automation
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/automation/task` \* | Create scheduled task |
+| GET | `/automation/tasks` \* | List tasks |
+| POST | `/automation/task/{task_id}/toggle` | Enable/disable task |
+| DELETE | `/automation/task/{task_id}` | Delete task |
+| POST | `/automation/macro` \* | Save macro |
+| GET | `/automation/macros` \* | List macros |
+| POST | `/automation/macro/{macro_id}/run` \* | Run macro |
+| GET | `/automation/status` | Automation status |
+
+### Settings
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/settings` \* | Get settings |
+| GET | `/settings/keys` | List API key names |
+| POST | `/settings` \* | Update settings |
+| POST | `/settings/keys` | Set API key |
+| POST | `/settings/test-key` | Test API key |
+
+### WhatsApp
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/whatsapp/open` | Open WhatsApp |
+| POST | `/whatsapp/send` \* | Send message |
+| POST | `/whatsapp/call` \* | Start call |
+| GET | `/whatsapp/contacts` | List contacts |
+| GET | `/whatsapp/status` | Connection status |
+| POST | `/whatsapp/draft_reply` | Smart reply draft |
+
+### Input Control
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/input/cursor` \* | Cursor position |
+| POST | `/input/move` \* | Move cursor |
+| POST | `/input/click` \* | Click |
+| POST | `/input/double_click` | Double-click |
+| POST | `/input/right_click` | Right-click |
+| POST | `/input/type` \* | Type text |
+| POST | `/input/press` | Press key |
+| POST | `/input/scroll` | Scroll |
+| POST | `/input/drag` | Drag |
+| POST | `/input/shortcut` | Hotkey |
+
+### Notifications & Sync
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/notifications` | Push notification |
+| GET | `/sync/pairing-code` \* | Mobile pairing code |
+| GET | `/sync/status` \* | Sync status |
+| POST | `/sync/pair` \* | Pair device |
+| GET | `/sync/devices` \* | List devices |
+| DELETE | `/sync/devices/{device_id}` \* | Unpair device |
+| POST | `/sync/telemetry` \* | Telemetry |
+
+### Context (legacy)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/context/suggestion` | Proactive suggestion |
+| GET | `/context/quick-actions` | Quick actions |
+| POST | `/context/quick-actions` | Update quick actions |
+
+### WebSocket
+
+| Type | Path | Messages |
+|------|------|----------|
+| WS | `/ws` \* | command, confirmation, command_result, agent_thinking, error, system_status |
+| WS | `/api/v1/audio/ws/audio` \* | tts, transcribe, transcription |
+
+> **Note**: All REST endpoints are dual-mounted: `/api/v1{path}` (versioned) and `{path}` (legacy). The WebSocket `/ws` endpoint accepts an `api_key` query parameter for authentication.
+
+---
+
 ## Changelog
 
 ### v4.0.0-alpha.1 (Phase 4 — Security Audit & P0/P1 Bug Fixes)

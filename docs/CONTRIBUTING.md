@@ -343,9 +343,11 @@ npm test
 npm test -- --coverage
 ```
 
-- All tests must pass before merging
-- Component tests should cover key user interactions
+- All tests must pass before merging (currently 219: 47 backend + 172 frontend)
+- Component tests should cover key user interactions (React Testing Library)
 - API client tests should mock HTTP responses
+- New components should include a test file following patterns in `src/__tests__/`
+- See [FRONTEND_COMPONENT_CATALOG.md](./FRONTEND_COMPONENT_CATALOG.md) for component-to-backend-endpoint mappings
 
 ---
 
@@ -378,8 +380,8 @@ perf(rag): cache embedding results for repeated queries
 
 1. Create a feature branch from `main`
 2. Make changes following the coding standards above
-3. Run the full test suite: `pytest tests/ -v && npm test && npm run check`
-4. Ensure linting passes: `ruff check backend/`
+3. Run the full test suite: `pytest tests/ -v && npm test && npm run typecheck`
+4. Ensure linting passes: `ruff check backend/` and `markdownlint docs/`
 5. Write a clear PR description explaining the change and its motivation
 6. Request review from a maintainer
 7. Address review feedback
