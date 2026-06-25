@@ -1,15 +1,13 @@
 # JARVIS v4.0 — Frontend Requirements Document (FRD)
 
 > **Generated from**: Full backend source analysis (FastAPI, 110+ REST endpoints, 2 WS, 1 SSE)
-> **Target Stack**: React 18 + TypeScript + Vite + Zustand + TanStack Query + Framer Motion
+> **Target Stack**: React 19 + TypeScript + Vite + Zustand + TanStack Query + Framer Motion
 > **Design System**: Glassmorphism V3 (JARVIS Design System)
-> **Last Updated**: 2026-06-25
+> **Last Updated**: 2026-06-26
 >
-> **⚠️ RESTRUCTURING NOTICE**: All frontend source files (`src/`, `index.html`, `vite.config.ts`, `package.json`,
-> `node_modules/`, `mobile/`, frontend tests) were removed from the repository. This document is now the **build
-> blueprint** for recreating the frontend from scratch. Sections referencing "already exists" or "currently
-> implemented" describe the **target architecture** — nothing exists yet. The Master Task List (§14) is the
-> development sprint plan.
+> **⚠️ LEGACY NOTICE**: The frontend was rebuilt from this blueprint. All `src/` files now exist and implement the
+> architecture described herein. This document serves as both the **design reference** and the **living specification**
+> for the current implementation. The Master Task List (§14) tracks remaining work; completed tasks are marked ✓.
 
 ---
 
@@ -81,7 +79,46 @@
 
 ## 2. Page/Route Architecture
 
-The app uses a **single-page tactical view system** (currently in App.tsx via `activeTacticalView`). The FRD proposes migrating to a proper React Router v6 SPA for better URL shareability and deep linking.
+The app uses **React Router v7** with `BrowserRouter` for client-side SPA routing. Routes are defined inline in `src/App.tsx` using a single `<Routes>` block with a parent `/` route rendering inside `AppShell`'s `<Outlet />`. Each page is code-split via `React.lazy()` + `<Suspense>` for optimized chunk loading.
+
+### Lazy Loading Architecture (`src/App.tsx`)
+
+The `lazyPage()` helper resolves named function exports from each page module (pages use `export function ComponentName()` — not `export default`). It skips non-component exports (e.g. `MOCK_*` constants) and throws a descriptive error if no component is found, avoiding silent empty renders.
+
+```typescript
+// Created at module scope — never inside render — to prevent React remounting pages
+const NeuralHUD = lazyPage(() => import('@/pages/NeuralHUD'));
+```
+
+Each route wraps its component in `<Suspense>` with a unique loading message. A catch-all `path="*"` redirects to `/hud`. The `SidebarNav` links map 1:1 with route paths as absolute URLs (`/settings`, `/timeline`, etc.).
+
+An `ErrorBoundary` class component wraps the entire route tree, catching render errors and displaying a "SYSTEM MALFUNCTION" screen with a "REBOOT" button.
+
+### Route Table
+
+| Route | Page Component | Lazy Import | Suspense Fallback |
+|-------|---------------|-------------|-------------------|
+| `/hud` | `NeuralHUD` | `@/pages/NeuralHUD` | LOADING HUD... |
+| `/settings` | `SettingsPage` | `@/pages/SettingsPage` | LOADING CONFIG... |
+| `/timeline` | `AuditTimeline` | `@/pages/AuditTimeline` | LOADING TIMELINE... |
+| `/sync` | `DeviceSyncHub` | `@/pages/DeviceSyncHub` | LOADING SYNC... |
+| `/automation` | `AutomationDashboard` | `@/pages/AutomationDashboard` | LOADING AUTOMATION... |
+| `/files` | `FileManager` | `@/pages/FileManager` | LOADING FILES... |
+| `/windows` | `WindowManager` | `@/pages/WindowManager` | LOADING WINDOWS... |
+| `/security` | `SecurityDashboard` | `@/pages/SecurityDashboard` | LOADING SECURITY... |
+| `/whatsapp` | `WhatsAppControl` | `@/pages/WhatsAppControl` | LOADING WHATSAPP... |
+| `/desktop` | `RemoteDesktop` | `@/pages/RemoteDesktop` | LOADING DESKTOP... |
+| `/input` | `InputSimulator` | `@/pages/InputSimulator` | LOADING INPUT... |
+| `/media-tools` | `MediaTools` | `@/pages/MediaTools` | LOADING MEDIA TOOLS... |
+| `/training` | `NeuralTraining` | `@/pages/NeuralTraining` | LOADING TRAINING... |
+| `/about` | `AboutPage` | `@/pages/AboutPage` | LOADING ABOUT... |
+| `*` (catch-all) | — | — | Redirect → `/hud` |
+
+### Entry Point (`src/main.tsx`)
+
+- `BrowserRouter` wraps the entire `<App />` component
+- `QueryClientProvider` (TanStack Query v5) wraps `BrowserRouter`
+- An outer `<Suspense>` with "INITIALIZING NEURAL CORE..." fallback covers the initial lazy load of the entire app tree
 
 ### PAGE-1: Neural HUD (Main Dashboard)
 - **Route**: `/` or `/hud`
@@ -310,6 +347,14 @@ The app uses a **single-page tactical view system** (currently in App.tsx via `a
   | 10 | `POST /pdf/from-images` | Images→PDF |
 - **UI Sections**: OCR result viewer, image upload + preview, format selector, quality slider, PDF file list with actions
 
+### PAGE-14: About
+- **Route**: `/about`
+- **Access**: Public (local) or Auth Required (remote)
+- **Purpose**: Application version info, credits, license, system overview
+- **Currently**: `AboutPage`
+- **API Calls**: None (static content)
+- **UI Sections**: App version and build info, developer credits, open-source licenses, theme attribution
+
 ---
 
 ## 3. Component Tree
@@ -348,8 +393,8 @@ AppShell
 │   ├── LanguageToggle (EN ↔ HI ↔ HINGLISH)
 │   ├── ViewSwitcher (nav links to all pages)
 │   └── QuickSettingsButton (opens SettingsModal)
-├── SidebarNav (collapsible icon + label nav)
-├── <Routes>
+├── SidebarNav (collapsible icon + label nav, links map 1:1 with route paths)
+├── <Routes> (defined inline in App.tsx, lazy-loaded via React.lazy + Suspense)
 │   ├── PAGE-1: NeuralHUD
 │   │   ├── ArcReactor (mode indicator animation)
 │   │   ├── SystemMetricsWidget (CPU/Memory/Disk/Battery gauges)
@@ -439,10 +484,12 @@ AppShell
 │   │   ├── KeyboardInput (type text, press key)
 │   │   └── HotkeyComposer (key selection + send)
 │   │
-│   └── PAGE-13: MediaTools
-│       ├── OcrResultViewer (text result + confidence)
-│       ├── ImageToolPanel (upload, format select, quality slider)
-│       └── PdfToolPanel (file paths, merge/split buttons)
+│   ├── PAGE-13: MediaTools
+│   │   ├── OcrResultViewer (text result + confidence)
+│   │   ├── ImageToolPanel (upload, format select, quality slider)
+│   │   └── PdfToolPanel (file paths, merge/split buttons)
+│   │
+│   └── PAGE-14: AboutPage (static — app version, credits, licenses)
 │
 ├── CommandPalette (global Ctrl+K overlay)
 ├── NotificationCenter (toast stack in top-right)
@@ -836,7 +883,7 @@ interface AgentState {
 ```typescript
 interface UIState {
   language: Language;
-  activeTacticalView: ViewType;
+  activeTacticalView: ViewType;  // Deprecated — navigation uses React Router; kept for backward compat
   theme: 'dark' | 'light' | 'cyber';
   showSettings: boolean;
   showMemory: boolean;
@@ -1310,12 +1357,14 @@ Backend returns consistent error shapes:
 
 ### 10.4 Error Boundary
 
+The error boundary is a class component defined inline in `src/App.tsx`. It catches React render errors across the entire route tree and displays a **"SYSTEM MALFUNCTION"** screen with the error message and a "REBOOT" button.
+
 ```typescript
-// src/components/ErrorBoundary.tsx — To be built
-// Must catch:
-// - React render errors → show fallback UI with "Reload" button
-// - API client crashes → show "Service unavailable" panel
-// - Audio context errors → show "Microphone access denied"
+// src/App.tsx — Inline ErrorBoundary class component
+// Catches:
+// - React render errors → show "SYSTEM MALFUNCTION" fallback UI with error message + "REBOOT" button
+// - Lazy load failures → caught by Suspense, not ErrorBoundary (Suspense shows Loader)
+// - API client crashes → handled by individual page error states, not this boundary
 ```
 
 ---
@@ -1518,7 +1567,7 @@ From `index.css` — all interactive elements must have:
 | P2.5 | **Build InputSimulator page** | Page | 10h | P0.1 | `src/pages/InputSimulator.tsx` |
 | P2.6 | **Build MediaToolsPanel page** | Page | 10h | P0.1 | `src/pages/MediaToolsPanel.tsx` |
 | P2.7 | **Build DeviceSyncHub page** | Page | 6h | P0.1 | `src/pages/DeviceSyncHub.tsx` |
-| P2.8 | **Migrate to React Router v6** | Architecture | 6h | All pages | `src/App.tsx`, `src/router.tsx` |
+| P2.8 | **✓ Migrate to React Router v7 + lazy loading** | Architecture | 6h | All pages | `src/App.tsx`, `src/router.tsx` |
 
 ### ⚪ P3 — Nice to Have / Polish
 
@@ -1551,7 +1600,7 @@ P0.1 (API Layer) ─┬─ P0.2 (Broadcast Router) ── P0.8, P1.1, P1.6
 
 | Area | Count |
 |---|---|
-| **Total Pages** | 13 (1 main dashboard + 12 feature pages) |
+| **Total Pages** | 14 (1 main dashboard + 12 feature pages + 1 about page) |
 | **Total Components** | ~85 (26 layout/core + ~59 feature-specific) |
 | **Total API Calls** | ~110 (all REST endpoints) |
 | **Auth Flows** | 2 (API key config + device pairing) |
@@ -1574,11 +1623,11 @@ P0.1 (API Layer) ─┬─ P0.2 (Broadcast Router) ── P0.8, P1.1, P1.6
 
 | Technology | Purpose | Rationale |
 |---|---|---|
-| **React 18 + TypeScript** | UI framework | Existing |
+| **React 19 + TypeScript** | UI framework | Existing |
 | **Vite** | Build tool | Existing |
 | **Zustand** | State management | Existing, lightweight, TypeScript-native |
 | **TanStack Query v5** | Server state + caching | Existing (70+ hooks auto-generated) |
-| **React Router v6** | SPA routing | Standard, lazy loading, navigation |
+| **React Router v7** | SPA routing | Standard, lazy loading, navigation, `<Outlet>` nested routes |
 | **Framer Motion** | Animations | Existing, used for page transitions |
 | **Recharts** | Charts (performance, insights) | Lightweight, React-native |
 | **Vitest + Testing Library** | Testing | Existing configuration |
@@ -1607,7 +1656,7 @@ src/
 ├── main.tsx                   # Entry point
 ├── config.ts                  # URLs, ports, feature flags
 ├── constants.ts               # App constants
-├── router.tsx                 # React Router v6 config
+├── router.tsx                 # Stub — routing is inline in App.tsx (preserved for reference)
 ├── setupTests.ts              # Test setup
 ├── types/
 │   ├── index.ts               # Re-exports + SpeechRecognition types

@@ -20,10 +20,10 @@ A living reference for on-boarding developers. Lists every frontend component (p
 
 | Component | File | Props | Backend Endpoints | Tests | Status |
 |-----------|------|-------|-------------------|-------|--------|
-| `App` | `App.tsx` | — | — | — | 🏗️ Planned |
+| `App` | `App.tsx` | — | — | — | ✅ Implemented — inline `<Routes>`, `React.lazy()` + `Suspense` code-splitting, `ErrorBoundary` wrapper |
 | `ArcReactor` | `ArcReactor.tsx` | — | — | — | 🏗️ Planned (voice API dependent) |
 | `MainHUD` | `MainHUD.tsx` | — | — | — | 🏗️ Planned |
-| `ErrorBoundary` | `ErrorBoundary.tsx` | `children` | — | — | 🏗️ Planned |
+| `ErrorBoundary` | `App.tsx` (inline class component) | `children` | — | — | ✅ Implemented — "SYSTEM MALFUNCTION" screen with REBOOT button |
 
 ### System & Diagnostics
 
