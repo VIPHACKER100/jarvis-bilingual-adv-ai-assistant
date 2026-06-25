@@ -51,7 +51,7 @@ export const ThemeExample: FC = () => {
             <div className="mt-4 grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-4 gap-4">
               <div className={`p-4 rounded-lg ${isMobile ? 'bg-primary-soft border-primary' : 'bg-surface'} border`}>
                 <div className={themeUtils.labelClasses()}>Mobile</div>
-                <div className="text-sm mt-1">< 768px</div>
+                <div className="text-sm mt-1">&lt; 768px</div>
                 {isMobile && <div className="text-primary text-xs mt-2">● Active</div>}
               </div>
               <div className={`p-4 rounded-lg ${isTablet ? 'bg-primary-soft border-primary' : 'bg-surface'} border`}>
@@ -66,7 +66,7 @@ export const ThemeExample: FC = () => {
               </div>
               <div className={`p-4 rounded-lg ${breakpoint === 'wide' ? 'bg-primary-soft border-primary' : 'bg-surface'} border`}>
                 <div className={themeUtils.labelClasses()}>Wide</div>
-                <div className="text-sm mt-1">> 1200px</div>
+                <div className="text-sm mt-1">&gt; 1200px</div>
                 {breakpoint === 'wide' && <div className="text-primary text-xs mt-2">● Active</div>}
               </div>
             </div>

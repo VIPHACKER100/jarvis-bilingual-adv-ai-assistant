@@ -22,6 +22,8 @@ const JarvisModals = lazy(() => import('./components/JarvisModals').then(m => ({
 const AuditTimeline = lazy(() => import('./components/AuditTimeline').then(m => ({ default: m.AuditTimeline })));
 const DeviceSyncHub = lazy(() => import('./components/DeviceSyncHub').then(m => ({ default: m.DeviceSyncHub })));
 const NeuralTraining = lazy(() => import('./components/NeuralTraining').then(m => ({ default: m.NeuralTraining })));
+const FileBrowser = lazy(() => import('./components/FileBrowser').then(m => ({ default: m.FileBrowser })));
+const WindowManager = lazy(() => import('./components/WindowManager').then(m => ({ default: m.WindowManager })));
 
 const viewFallback = (
   <div className="flex items-center justify-center min-h-[50vh]">
@@ -116,6 +118,16 @@ const App: FC = () => {
         {activeTacticalView === 'TRAINING' && (
           <Suspense fallback={viewFallback}>
             <NeuralTraining />
+          </Suspense>
+        )}
+        {activeTacticalView === 'FILES' && (
+          <Suspense fallback={viewFallback}>
+            <FileBrowser />
+          </Suspense>
+        )}
+        {activeTacticalView === 'WINDOWS' && (
+          <Suspense fallback={viewFallback}>
+            <WindowManager />
           </Suspense>
         )}
       </motion.div>

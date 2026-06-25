@@ -7,6 +7,15 @@ import { MemoryViewer } from './MemoryViewer';
 import { AutomationDashboard } from './AutomationDashboard';
 import { SettingsModal } from './SettingsModal';
 import { VisionOverlay } from './VisionOverlay';
+import { FileBrowser } from './FileBrowser';
+import { WindowManager } from './WindowManager';
+import { PersonalitySelector } from './PersonalitySelector';
+import { WhatsAppPanel } from './WhatsAppPanel';
+import { DeviceSyncPanel } from './DeviceSyncPanel';
+import { InputSimulator } from './InputSimulator';
+import { MediaToolsPanel } from './MediaToolsPanel';
+import { SystemControls } from './SystemControls';
+import { PerformanceMonitor } from './PerformanceMonitor';
 import { Language } from '../types';
 
 export const JarvisModals: FC = () => {
@@ -54,6 +63,17 @@ export const JarvisModals: FC = () => {
         metadata={visionData.metadata}
         onClose={() => setVisionData({ ...visionData, isOpen: false })}
       />
+
+      {/* Phase 4 Extended Modals */}
+      <FileBrowser />
+      <WindowManager />
+      <PersonalitySelector />
+      <WhatsAppPanel />
+      <DeviceSyncPanel />
+      <InputSimulator />
+      <MediaToolsPanel />
+      <SystemControls />
+      <PerformanceMonitor />
     </>
   );
 };

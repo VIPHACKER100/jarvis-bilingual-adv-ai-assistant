@@ -89,4 +89,30 @@ export interface WebSocketMessage {
   timestamp?: string;
 }
 
+export interface AudioWebSocketIncoming {
+  type: 'stt_result' | 'tts_audio' | 'tts_chunk' | 'tts_end' | 'error' | 'pong';
+  data?: Record<string, unknown>;
+  text?: string;
+  audio?: string;
+  format?: string;
+  error?: string;
+}
+
+export interface AudioWebSocketOutgoing {
+  type: 'stt' | 'tts' | 'tts_stream' | 'ping';
+  audio?: string;
+  text?: string;
+  voice?: string;
+  language?: string;
+}
+
+export interface MainWebSocketOutgoing {
+  type: 'command' | 'confirmation' | 'ping' | 'get_status';
+  command?: string;
+  language?: string;
+  params?: Record<string, unknown>;
+  session_id?: string;
+  data?: { confirmation_id: string; approved: boolean };
+}
+
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';

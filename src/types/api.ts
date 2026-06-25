@@ -543,3 +543,463 @@ export interface AgentRagResponse {
   results: AgentRagResult[];
   total_scanned: number;
 }
+
+// ─── System Operations ────────────────────────────────────────────────────────
+
+export interface BatteryResponse {
+  success: boolean;
+  battery: BatteryInfo;
+  response: string;
+}
+
+export interface TimeResponse {
+  success: boolean;
+  time: string;
+  timezone: string;
+  response: string;
+}
+
+export interface DateResponse {
+  success: boolean;
+  date: string;
+  day_of_week: string;
+  response: string;
+}
+
+export interface VolumeResponse {
+  success: boolean;
+  volume: number;
+  response: string;
+}
+
+export interface MuteResponse {
+  success: boolean;
+  muted: boolean;
+  response: string;
+}
+
+export interface UptimeResponse {
+  success: boolean;
+  uptime_seconds: number;
+  uptime_formatted: string;
+  response: string;
+}
+
+export interface NetworkResponse {
+  success: boolean;
+  network: NetworkIOInfo;
+  interfaces: Record<string, unknown>;
+  response: string;
+}
+
+export interface WeatherResponse {
+  success: boolean;
+  city: string;
+  temperature: number;
+  condition: string;
+  humidity: number;
+  wind_speed: number;
+  response: string;
+}
+
+export interface WebSearchResponse {
+  success: boolean;
+  query: string;
+  results: Array<{ title: string; url: string; snippet: string }>;
+  response: string;
+}
+
+export interface PerformancePoint {
+  timestamp: string;
+  cpu_percent: number;
+  memory_percent: number;
+  disk_percent: number;
+  network_bytes_sent: number;
+  network_bytes_recv: number;
+}
+
+export interface PerformanceHistoryResponse {
+  success: boolean;
+  data: PerformancePoint[];
+  period_minutes: number;
+}
+
+export interface Personality {
+  id: string;
+  name: string;
+  accent: string;
+  primary: string;
+  style: string;
+  voice_pitch?: number;
+  voice_rate?: number;
+}
+
+export interface PersonalitiesListResponse {
+  success: boolean;
+  personalities: PersonalityInfo[];
+  count: number;
+}
+
+export interface SetPersonalityResponse {
+  success: boolean;
+  personality: PersonalityInfo;
+  response: string;
+}
+
+export interface CommandInsight {
+  command: string;
+  count: number;
+  last_used: string;
+}
+
+export interface CommandInsightsResponse {
+  success: boolean;
+  insights: CommandInsight[];
+  period_days: number;
+}
+
+export interface DangerActionResponse {
+  success: boolean;
+  action: string;
+  response: string;
+}
+
+// ─── Windows & Apps Management ────────────────────────────────────────────────
+
+export interface WindowInfo {
+  title: string;
+  process: string;
+  pid: number;
+  hwnd?: number;
+  is_visible: boolean;
+  bounds?: { left: number; top: number; width: number; height: number };
+}
+
+export interface WindowListResponse {
+  success: boolean;
+  windows: WindowInfo[];
+  count: number;
+}
+
+export interface AppInfo {
+  name: string;
+  pid: number;
+  cpu_percent: number;
+  memory_mb: number;
+  window_title?: string;
+}
+
+export interface AppListResponse {
+  success: boolean;
+  apps: AppInfo[];
+  count: number;
+}
+
+export interface AppActionResponse {
+  success: boolean;
+  action: string;
+  app: string;
+  response: string;
+}
+
+export interface WindowActionResponse {
+  success: boolean;
+  action: string;
+  title: string;
+  response: string;
+}
+
+// ─── File Operations ──────────────────────────────────────────────────────────
+
+export interface FileInfo {
+  name: string;
+  path: string;
+  size: number;
+  is_directory: boolean;
+  modified_at: string;
+  created_at: string;
+  extension?: string;
+}
+
+export interface FileListResponse {
+  success: boolean;
+  files: FileInfo[];
+  folder: string;
+  count: number;
+  pattern?: string;
+}
+
+export interface FileSearchResponse {
+  success: boolean;
+  results: FileInfo[];
+  query: string;
+  count: number;
+}
+
+export interface FileCreateResponse {
+  success: boolean;
+  path: string;
+  response: string;
+}
+
+export interface FileDeleteResponse {
+  success: boolean;
+  path: string;
+  response: string;
+}
+
+export interface FileCopyResponse {
+  success: boolean;
+  source: string;
+  destination: string;
+  response: string;
+}
+
+export interface FileMoveResponse {
+  success: boolean;
+  source: string;
+  destination: string;
+  response: string;
+}
+
+export interface FileRenameResponse {
+  success: boolean;
+  old_path: string;
+  new_path: string;
+  response: string;
+}
+
+export interface FileInfoResponse {
+  success: boolean;
+  file: FileInfo;
+  response: string;
+}
+
+export interface FileOpenResponse {
+  success: boolean;
+  folder: string;
+  response: string;
+}
+
+// ─── Desktop Operations ───────────────────────────────────────────────────────
+
+export interface ScreenshotResponse {
+  success: boolean;
+  image_base64?: string;
+  path?: string;
+  response: string;
+}
+
+export interface ClipboardTextResponse {
+  success: boolean;
+  text: string;
+  response: string;
+}
+
+export interface ClipboardSetResponse {
+  success: boolean;
+  response: string;
+}
+
+export interface MediaPlaybackResponse {
+  success: boolean;
+  action: string;
+  response: string;
+}
+
+export interface WallpaperResponse {
+  success: boolean;
+  path: string;
+  response: string;
+}
+
+export interface ZoomResponse {
+  success: boolean;
+  level: number;
+  response: string;
+}
+
+// ─── Input Simulation ─────────────────────────────────────────────────────────
+
+export interface CursorPosition {
+  x: number;
+  y: number;
+}
+
+export interface CursorResponse {
+  success: boolean;
+  position: CursorPosition;
+  response: string;
+}
+
+export interface InputActionResponse {
+  success: boolean;
+  action: string;
+  response: string;
+}
+
+export interface TypeResponse {
+  success: boolean;
+  text: string;
+  response: string;
+}
+
+// ─── OCR & Media Tools ────────────────────────────────────────────────────────
+
+export interface OcrResponse {
+  success: boolean;
+  text: string;
+  confidence?: number;
+  language?: string;
+  response: string;
+}
+
+export interface OcrPdfResponse {
+  success: boolean;
+  pages: Array<{ page: number; text: string }>;
+  response: string;
+}
+
+export interface ImageConvertResponse {
+  success: boolean;
+  output_path: string;
+  format: string;
+  response: string;
+}
+
+export interface ImageTransformResponse {
+  success: boolean;
+  output_path: string;
+  response: string;
+}
+
+export interface PdfTransformResponse {
+  success: boolean;
+  output_paths: string[];
+  response: string;
+}
+
+export interface PdfImagesResponse {
+  success: boolean;
+  image_paths: string[];
+  response: string;
+}
+
+export interface PdfMergeResponse {
+  success: boolean;
+  output_path: string;
+  page_count: number;
+  response: string;
+}
+
+// ─── WhatsApp Extended ────────────────────────────────────────────────────────
+
+export interface WhatsAppOpenResponse {
+  success: boolean;
+  response: string;
+}
+
+// ─── Sync/Pairing Extended ────────────────────────────────────────────────────
+
+export interface SyncStatusFullResponse {
+  success: boolean;
+  status: string;
+  device_name?: string;
+  paired_devices_count: number;
+  last_updated: string;
+  system_status?: Record<string, unknown>;
+}
+
+export interface PairDevicePayload {
+  pairing_code: string;
+  device_name: string;
+  device_type: string;
+  app_version?: string;
+}
+
+export interface PairDeviceResponse {
+  success: boolean;
+  device_id: string;
+  access_token: string;
+  response: string;
+}
+
+// ─── Settings Extended ────────────────────────────────────────────────────────
+
+export interface ApiKeyStatusResponse {
+  success: boolean;
+  keys: ApiKeyStatus;
+}
+
+export interface TestKeyResponse {
+  success: boolean;
+  provider: string;
+  valid: boolean;
+  message: string;
+}
+
+// ─── Proactive Suggestion ─────────────────────────────────────────────────────
+
+export interface ProactiveSuggestion {
+  suggestion: string;
+  topic: string;
+  mood: string;
+  timestamp: string;
+}
+
+export interface ProactiveSuggestionResponse {
+  success: boolean;
+  suggestion: ProactiveSuggestion;
+}
+
+// ─── Security Extended ────────────────────────────────────────────────────────
+
+export interface SecurityProcessInfo extends ProcessInfo {
+  username?: string;
+  memory_percent?: number;
+  threads?: number;
+  connections?: number;
+}
+
+export interface SecurityProcessListResponse {
+  success: boolean;
+  processes: SecurityProcessInfo[];
+  count: number;
+}
+
+// ─── System Status Full Response ──────────────────────────────────────────────
+
+export interface SystemStatusFullResponse {
+  success: boolean;
+  status: string;
+  battery: BatteryInfo;
+  cpu: CPUInfo;
+  memory: MemoryInfo;
+  disk: DiskInfo;
+  network: NetworkIOInfo;
+  uptime: number;
+  volume: number;
+  platform: string;
+  active_window: ActiveWindowInfo | null;
+  personality: PersonalityInfo | null;
+  event_loop_lag: number;
+  response: string;
+}
+
+// ─── Pending Confirmations ────────────────────────────────────────────────────
+
+export interface PendingConfirmationInfo {
+  confirmation_id: string;
+  command_key: string;
+  command_text: string;
+  language: string;
+  response: string;
+  timeout: number;
+  created_at: string;
+}
+
+export interface PendingConfirmationsResponse {
+  success: boolean;
+  pending: PendingConfirmationInfo[];
+  count: number;
+}

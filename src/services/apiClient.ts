@@ -61,41 +61,41 @@ class ApiClient {
 
   // --- Generic REST Methods ---
 
-  async get<T = unknown>(path: string): Promise<{ data: T; status: number }> {
+  async get<T = unknown>(path: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
       headers: this.getHeaders()
     });
     if (!response.ok) throw new Error(`GET ${path} failed`);
-    return { data: await response.json(), status: response.status };
+    return response.json();
   }
 
-  async post<T = unknown>(path: string, body: unknown): Promise<{ data: T; status: number }> {
+  async post<T = unknown>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(body)
     });
     if (!response.ok) throw new Error(`POST ${path} failed`);
-    return { data: await response.json(), status: response.status };
+    return response.json();
   }
 
-  async put<T = unknown>(path: string, body: unknown): Promise<{ data: T; status: number }> {
+  async put<T = unknown>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(body)
     });
     if (!response.ok) throw new Error(`PUT ${path} failed`);
-    return { data: await response.json(), status: response.status };
+    return response.json();
   }
 
-  async delete<T = unknown>(path: string): Promise<{ data: T; status: number }> {
+  async delete<T = unknown>(path: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path.startsWith('/') ? '' : '/'}${path}`, {
       method: 'DELETE',
       headers: this.getHeaders()
     });
     if (!response.ok) throw new Error(`DELETE ${path} failed`);
-    return { data: await response.json(), status: response.status };
+    return response.json();
   }
 
   // Health check
@@ -689,6 +689,413 @@ class ApiClient {
       headers: this.getHeaders(),
     });
     if (!resp.ok) throw new Error('Agent health check failed');
+    return resp.json();
+  }
+
+  // ── System Operations ───────────────────────────────────────────────────────
+
+  /** Get battery info */
+  async getBattery(language: string = 'en'): Promise<import('../types/api').BatteryResponse> {
+    return this.get<import('../types/api').BatteryResponse>(`/system/battery?language=${language}`);
+  }
+
+  /** Get current time */
+  async getTime(language: string = 'en'): Promise<import('../types/api').TimeResponse> {
+    return this.get<import('../types/api').TimeResponse>(`/system/time?language=${language}`);
+  }
+
+  /** Get current date */
+  async getDate(language: string = 'en'): Promise<import('../types/api').DateResponse> {
+    return this.get<import('../types/api').DateResponse>(`/system/date?language=${language}`);
+  }
+
+  /** Shutdown computer — dangerous */
+  async shutdownComputer(confirmed: boolean = false, language: string = 'en'): Promise<import('../types/api').DangerActionResponse> {
+    return this.post<import('../types/api').DangerActionResponse>(`/system/shutdown?confirmed=${confirmed}&language=${language}`, {});
+  }
+
+  /** Restart computer — dangerous */
+  async restartComputer(confirmed: boolean = false, language: string = 'en'): Promise<import('../types/api').DangerActionResponse> {
+    return this.post<import('../types/api').DangerActionResponse>(`/system/restart?confirmed=${confirmed}&language=${language}`, {});
+  }
+
+  /** Sleep computer — dangerous */
+  async sleepComputer(confirmed: boolean = false, language: string = 'en'): Promise<import('../types/api').DangerActionResponse> {
+    return this.post<import('../types/api').DangerActionResponse>(`/system/sleep?confirmed=${confirmed}&language=${language}`, {});
+  }
+
+  /** Increase volume */
+  async volumeUp(amount: number = 10, language: string = 'en'): Promise<import('../types/api').VolumeResponse> {
+    return this.get<import('../types/api').VolumeResponse>(`/system/volume/up?amount=${amount}&language=${language}`);
+  }
+
+  /** Decrease volume */
+  async volumeDown(amount: number = 10, language: string = 'en'): Promise<import('../types/api').VolumeResponse> {
+    return this.get<import('../types/api').VolumeResponse>(`/system/volume/down?amount=${amount}&language=${language}`);
+  }
+
+  /** Toggle mute */
+  async toggleMute(language: string = 'en'): Promise<import('../types/api').MuteResponse> {
+    return this.post<import('../types/api').MuteResponse>(`/system/mute?language=${language}`, {});
+  }
+
+  /** Get system uptime */
+  async getUptime(language: string = 'en'): Promise<import('../types/api').UptimeResponse> {
+    return this.get<import('../types/api').UptimeResponse>(`/system/uptime?language=${language}`);
+  }
+
+  /** Get network info */
+  async getNetworkInfo(language: string = 'en'): Promise<import('../types/api').NetworkResponse> {
+    return this.get<import('../types/api').NetworkResponse>(`/system/network?language=${language}`);
+  }
+
+  /** Get weather */
+  async getWeather(city: string, language: string = 'en'): Promise<import('../types/api').WeatherResponse> {
+    return this.get<import('../types/api').WeatherResponse>(`/system/weather?city=${encodeURIComponent(city)}&language=${language}`);
+  }
+
+  /** Web search */
+  async webSearch(query: string, language: string = 'en'): Promise<import('../types/api').WebSearchResponse> {
+    return this.get<import('../types/api').WebSearchResponse>(`/system/search?query=${encodeURIComponent(query)}&language=${language}`);
+  }
+
+  /** Get performance history */
+  async getPerformanceHistory(limit: number = 60): Promise<import('../types/api').PerformanceHistoryResponse> {
+    return this.get<import('../types/api').PerformanceHistoryResponse>(`/system/performance/history?limit=${Math.min(Math.max(limit, 1), 1440)}`);
+  }
+
+  /** List all personalities */
+  async getPersonalities(): Promise<import('../types/api').PersonalitiesListResponse> {
+    return this.get<import('../types/api').PersonalitiesListResponse>('/system/personalities');
+  }
+
+  /** Set personality */
+  async setPersonality(personalityId: string): Promise<import('../types/api').SetPersonalityResponse> {
+    return this.post<import('../types/api').SetPersonalityResponse>(`/system/personality/${personalityId}`, {});
+  }
+
+  /** Get command usage insights */
+  async getCommandInsights(days: number = 30): Promise<import('../types/api').CommandInsightsResponse> {
+    return this.get<import('../types/api').CommandInsightsResponse>(`/system/command-insights?days=${Math.min(Math.max(days, 1), 365)}`);
+  }
+
+  // ── Windows & Apps ──────────────────────────────────────────────────────────
+
+  /** List open windows */
+  async getWindows(): Promise<import('../types/api').WindowListResponse> {
+    return this.get<import('../types/api').WindowListResponse>('/windows/list');
+  }
+
+  /** List running apps */
+  async getApps(): Promise<import('../types/api').AppListResponse> {
+    return this.get<import('../types/api').AppListResponse>('/apps/list');
+  }
+
+  /** Open an app */
+  async openApp(appName: string): Promise<import('../types/api').AppActionResponse> {
+    return this.post<import('../types/api').AppActionResponse>('/apps/open', { app_name: appName });
+  }
+
+  /** Close an app — dangerous */
+  async closeApp(appName: string, confirmed: boolean = false): Promise<import('../types/api').AppActionResponse> {
+    return this.post<import('../types/api').AppActionResponse>(`/apps/close?confirmed=${confirmed}`, { app_name: appName });
+  }
+
+  /** Minimize window */
+  async minimizeWindow(title: string): Promise<import('../types/api').WindowActionResponse> {
+    return this.post<import('../types/api').WindowActionResponse>('/windows/minimize', { title });
+  }
+
+  /** Maximize window */
+  async maximizeWindow(title: string): Promise<import('../types/api').WindowActionResponse> {
+    return this.post<import('../types/api').WindowActionResponse>('/windows/maximize', { title });
+  }
+
+  /** Restore window */
+  async restoreWindow(title: string): Promise<import('../types/api').WindowActionResponse> {
+    return this.post<import('../types/api').WindowActionResponse>('/windows/restore', { title });
+  }
+
+  /** Activate/focus window */
+  async activateWindow(title: string): Promise<import('../types/api').WindowActionResponse> {
+    return this.post<import('../types/api').WindowActionResponse>('/windows/activate', { title });
+  }
+
+  // ── File Operations ─────────────────────────────────────────────────────────
+
+  /** Open folder in explorer */
+  async openFolder(folder: string): Promise<import('../types/api').FileOpenResponse> {
+    return this.post<import('../types/api').FileOpenResponse>('/files/open', { folder });
+  }
+
+  /** List files in folder */
+  async listFiles(folder: string, pattern?: string): Promise<import('../types/api').FileListResponse> {
+    let path = `/files/list?folder=${encodeURIComponent(folder)}`;
+    if (pattern) path += `&pattern=${encodeURIComponent(pattern)}`;
+    return this.get<import('../types/api').FileListResponse>(path);
+  }
+
+  /** Search files */
+  async searchFiles(search: string, folder?: string): Promise<import('../types/api').FileSearchResponse> {
+    const body: Record<string, string> = { search };
+    if (folder) body.folder = folder;
+    return this.post<import('../types/api').FileSearchResponse>('/files/search', body);
+  }
+
+  /** Create folder */
+  async createFolder(name: string, parent: string): Promise<import('../types/api').FileCreateResponse> {
+    return this.post<import('../types/api').FileCreateResponse>('/files/create', { name, parent });
+  }
+
+  /** Delete file/folder — dangerous */
+  async deleteFile(path: string, confirmed: boolean = false): Promise<import('../types/api').FileDeleteResponse> {
+    return this.post<import('../types/api').FileDeleteResponse>(`/files/delete?confirmed=${confirmed}`, { path });
+  }
+
+  /** Copy file/folder */
+  async copyFile(source: string, destination: string): Promise<import('../types/api').FileCopyResponse> {
+    return this.post<import('../types/api').FileCopyResponse>('/files/copy', { source, destination });
+  }
+
+  /** Move file/folder */
+  async moveFile(source: string, destination: string): Promise<import('../types/api').FileMoveResponse> {
+    return this.post<import('../types/api').FileMoveResponse>('/files/move', { source, destination });
+  }
+
+  /** Rename file/folder */
+  async renameFile(oldPath: string, newName: string): Promise<import('../types/api').FileRenameResponse> {
+    return this.post<import('../types/api').FileRenameResponse>('/files/rename', { old_path: oldPath, new_name: newName });
+  }
+
+  /** Get file metadata */
+  async getFileInfo(path: string): Promise<import('../types/api').FileInfoResponse> {
+    return this.get<import('../types/api').FileInfoResponse>(`/files/info?path=${encodeURIComponent(path)}`);
+  }
+
+  // ── Desktop Operations ──────────────────────────────────────────────────────
+
+  /** Take full screenshot */
+  async takeScreenshot(save: boolean = false, language: string = 'en'): Promise<import('../types/api').ScreenshotResponse> {
+    return this.get<import('../types/api').ScreenshotResponse>(`/desktop/screenshot?save=${save}&language=${language}`);
+  }
+
+  /** Take region screenshot */
+  async takeRegionScreenshot(x1: number, y1: number, x2: number, y2: number): Promise<import('../types/api').ScreenshotResponse> {
+    return this.post<import('../types/api').ScreenshotResponse>('/desktop/screenshot/region', { x1, y1, x2, y2 });
+  }
+
+  /** Read clipboard text */
+  async readClipboard(): Promise<import('../types/api').ClipboardTextResponse> {
+    return this.get<import('../types/api').ClipboardTextResponse>('/desktop/clipboard/text');
+  }
+
+  /** Set clipboard text */
+  async setClipboard(text: string): Promise<import('../types/api').ClipboardSetResponse> {
+    return this.post<import('../types/api').ClipboardSetResponse>('/desktop/clipboard/text', { text });
+  }
+
+  /** Clear clipboard */
+  async clearClipboard(): Promise<import('../types/api').SuccessResponse> {
+    return this.delete<import('../types/api').SuccessResponse>('/desktop/clipboard');
+  }
+
+  /** Toggle media play/pause */
+  async mediaPlayPause(): Promise<import('../types/api').MediaPlaybackResponse> {
+    return this.post<import('../types/api').MediaPlaybackResponse>('/desktop/media/play', {});
+  }
+
+  /** Next media track */
+  async mediaNext(): Promise<import('../types/api').MediaPlaybackResponse> {
+    return this.post<import('../types/api').MediaPlaybackResponse>('/desktop/media/next', {});
+  }
+
+  /** Previous media track */
+  async mediaPrevious(): Promise<import('../types/api').MediaPlaybackResponse> {
+    return this.post<import('../types/api').MediaPlaybackResponse>('/desktop/media/previous', {});
+  }
+
+  /** Stop media */
+  async mediaStop(): Promise<import('../types/api').MediaPlaybackResponse> {
+    return this.post<import('../types/api').MediaPlaybackResponse>('/desktop/media/stop', {});
+  }
+
+  /** Change wallpaper */
+  async changeWallpaper(path: string): Promise<import('../types/api').WallpaperResponse> {
+    return this.post<import('../types/api').WallpaperResponse>('/desktop/wallpaper', { path });
+  }
+
+  /** Zoom screen */
+  async zoomScreen(level: number): Promise<import('../types/api').ZoomResponse> {
+    return this.post<import('../types/api').ZoomResponse>('/desktop/zoom', { level });
+  }
+
+  // ── Input Simulation ────────────────────────────────────────────────────────
+
+  /** Get cursor position */
+  async getCursorPosition(): Promise<import('../types/api').CursorResponse> {
+    return this.get<import('../types/api').CursorResponse>('/input/cursor');
+  }
+
+  /** Move cursor to position */
+  async moveCursor(x: number, y: number): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/move', { x, y });
+  }
+
+  /** Mouse click */
+  async mouseClick(button: 'left' | 'right' | 'middle' = 'left'): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/click', { button });
+  }
+
+  /** Double click */
+  async doubleClick(): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/double_click', {});
+  }
+
+  /** Right click */
+  async rightClick(): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/right_click', {});
+  }
+
+  /** Type text */
+  async typeText(text: string): Promise<import('../types/api').TypeResponse> {
+    return this.post<import('../types/api').TypeResponse>('/input/type', { text });
+  }
+
+  /** Press key */
+  async pressKey(key: string): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/press', { key });
+  }
+
+  /** Scroll wheel */
+  async scrollWheel(clicks: number): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/scroll', { clicks });
+  }
+
+  /** Drag mouse */
+  async dragMouse(x: number, y: number): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/drag', { x, y });
+  }
+
+  /** Hotkey shortcut */
+  async sendShortcut(keys: string[]): Promise<import('../types/api').InputActionResponse> {
+    return this.post<import('../types/api').InputActionResponse>('/input/shortcut', { keys });
+  }
+
+  // ── OCR & Media Tools ───────────────────────────────────────────────────────
+
+  /** OCR from image file */
+  async ocrImage(imagePath: string, language?: string): Promise<import('../types/api').OcrResponse> {
+    const body: Record<string, string> = { image_path: imagePath };
+    if (language) body.language = language;
+    return this.post<import('../types/api').OcrResponse>('/media/ocr/image', body);
+  }
+
+  /** OCR from PDF page */
+  async ocrPdf(pdfPath: string, pageNumber: number = 1): Promise<import('../types/api').OcrPdfResponse> {
+    return this.post<import('../types/api').OcrPdfResponse>('/media/ocr/pdf', { pdf_path: pdfPath, page_number: pageNumber });
+  }
+
+  /** OCR from screen capture */
+  async ocrScreen(): Promise<import('../types/api').OcrResponse> {
+    return this.post<import('../types/api').OcrResponse>('/media/ocr/screen', {});
+  }
+
+  // ── Image Tools ─────────────────────────────────────────────────────────────
+
+  /** Convert image format */
+  async convertImage(imagePath: string, format: string, outputPath?: string): Promise<import('../types/api').ImageConvertResponse> {
+    return this.post<import('../types/api').ImageConvertResponse>('/image/convert', { image_path: imagePath, format, output_path: outputPath });
+  }
+
+  /** Resize image */
+  async resizeImage(imagePath: string, width: number, height: number): Promise<import('../types/api').ImageTransformResponse> {
+    return this.post<import('../types/api').ImageTransformResponse>('/image/resize', { image_path: imagePath, width, height });
+  }
+
+  /** Compress image */
+  async compressImage(imagePath: string, quality: number = 80): Promise<import('../types/api').ImageTransformResponse> {
+    return this.post<import('../types/api').ImageTransformResponse>('/image/compress', { image_path: imagePath, quality });
+  }
+
+  // ── PDF Tools ───────────────────────────────────────────────────────────────
+
+  /** Merge PDFs */
+  async mergePdfs(pdfPaths: string[], outputPath?: string): Promise<import('../types/api').PdfMergeResponse> {
+    return this.post<import('../types/api').PdfMergeResponse>('/pdf/merge', { pdf_paths: pdfPaths, output_path: outputPath });
+  }
+
+  /** Split PDF */
+  async splitPdf(pdfPath: string, outputFolder?: string): Promise<import('../types/api').PdfTransformResponse> {
+    return this.post<import('../types/api').PdfTransformResponse>('/pdf/split', { pdf_path: pdfPath, output_folder: outputFolder });
+  }
+
+  /** PDF to images */
+  async pdfToImages(pdfPath: string, outputFolder?: string): Promise<import('../types/api').PdfImagesResponse> {
+    return this.post<import('../types/api').PdfImagesResponse>('/pdf/to-images', { pdf_path: pdfPath, output_folder: outputFolder });
+  }
+
+  /** Images to PDF */
+  async imagesToPdf(imagePaths: string[], outputPath?: string): Promise<import('../types/api').PdfMergeResponse> {
+    return this.post<import('../types/api').PdfMergeResponse>('/pdf/from-images', { image_paths: imagePaths, output_path: outputPath });
+  }
+
+  // ── Settings Extended ───────────────────────────────────────────────────────
+
+  /** Get API key status (redacted) */
+  async getApiKeyStatus(): Promise<import('../types/api').ApiKeyStatusResponse> {
+    return this.get<import('../types/api').ApiKeyStatusResponse>('/settings/keys');
+  }
+
+  /** Test API key */
+  async testApiKey(provider: string, apiKey: string): Promise<import('../types/api').TestKeyResponse> {
+    return this.post<import('../types/api').TestKeyResponse>('/settings/test-key', { provider, api_key: apiKey });
+  }
+
+  // ── WhatsApp Extended ───────────────────────────────────────────────────────
+
+  /** Open WhatsApp Desktop */
+  async openWhatsApp(): Promise<import('../types/api').WhatsAppOpenResponse> {
+    return this.post<import('../types/api').WhatsAppOpenResponse>('/whatsapp/open', {});
+  }
+
+  // ── Sync / Pairing Extended ─────────────────────────────────────────────────
+
+  /** Pair a mobile device */
+  async pairDevice(payload: import('../types/api').PairDevicePayload): Promise<import('../types/api').PairDeviceResponse> {
+    return this.post<import('../types/api').PairDeviceResponse>('/sync/pair', payload);
+  }
+
+  /** Get sync status */
+  async getSyncStatus(): Promise<import('../types/api').SyncStatusFullResponse> {
+    return this.get<import('../types/api').SyncStatusFullResponse>('/sync/status');
+  }
+
+  // ── Context Extended ────────────────────────────────────────────────────────
+
+  /** Get proactive suggestion from context router */
+  async getProactiveSuggestion(language: string = 'en'): Promise<import('../types/api').ProactiveSuggestionResponse> {
+    return this.get<import('../types/api').ProactiveSuggestionResponse>(`/context/suggestion?language=${language}`);
+  }
+
+  // ── Pending Confirmations ───────────────────────────────────────────────────
+
+  /** List all pending confirmations */
+  async getPendingConfirmations(): Promise<import('../types/api').PendingConfirmationsResponse> {
+    return this.get<import('../types/api').PendingConfirmationsResponse>('/pending');
+  }
+
+  // ── Health / Probes ─────────────────────────────────────────────────────────
+
+  /** Readiness probe (DB check) */
+  async readinessProbe(): Promise<{ status: string }> {
+    const resp = await fetch(`${this.baseUrl.replace('/api/v1', '')}/ready`);
+    if (!resp.ok) throw new Error('Readiness check failed');
+    return resp.json();
+  }
+
+  /** Liveness probe */
+  async livenessProbe(): Promise<{ status: string }> {
+    const resp = await fetch(`${this.baseUrl.replace('/api/v1', '')}/live`);
     return resp.json();
   }
 }

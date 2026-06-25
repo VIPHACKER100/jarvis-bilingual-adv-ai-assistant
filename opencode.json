@@ -29,6 +29,16 @@
       "description": "AI-powered debugging suite — analyzes bugs, errors, and code for root cause, impact, and fix plans",
       "mode": "subagent",
       "permission": { "edit": "allow", "bash": "ask" }
+    },
+    "architect-analysis": {
+      "description": "Senior Software Architect & Code Analyst — produces comprehensive deep-dive analysis reports across 10 structured dimensions",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "allow" }
+    },
+    "backend-frontend-mapper": {
+      "description": "Full-Stack Architect AI — reverse-engineers backend codebases to produce complete, production-ready Frontend Requirements Documents (FRD)",
+      "mode": "subagent",
+      "permission": { "edit": "allow", "bash": "ask" }
     }
   }
 }

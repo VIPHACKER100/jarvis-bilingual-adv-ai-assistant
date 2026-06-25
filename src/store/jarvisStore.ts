@@ -66,9 +66,27 @@ interface JarvisState {
   setShowAdvanced: (show: boolean) => void;
   showPermission: boolean;
   setShowPermission: (show: boolean) => void;
+  showFileBrowser: boolean;
+  setShowFileBrowser: (show: boolean) => void;
+  showWindowManager: boolean;
+  setShowWindowManager: (show: boolean) => void;
+  showPersonality: boolean;
+  setShowPersonality: (show: boolean) => void;
+  showWhatsApp: boolean;
+  setShowWhatsApp: (show: boolean) => void;
+  showDeviceSync: boolean;
+  setShowDeviceSync: (show: boolean) => void;
+  showInputSimulator: boolean;
+  setShowInputSimulator: (show: boolean) => void;
+  showMediaTools: boolean;
+  setShowMediaTools: (show: boolean) => void;
+  showSystemControls: boolean;
+  setShowSystemControls: (show: boolean) => void;
+  showPerformanceMonitor: boolean;
+  setShowPerformanceMonitor: (show: boolean) => void;
   
-  activeTacticalView: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING';
-  setActiveTacticalView: (view: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING') => void;
+  activeTacticalView: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING' | 'FILES' | 'WINDOWS' | 'WHATSAPP' | 'PERFORMANCE';
+  setActiveTacticalView: (view: 'HUD' | 'TIMELINE' | 'SYNC' | 'TRAINING' | 'FILES' | 'WINDOWS' | 'WHATSAPP' | 'PERFORMANCE') => void;
   
   isAgentThinking: boolean;
   setAgentThinking: (thinking: boolean) => void;
@@ -157,6 +175,24 @@ export const useJarvisStore = create<JarvisState>()(
   setShowAdvanced: (showAdvanced) => set({ showAdvanced }),
   showPermission: false,
   setShowPermission: (showPermission) => set({ showPermission }),
+  showFileBrowser: false,
+  setShowFileBrowser: (showFileBrowser) => set({ showFileBrowser }),
+  showWindowManager: false,
+  setShowWindowManager: (showWindowManager) => set({ showWindowManager }),
+  showPersonality: false,
+  setShowPersonality: (showPersonality) => set({ showPersonality }),
+  showWhatsApp: false,
+  setShowWhatsApp: (showWhatsApp) => set({ showWhatsApp }),
+  showDeviceSync: false,
+  setShowDeviceSync: (showDeviceSync) => set({ showDeviceSync }),
+  showInputSimulator: false,
+  setShowInputSimulator: (showInputSimulator) => set({ showInputSimulator }),
+  showMediaTools: false,
+  setShowMediaTools: (showMediaTools) => set({ showMediaTools }),
+  showSystemControls: false,
+  setShowSystemControls: (showSystemControls) => set({ showSystemControls }),
+  showPerformanceMonitor: false,
+  setShowPerformanceMonitor: (showPerformanceMonitor) => set({ showPerformanceMonitor }),
   
   activeTacticalView: 'HUD',
   setActiveTacticalView: (view) => set({ activeTacticalView: view }),
