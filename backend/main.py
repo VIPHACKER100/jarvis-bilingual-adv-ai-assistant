@@ -82,9 +82,12 @@ async def lifespan(app: FastAPI):
         except ImportError:
             logger.warning("FastAPI OpenTelemetry packages missing.")
 
-    await memory_manager.initialize()
-    # Trigger semantic vector sync in background to avoid blocking startup
-    asyncio.create_task(memory_manager.neural.sync_vectors())
+    try:
+        await memory_manager.initialize()
+        # Trigger semantic vector sync in background to avoid blocking startup
+        asyncio.create_task(memory_manager.neural.sync_vectors())
+    except Exception as e:
+        logger.warning(f"Database unavailable — running in degraded mode: {e}")
     await whatsapp_manager.initialize()
     await automation_manager.initialize()
     await automation_manager.start()

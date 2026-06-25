@@ -79,6 +79,9 @@ class MockCursorWrapper:
         return self._execute().__await__()
 
     async def _execute(self):
+        if self.pool is None:
+            return self
+
         is_insert = self.sql.strip().upper().startswith("INSERT")
         pg_sql = _translate_sql(self.sql)
 
@@ -132,27 +135,32 @@ class DatabaseManager:
         self.dsn = dsn or DATABASE_URL
         self._pool: Optional[asyncpg.Pool] = None
         self._initialized = False
+        self._degraded = False
         self.row_factory = None  # Absorb SQLite row factory assignments
 
     async def initialize(self) -> None:
-        if self._initialized:
+        if self._initialized or self._degraded:
             return
 
-        params = _parse_url(self.dsn)
-        self._pool = await asyncpg.create_pool(
-            host=params["host"],
-            port=params["port"],
-            user=params["user"],
-            password=params["password"],
-            database=params["database"],
-            min_size=2,
-            max_size=10,
-            command_timeout=30,
-        )
-        self._initialized = True
-        logger.info(f"PostgreSQL pool initialized: {params['host']}:{params['port']}/{params['database']}")
+        try:
+            params = _parse_url(self.dsn)
+            self._pool = await asyncpg.create_pool(
+                host=params["host"],
+                port=params["port"],
+                user=params["user"],
+                password=params["password"],
+                database=params["database"],
+                min_size=2,
+                max_size=10,
+                command_timeout=30,
+            )
+            self._initialized = True
+            logger.info(f"PostgreSQL pool initialized: {params['host']}:{params['port']}/{params['database']}")
 
-        await self._run_migrations()
+            await self._run_migrations()
+        except Exception as e:
+            logger.warning(f"Database connection failed, running in degraded mode: {e}")
+            self._degraded = True
 
     @asynccontextmanager
     async def connection(self) -> AsyncGenerator[Any, None]:
@@ -164,6 +172,10 @@ class DatabaseManager:
         """
         if not self._initialized or self._pool is None:
             await self.initialize()
+
+        if self._degraded:
+            yield MockCursor()
+            return
 
         conn = await self._pool.acquire()
         try:
@@ -183,6 +195,10 @@ class DatabaseManager:
         if not self._initialized or self._pool is None:
             await self.initialize()
 
+        if self._degraded:
+            yield MockCursor()
+            return
+
         conn = await self._pool.acquire()
         try:
             async with conn.transaction():
@@ -198,16 +214,22 @@ class DatabaseManager:
         return await self.fetchone(sql, params)
 
     async def fetchone(self, sql: str, params: tuple = ()) -> Optional[asyncpg.Record]:
+        if self._degraded:
+            return None
         pg_sql = _translate_sql(sql)
         async with self._pool.acquire() as conn:
             return await conn.fetchrow(pg_sql, *params)
 
     async def fetchall(self, sql: str, params: tuple = ()) -> list[asyncpg.Record]:
+        if self._degraded:
+            return []
         pg_sql = _translate_sql(sql)
         async with self._pool.acquire() as conn:
             return await conn.fetch(pg_sql, *params)
 
     async def fetchval(self, sql: str, params: tuple = ()) -> Any:
+        if self._degraded:
+            return None
         pg_sql = _translate_sql(sql)
         async with self._pool.acquire() as conn:
             return await conn.fetchval(pg_sql, *params)

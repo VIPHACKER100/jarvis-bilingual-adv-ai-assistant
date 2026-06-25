@@ -238,6 +238,11 @@ class NeuralMemoryManager:
 
     async def sync_vectors(self):
         """Synchronize Markdown nodes with vector embeddings in the database"""
+        from utils.database import db_manager
+        if db_manager._degraded:
+            logger.info("Semantic memory sync skipped (Database unavailable).")
+            return
+
         logger.info("Synchronizing semantic memory vectors...")
         from modules.llm_wrapper import llm_client
 
