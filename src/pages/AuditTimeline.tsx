@@ -1,21 +1,18 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion } from "motion/react";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
 import {
   Clock,
-  Filter,
   Terminal,
   Search,
   CalendarDays,
-  BarChart2,
+  Download,
+  BarChart3,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 import {
-  LineChart,
-  Line,
   ResponsiveContainer,
-  YAxis,
   Tooltip,
   AreaChart,
   Area,
@@ -93,11 +90,11 @@ export function AuditTimeline() {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="font-mono text-xs">
+          <Button variant="secondary" size="sm" className="font-mono text-xs">
             <CalendarDays size={14} className="mr-2" /> TODAY
           </Button>
-          <Button variant="primary" size="sm" className="font-mono text-xs">
-            <Filter size={14} className="mr-2" /> EXPORT LOGS
+          <Button size="sm" className="font-mono text-xs">
+            <Download size={14} className="mr-2" /> EXPORT LOGS
           </Button>
         </div>
       </div>
@@ -217,7 +214,7 @@ export function AuditTimeline() {
         <div className="space-y-6 flex flex-col">
           <Card className="hud-bg hud-border p-5">
             <div className="flex items-center gap-2 text-cyan-400 border-b border-cyan-900/30 pb-2 mb-4">
-              <BarChart2 size={16} />
+              <BarChart3 size={16} />
               <h3 className="text-xs font-bold tracking-widest uppercase font-display">
                 System Activity
               </h3>

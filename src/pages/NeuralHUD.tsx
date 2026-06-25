@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useStore } from "../store";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { apiClient } from "../services/apiClient";
+import { useState } from "react";
+import { useStore } from "@/store";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { apiClient } from "@/services/apiClient";
 import {
   Mic,
   Send,
@@ -22,7 +22,6 @@ import { LineChart, Line, ResponsiveContainer, YAxis } from "recharts";
 
 export function NeuralHUD() {
   const systemStatus = useStore((state) => state.systemStatus);
-  const history = useStore((state) => state.history);
   const addCommandResult = useStore((state) => state.addCommandResult);
   const isConnected = useStore((state) => state.isConnected);
 
@@ -41,6 +40,7 @@ export function NeuralHUD() {
       addCommandResult(result);
     } else {
       addCommandResult({
+        action_type: "error",
         command,
         response: "Error connecting to backend.",
         language: "en",
@@ -52,7 +52,7 @@ export function NeuralHUD() {
   };
 
   // Mock data for charts
-  const mockData = Array.from({ length: 20 }, (_, i) => ({
+  const mockData = Array.from({ length: 20 }, () => ({
     val: 30 + Math.random() * 40,
   }));
 
@@ -64,14 +64,14 @@ export function NeuralHUD() {
         <div className="grid grid-cols-2 gap-4">
           <MetricWidget
             title="CPU USAGE"
-            value={`${systemStatus?.cpu_percent ?? 0}%`}
+            value={`${systemStatus?.cpu?.percent ?? 0}%`}
             trend="↑ 2% vs yesterday"
             color="cyan"
             data={mockData}
           />
           <MetricWidget
             title="MEMORY"
-            value={`${systemStatus?.memory_percent ?? 0} MB`}
+            value={`${systemStatus?.memory?.percent ?? 0}%`}
             trend="↑ 8% vs yesterday"
             color="purple"
             data={mockData}
@@ -438,11 +438,28 @@ function MetricWidget({
     blue: "#60a5fa",
   };
 
+  const dotColorMap: Record<string, string> = {
+    cyan: "bg-cyan-500",
+    purple: "bg-purple-500",
+    emerald: "bg-emerald-500",
+    blue: "bg-blue-500",
+  };
+
+  const textColorMap: Record<string, string> = {
+    cyan: "text-cyan-400",
+    purple: "text-purple-400",
+    emerald: "text-emerald-400",
+    blue: "text-blue-400",
+  };
+
+  const dotClass = dotColorMap[color] ?? "bg-cyan-500";
+  const textClass = textColorMap[color] ?? "text-cyan-400";
+
   return (
     <Card className="bg-slate-950/60 border border-slate-800 p-3 flex flex-col relative overflow-hidden group hover:border-slate-700 transition-colors">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[9px] font-bold tracking-wider text-slate-400 flex items-center gap-1.5 uppercase">
-          <div className={`w-1.5 h-1.5 rounded-full bg-${color}-500`}></div>{" "}
+          <div className={`w-1.5 h-1.5 rounded-full ${dotClass}`}></div>{" "}
           {title}
         </span>
       </div>
@@ -456,7 +473,7 @@ function MetricWidget({
           </span>
         )}
       </div>
-      <span className={`text-[9px] text-${color}-400 font-medium mb-3`}>
+      <span className={`text-[9px] ${textClass} font-medium mb-3`}>
         {trend}
       </span>
 
@@ -480,6 +497,15 @@ function MetricWidget({
 }
 
 function HealthRow({ label, icon, value, status, color, data }: any) {
+  const statusColorMap: Record<string, string> = {
+    emerald: "text-emerald-400",
+    cyan: "text-cyan-400",
+    purple: "text-purple-400",
+    blue: "text-blue-400",
+    amber: "text-amber-400",
+    red: "text-red-400",
+  };
+  const statusClass = statusColorMap[color] ?? "text-emerald-400";
   return (
     <div className="flex items-center gap-3">
       <div className="text-slate-500 bg-slate-900 p-1.5 rounded-md border border-slate-800">
@@ -503,7 +529,7 @@ function HealthRow({ label, icon, value, status, color, data }: any) {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className={`text-[10px] text-${color}-400 w-12 text-right`}>
+      <div className={`text-[10px] ${statusClass} w-12 text-right`}>
         {status}
       </div>
     </div>

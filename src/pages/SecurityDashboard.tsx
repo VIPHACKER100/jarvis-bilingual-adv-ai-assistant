@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion, AnimatePresence } from "motion/react";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldAlert,
   Activity,
@@ -13,11 +13,10 @@ import {
   ShieldCheck,
   Crosshair,
   Lock,
-  Play,
   Square,
   RefreshCcw,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 interface Process {
   id: number;

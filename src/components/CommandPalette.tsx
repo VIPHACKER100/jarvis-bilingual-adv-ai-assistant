@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, Command, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

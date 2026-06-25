@@ -48,3 +48,14 @@ PAIRING_SECRET = os.getenv("PAIRING_SECRET", "JARVIS-SECRET-KEY")
 
 # Version
 VERSION = "4.0.0-alpha.2"
+
+
+def get_backend_api_key() -> str | None:
+    """Centralized API key resolution — single source of truth.
+
+    Checks BACKEND_API_KEY first, then falls back to VITE_JARVIS_API_KEY.
+    All runtime code (main.py, middleware, WebSocket routers) MUST import
+    and call this function instead of duplicating os.getenv() logic.
+    This ensures a single point of change if the resolution strategy evolves.
+    """
+    return os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")

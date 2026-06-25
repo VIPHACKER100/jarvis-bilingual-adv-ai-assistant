@@ -2,6 +2,10 @@ from fastapi import APIRouter, HTTPException, Request
 from models import BaseResponse, CommandRequest, CommandResult, ConfirmationRequest
 from modules.security import security
 
+# NOTE: prefix="" is intentional — these are top-level REST action endpoints
+# (/command, /confirm/{id}, /pending) that sit directly under /api/v1/.
+# This keeps the URL short for client convenience. All other routers use
+# a domain prefix (e.g. /system, /files, /settings).
 router = APIRouter(prefix="", tags=["Commands"])
 
 

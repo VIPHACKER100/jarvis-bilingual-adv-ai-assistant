@@ -1,20 +1,18 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion, AnimatePresence } from "motion/react";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import {
   MessageCircle,
   Phone,
   Video,
   Search,
   Send,
-  Check,
   CheckCheck,
   Paperclip,
   MoreVertical,
-  Image as ImageIcon,
+  Check,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 const MOCK_CHATS = [
   {
@@ -81,7 +79,7 @@ const MOCK_MESSAGES = [
 ];
 
 export function WhatsAppControl() {
-  const [activeChat, setActiveChat] = useState(MOCK_CHATS[1]);
+  const [activeChat, setActiveChat] = useState(MOCK_CHATS[1]!);
   const [message, setMessage] = useState("");
 
   return (

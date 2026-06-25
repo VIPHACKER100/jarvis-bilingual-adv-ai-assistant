@@ -1,4 +1,4 @@
-import { WebSocketMessage } from "../types/bridge";
+import { WebSocketMessage } from "@/types/bridge";
 
 export type BroadcastHandler = (message: WebSocketMessage) => void;
 

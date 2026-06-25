@@ -1,16 +1,11 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion } from "motion/react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import {
   Monitor,
   Camera,
   Clipboard,
   MousePointer2,
-  PlayCircle,
   Settings,
-  Fullscreen,
-  Image as ImageIcon,
   Volume2,
 } from "lucide-react";
 
@@ -52,7 +47,7 @@ export function RemoteDesktop() {
                 size="lg"
                 className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold tracking-wider px-8 h-14 text-lg box-shadow-cyan"
               >
-                <PlayCircle size={24} className="mr-3" /> CONNECT STREAM
+                <Monitor size={24} className="mr-3" /> CONNECT STREAM
               </Button>
             </div>
           </div>
@@ -70,7 +65,7 @@ export function RemoteDesktop() {
               size="sm"
               className="bg-slate-900/80 hover:bg-cyan-900/80"
             >
-              <Fullscreen size={16} className="mr-2" /> Fullscreen
+              <Camera size={16} className="mr-2" /> Fullscreen
             </Button>
             <Button
               variant="secondary"
@@ -96,14 +91,14 @@ export function RemoteDesktop() {
             </div>
             <div className="flex gap-2 mt-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 className="flex-1 text-xs h-8"
               >
                 Copy to Local
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 className="flex-1 text-xs h-8"
               >

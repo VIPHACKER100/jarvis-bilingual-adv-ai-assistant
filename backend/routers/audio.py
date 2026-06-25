@@ -6,9 +6,9 @@ Supports streaming TTS (incremental audio chunks) and full-audio STT.
 import base64
 import hmac
 import json
-import os
 from typing import Optional
 
+from config.environment import get_backend_api_key
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from modules.audio.stt import stt_service
 from modules.audio.tts import tts_service
@@ -22,7 +22,22 @@ MAX_TTS_TEXT = 2000
 
 @router.websocket("/ws/audio")
 async def audio_websocket(websocket: WebSocket, language: str = "en", api_key: Optional[str] = None):
-    configured_key = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+    """Bidirectional audio WebSocket — handles STT (speech-to-text) and
+    TTS (text-to-speech) streaming over a single persistent connection.
+
+    Authentication: API key is passed as a query parameter (?api_key=...)
+    since the browser WebSocket API cannot set custom HTTP headers. The
+    handler performs its own auth check before calling websocket.accept().
+
+    Message types (JSON):
+      - {"type": "stt", "audio": "<base64>"}        → returns stt_result
+      - {"type": "tts", "text": "...", "voice": "..."} → returns tts_audio
+      - {"type": "tts_stream", "text": "...", ...}   → streams tts_chunk(s) + tts_end
+      - {"type": "ping"}                             → returns pong
+
+    Limits: max audio payload 10 MB, max TTS text 2000 characters.
+    """
+    configured_key = get_backend_api_key()
     if configured_key:
         client_host = websocket.client.host if websocket.client else ""
         is_local = client_host in ("127.0.0.1", "localhost", "::1")

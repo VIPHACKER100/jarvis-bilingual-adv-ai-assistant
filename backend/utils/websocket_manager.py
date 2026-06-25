@@ -5,13 +5,30 @@ from utils.logger_structured import logger
 
 
 class ConnectionManager:
+    MAX_CONNECTIONS = 100
+
     def __init__(self):
         self.active_connections: Dict[str, WebSocket] = {}
 
     async def connect(self, websocket: WebSocket, client_id: str):
+        """Accept a new WebSocket connection.
+
+        Rejects the connection with close code 1008 (Policy Violation)
+        if the server has already reached MAX_CONNECTIONS.
+        """
+        if len(self.active_connections) >= self.MAX_CONNECTIONS:
+            logger.warning(
+                "WebSocket connection rejected — server at capacity "
+                "(%d/%d connections)", self.MAX_CONNECTIONS, self.MAX_CONNECTIONS
+            )
+            await websocket.close(code=1008)
+            return
         await websocket.accept()
         self.active_connections[client_id] = websocket
-        logger.info(f"WebSocket client connected: {client_id}")
+        logger.info(
+            "WebSocket client connected: %s (%d active)",
+            client_id, len(self.active_connections)
+        )
 
     def disconnect(self, client_id: str):
         if client_id in self.active_connections:

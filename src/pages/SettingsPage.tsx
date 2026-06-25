@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion } from "motion/react";
-import { KeyRound, Bot, ShieldAlert, Cpu, Settings } from "lucide-react";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
+import { KeyRound, Bot, Cpu, Settings } from "lucide-react";
 
 export function SettingsPage() {
   const [provider, setProvider] = useState("openai");

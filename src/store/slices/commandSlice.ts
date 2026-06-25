@@ -3,7 +3,7 @@ import {
   AppMode,
   CommandResult,
   PendingConfirmationInfo,
-} from "../../types/api";
+} from "@/types/api";
 
 export interface CommandState {
   history: CommandResult[];

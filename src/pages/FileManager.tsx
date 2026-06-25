@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion } from "motion/react";
+import { Fragment, useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
 import {
   Folder,
   File,
@@ -17,7 +17,7 @@ import {
   Code,
   Database,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 const MOCK_FILES = [
   {
@@ -65,7 +65,7 @@ const MOCK_FILES = [
 ];
 
 export function FileManager() {
-  const [path, setPath] = useState(["C:", "Users", "Commander"]);
+  const [path] = useState(["C:", "Users", "Commander"]);
   const [selected, setSelected] = useState<number[]>([]);
 
   const toggleSelect = (id: number) => {
@@ -156,7 +156,7 @@ export function FileManager() {
           <div className="p-3 border-b border-cyan-900/30 bg-slate-950/50 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2 font-mono text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded border border-slate-800 flex-1 max-w-lg overflow-hidden">
               {path.map((segment, i) => (
-                <React.Fragment key={i}>
+                <Fragment key={i}>
                   <button className="hover:text-cyan-400 transition-colors shrink-0">
                     {segment}
                   </button>
@@ -166,7 +166,7 @@ export function FileManager() {
                       className="text-slate-600 shrink-0"
                     />
                   )}
-                </React.Fragment>
+                  </Fragment>
               ))}
             </div>
 

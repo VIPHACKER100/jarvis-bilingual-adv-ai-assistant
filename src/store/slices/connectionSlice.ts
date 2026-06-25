@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import { ConnectionStatus } from "../../types/api";
+import { ConnectionStatus } from "@/types/api";
 
 export interface ConnectionState {
   isConnected: boolean;

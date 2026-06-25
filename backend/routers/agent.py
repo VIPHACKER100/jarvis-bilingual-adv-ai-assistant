@@ -48,7 +48,13 @@ async def agent_chat(body: AgentQuery, request: Request):
 
 @router.post("/stream")
 async def agent_stream(body: AgentQuery, request: Request):
-    """Streaming agent response via SSE."""
+    """Streaming agent response via SSE.
+
+    Rate-limited to 15 requests per minute per IP address (window_sec=60,
+    max_calls=15). This conservative limit protects the LLM gateway from
+    runaway client loops while still allowing interactive use. The
+    non-streaming /chat endpoint has a higher limit of 30 req/min.
+    """
     client_key = f"agent_stream:{request.client.host}"
     if not per_route_limiter.check(client_key, max_calls=15, window_sec=60):
         raise HTTPException(status_code=429, detail="Rate limit exceeded (15 req/min)")

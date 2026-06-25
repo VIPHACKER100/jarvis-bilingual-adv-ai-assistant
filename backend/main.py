@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from contextlib import asynccontextmanager
 
 from config import BACKEND_PORT, FRONTEND_URL, PLATFORM, VERSION
+from config.environment import get_backend_api_key
 from fastapi import FastAPI, Request, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
@@ -55,8 +56,8 @@ from slowapi.util import get_remote_address
 from utils.logger_structured import OTEL_ENABLED, log_system_event, logger
 from utils.middleware_security import MaxBodySizeMiddleware, SecurityHeadersMiddleware, SQLInjectionMiddleware
 
-# Security
-BACKEND_API_KEY = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+# Security — centralized API key resolution (see config.environment.get_backend_api_key)
+BACKEND_API_KEY = get_backend_api_key()
 
 
 @asynccontextmanager
@@ -166,11 +167,14 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS middleware
+# CORS middleware — accept requests from the frontend dev server,
+# production Docker deployment (http://localhost), and common dev ports.
+# FRONTEND_URL is configurable via .env (defaults to http://localhost:5173).
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         FRONTEND_URL,
+        "http://localhost",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
@@ -226,7 +230,22 @@ async def add_request_id(request: Request, call_next):
 
 
 # Authentication Middleware for REST API
-HEALTH_EXEMPT_PREFIXES = ("/api/v1/health", "/api/v1/agent/health", "/api/v1/ready", "/api/v1/live")
+# NOTE: This middleware only checks paths starting with /api/. WebSocket
+# endpoints (/ws, /audio/ws/audio) skip this middleware by design because
+# the browser WebSocket API cannot set custom HTTP headers like X-API-Key.
+# Instead, WS endpoints pass the API key as a query parameter and perform
+# their own authentication inside the handler (see routers/websocket.py
+# and routers/audio.py). This is a conscious trade-off: the WS handshake
+# is authenticated via query param + constant-time comparison in the handler.
+HEALTH_EXEMPT_PREFIXES = (
+    "/api/v1/health",
+    "/api/v1/agent/health",
+    "/api/v1/ready",
+    "/api/v1/live",
+    # Audio WebSocket is auth-protected inside its own handler (query param)
+    # and must bypass the middleware because browsers can't set X-API-Key headers.
+    "/api/v1/audio/",
+)
 
 
 @app.middleware("http")
@@ -269,6 +288,7 @@ api_v1 = APIRouter(prefix="/api/v1")
 # Include routers in V1
 api_v1.include_router(system.router)
 api_v1.include_router(windows.router)
+api_v1.include_router(windows.apps_router)
 api_v1.include_router(files.router)
 api_v1.include_router(media.router)
 api_v1.include_router(pdf_tools.router)

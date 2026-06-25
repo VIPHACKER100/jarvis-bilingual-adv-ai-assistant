@@ -1,5 +1,5 @@
-import { StateCreator } from "zustand";
-import { SystemStatus, PerformancePoint } from "../../types/api";
+import type { StateCreator } from 'zustand';
+import type { SystemStatus, PerformancePoint } from '@/types/api';
 
 export interface SystemState {
   systemStatus: SystemStatus | null;
@@ -26,18 +26,19 @@ export const createSystemSlice: StateCreator<SystemState> = (set) => ({
     set((state) => {
       const newPoint: PerformancePoint = {
         timestamp: new Date().toISOString(),
-        cpu: status.cpu_percent,
-        memory: status.memory_percent,
+        cpu: status.cpu?.percent ?? 0,
+        memory: status.memory?.percent ?? 0,
+        event_loop_lag: status.event_loop_lag ?? undefined,
       };
 
       return {
         systemStatus: status,
-        cpuPercent: status.cpu_percent,
-        memoryPercent: status.memory_percent,
-        diskPercent: status.disk_percent,
-        batteryPercent: status.battery_percent,
-        isCharging: status.is_charging,
-        eventLoopLag: status.event_loop_lag,
+        cpuPercent: status.cpu?.percent ?? 0,
+        memoryPercent: status.memory?.percent ?? 0,
+        diskPercent: status.disk?.percent ?? 0,
+        batteryPercent: status.battery?.percent ?? null,
+        isCharging: status.battery?.is_charging ?? null,
+        eventLoopLag: status.event_loop_lag ?? 0,
         performanceHistory: [...state.performanceHistory, newPoint].slice(-60),
       };
     }),

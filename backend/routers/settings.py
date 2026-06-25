@@ -125,6 +125,12 @@ async def update_keys(data: ApiKeyUpdateRequest):
 
         await asyncio.to_thread(write_env, new_env_lines)
 
+        # Sync updated keys into the running process's environment so that
+        # subsequent calls to os.getenv() / get_backend_api_key() pick them
+        # up immediately without requiring a server restart.
+        for key, value in updates.items():
+            os.environ[key] = value
+
         return {"success": True, "response": f"Updated {len(updates)} keys in .env"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update API keys: {str(e)}")

@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion, AnimatePresence } from "motion/react";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Maximize2,
   Monitor,
-  Minimize2,
   X,
   Search,
   MonitorUp,
@@ -13,7 +12,7 @@ import {
   EyeOff,
   LayoutGrid,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 const MOCK_WINDOWS = [
   {

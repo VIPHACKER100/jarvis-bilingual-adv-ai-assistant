@@ -1,13 +1,10 @@
-import React from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import {
   FileAudio,
   ScanText,
-  Image as ImageIcon,
   Wand2,
   UploadCloud,
-  FileText,
 } from "lucide-react";
 
 export function MediaTools() {

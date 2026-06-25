@@ -1,155 +1,117 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+/**
+ * SidebarNav — Collapsible sidebar navigation
+ *
+ * Links to all views with icons and labels.
+ * Collapsed mode shows only icons (with title/aria-label).
+ */
+
+import { NavLink } from 'react-router-dom';
 import {
   Home,
-  Activity,
-  RefreshCcw,
   Settings,
-  FileText,
+  Clock,
+  Smartphone,
+  Bot,
+  FolderOpen,
   LayoutGrid,
-  ShieldAlert,
+  Shield,
   MessageCircle,
   Monitor,
   MousePointerClick,
-  FileAudio,
-  BrainCircuit,
+  Image,
+  Brain,
   Info,
-} from "lucide-react";
-import { cn } from "../../lib/utils";
-import { motion } from "motion/react";
+  ChevronLeft,
+} from 'lucide-react';
 
-export function SidebarNav() {
-  const navItems = [
-    { to: "/", icon: Home, label: "HUD", sub: "Neural Dashboard" },
-    { to: "/timeline", icon: Activity, label: "Timeline", sub: "Audit & Logs" },
-    { to: "/sync", icon: RefreshCcw, label: "Sync Hub", sub: "Devices & Data" },
-    {
-      to: "/automation",
-      icon: Settings,
-      label: "Automation",
-      sub: "Tasks & Macros",
-    },
-    { to: "/files", icon: FileText, label: "Files", sub: "File Manager" },
-    {
-      to: "/windows",
-      icon: LayoutGrid,
-      label: "Windows",
-      sub: "Window Control",
-    },
-    {
-      to: "/security",
-      icon: ShieldAlert,
-      label: "Security",
-      sub: "Threat & Firewall",
-    },
-    {
-      to: "/whatsapp",
-      icon: MessageCircle,
-      label: "WhatsApp",
-      sub: "Messages & Send",
-    },
-    { to: "/desktop", icon: Monitor, label: "Desktop", sub: "Remote Control" },
-    {
-      to: "/input",
-      icon: MousePointerClick,
-      label: "Input Control",
-      sub: "Keyboard & Mouse",
-    },
-    {
-      to: "/media-tools",
-      icon: FileAudio,
-      label: "Media Tools",
-      sub: "Audio, Video, OCR",
-    },
-    {
-      to: "/training",
-      icon: BrainCircuit,
-      label: "Training",
-      sub: "Neural Training",
-    },
-    {
-      to: "/about",
-      icon: Info,
-      label: "About",
-      sub: "System Info",
-    },
-    {
-      to: "/settings",
-      icon: Settings,
-      label: "Settings",
-      sub: "System Settings",
-    },
-  ];
+interface SidebarNavProps {
+  collapsed: boolean;
+  onToggle: () => void;
+}
 
+interface NavItem {
+  to: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
+const navItems: NavItem[] = [
+  { to: '/hud', label: 'Neural HUD', icon: <Home className="h-5 w-5" /> },
+  { to: '/settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
+  { to: '/timeline', label: 'Timeline', icon: <Clock className="h-5 w-5" /> },
+  { to: '/sync', label: 'Device Sync', icon: <Smartphone className="h-5 w-5" /> },
+  { to: '/automation', label: 'Automation', icon: <Bot className="h-5 w-5" /> },
+  { to: '/files', label: 'Files', icon: <FolderOpen className="h-5 w-5" /> },
+  { to: '/windows', label: 'Windows', icon: <LayoutGrid className="h-5 w-5" /> },
+  { to: '/security', label: 'Security', icon: <Shield className="h-5 w-5" /> },
+  { to: '/whatsapp', label: 'WhatsApp', icon: <MessageCircle className="h-5 w-5" /> },
+  { to: '/desktop', label: 'Desktop', icon: <Monitor className="h-5 w-5" /> },
+  { to: '/input', label: 'Input', icon: <MousePointerClick className="h-5 w-5" /> },
+  { to: '/media-tools', label: 'Media Tools', icon: <Image className="h-5 w-5" /> },
+  { to: '/training', label: 'Training', icon: <Brain className="h-5 w-5" /> },
+  { to: '/about', label: 'About', icon: <Info className="h-5 w-5" /> },
+];
+
+export function SidebarNav({ collapsed, onToggle }: SidebarNavProps) {
   return (
-    <nav className="w-64 border-r border-cyan-900/30 bg-slate-950/80 backdrop-blur-xl flex flex-col shrink-0 overflow-y-auto z-10">
-      <div className="p-4 space-y-1">
+    <aside
+      className={`flex flex-col border-r border-cyan-500/20 bg-cyber-surface/30 backdrop-blur-xl transition-all duration-300 ease-spring ${
+        collapsed ? 'w-16' : 'w-56'
+      }`}
+    >
+      {/* Logo area */}
+      <div className="flex h-14 items-center justify-center border-b border-cyan-500/20 shrink-0">
+        {collapsed ? (
+          <span className="neon-text-cyan text-xl font-bold font-display">J</span>
+        ) : (
+          <span className="neon-text-cyan text-lg font-bold font-display tracking-widest">
+            JARVIS
+          </span>
+        )}
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex-1 overflow-y-auto py-2 space-y-1 px-2">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
+            title={item.label}
+            aria-label={item.label}
+            end={item.to === '/hud'}
             className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all border border-transparent group",
+              `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                collapsed ? 'justify-center' : ''
+              } ${
                 isActive
-                  ? "bg-cyan-950/40 text-cyan-400 border-cyan-500/30 box-shadow-cyan"
-                  : "text-slate-400 hover:text-cyan-300 hover:bg-cyan-950/20",
-              )
+                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-[0_0_10px_rgba(0,212,255,0.08)]'
+                  : 'text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/5 hover:border hover:border-cyan-500/10'
+              }`
             }
           >
-            {({ isActive }) => (
-              <>
-                <div
-                  className={cn(
-                    "p-1.5 rounded-md transition-colors",
-                    isActive
-                      ? "bg-cyan-500/20 text-cyan-400"
-                      : "bg-slate-900 text-slate-500 group-hover:bg-cyan-950 group-hover:text-cyan-400",
-                  )}
-                >
-                  <item.icon size={18} className="shrink-0" />
-                </div>
-                <div className="flex flex-col">
-                  <span
-                    className={cn(
-                      "text-sm font-semibold tracking-wide uppercase font-display",
-                      isActive ? "text-cyan-300" : "text-slate-300",
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                  <span className="text-[10px] text-slate-500 leading-tight">
-                    {item.sub}
-                  </span>
-                </div>
-                {isActive && (
-                  <motion.div
-                    layoutId="activeNavIndicator"
-                    className="absolute left-0 w-1 h-8 bg-cyan-400 rounded-r-full shadow-[0_0_10px_#22d3ee]"
-                  />
-                )}
-              </>
+            <span className="shrink-0">{item.icon}</span>
+            {!collapsed && (
+              <span className="text-sm font-display font-semibold tracking-wide truncate">
+                {item.label}
+              </span>
             )}
           </NavLink>
         ))}
-      </div>
+      </nav>
 
-      <div className="mt-auto p-4 border-t border-cyan-900/30 bg-slate-900/30">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-cyan-950 border border-cyan-500/30 flex items-center justify-center shrink-0">
-            <ShieldAlert size={16} className="text-cyan-400" />
-          </div>
-          <div className="flex flex-col overflow-hidden">
-            <span className="text-xs font-bold text-slate-200 truncate">
-              JARVIS AI
-            </span>
-            <span className="text-[10px] text-emerald-400 flex items-center gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>{" "}
-              Online • GPT-5
-            </span>
-          </div>
-        </div>
+      {/* Collapse toggle */}
+      <div className="border-t border-cyan-500/20 p-2 shrink-0">
+        <button
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          onClick={onToggle}
+          className="flex w-full items-center justify-center gap-2 px-3 py-2 rounded-lg text-slate-500 hover:text-cyan-300 hover:bg-cyan-500/5 transition-all duration-200"
+        >
+          <ChevronLeft
+            className={`h-4 w-4 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
+          />
+        </button>
       </div>
-    </nav>
+    </aside>
   );
 }

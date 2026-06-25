@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import {
   BrainCircuit,
   Mic,
@@ -10,7 +10,7 @@ import {
   Settings2,
   Database,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 export function NeuralTraining() {
   const [activeTab, setActiveTab] = useState<"voice" | "knowledge">("voice");
@@ -97,7 +97,7 @@ export function NeuralTraining() {
                     Irish Female, Energetic, Casual
                   </p>
                 </div>
-                <Button variant="outline" size="sm" className="text-xs">
+                <Button variant="secondary" size="sm" className="text-xs">
                   Select
                 </Button>
               </div>

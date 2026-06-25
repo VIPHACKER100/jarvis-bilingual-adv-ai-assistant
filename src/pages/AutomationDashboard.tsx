@@ -1,19 +1,17 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion, AnimatePresence } from "motion/react";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
 import {
   Settings,
   Play,
   Plus,
   Clock,
   Cpu,
-  Power,
-  PowerOff,
   Settings2,
   Trash2,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 const MOCK_TASKS = [
   {

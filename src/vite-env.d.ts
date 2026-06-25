@@ -1,1 +1,12 @@
 /// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_BACKEND_URL?: string;
+  readonly VITE_JARVIS_API_KEY?: string;
+  readonly VITE_APP_URL?: string;
+  readonly DISABLE_HMR?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

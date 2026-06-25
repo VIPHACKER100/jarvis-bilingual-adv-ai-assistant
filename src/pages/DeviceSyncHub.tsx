@@ -1,18 +1,17 @@
-import React, { useState } from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { motion } from "motion/react";
+import { useState } from "react";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { motion } from "framer-motion";
 import {
   Smartphone,
   Laptop,
   RefreshCw,
   Wifi,
-  WifiOff,
   HardDrive,
   Battery,
   Signal,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 const MOCK_DEVICES = [
   {

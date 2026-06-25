@@ -1,33 +1,58 @@
-import React from "react";
-import { cn } from "../../lib/utils";
-import { motion, HTMLMotionProps } from "motion/react";
+/**
+ * Card — Glassmorphism card component
+ *
+ * Uses Design System V3 glass-panel with optional chamfered corners.
+ */
 
-interface CardProps extends HTMLMotionProps<"div"> {
-  variant?: "default" | "glass" | "outline";
+import type { ReactNode, HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils';
+
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'strong' | 'cyber';
+  chamfered?: boolean;
+  title?: string;
+  subtitle?: string;
+  children?: ReactNode;
 }
 
-export const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = "glass", children, ...props }, ref) => {
-    const variants = {
-      default: "bg-slate-900 border border-slate-800 text-slate-100",
-      glass:
-        "bg-slate-950/60 backdrop-blur-md border border-cyan-900/30 text-slate-100",
-      outline: "bg-transparent border border-slate-800 text-slate-100",
-    };
+export function Card({
+  className,
+  variant = 'default',
+  chamfered = false,
+  title,
+  subtitle,
+  children,
+  ...props
+}: CardProps) {
+  const variantClasses: Record<string, string> = {
+    default: 'glass-panel',
+    strong: 'glass-panel-strong',
+    cyber: 'glass-panel cyber-border holographic-sheen',
+  };
 
-    return (
-      <motion.div
-        ref={ref}
-        className={cn(
-          "rounded-xl overflow-hidden",
-          variants[variant],
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </motion.div>
-    );
-  },
-);
-Card.displayName = "Card";
+  return (
+    <div
+      className={cn(
+        'rounded-lg p-4',
+        variantClasses[variant],
+        chamfered && 'chamfered',
+        className,
+      )}
+      {...props}
+    >
+      {(title || subtitle) && (
+        <div className="mb-3">
+          {title && (
+            <h3 className="text-sm font-display font-bold tracking-wider text-cyan-300 uppercase">
+              {title}
+            </h3>
+          )}
+          {subtitle && (
+            <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+          )}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}

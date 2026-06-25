@@ -1,0 +1,418 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+/* ==========================================================================
+   JARVIS Design System V3 — Cyberpunk Glassmorphism
+   ========================================================================== */
+
+/* ── Theme Tokens ── */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Rajdhani", ui-sans-serif, system-ui, sans-serif;
+
+  /* Core palette */
+  --color-cyber-cyan: #00d4ff;
+  --color-cyber-purple: #8b5cf6;
+  --color-cyber-pink: #ff2d95;
+  --color-cyber-yellow: #f5e642;
+  --color-cyber-dark: #050a12;
+  --color-cyber-darker: #030712;
+  --color-cyber-surface: #0a1628;
+  --color-cyber-card: #0f1b33;
+
+  /* Semantic */
+  --color-neon-success: #00ff88;
+  --color-neon-warning: #ffaa00;
+  --color-neon-error: #ff3355;
+  --color-neon-info: #00d4ff;
+
+  /* Space tokens */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* Text tokens */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+
+  /* Radius tokens */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Animation */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+}
+
+/* ── Base Layer ── */
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--color-cyber-dark, #050a12);
+    color: #cbd5e1; /* slate-300 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    font-family: var(--font-sans);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(255, 45, 149, 0.03) 0%, transparent 50%);
+  }
+
+  ::selection {
+    background-color: rgba(0, 212, 255, 0.3);
+  }
+
+  /* Grid overlay for cyberpunk feel */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+/* Perspective grid on HUD elements */
+.tactical-grid {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  perspective: 500px;
+}
+
+/* ── Glassmorphism & Utility Classes ── */
+.glass-panel {
+  background-color: color-mix(in srgb, var(--color-cyber-surface, #0a1628) 60%, transparent);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.05), inset 0 0 30px rgba(0, 212, 255, 0.02);
+  transition: all var(--duration-normal, 300ms) var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+.glass-panel:hover {
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.08), inset 0 0 40px rgba(0, 212, 255, 0.03);
+}
+
+.glass-panel-strong {
+  background-color: color-mix(in srgb, var(--color-cyber-card, #0f1b33) 80%, transparent);
+  backdrop-filter: blur(48px);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.08), inset 0 0 50px rgba(0, 212, 255, 0.03);
+}
+
+.glass-button {
+  padding: 0.5rem 1rem;
+  background-color: color-mix(in srgb, var(--color-cyber-surface, #0a1628) 50%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #5eead4;
+  font-family: var(--font-display, 'Rajdhani', sans-serif);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  border-radius: 0.5rem;
+}
+.glass-button:hover {
+  background-color: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.6);
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+}
+.glass-button:active {
+  transform: scale(0.98);
+}
+.glass-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.5);
+}
+
+.glass-button-primary {
+  background-color: rgba(0, 212, 255, 0.2);
+  border-color: rgba(0, 212, 255, 0.5);
+  color: #99f6e4;
+}
+.glass-button-primary:hover {
+  background-color: rgba(0, 212, 255, 0.3);
+  border-color: rgba(0, 212, 255, 0.7);
+}
+
+.glass-button-danger {
+  border-color: rgba(255, 45, 149, 0.3);
+  color: #f9a8d4;
+}
+.glass-button-danger:hover {
+  background-color: rgba(255, 45, 149, 0.1);
+  border-color: rgba(255, 45, 149, 0.6);
+  box-shadow: 0 0 20px rgba(255, 45, 149, 0.15);
+}
+
+.glass-button-success {
+  border-color: rgba(0, 255, 136, 0.3);
+  color: #6ee7b7;
+}
+.glass-button-success:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.6);
+}
+
+/* ── Neon Text ── */
+.neon-text {
+  font-family: var(--font-display, 'Rajdhani', sans-serif);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+}
+
+.neon-text-cyan {
+  color: #5eead4;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.6), 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+}
+
+.neon-text-pink {
+  color: #f9a8d4;
+  text-shadow: 0 0 10px rgba(255, 45, 149, 0.6), 0 0 20px rgba(255, 45, 149, 0.3), 0 0 40px rgba(255, 45, 149, 0.1);
+}
+
+.neon-text-purple {
+  color: #c4b5fd;
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.6), 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);
+}
+
+/* ── Chamfered Corners (Cyberpunk) ── */
+.chamfered {
+  clip-path: polygon(0% 4px, 4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px));
+}
+
+.chamfered-lg {
+  clip-path: polygon(0% 8px, 8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px));
+}
+
+.chamfered-sm {
+  clip-path: polygon(0% 2px, 2px 0%, calc(100% - 2px) 0%, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0% calc(100% - 2px));
+}
+
+/* ── Cyber Border (Angled accents) ── */
+.cyber-border {
+  position: relative;
+}
+.cyber-border::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), transparent 40%, transparent 60%, rgba(255, 45, 149, 0.3));
+  clip-path: polygon(0% 4px, 4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px));
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Animations ── */
+.animate-pulse-core {
+  animation: pulse-core 2s ease-in-out infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-core 1s ease-in-out infinite;
+}
+
+.animate-scanline {
+  animation: scanline-move 8s linear infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out 3;
+}
+
+.animate-flicker {
+  animation: flicker 4s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Holographic sheen */
+.holographic-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.holographic-sheen::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.03) 50%, transparent 70%);
+  animation: sheen-move 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Keyframes ── */
+@keyframes pulse-core {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes scanline-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(-1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  3% { opacity: 0.8; }
+  6% { opacity: 1; }
+  7% { opacity: 0.9; }
+  8% { opacity: 1; }
+  50% { opacity: 1; }
+  53% { opacity: 0.85; }
+  56% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes sheen-move {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* ── Terminal Text Effect ── */
+.terminal-text {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: #34d399;
+}
+.terminal-text::before {
+  content: '> ';
+  color: #06b6d4;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: color-mix(in srgb, #030712 50%, transparent);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(6, 182, 212, 0.5);
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  transition: background-color 0.2s;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(6, 182, 212, 0.6);
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+/* ── Focus Visible ── */
+.focus-ring:focus-visible {
+  outline: 2px solid rgba(0, 212, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Status Dots ── */
+.status-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+.status-dot-connected {
+  background-color: #34d399;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+
+.status-dot-connecting {
+  background-color: #fbbf24;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.5);
+}
+
+.status-dot-disconnected {
+  background-color: #f87171;
+  box-shadow: 0 0 8px rgba(255, 51, 85, 0.5);
+}
+
+/* ── HUD Background & Border (used by all dashboard pages) ── */
+.hud-bg {
+  background-color: color-mix(in srgb, var(--color-cyber-surface, #0a1628) 60%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.hud-border {
+  border: 1px solid rgba(0, 212, 255, 0.15);
+}
+
+.box-shadow-cyan {
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3), 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.text-shadow-cyan {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.2);
+}

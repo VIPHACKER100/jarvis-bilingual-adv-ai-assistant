@@ -1,5 +1,4 @@
-import React from "react";
-import { Card } from "../components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Info, Cpu, Network, Shield, Zap } from "lucide-react";
 
 export function AboutPage() {

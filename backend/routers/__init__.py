@@ -1,4 +1,6 @@
 from . import (
+    agent,  # noqa: F401
+    audio,  # noqa: F401
     automation,  # noqa: F401
     commands,  # noqa: F401
     context,  # noqa: F401
@@ -11,6 +13,7 @@ from . import (
     memory,  # noqa: F401
     notifications,  # noqa: F401
     pdf_tools,  # noqa: F401
+    probes,  # noqa: F401
     settings,  # noqa: F401
     sync,  # noqa: F401
     system,  # noqa: F401

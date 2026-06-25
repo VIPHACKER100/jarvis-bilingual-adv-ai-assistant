@@ -1,9 +1,9 @@
 import asyncio
 import hmac
 import json
-import os
 from typing import Optional
 
+from config.environment import get_backend_api_key
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 from models import WebSocketMessage, WebSocketResponse
@@ -26,8 +26,8 @@ async def websocket_endpoint(
     from handlers.command_handler import handle_command
     from modules.memory import memory_manager
 
-    # API key gate
-    configured_key = os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+    # API key gate — uses centralized resolver from config.environment
+    configured_key = get_backend_api_key()
     if configured_key:
         client_host = websocket.client.host if websocket.client else ""
         is_local = client_host in ("127.0.0.1", "localhost", "::1")

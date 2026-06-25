@@ -5,11 +5,11 @@ and API key authentication dependency.
 
 import hmac
 import json
-import os
 import re
 import time
 from typing import Dict, Optional, Tuple
 
+from config.environment import get_backend_api_key
 from fastapi import Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
@@ -161,8 +161,13 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 def _get_configured_key() -> Optional[str]:
-    """Single source for API key — matches main.py module-level BACKEND_API_KEY."""
-    return os.getenv("BACKEND_API_KEY") or os.getenv("VITE_JARVIS_API_KEY")
+    """Single source for API key — delegates to centralized resolver in config.environment.
+
+    All callers (main.py middleware, WebSocket handlers, dependency injection)
+    ultimately converge on get_backend_api_key() so that the key resolution
+    strategy can be changed in one place.
+    """
+    return get_backend_api_key()
 
 
 async def verify_api_key(request: Request, api_key: str = Depends(api_key_header)) -> None:
