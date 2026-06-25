@@ -106,10 +106,11 @@ export const AuditTimeline: FC = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle group-focus-within:text-accent transition-colors" />
           <input 
             type="text"
-            placeholder="SEARCH_TRACE_STREAM..."
-            className="w-full bg-background-deep border border-border-default rounded-sm pl-12 pr-4 py-4 text-xs font-mono uppercase tracking-widest focus:border-accent/50 focus:outline-none transition-all focus:bg-surface-low placeholder:opacity-30"
+            placeholder="Search logs by message or module..."
+            className="w-full bg-background-deep border border-border-default rounded-sm pl-12 pr-4 py-4 text-sm font-mono focus:border-accent/50 focus:outline-none transition-all focus:bg-surface-low placeholder:opacity-40 placeholder:normal-case"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search neural logs"
           />
           <div className="absolute top-0 right-0 h-full flex items-center pr-4 pointer-events-none">
             <span className="text-[9px] font-mono opacity-20">[CTRL+F]</span>
@@ -121,6 +122,7 @@ export const AuditTimeline: FC = () => {
             className="w-full bg-background-deep border border-border-default rounded-sm pl-12 pr-4 py-4 text-xs font-mono uppercase tracking-widest appearance-none focus:border-accent/50 focus:outline-none focus:bg-surface-low"
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
+            aria-label="Filter by log level"
           >
             <option value="ALL">ALL_LEVELS</option>
             <option value="STABLE">STABLE</option>
@@ -177,7 +179,7 @@ export const AuditTimeline: FC = () => {
                     </div>
                     
                     <div className="flex flex-col gap-1">
-                      <span className="label-caps text-[9px] opacity-30">Source: {log.module}</span>
+                      <span className="label-caps text-xs opacity-60">Source: {log.module}</span>
                       <p className="text-sm font-medium leading-relaxed group-hover/card:text-accent transition-colors">
                         {log.message}
                       </p>

@@ -1,119 +1,252 @@
-import { useState, useEffect } from 'react';
-import { useJarvisStore } from '../store/jarvisStore';
+/**
+ * Theme Management Hook
+ * 
+ * Provides theme configuration and management functionality for the JARVIS interface.
+ * Integrates with the centralized theme system to ensure consistent styling.
+ * 
+ * Requirements addressed:
+ * - 1.1-1.6: Cyberpunk color palette management
+ * - Theme switching and persistence
+ * - CSS custom properties application
+ */
 
-export type ThemeName = 'cyan' | 'red' | 'green' | 'purple' | 'gold';
+import { useEffect, useState, useCallback } from 'react';
+import { theme, ThemeMode, applyTheme, getTheme, type ThemeColors } from '../styles/theme';
 
-export interface JarvisTheme {
-  name: ThemeName;
-  label: string;
-  description: string;
-  emoji: string;
-  primary: string;
-  primaryRgb: string;
-  glow: string;
-  accent: string;
-  accentRgb: string;
-}
+// ══════════════════════════════════════════════════════════════════════
+// Theme Storage Key
+// ══════════════════════════════════════════════════════════════════════
 
-export const THEMES: JarvisTheme[] = [
-  {
-    name: 'cyan',
-    label: 'Arc Reactor Blue',
-    description: "Default JARVIS cyan — Tony Stark's signature",
-    emoji: '🔵',
-    primary: '#06b6d4',
-    primaryRgb: '6, 182, 212',
-    glow: 'rgba(6, 182, 212, 0.6)',
-    accent: '#0ea5e9',
-    accentRgb: '14, 165, 233',
-  },
-  {
-    name: 'red',
-    label: 'Sith Red',
-    description: 'Dark side power — commanding red',
-    emoji: '🔴',
-    primary: '#ef4444',
-    primaryRgb: '239, 68, 68',
-    glow: 'rgba(239, 68, 68, 0.6)',
-    accent: '#f97316',
-    accentRgb: '249, 115, 22',
-  },
-  {
-    name: 'green',
-    label: 'Hulk Green',
-    description: 'Gamma-powered emerald force',
-    emoji: '🟢',
-    primary: '#22c55e',
-    primaryRgb: '34, 197, 94',
-    glow: 'rgba(34, 197, 94, 0.6)',
-    accent: '#86efac',
-    accentRgb: '134, 239, 172',
-  },
-  {
-    name: 'purple',
-    label: 'Vibranium Purple',
-    description: 'Wakandan vibranium — mystic purple',
-    emoji: '🟣',
-    primary: '#a855f7',
-    primaryRgb: '168, 85, 247',
-    glow: 'rgba(168, 85, 247, 0.6)',
-    accent: '#c084fc',
-    accentRgb: '192, 132, 252',
-  },
-  {
-    name: 'gold',
-    label: 'Infinity Gold',
-    description: 'All-powerful infinity stone gold',
-    emoji: '🟡',
-    primary: '#f59e0b',
-    primaryRgb: '245, 158, 11',
-    glow: 'rgba(245, 158, 11, 0.6)',
-    accent: '#fcd34d',
-    accentRgb: '252, 211, 77',
-  },
-];
+const THEME_STORAGE_KEY = 'jarvis-theme-mode';
 
-const STORAGE_KEY = 'jarvis-theme';
+// ══════════════════════════════════════════════════════════════════════
+// Theme Hook Interface
+// ══════════════════════════════════════════════════════════════════════
 
-function hexToRgb(hex: string): string {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result 
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-    : '94, 106, 210';
-}
-
-function applyTheme(theme: JarvisTheme | { primary?: string; accent?: string }) {
-  const root = document.documentElement;
-  const primaryHex = theme.primary || '#06b6d4';
-  const accentHex = theme.accent || primaryHex;
-  const accentRgb = hexToRgb(accentHex);
+export interface UseThemeReturn {
+  /** Current theme mode */
+  mode: ThemeMode;
   
-  root.style.setProperty('--accent', accentHex);
-  root.style.setProperty('--accent-rgb', accentRgb);
-  root.style.setProperty('--neon-rgb', accentRgb);
-  root.style.setProperty('--neon-blue', primaryHex);
+  /** Current theme colors */
+  colors: ThemeColors;
+  
+  /** Whether the current theme is dark */
+  isDark: boolean;
+  
+  /** Whether the current theme is light */
+  isLight: boolean;
+  
+  /** Switch to dark theme */
+  setDark: () => void;
+  
+  /** Switch to light theme */
+  setLight: () => void;
+  
+  /** Toggle between dark and light themes */
+  toggle: () => void;
+  
+  /** Set specific theme mode */
+  setMode: (mode: ThemeMode) => void;
+  
+  /** Get theme value by path (e.g., 'colors.primary.DEFAULT') */
+  getThemeValue: (path: string) => string | undefined;
+  
+  /** Check if system prefers dark mode */
+  systemPrefersDark: boolean;
 }
 
-export function useTheme() {
-  const { systemStatus } = useJarvisStore();
-  const [themeName, setThemeName] = useState<ThemeName>(() => {
-    return (localStorage.getItem(STORAGE_KEY) as ThemeName) || 'cyan';
+// ══════════════════════════════════════════════════════════════════════
+// Theme Hook Implementation
+// ══════════════════════════════════════════════════════════════════════
+
+export function useTheme(): UseThemeReturn {
+  // System preference detection
+  const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true; // Default to dark on SSR
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
-  const currentTheme = THEMES.find(t => t.name === themeName) ?? THEMES[0];
-
-  useEffect(() => {
-    if (systemStatus?.personality) {
-      applyTheme(systemStatus.personality);
-    } else {
-      applyTheme(currentTheme);
+  // Current theme mode state
+  const [mode, setModeState] = useState<ThemeMode>(() => {
+    if (typeof window === 'undefined') return theme.config.defaultMode;
+    
+    // Try to get saved theme from localStorage
+    const savedMode = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode;
+    if (savedMode && theme.config.modes.includes(savedMode)) {
+      return savedMode;
     }
-  }, [currentTheme, systemStatus?.personality]);
+    
+    // Fall back to system preference or default
+    return systemPrefersDark ? 'dark' : theme.config.defaultMode;
+  });
 
-  const changeTheme = (name: ThemeName) => {
-    setThemeName(name);
-    localStorage.setItem(STORAGE_KEY, name);
+  // Current theme colors
+  const colors = getTheme(mode);
+  
+  // Computed properties
+  const isDark = mode === 'dark';
+  const isLight = mode === 'light';
+
+  // ══════════════════════════════════════════════════════════════════════
+  // Theme Mode Setters
+  // ══════════════════════════════════════════════════════════════════════
+
+  const setMode = useCallback((newMode: ThemeMode) => {
+    setModeState(newMode);
+    
+    // Persist to localStorage
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, newMode);
+    } catch (error) {
+      console.warn('Failed to save theme preference:', error);
+    }
+    
+    // Apply theme to DOM
+    applyTheme(newMode);
+  }, []);
+
+  const setDark = useCallback(() => setMode('dark'), [setMode]);
+  const setLight = useCallback(() => setMode('light'), [setMode]);
+  
+  const toggle = useCallback(() => {
+    setMode(isDark ? 'light' : 'dark');
+  }, [isDark, setMode]);
+
+  // ══════════════════════════════════════════════════════════════════════
+  // Theme Value Getter
+  // ══════════════════════════════════════════════════════════════════════
+
+  const getThemeValue = useCallback((path: string): string | undefined => {
+    const parts = path.split('.');
+    let current: any = colors;
+    
+    for (const part of parts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part];
+      } else {
+        return undefined;
+      }
+    }
+    
+    return typeof current === 'string' ? current : undefined;
+  }, [colors]);
+
+  // ══════════════════════════════════════════════════════════════════════
+  // Effects
+  // ══════════════════════════════════════════════════════════════════════
+
+  // Listen for system color scheme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      setSystemPrefersDark(e.matches);
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  // Apply theme on mode change
+  useEffect(() => {
+    applyTheme(mode);
+  }, [mode]);
+
+  // Initial theme application
+  useEffect(() => {
+    applyTheme(mode);
+  }, []);
+
+  return {
+    mode,
+    colors,
+    isDark,
+    isLight,
+    setDark,
+    setLight,
+    toggle,
+    setMode,
+    getThemeValue,
+    systemPrefersDark,
   };
-
-  return { themeName, currentTheme, changeTheme, themes: THEMES };
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// Theme Utilities for Components
+// ══════════════════════════════════════════════════════════════════════
+
+/**
+ * Get CSS class names for theme-aware styling
+ */
+export function useThemeClasses() {
+  const { isDark, isLight } = useTheme();
+  
+  return {
+    isDark,
+    isLight,
+    themeClass: isDark ? 'theme-dark' : 'theme-light',
+    bgClass: 'bg-background-base',
+    textClass: 'text-text-primary',
+    borderClass: 'border-border-default',
+  };
+}
+
+/**
+ * Hook for getting responsive breakpoint information
+ */
+export function useBreakpoint() {
+  const [currentBreakpoint, setCurrentBreakpoint] = useState<keyof typeof theme.breakpoints>('desktop');
+  
+  useEffect(() => {
+    const updateBreakpoint = () => {
+      const width = window.innerWidth;
+      
+      if (width < theme.breakpoints.mobile) {
+        setCurrentBreakpoint('mobile');
+      } else if (width < theme.breakpoints.tablet) {
+        setCurrentBreakpoint('tablet');  
+      } else if (width < theme.breakpoints.desktop) {
+        setCurrentBreakpoint('desktop');
+      } else {
+        setCurrentBreakpoint('wide');
+      }
+    };
+    
+    updateBreakpoint();
+    window.addEventListener('resize', updateBreakpoint);
+    
+    return () => window.removeEventListener('resize', updateBreakpoint);
+  }, []);
+  
+  return {
+    current: currentBreakpoint,
+    isMobile: currentBreakpoint === 'mobile',
+    isTablet: currentBreakpoint === 'tablet',
+    isDesktop: currentBreakpoint === 'desktop',
+    isWide: currentBreakpoint === 'wide',
+    breakpoints: theme.breakpoints,
+  };
+}
+
+/**
+ * Hook for animation configurations
+ */
+export function useAnimationConfig() {
+  return {
+    duration: theme.animation.duration,
+    easing: theme.animation.easing,
+    transition: theme.animation.transition,
+  };
+}
+
+/**
+ * Hook for accessing spacing values
+ */
+export function useSpacing() {
+  return {
+    spacing: theme.spacing,
+    grid: theme.components,
+  };
+}
+
+export default useTheme;

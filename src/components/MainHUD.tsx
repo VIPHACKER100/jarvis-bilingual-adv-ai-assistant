@@ -48,7 +48,7 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
   }, [agentThought]);
 
   return (
-    <main className="relative z-10 flex flex-col items-center w-full max-w-5xl space-y-8 md:space-y-12 px-4 py-12 md:py-24">
+    <main className="relative z-10 flex flex-col items-center w-full max-w-5xl space-y-6 md:space-y-8 px-4 py-8 md:py-12">
       {/* HUD Scanner & Status Overlay */}
       <div className="w-full flex flex-col items-center gap-6">
         <div className="flex items-center gap-4">
@@ -81,17 +81,17 @@ export const MainHUD: FC<MainHUDProps> = ({ onToggleActivation }) => {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] border border-accent/10 rounded-full pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160px] h-[160px] border border-accent/10 opacity-20 rounded-full pointer-events-none"
         />
         <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] border border-accent/10 rounded-full pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[190px] h-[190px] border border-accent/10 opacity-20 rounded-full pointer-events-none"
         />
         <motion.div
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] border-t border-b border-accent/5 rounded-full pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[210px] h-[210px] border-t border-b border-accent/5 opacity-20 rounded-full pointer-events-none"
         />
 
         {/* Scanline overlay confined to reactor area */}

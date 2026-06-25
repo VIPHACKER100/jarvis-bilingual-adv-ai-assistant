@@ -3,8 +3,6 @@ import { motion } from 'framer-motion';
 
 import { useTheme } from './hooks/useTheme';
 import { useJarvisStore } from './store/jarvisStore';
-import { useJarvisBridge } from './hooks/useJarvisBridge';
-import { useVoiceController } from './hooks/useVoiceController';
 import { useJarvisSync } from './hooks/useJarvisSync';
 import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
 import { useNotifications } from './context/NotificationContext';
@@ -13,9 +11,7 @@ import { apiClient } from './services/apiClient';
 
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
-import { MainHUD } from './components/MainHUD';
-import { StatusPanels } from './components/StatusPanels';
-import { AdvancedTools } from './components/AdvancedTools';
+import { NeuralInterfaceDashboard } from './components/NeuralInterfaceDashboard';
 import { QuickAccess } from './components/QuickAccess';
 import { NotificationCenter } from './components/NotificationCenter';
 import { CommandPalette } from './components/CommandPalette';
@@ -47,8 +43,6 @@ const App: FC = () => {
     activeTacticalView,
   } = useJarvisStore();
 
-  const bridge = useJarvisBridge();
-  const { toggleActivation } = useVoiceController(bridge.sendCommand);
   const { addNotification } = useNotifications();
 
   useEffect(() => {
@@ -104,16 +98,10 @@ const App: FC = () => {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="flex-1 w-full pt-28 pb-20"
+        className="flex-1 w-full pt-20 pb-20"
       >
         {activeTacticalView === 'HUD' && (
-          <div className="container-fluid flex flex-col items-center gap-8 mt-4">
-            <MainHUD onToggleActivation={toggleActivation} />
-            <div className="w-full max-w-6xl space-y-6">
-              <StatusPanels />
-              <AdvancedTools />
-            </div>
-          </div>
+          <NeuralInterfaceDashboard />
         )}
         {activeTacticalView === 'TIMELINE' && (
           <Suspense fallback={viewFallback}>

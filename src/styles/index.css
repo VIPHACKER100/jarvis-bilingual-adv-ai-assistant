@@ -6,40 +6,42 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 :root {
-    /* ── Backgrounds ── */
-    --background-deep:    #020203;
-    --background-base:    #050506;
-    --background-elevated:#0a0a0c;
-    --background-overlay: rgba(2, 2, 3, 0.92);
+    /* ── JARVIS Neural Interface Color Palette (Requirements 1.1-1.6) ── */
+    --background-deep:    #050A12; /* Background color as per Requirement 1.1 */
+    --background-base:    #050A12;
+    --background-elevated:#0D1522; /* Surface color as per Requirement 1.1 */
+    --background-overlay: rgba(5, 10, 18, 0.92);
 
     /* ── Foregrounds ── */
-    --foreground:         #EDEDEF;
-    --foreground-muted:   #8A8F98;
-    --foreground-subtle:  rgba(237, 237, 239, 0.4);
+    --foreground:         #E6EDF7; /* Text primary as per Requirement 1.5 */
+    --foreground-muted:   #94A3B8; /* Text secondary as per Requirement 1.5 */
+    --foreground-subtle:  rgba(230, 237, 247, 0.55);
 
-    /* ── Primary Accent (Indigo) ── */
-    --accent:             #5E6AD2;
-    --accent-bright:      #6872D9;
-    --accent-soft:        rgba(94, 106, 210, 0.08);
-    --accent-glow:        rgba(94, 106, 210, 0.35);
-    --accent-rgb:         94, 106, 210;
+    /* ── Primary Accent (Cyan - JARVIS Neural Interface) ── */
+    --accent:             #00D4FF; /* Primary accent neon cyan as per Requirement 1.2 */
+    --accent-bright:      #33DFFF;
+    --accent-soft:        rgba(0, 212, 255, 0.08);
+    --accent-glow:        rgba(0, 212, 255, 0.35);
+    --accent-rgb:         0, 212, 255;
 
-    /* ── Secondary Accent (Cyan / JARVIS Blue) ── */
-    --accent-cyan:        #00D4FF;
+    /* ── Secondary Accent (Purple) ── */
+    --accent-cyan:        #00D4FF; /* Keeping for compatibility, same as primary */
     --accent-cyan-rgb:    0, 212, 255;
     --accent-cyan-glow:   rgba(0, 212, 255, 0.25);
     --accent-cyan-soft:   rgba(0, 212, 255, 0.08);
+    --accent-secondary:   #8B5CF6; /* Secondary purple as per Requirement 1.3 */
+    --accent-secondary-rgb: 139, 92, 246;
 
-    /* ── Semantic Colors ── */
-    --success:            #10b981;
-    --success-soft:       rgba(16, 185, 129, 0.12);
-    --warning:            #f59e0b;
-    --warning-soft:       rgba(245, 158, 11, 0.12);
-    --danger:             #f43f5e;
-    --danger-soft:        rgba(244, 63, 94, 0.12);
+    /* ── Semantic Colors (Requirements 1.4) ── */
+    --success:            #00E58B; /* Success green as per Requirement 1.4 */
+    --success-soft:       rgba(0, 229, 139, 0.12);
+    --warning:            #FFB020; /* Warning orange as per Requirement 1.4 */
+    --warning-soft:       rgba(255, 176, 32, 0.12);
+    --danger:             #FF4D67; /* Error red as per Requirement 1.4 */
+    --danger-soft:        rgba(255, 77, 103, 0.12);
     --info:               #06b6d4;
     --info-soft:          rgba(6, 182, 212, 0.12);
-    --secondary:          #a78bfa;
+    --secondary:          #8B5CF6; /* Secondary purple */
 
     /* ── Surfaces ── */
     --surface:            rgba(255, 255, 255, 0.05);
@@ -48,12 +50,13 @@
     --surface-mid:        rgba(255, 255, 255, 0.06);
     --surface-high:       rgba(255, 255, 255, 0.10);
 
-    /* ── Borders ── */
-    --border-default:     rgba(255, 255, 255, 0.07);
+    /* ── Borders (Requirement 1.6) ── */
+    --border-default:     rgba(255, 255, 255, 0.08); /* Border color as per Requirement 1.6 */
     --border-hover:       rgba(255, 255, 255, 0.12);
-    --border-accent:      rgba(94, 106, 210, 0.35);
+    --border-accent:      rgba(0, 212, 255, 0.35);
     --border-subtle:      rgba(255, 255, 255, 0.05);
     --border-cyan:        rgba(0, 212, 255, 0.30);
+    --border-secondary:   rgba(139, 92, 246, 0.30);
 
     /* ── Glass & Blur ── */
     --glass-blur:         blur(12px) saturate(1.6);
@@ -119,8 +122,8 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    line-height: var(--leading-normal);
-    font-size: var(--text-base);
+    line-height: 1.6;
+    font-size: 1.05rem;
 }
 
 :focus-visible {

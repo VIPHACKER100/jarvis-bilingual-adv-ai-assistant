@@ -217,19 +217,19 @@ const NavButton: FC<{
 }> = ({ active, onClick, icon, label }) => (
   <button
     onClick={onClick}
-    className={`relative flex items-center gap-2 px-3 py-2 transition-all duration-300 rounded-lg ${
+    className={`relative flex items-center gap-2 px-4 py-2 transition-all duration-300 rounded-lg text-[10px] font-mono font-bold uppercase tracking-[0.08em] ${
       active
-        ? 'text-accent-cyan bg-surface-high'
-        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low'
+        ? 'text-accent-cyan bg-accent-cyan/15 border border-accent-cyan/40 shadow-[0_0_12px_rgba(var(--accent-cyan-rgb),0.25)]'
+        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent'
     }`}
     aria-current={active ? 'page' : undefined}
   >
     {icon}
-    <span className="text-[10px] font-mono font-bold uppercase tracking-[0.08em] z-10">{label}</span>
+    <span className="z-10">{label}</span>
     {active && (
       <motion.div 
         layoutId="nav-indicator"
-        className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent-cyan shadow-[0_0_10px_rgba(var(--accent-cyan-rgb),0.8)] rounded-full"
+        className="absolute bottom-0 left-2 right-2 h-[2px] bg-accent-cyan shadow-[0_0_10px_rgba(var(--accent-cyan-rgb),0.8)] rounded-full"
       />
     )}
   </button>
