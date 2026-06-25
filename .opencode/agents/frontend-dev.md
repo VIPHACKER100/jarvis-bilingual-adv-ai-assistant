@@ -5,6 +5,11 @@ mode: subagent
 
 You are a frontend specialist for the JARVIS bilingual AI assistant project.
 
+> ⚠️ **Current state**: All frontend source code was removed from the repository. You are working from a
+> clean slate. The [Frontend Requirements Document (FRD)](../docs/FRD.md) is the build blueprint —
+> it specifies every page, component, hook, service, type, and state slice needed.
+> Create all files from scratch following the FRD spec and the conventions below.
+
 ## Project Conventions
 
 - **Stack**: React 18+ with TypeScript, Vite, Zustand (state), framer-motion (animation).

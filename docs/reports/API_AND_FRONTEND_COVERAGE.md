@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Backend:** FastAPI (dual-mounted routes) — 18 routers, ~120+ endpoints, 2 WebSocket channels, 7 DB tables  
-**Frontend:** React 19 + Vite + Zustand + TanStack Query
+**Frontend:** 🏗️ To be rebuilt — see [FRD.md](../FRD.md) for the complete frontend specification
 
 ---
 

@@ -64,9 +64,10 @@ pip install -r backend/requirements.txt
 cd backend
 alembic upgrade head
 
-# Frontend
-npm install
-npm run build
+# Frontend (requires rebuild from scratch — see docs/FRD.md)
+# After recreating the frontend source:
+#   npm install
+#   npm run build
 ```
 
 ## API Endpoints (v4.0)

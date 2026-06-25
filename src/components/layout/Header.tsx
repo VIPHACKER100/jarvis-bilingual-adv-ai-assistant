@@ -1,236 +1,175 @@
-import React, { FC, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Settings, Globe, Activity, Cpu, Zap, Command, Mic } from 'lucide-react';
-import { AppMode, Language } from '../../types';
-import { useJarvisStore } from '../../store/jarvisStore';
-import { APP_VERSION } from '../../config';
-import { sfx } from '../../utils/audioUtils';
+import React from "react";
+import { useStore } from "../../store";
+import { Settings, Wifi, WifiOff, Bell, Sun } from "lucide-react";
+import { Button } from "../ui/Button";
+import { Link } from "react-router-dom";
 
-export const Header: FC = () => {
-  const {
-    isConnected,
-    language,
-    mode,
-    toggleLanguage,
-    setShowSettings,
-    systemStatus,
-    activeTacticalView,
-    setActiveTacticalView,
-  } = useJarvisStore();
-
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+export function Header() {
+  const isConnected = useStore((state) => state.isConnected);
+  const status = useStore((state) => state.connectionStatus);
+  const systemStatus = useStore((state) => state.systemStatus);
 
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b border-accent/20 shadow-[0_1px_0_0_rgba(var(--accent-rgb),0.15)] ${
-        scrolled
-          ? 'bg-background-overlay backdrop-blur-xl shadow-lg'
-          : 'bg-transparent'
-      }`}
-    >
-      <div className="w-full px-4 md:px-6 lg:px-8 flex items-center justify-between h-16 flex-nowrap">
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col">
-            <div className="flex items-baseline gap-2">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight glow-text">
-                JARVIS
-              </h1>
-              <span className="text-[10px] font-bold text-accent px-1.5 py-0.5 rounded-md bg-accent/10 border border-accent/20">
-                v{APP_VERSION}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-success status-dot-live' : 'bg-danger'} shadow-[0_0_8px_rgba(16,185,129,0.5)]`}
-              />
-              <span className="text-[8px] font-mono text-foreground-subtle uppercase tracking-[0.15em]">
-                Neural_Interface
-              </span>
-            </div>
-          </div>
-          <div className="hidden lg:flex items-center gap-3 pl-4 border-l border-border-subtle">
-            <HealthIndicator
-              icon={<Cpu className="w-3 h-3" />}
-              label="CPU"
-              value={systemStatus?.cpu?.percent ? `${Math.round(systemStatus.cpu.percent)}%` : '...'}
-            />
-            <HealthIndicator
-              icon={<Zap className="w-3 h-3" />}
-              label="LAT"
-              value={systemStatus?.event_loop_lag ? `${Math.round(systemStatus.event_loop_lag)}ms` : '...'}
-            />
-          </div>
+    <header className="h-20 border-b border-cyan-900/30 bg-slate-950/80 backdrop-blur-xl flex items-center justify-between px-6 shrink-0 z-10">
+      <div className="flex items-center gap-6">
+        <div className="flex flex-col">
+          <h1 className="text-3xl font-bold tracking-wider text-cyan-400 font-display text-shadow-cyan">
+            JARVIS{" "}
+            <span className="text-slate-400 border border-slate-700 rounded px-1.5 py-0.5 text-xs font-mono align-top ml-1">
+              v4.0.0
+            </span>
+          </h1>
+          <span className="text-cyan-500/70 text-xs tracking-[0.2em] uppercase font-mono">
+            Neural Interface
+          </span>
         </div>
 
-        <nav className="hidden xl:flex items-center gap-1 p-0.5 bg-background-base/60 border border-border-default rounded-xl backdrop-blur-md">
-          <NavButton
-            active={activeTacticalView === 'HUD'}
-            onClick={() => setActiveTacticalView('HUD')}
-            icon={<Cpu className="w-3.5 h-3.5" />}
-            label="HUD"
-          />
-          <NavButton
-            active={activeTacticalView === 'TIMELINE'}
-            onClick={() => setActiveTacticalView('TIMELINE')}
-            icon={<Activity className="w-3.5 h-3.5" />}
-            label="Timeline"
-          />
-          <NavButton
-            active={activeTacticalView === 'SYNC'}
-            onClick={() => setActiveTacticalView('SYNC')}
-            icon={<Zap className="w-3.5 h-3.5" />}
-            label="Sync"
-          />
-          <NavButton
-            active={activeTacticalView === 'TRAINING'}
-            onClick={() => setActiveTacticalView('TRAINING')}
-            icon={<Settings className="w-3.5 h-3.5" />}
-            label="Training"
-          />
-        </nav>
+        <div className="h-10 w-px bg-cyan-900/50 mx-2" />
 
-        <div className="flex items-center gap-3">
-          <div
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border border-border-default glass-panel ${
-              isConnected ? 'text-success' : 'text-danger'
-            }`}
-          >
-            <Activity className={`w-3 h-3 ${isConnected ? 'animate-pulse' : ''}`} />
-            <span className="text-[9px] font-mono font-bold uppercase tracking-widest hidden sm:inline">
-              {isConnected ? 'Online' : 'Offline'}
-            </span>
+        <div className="flex flex-col items-center justify-center bg-cyan-950/30 border border-cyan-900/50 rounded-lg px-4 py-1.5">
+          <div className="flex items-center gap-2">
+            {isConnected ? (
+              <>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
+                <span className="text-cyan-400 text-xs font-bold uppercase tracking-wider">
+                  Connected
+                </span>
+              </>
+            ) : (
+              <>
+                <WifiOff size={12} className="text-red-500" />
+                <span className="text-red-500 text-xs font-bold uppercase tracking-wider">
+                  {status === "connecting" ? "Reconnecting..." : "Offline"}
+                </span>
+              </>
+            )}
           </div>
-
-          <div className={`flex items-center gap-1.5 px-2 py-1.5 rounded-full border border-border-default glass-panel ${
-            mode !== AppMode.IDLE ? 'text-accent' : 'text-foreground-subtle'
-          }`}>
-            <Mic className={`w-3 h-3 ${mode !== AppMode.IDLE ? 'animate-pulse' : ''}`} />
-            <span className="text-[9px] font-mono font-bold uppercase tracking-widest hidden sm:inline">
-              {mode !== AppMode.IDLE ? 'ACTIVE' : 'OFF'}
-            </span>
-          </div>
-
-          <button
-            onClick={() => {
-              sfx.playSelect();
-              toggleLanguage();
-            }}
-            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg glass-panel hover:bg-surface-high transition-all"
-            title="Toggle language"
-            aria-label="Toggle language"
-          >
-            <Globe className="w-3.5 h-3.5 text-foreground-muted" />
-            <div className="flex items-center gap-1 font-mono text-[9px] font-bold">
-              <span className={language === Language.ENGLISH ? 'text-accent' : 'text-foreground-subtle'}>
-                EN
-              </span>
-              <span className="text-border-default">/</span>
-              <span className={language === Language.HINDI ? 'text-accent' : 'text-foreground-subtle'}>
-                HI
-              </span>
-              <span className="text-border-default">/</span>
-              <span className={language === Language.HINGLISH ? 'text-accent' : 'text-foreground-subtle'}>
-                Hx
-              </span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => {
-              sfx.playSelect();
-              setShowSettings(true);
-            }}
-            className="p-2 rounded-lg glass-panel hover:bg-surface-high transition-all"
-            title="Settings"
-            aria-label="Settings"
-          >
-            <Settings className="w-4 h-4 text-foreground-muted hover:text-foreground transition-colors" />
-          </button>
-
-          <div className="hidden md:flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle">
-            <Command className="w-3 h-3" />
-            <span className="text-[8px] font-mono font-bold uppercase tracking-wider leading-none gap-0.5 flex items-center">
-              <kbd className="px-1 py-0.5 rounded bg-surface-high border border-border-subtle text-[8px]">^</kbd>
-              <span>+</span>
-              <kbd className="px-1 py-0.5 rounded bg-surface-high border border-border-subtle text-[8px]">Space</kbd>
-            </span>
-          </div>
-          <kbd className="inline-flex md:hidden items-center justify-center w-7 h-7 rounded-lg border border-border-subtle bg-surface-low text-foreground-subtle text-[10px] font-mono" title="Ctrl+Space to toggle voice">
-            <Command className="w-3 h-3" />
-          </kbd>
+          <span className="text-slate-500 text-[10px] uppercase tracking-wide">
+            WebSocket: {isConnected ? "Live" : "Dead"}
+          </span>
         </div>
       </div>
-    </motion.header>
-  );
-};
 
-const HealthIndicator: FC<{ icon: React.ReactNode; label: string; value: string }> = ({
-  icon,
+      <div className="flex-1 flex justify-center gap-4 px-8">
+        <MetricCard
+          label="CPU"
+          value={`${systemStatus?.cpu_percent ?? 0}%`}
+          icon={
+            <div className="w-10 h-6 bg-cyan-900/50 rounded-sm overflow-hidden flex items-end gap-0.5 px-0.5 pb-0.5">
+              <div className="w-1 bg-cyan-500 h-2"></div>
+              <div className="w-1 bg-cyan-400 h-4"></div>
+              <div className="w-1 bg-cyan-500 h-3"></div>
+              <div className="w-1 bg-cyan-300 h-5"></div>
+            </div>
+          }
+        />
+        <MetricCard
+          label="MEMORY"
+          value={`${systemStatus?.memory_percent ?? 0}`}
+          unit="MB"
+          icon={
+            <div className="w-10 h-6 bg-cyan-900/50 rounded-sm overflow-hidden flex items-end gap-0.5 px-0.5 pb-0.5">
+              <div className="w-1 bg-purple-500 h-3"></div>
+              <div className="w-1 bg-purple-400 h-5"></div>
+              <div className="w-1 bg-purple-500 h-2"></div>
+              <div className="w-1 bg-purple-300 h-4"></div>
+            </div>
+          }
+        />
+        <MetricCard
+          label="LATENCY"
+          value={`${systemStatus?.event_loop_lag ?? 0}`}
+          unit="ms"
+          icon={
+            <div className="w-10 h-6 bg-cyan-900/50 rounded-sm overflow-hidden flex items-end gap-0.5 px-0.5 pb-0.5">
+              <div className="w-1 bg-emerald-500 h-4"></div>
+              <div className="w-1 bg-emerald-400 h-2"></div>
+              <div className="w-1 bg-emerald-500 h-3"></div>
+              <div className="w-1 bg-emerald-300 h-1"></div>
+            </div>
+          }
+        />
+        <MetricCard
+          label="DISK"
+          value={`${systemStatus?.disk_percent ?? 0}%`}
+          icon={
+            <div className="w-10 h-6 bg-cyan-900/50 rounded-sm overflow-hidden flex items-end gap-0.5 px-0.5 pb-0.5">
+              <div className="w-1 bg-amber-500 h-2"></div>
+              <div className="w-1 bg-amber-400 h-3"></div>
+              <div className="w-1 bg-amber-500 h-5"></div>
+              <div className="w-1 bg-amber-300 h-4"></div>
+            </div>
+          }
+        />
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="flex bg-slate-900 border border-slate-700 rounded-full p-0.5">
+          <button className="px-3 py-1 text-xs font-mono font-bold tracking-widest rounded-full bg-slate-800 text-cyan-400">
+            EN / HI
+          </button>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-full w-10 h-10 p-0 text-slate-400 hover:text-cyan-400"
+        >
+          <Sun size={18} />
+        </Button>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full w-10 h-10 p-0 text-slate-400 hover:text-cyan-400"
+          >
+            <Bell size={18} />
+          </Button>
+          <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-slate-950">
+            3
+          </span>
+        </div>
+        <div className="w-10 h-10 rounded-full bg-cyan-950 border border-cyan-500/50 overflow-hidden shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+          <img
+            src="https://api.dicebear.com/7.x/bottts/svg?seed=JARVIS&colors=cyan"
+            alt="AI Core"
+            className="w-full h-full object-cover p-1"
+          />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function MetricCard({
   label,
   value,
-}) => {
-  const numericValue = parseInt(value) || 0;
-  const segments = 8;
-  const filledSegments = Math.round((numericValue / 100) * segments);
-
+  unit,
+  icon,
+}: {
+  label: string;
+  value: string;
+  unit?: string;
+  icon: React.ReactNode;
+}) {
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-1.5 text-foreground-subtle">
-        {icon}
-        <span className="text-[7px] font-mono uppercase tracking-[0.1em] terminal-text">{label}</span>
-      </div>
-      <div className="flex items-center gap-0.5">
-        {Array.from({ length: segments }).map((_, i) => (
-          <div
-            key={i}
-            className={`w-1.5 h-3 rounded-sm transition-colors duration-300 ${
-              i < filledSegments
-                ? numericValue > 80
-                  ? 'bg-danger shadow-[0_0_8px_rgba(244,63,94,0.8)]'
-                  : 'bg-accent-cyan shadow-[0_0_8px_rgba(var(--accent-cyan-rgb),0.6)]'
-                : 'bg-surface-high'
-            }`}
-          />
-        ))}
-        <span className="text-[9px] font-mono font-semibold text-foreground tabular-nums ml-1.5">
-          {value}
+    <div className="flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-lg px-4 py-2 min-w-[140px]">
+      <div className="flex flex-col">
+        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+          {label}
         </span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-display font-bold text-slate-200">
+            {value}
+          </span>
+          {unit && (
+            <span className="text-xs text-slate-500 font-mono tracking-widest">{unit}</span>
+          )}
+        </div>
       </div>
+      <div className="ml-auto opacity-70">{icon}</div>
     </div>
   );
-};
-
-const NavButton: FC<{
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-}> = ({ active, onClick, icon, label }) => (
-  <button
-    onClick={onClick}
-    className={`relative flex items-center gap-2 px-4 py-2 transition-all duration-300 rounded-lg text-[10px] font-mono font-bold uppercase tracking-[0.08em] ${
-      active
-        ? 'text-accent-cyan bg-accent-cyan/15 border border-accent-cyan/40 shadow-[0_0_12px_rgba(var(--accent-cyan-rgb),0.25)]'
-        : 'text-foreground-subtle hover:text-foreground hover:bg-surface-low border border-transparent'
-    }`}
-    aria-current={active ? 'page' : undefined}
-  >
-    {icon}
-    <span className="z-10">{label}</span>
-    {active && (
-      <motion.div 
-        layoutId="nav-indicator"
-        className="absolute bottom-0 left-2 right-2 h-[2px] bg-accent-cyan shadow-[0_0_10px_rgba(var(--accent-cyan-rgb),0.8)] rounded-full"
-      />
-    )}
-  </button>
-);
+}

@@ -97,27 +97,14 @@
 
 ### 2.1 TypeCheck Result
 
-**PASS** — `tsc --noEmit` completed with zero errors. Strict mode is enabled (`strict: true`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`).
+**N/A** — Frontend source code (`src/`) was removed from the repository. TypeScript check will be re-established after the frontend is rebuilt per the [FRD specification](../FRD.md).
 
 ### 2.2 Test Results
 
-| Test File | Tests | Status |
-|-----------|-------|--------|
-| `src/__tests__/apiClient.test.ts` | 11 | All passed |
-| `src/__tests__/voiceService.test.ts` | 7 | All passed |
-| `src/tests/jarvisStore.test.ts` | 6 | All passed |
-| `src/__tests__/CloudSettings.test.tsx` | 16 | All passed |
-| `src/__tests__/DeviceSyncPanel.test.tsx` | 18 | All passed |
-| `src/__tests__/FileBrowser.test.tsx` | 20 | All passed |
-| `src/__tests__/InputSimulator.test.tsx` | 20 | All passed |
-| `src/__tests__/MediaToolsPanel.test.tsx` | 19 | All passed |
-| `src/__tests__/PerformanceMonitor.test.tsx` | 13 | All passed |
-| `src/__tests__/PersonalitySelector.test.tsx` | 12 | All passed |
-| `src/__tests__/SystemControls.test.tsx` | 18 | All passed |
-| `src/__tests__/useSystemQuery.test.tsx` | 12 | All passed |
-| `src/__tests__/WhatsAppPanel.test.tsx` | 18 | All passed |
-| `src/__tests__/WindowManager.test.tsx` | 20 | All passed |
-| **Total** | **172** | **100% pass** |
+| Area | Tests | Status |
+|------|-------|--------|
+| Frontend (vitest) | 172 (deleted with `src/`) | 🏗️ To be rebuilt |
+| **Note**: The 172 frontend tests across 14 test files covered the now-removed components. Target: recreate all tests after rebuilding the frontend per [FRD.md](../FRD.md). | | |
 
 ### 2.3 Console Logging in Production Code
 

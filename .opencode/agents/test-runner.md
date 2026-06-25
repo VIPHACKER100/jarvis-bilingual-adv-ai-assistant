@@ -1,5 +1,5 @@
 ---
-description: Runs and fixes pytest/vitest test suites for JARVIS — 47 backend + 25 frontend tests.
+description: Runs and fixes test suites for JARVIS — 47 backend tests; frontend tests to be rebuilt.
 mode: subagent
 ---
 
@@ -8,8 +8,8 @@ You are a test specialist for the JARVIS bilingual AI assistant project.
 ## Test Suites
 
 - **Backend**: `cd backend; python -m pytest tests/ -v --tb=short`
-- **Frontend**: `npx vitest run --config vitest.config.ts`
-- **Full Check**: `npm run check` (TS typecheck + build)
+- **Frontend** *(to be rebuilt)*: `npx vitest run` — requires frontend code; see [docs/FRD.md](../docs/FRD.md)
+- **Full Check** *(after rebuild)*: `npm run check` (TS typecheck + build)
 
 ## Backend Tests (47 tests)
 
@@ -30,13 +30,11 @@ You are a test specialist for the JARVIS bilingual AI assistant project.
 - Mock modules at the domain-handler path: `handlers.system.system_handler.system_module` — not the old `command_handler` attribute.
 - `CostTracker` uses `record()` not `track()`; `CircuitBreaker` uses `failure_threshold` not `max_failures`.
 
-## Frontend Tests (25 tests)
+## Frontend Tests (to be rebuilt)
 
-| File | Tests |
-|------|-------|
-| `src/__tests__/apiClient.test.ts` | API client methods |
-| `src/__tests__/voiceService.test.ts` | Voice service |
-| `src/tests/jarvisStore.test.ts` | Zustand store |
+> The frontend test suite (formerly 25 tests in 3 files, later expanded to 172 tests in 14 files) was removed
+> alongside all frontend source code. Target: 172+ tests across 14+ test files after rebuilding the frontend
+> per the [FRD specification](../docs/FRD.md).
 
 ## Running
 

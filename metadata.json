@@ -1,7 +1,6 @@
 {
-  "name": "JARVIS - Bilingual AI Assistant",
-  "description": "A futuristic voice-controlled AI assistant supporting English and Hindi commands for web navigation, messaging, and system control.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "name": "",
+  "description": "",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

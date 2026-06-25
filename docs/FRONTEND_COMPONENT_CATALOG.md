@@ -1,11 +1,16 @@
-# JARVIS Frontend Component Catalog
+# JARVIS Frontend Component Catalog — Target Architecture
 
-**Version:** 4.0.0-alpha.3  
+**Version:** 4.0.0-alpha.4  
 **Date:** 2026-06-25  
-**Total Components:** 44  
-**Test Coverage:** 172 tests across 14 files (100% pass)
+**Total Components (planned):** 44  
+**Test Coverage (planned):** 172+ tests across 14+ files
 
-A living reference for on-boarding developers. Lists every frontend component, its props, the backend endpoints it consumes, and its test coverage status.
+> ⚠️ **All components listed in this document were removed from the repository.**
+> This catalog now serves as the **target architecture** — a specification of what must be rebuilt.
+> See [docs/FRD.md](FRD.md) for the full build blueprint including API types, hooks, state management,
+> and the prioritized Master Task List.
+
+A living reference for on-boarding developers. Lists every frontend component (planned), its props, the backend endpoints it consumes, and its target test coverage status.
 
 ---
 
@@ -15,10 +20,10 @@ A living reference for on-boarding developers. Lists every frontend component, i
 
 | Component | File | Props | Backend Endpoints | Tests | Status |
 |-----------|------|-------|-------------------|-------|--------|
-| `App` | `App.tsx` | — | — | — | Integration hub |
-| `ArcReactor` | `ArcReactor.tsx` | — | — | — | Not tested (voice API dependent) |
-| `MainHUD` | `MainHUD.tsx` | — | — | — | Not tested |
-| `ErrorBoundary` | `ErrorBoundary.tsx` | `children` | — | — | — |
+| `App` | `App.tsx` | — | — | — | 🏗️ Planned |
+| `ArcReactor` | `ArcReactor.tsx` | — | — | — | 🏗️ Planned (voice API dependent) |
+| `MainHUD` | `MainHUD.tsx` | — | — | — | 🏗️ Planned |
+| `ErrorBoundary` | `ErrorBoundary.tsx` | `children` | — | — | 🏗️ Planned |
 
 ### System & Diagnostics
 

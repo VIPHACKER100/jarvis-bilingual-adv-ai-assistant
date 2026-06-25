@@ -74,7 +74,7 @@ Common issues and their solutions for JARVIS Bilingual AI Assistant.
 
 ### Vite Build/Dev Failures (v3.7.1)
 
-- **Issue**: Errors like `The requested module '/src/components/NotificationCenter.tsx' does not provide an export named 'default'`
+- **Issue** (after rebuild): Errors like `The requested module '/src/components/NotificationCenter.tsx' does not provide an export named 'default'`
 - **Cause**: Mismatched imports in `App.tsx` or `JarvisModals.tsx`.
 - **Solution**: As of v3.7.1, we have standardized all internal components to use **Named Exports**. If you encounter this, ensure your imports look like `import { NotificationCenter } from './components/NotificationCenter'` instead of `import NotificationCenter from ...`.
 

@@ -1,30 +1,33 @@
 # JARVIS Project Test Report
 
 **Date:** 2026-06-25  
-**Version:** 4.0.0-alpha.3  
-**Environment:** Windows 11, Python 3.11/3.12/3.13, Node/Vitest 4.x  
-**Auditor:** Automated audit + pytest + vitest
+**Version:** 4.0.0-alpha.4  
+**Environment:** Windows 11, Python 3.11/3.12/3.13  
+**Auditor:** Automated audit + pytest
 
 ---
 
 ## Executive summary
 
-JARVIS is a **bilingual (English / Hindi / Hinglish) voice-first AI assistant** with a React glassmorphism HUD and a FastAPI backend that controls the OS, files, media, WhatsApp, memory, and an autonomous agent fallback.
+JARVIS is a **bilingual (English / Hindi / Hinglish) voice-first AI assistant** with a FastAPI backend that controls the OS, files, media, WhatsApp, memory, and an autonomous agent fallback.
+
+> ⚠️ **Frontend restructuring**: All frontend source code (`src/`, `mobile/`, 172 tests) was removed from the
+> repository. The frontend is being rebuilt from scratch per the [Frontend Requirements Document](../FRD.md).
+> Test metrics below reflect the **backend-only** state.
 
 | Area | Result | Score |
 |------|--------|-------|
 | Backend unit tests (pytest) | **47 passed, 0 failed** | 100% |
-| Frontend unit tests (vitest) | **172 passed, 0 failed** (14 files) | 100% |
+| Frontend unit tests (vitest) | **0 — to be rebuilt** | N/A |
 | Module imports | **13/13 OK** | 100% |
 | Command parser accuracy | **80/90** phrases match expected key | 89% |
 | Parser + dispatch coverage | **79/90** fully wired | 88% |
 | Tesseract OCR | **Not installed** on test machine | N/A |
-| TypeScript strict typecheck | **0 errors** (was 162 pre-fix) | 100% |
-| Vite build | **Clean build** in ~6.89s | Pass |
-| Bug-fix merge (6853324d) | All 72 tests passing (47 backend + 25 frontend) | Fixed |
+| TypeScript strict typecheck | **0 — frontend deleted** | N/A |
+| Vite build | **0 — frontend deleted** | N/A |
 | CODEX review score | 8.5/10 (Good) — 10 bug-analysis fixes applied | Fixed |
 
-**Overall project health: Excellent (A)** — core stack is solid; all 219 tests passing (47 backend + 172 frontend) with full Phase 1-4 upgrades complete.
+**Overall project health: Backend stable (A), Frontend pending rebuild.** Core backend stack is solid with 47 tests passing and full Phase 1-4 upgrades complete. Frontend rebuild is the next priority.
 
 ---
 

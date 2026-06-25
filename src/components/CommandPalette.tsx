@@ -1,157 +1,116 @@
-import { FC, useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, Zap, History, Settings, User } from 'lucide-react';
-import { useJarvisStore } from '../store/jarvisStore';
-import { useJarvisBridge } from '../hooks/useJarvisBridge';
-import { Badge } from './ui/Badge';
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Search, Command, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export const CommandPalette: FC = () => {
+export function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [bootPhase, setBootPhase] = useState<'booting' | 'ready'>('ready');
-  const { setShowSettings } = useJarvisStore();
-  const { sendCommand } = useJarvisBridge();
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
 
-  // Shortcut listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setIsOpen(prev => !prev);
+        setIsOpen((open) => !open);
       }
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    if (isOpen) {
-      setBootPhase('booting');
-      const timer = setTimeout(() => setBootPhase('ready'), 600);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [isOpen]);
-
   const commands = [
-    { id: 'toggle-mic', title: 'Toggle Microphone', icon: <Terminal className="w-4 h-4" />, category: 'System' },
-    { id: 'open-settings', title: 'Open Settings', icon: <Settings className="w-4 h-4" />, category: 'System' },
-    { id: 'view-memory', title: 'Open Memory Viewer', icon: <History className="w-4 h-4" />, category: 'Intelligence' },
-    { id: 'security-scan', title: 'Run Security Scan', icon: <Zap className="w-4 h-4" />, category: 'Security' },
-    { id: 'switch-persona', title: 'Switch Personality', icon: <User className="w-4 h-4" />, category: 'Identity' },
+    { id: "home", name: "Open Neural HUD", path: "/" },
+    { id: "settings", name: "System Settings", path: "/settings" },
+    { id: "timeline", name: "Audit Timeline", path: "/timeline" },
+    { id: "sync", name: "Device Sync Hub", path: "/sync" },
+    { id: "automation", name: "Automation Engine", path: "/automation" },
+    { id: "files", name: "File Manager", path: "/files" },
+    { id: "windows", name: "Window Manager", path: "/windows" },
+    { id: "security", name: "Threat & Firewall", path: "/security" },
+    { id: "whatsapp", name: "WhatsApp Control", path: "/whatsapp" },
+    { id: "desktop", name: "Remote Desktop", path: "/desktop" },
+    { id: "input", name: "Input Simulator", path: "/input" },
+    { id: "media", name: "Media Tools", path: "/media-tools" },
+    { id: "training", name: "Neural Training", path: "/training" },
+    { id: "about", name: "About System", path: "/about" },
   ];
 
-  const filteredResults = useMemo(() => {
-    if (!query) return commands.slice(0, 5);
-    const lowQuery = query.toLowerCase();
-    return commands.filter(c => 
-      c.title.toLowerCase().includes(lowQuery) || 
-      c.category.toLowerCase().includes(lowQuery)
-    );
-  }, [query]);
+  const filteredCommands = commands.filter((cmd) =>
+    cmd.name.toLowerCase().includes(query.toLowerCase()),
+  );
 
-  const handleAction = (id: string) => {
-    if (id === 'open-settings') setShowSettings(true);
-    else sendCommand(id);
+  const executeCommand = (path: string) => {
+    navigate(path);
     setIsOpen(false);
-    setQuery('');
+    setQuery("");
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[300] flex items-start justify-center pt-[15vh] px-4">
-          {/* Backdrop */}
+        <>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-[#030712]/80 backdrop-blur-sm z-50"
             onClick={() => setIsOpen(false)}
-            className="absolute inset-0 bg-background-deep/60 backdrop-blur-sm"
           />
-
-          {/* Palette Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            className="relative w-full max-w-2xl glass-panel--high border border-border-bright shadow-2xl overflow-hidden"
-          >
-            {/* Search Input Area */}
-            <div className="flex items-center gap-4 px-6 py-4 border-b border-border-subtle bg-surface-mid">
-              <Terminal className="w-5 h-5 text-accent" />
-              {bootPhase === 'booting' ? (
-                <div className="flex-1 font-mono text-sm text-accent">
-                  <span className="animate-pulse">&gt;</span> INITIALIZING NEURAL SEARCH...
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="w-full max-w-xl bg-slate-950/90 border border-cyan-500/50 rounded-xl box-shadow-cyan overflow-hidden pointer-events-auto"
+            >
+              <div className="flex items-center px-4 py-3 border-b border-cyan-900/50">
+                <Search size={18} className="text-cyan-400 mr-3" />
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Type a command or search..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="flex-1 bg-transparent border-none outline-none text-slate-200 placeholder-slate-500 font-mono text-sm"
+                />
+                <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono bg-slate-900 px-2 py-1 rounded">
+                  <Command size={10} /> K
                 </div>
-              ) : (
-                <div className="flex-1 relative">
-                  <input 
-                    autoFocus
-                    className="w-full bg-transparent border-none outline-none text-foreground text-lg placeholder:text-foreground-subtle font-mono"
-                    placeholder="> Enter command..."
-                    value={query}
-                    onChange={e => setQuery(e.target.value)}
-                  />
-                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-5 bg-accent animate-pulse" />
-                </div>
-              )}
-              <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-surface-high border border-border-subtle text-[10px] font-mono text-foreground-subtle uppercase">
-                Esc
               </div>
-            </div>
-
-            {/* Results List */}
-            <div className="max-h-[60vh] overflow-y-auto p-2 custom-settings-scroll">
-              {filteredResults.length > 0 ? (
-                <div className="space-y-1">
-                  {filteredResults.map((res) => (
+              <div className="max-h-[60vh] overflow-y-auto p-2">
+                {filteredCommands.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-slate-500 text-sm font-mono">
+                    No matching commands found.
+                  </div>
+                ) : (
+                  filteredCommands.map((cmd) => (
                     <button
-                      key={res.id}
-                      onClick={() => handleAction(res.id)}
-                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-accent/10 group transition-all"
+                      key={cmd.id}
+                      onClick={() => executeCommand(cmd.path)}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-cyan-950/40 text-left transition-colors group"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-surface-high flex items-center justify-center text-foreground-muted group-hover:text-accent group-hover:bg-accent/20 transition-all">
-                          {res.icon}
-                        </div>
-                        <div className="text-left">
-                          <p className="text-sm font-bold text-foreground">{res.title}</p>
-                          <p className="text-[10px] text-foreground-subtle uppercase tracking-wider">{res.category}</p>
-                        </div>
-                      </div>
-                      <Badge variant="accent" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        Execute
-                      </Badge>
+                      <span className="text-sm font-medium text-slate-300 group-hover:text-cyan-300">
+                        {cmd.name}
+                      </span>
+                      <ArrowRight
+                        size={14}
+                        className="text-slate-600 group-hover:text-cyan-400"
+                      />
                     </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-12 text-center">
-                  <p className="text-sm text-foreground-muted">No commands found matching "{query}"</p>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-3 border-t border-border-subtle bg-surface-low flex items-center justify-between">
-              <div className="flex items-center gap-4 text-[10px] font-mono text-foreground-subtle uppercase tracking-widest">
-                <div className="flex items-center gap-1.5">
-                  <span className="p-1 rounded bg-surface-high border border-border-subtle">↑↓</span>
-                  Navigate
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="p-1 rounded bg-surface-high border border-border-subtle">Enter</span>
-                  Select
-                </div>
+                  ))
+                )}
               </div>
-              <Badge variant="accent" className="bg-accent/5">Neural_Search_v1.0</Badge>
-            </div>
-            
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
+        </>
       )}
     </AnimatePresence>
   );
-};
+}

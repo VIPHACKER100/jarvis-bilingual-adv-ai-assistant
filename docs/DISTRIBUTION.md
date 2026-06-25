@@ -18,25 +18,23 @@ Complete guide for packaging and distributing JARVIS AI Assistant with enhanced 
 # 1. Navigate to project
 cd jarvis-bilingual-adv-ai-assistant
 
-# 2. Install frontend dependencies
-npm install
-
-# 3. Setup Python environment
+# 2. Setup Python environment
 cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 pip install pyinstaller
 
-# 4. Build backend executable
+# 3. Build backend executable
 cd backend
 python -m PyInstaller JARVIS_Backend.spec --clean
 
-# 5. Build frontend
+# 4. Build frontend (after rebuilding from FRD.md)
 cd ..
+npm install
 npm run build
 
-# 6. Create release package
+# 5. Create release package
 python scripts/build.py
 ```
 

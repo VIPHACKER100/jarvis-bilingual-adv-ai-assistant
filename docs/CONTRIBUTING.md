@@ -39,8 +39,8 @@ NVIDIA_API_KEY=your-key-here
 OPENROUTER_API_KEY=your-key-here
 OPENAI_API_KEY=your-key-here
 
-# Frontend WebSocket URLs (computed in src/config.ts; override for remote deploy)
-# See src/config.ts for WS_API_BASE_URL and AUDIO_WS_URL
+# Frontend WebSocket URLs (computed in src/config.ts after rebuild; override for remote deploy)
+# See src/config.ts for WS_API_BASE_URL and AUDIO_WS_URL (file to be created)
 
 # Logging
 LOG_LEVEL=DEBUG
@@ -120,7 +120,7 @@ jarvis-bilingual-adv-ai-assistant/
 │   │   └── middleware_security.py
 │   ├── migrations/             # Database migration scripts
 │   └── tests/                  # pytest test suite
-├── src/                        # React + TypeScript frontend
+├── src/                        # 🏗️ React + TypeScript frontend (to be rebuilt — see docs/FRD.md)
 ├── memory/                     # Persistent memory nodes (Markdown)
 ├── docs/                       # Project documentation
 └── .opencode/agents/           # AI agent definitions

@@ -25,6 +25,8 @@ build/
 *.sw?
 
 # OS
+dist/
+coverage/
 .DS_Store
 Thumbs.db
 
