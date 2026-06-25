@@ -1,8 +1,7 @@
 import { FC, useState } from 'react';
-import { motion } from 'framer-motion';
 import {
-  MessageCircle, Send, Phone, Contact, RefreshCw,
-  MessageSquare, X, ExternalLink, Sparkles,
+  Send, Contact, RefreshCw,
+  MessageSquare, ExternalLink, Sparkles,
 } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
@@ -12,7 +11,6 @@ import {
 import { apiClient } from '../services/apiClient';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
-import { Badge } from './ui/Badge';
 import { Input } from './ui/Input';
 
 export const WhatsAppPanel: FC = () => {

@@ -1,13 +1,13 @@
 import { FC, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Window, Monitor, Maximize2, Minimize2, RotateCcw,
-  X, Search, RefreshCw, Square, ExternalLink, Trash2,
+  Monitor, Maximize2, Minimize2, RotateCcw,
+  Search, RefreshCw, ExternalLink, Trash2, Layout,
 } from 'lucide-react';
 import { useJarvisStore } from '../store/jarvisStore';
 import { useNotifications } from '../context/NotificationContext';
 import {
-  useWindows, useApps, useOpenApp, useCloseApp, useWindowAction,
+  useWindows, useApps, useCloseApp, useWindowAction,
 } from '../hooks/useSystemQuery';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
@@ -21,7 +21,6 @@ export const WindowManager: FC = () => {
 
   const windowsQuery = useWindows();
   const appsQuery = useApps();
-  const openAppMutation = useOpenApp();
   const closeAppMutation = useCloseApp();
   const windowActionMutation = useWindowAction();
 
@@ -37,15 +36,6 @@ export const WindowManager: FC = () => {
       addNotification({ type: 'info', title: `Window ${action}d`, message: res.response || title, duration: 2000 });
     } catch {
       addNotification({ type: 'error', title: 'Action Failed', message: `Could not ${action} window`, duration: 3000 });
-    }
-  };
-
-  const handleOpenApp = async (appName: string) => {
-    try {
-      const res = await openAppMutation.mutateAsync(appName);
-      addNotification({ type: 'success', title: 'App Launched', message: res.response || appName, duration: 3000 });
-    } catch {
-      addNotification({ type: 'error', title: 'Launch Failed', message: `Could not open ${appName}`, duration: 3000 });
     }
   };
 
@@ -68,7 +58,7 @@ export const WindowManager: FC = () => {
         <div className="flex gap-1 mb-4 p-1 bg-background-deep/60 border border-border-default rounded-lg">
           <button onClick={() => setActiveTab('windows')}
             className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all ${activeTab === 'windows' ? 'bg-accent/15 text-accent border border-accent/30' : 'text-foreground-muted hover:text-foreground'}`}>
-            <Window className="w-3.5 h-3.5 inline mr-2" />Open Windows ({windows.length})
+            <Layout className="w-3.5 h-3.5 inline mr-2" />Open Windows ({windows.length})
           </button>
           <button onClick={() => setActiveTab('apps')}
             className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all ${activeTab === 'apps' ? 'bg-accent/15 text-accent border border-accent/30' : 'text-foreground-muted hover:text-foreground'}`}>
@@ -92,7 +82,7 @@ export const WindowManager: FC = () => {
             windowsQuery.isLoading ? (
               <div className="flex items-center justify-center h-32"><RefreshCw className="w-5 h-5 animate-spin text-accent/50" /></div>
             ) : windows.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-foreground-muted/50"><Window className="w-8 h-8 mb-2" /><span className="text-xs font-mono">No open windows detected</span></div>
+              <div className="flex flex-col items-center justify-center h-32 text-foreground-muted/50"><Layout className="w-8 h-8 mb-2" /><span className="text-xs font-mono">No open windows detected</span></div>
             ) : (
               windows.map((w, i) => (
                 <motion.div key={w.title + i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}

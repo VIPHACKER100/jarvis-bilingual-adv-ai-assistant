@@ -724,6 +724,21 @@ class ApiClient {
     return this.post<import('../types/api').DangerActionResponse>(`/system/sleep?confirmed=${confirmed}&language=${language}`, {});
   }
 
+  /** Lock workstation */
+  async lockWorkstation(language: string = 'en'): Promise<import('../types/api').DangerActionResponse> {
+    return this.post<import('../types/api').DangerActionResponse>(`/system/lock?language=${language}`, {});
+  }
+
+  /** Hibernate computer */
+  async hibernateComputer(confirmed: boolean = false, language: string = 'en'): Promise<import('../types/api').DangerActionResponse> {
+    return this.post<import('../types/api').DangerActionResponse>(`/system/hibernate?confirmed=${confirmed}&language=${language}`, {});
+  }
+
+  /** Logout current user */
+  async logoutUser(confirmed: boolean = false, language: string = 'en'): Promise<import('../types/api').DangerActionResponse> {
+    return this.post<import('../types/api').DangerActionResponse>(`/system/logout?confirmed=${confirmed}&language=${language}`, {});
+  }
+
   /** Increase volume */
   async volumeUp(amount: number = 10, language: string = 'en'): Promise<import('../types/api').VolumeResponse> {
     return this.get<import('../types/api').VolumeResponse>(`/system/volume/up?amount=${amount}&language=${language}`);

@@ -7,46 +7,9 @@ import { apiClient } from '../services/apiClient';
 import { queryKeys } from '../lib/react-query';
 import type {
   SystemStatusFullResponse,
-  BatteryResponse,
-  PerformanceHistoryResponse,
-  WindowListResponse,
-  AppListResponse,
-  FileListResponse,
-  FileSearchResponse,
-  PersonalityInfo,
-  PersonalitiesListResponse,
-  WeatherResponse,
-  WebSearchResponse,
-  CommandInsightsResponse,
-  ProcessListResponse,
-  NetworkScanResponse,
   JarvisSettings,
-  SettingsResponse,
-  ConversationListResponse,
-  MemoryStatsResponse,
-  FactListResponse,
-  MemoryNodeListResponse,
-  AutomationStatusResponse,
-  TaskListResponse,
-  MacroListResponse,
-  WhatsAppStatusResponse,
-  WhatsAppContactsResponse,
-  QuickActionListResponse,
-  SuggestionResponse,
-  PairedDevicesResponse,
   PairDevicePayload,
-  PairDeviceResponse,
-  ProactiveSuggestionResponse,
-  ApiKeyStatusResponse,
-  TestKeyResponse,
-  HealthCheckResponse,
 } from '../types/api';
-
-// ─── Helper ───────────────────────────────────────────────────────────────────
-
-function useApiKey() {
-  return import.meta.env.VITE_JARVIS_API_KEY || '';
-}
 
 // ─── System Status ────────────────────────────────────────────────────────────
 
@@ -615,7 +578,7 @@ export function useSendWhatsAppMessage() {
 
 // ─── Context & Suggestions ────────────────────────────────────────────────────
 
-export function useSuggestion(language: string = 'en') {
+export function useSuggestion(language: 'en' | 'hi' = 'en') {
   return useQuery({
     queryKey: ['suggestion', language],
     queryFn: () => apiClient.getSuggestion(language),

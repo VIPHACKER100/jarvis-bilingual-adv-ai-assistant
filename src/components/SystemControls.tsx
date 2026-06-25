@@ -86,7 +86,7 @@ export const SystemControls: FC = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {(Object.entries(ACTION_CONFIG) as [SystemAction, typeof ACTION_CONFIG[string]][]).map(([key, config]) => {
+          {(Object.entries(ACTION_CONFIG) as [SystemAction, (typeof ACTION_CONFIG)[SystemAction]][]).map(([key, config]) => {
             const Icon = config.icon;
             return (
               <button key={key} onClick={() => initiateAction(key)}
