@@ -25,7 +25,7 @@
 
 ### Schema Change: neural_vectors.embedding
 
-In v4.0.0-alpha.2, `neural_vectors.embedding` was changed from `sa.Text()` to raw SQL `vector(1024)` to fix pgvector index creation on existing databases.
+In v4.0.0-alpha.4, `neural_vectors.embedding` was changed from `sa.Text()` to raw SQL `vector(1024)` to fix pgvector index creation on existing databases.
 
 **If you already ran `alembic upgrade head` with the old schema**, run the following to fix the column type:
 

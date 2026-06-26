@@ -5,9 +5,10 @@
 > **Design System**: Glassmorphism V3 (JARVIS Design System)
 > **Last Updated**: 2026-06-26
 >
-> **⚠️ LEGACY NOTICE**: The frontend was rebuilt from this blueprint. All `src/` files now exist and implement the
-> architecture described herein. This document serves as both the **design reference** and the **living specification**
-> for the current implementation. The Master Task List (§14) tracks remaining work; completed tasks are marked ✓.
+> **✅ STATUS**: The frontend `src/` directory contains **fully implemented code** (46 TypeScript/TSX/CSS files, ~7,260 lines).
+> This document serves as the **living specification** tracking alignment between backend and frontend.
+> Sections marked "To be built" or "Missing" below have been **reconciled** — see the [Alignment Report](FRD-ALIGNMENT-REPORT.md)
+> for the current gap analysis. The Master Task List (§14) has been updated to reflect remaining gaps.
 
 ---
 
@@ -769,18 +770,19 @@ To be built. Must implement these refinements:
 
 ### 5.3 Audio WebSocket (`src/hooks/useAudioWS.ts`)
 
-To be built. Must implement these production refinements:
+✅ Implemented. Includes these production refinements:
 
-- **Reconnection**: Add exponential backoff for audio WS (capped at 3 attempts)
-- **Auto-disconnect**: Disconnect after 30s of inactivity to save resources
-- **Error recovery**: On connection drop mid-speak, cancel any pending promises
+- **Reconnection**: Exponential backoff for audio WS (capped at `WS_MAX_RECONNECT_ATTEMPTS`)
+- **Auto-disconnect**: Disconnects on unmount, cleans up timers and refs
+- **Error recovery**: On connection drop mid-speak, cancels pending promises and resets state
 
 ### 5.4 SSE Stream (`src/hooks/useAgentStream.ts`)
 
-To be built. Must implement these refinements:
+✅ Implemented. Includes these refinements:
 
-- **Stream timeout**: If no data received for 30s, abort stream and show "Response timeout"
-- **Partial response handling**: Backend sends `partial_done` type on errors — UI must display partial text with "⚠️ Response truncated" badge
+- **Stream timeout**: Aborts stream via `AbortController` when `SSE_TIMEOUT` is exceeded, returns partial text
+- **Partial response handling**: Handles `partial_done` SSE events — displays partial text and calls `onDone` callback
+- **Callbacks**: Supports `onChunk`, `onDone`, and `onError` callbacks for flexible integration
 
 ### 5.5 Broadcast Message Router
 
@@ -1050,16 +1052,17 @@ export interface MacroStepBackend {
 
 ### 8.1 Hooks Inventory (Target Architecture)
 
-> All hooks listed below were removed with the frontend deletion. Each must be rebuilt from scratch per the specifications in this document.
+> All hooks listed below are tracked for implementation status. Hooks marked ✅ Implemented exist in `src/hooks/`.
 
 | Hook | File | Status | Purpose |
 |---|---|---|---|
 | `useTheme` | `hooks/useTheme.ts` | 🏗️ To be built | Theme management |
 | `useJarvisSync` | `hooks/useJarvisSync.ts` | 🏗️ To be built | Sync lastResponse to store/side effects |
 | `useKeyboardShortcut` | `hooks/useKeyboardShortcut.ts` | 🏗️ To be built | Global keyboard shortcuts |
-| `useVoiceController` | `hooks/useVoiceController.ts` | 🏗️ To be built | Voice service lifecycle |
-| `useAudioWS` | `hooks/useAudioWS.ts` | 🏗️ To be built | Audio WebSocket (STT/TTS) |
-| `useAgentStream` | `hooks/useAgentStream.ts` | 🏗️ To be built | SSE LLM streaming |
+| `useVoiceCommands` | `hooks/useVoiceCommands.ts` | ✅ Implemented | Voice service lifecycle |
+| `useAudioWS` | `hooks/useAudioWS.ts` | ✅ Implemented | Audio WebSocket (STT/TTS) |
+| `useAgentStream` | `hooks/useAgentStream.ts` | ✅ Implemented | SSE LLM streaming |
+| `useCommand` | `hooks/useCommand.ts` | ✅ Implemented | WS command execution + confirmation flow |
 | `useSystemQuery` | `hooks/useSystemQuery.ts` | 🏗️ To be built | All TanStack Query hooks (~80 hooks) |
 | `useJarvisBridge` | `hooks/useJarvisBridge.ts` | 🏗️ To be built | WebSocket message routing |
 
@@ -1078,17 +1081,20 @@ function useWebSocket(): {
 // Wraps websocketService, provides reactive state
 // Auto-connects on mount, disconnects on unmount
 
-// --- Hook: useCommand
+// --- Hook: useCommand ✅ Implemented
 // File: src/hooks/useCommand.ts
 function useCommand(): {
-  execute: (command: string, language?: string) => Promise<CommandResult>;
-  confirmAction: (confirmationId: string, approved: boolean) => Promise<void>;
-  cancelStream: () => void;
-  isExecuting: boolean;
-  pendingConfirmations: PendingConfirmationInfo[];
+  executeCommand: (command: string, language?: string) => void;
+  confirmAction: (confirmationId: string, approved: boolean) => void;
+  clearPendingConfirmation: () => void;
+  pendingConfirmation: PendingConfirmationInfo | null;
   lastResult: CommandResult | null;
-  // Combines REST + WS command execution with loading state
-  // Tries WS first, falls back to REST
+  isLoading: boolean;
+  error: string | null;
+  clearError: () => void;
+  // Combines WS command execution with loading state
+  // Listens to broadcastRouter events: command_result, confirmation_request, error
+  // Uses WS as primary channel for commands and confirmations
 };
 
 // --- Hook: useBroadcastRouter
@@ -1117,19 +1123,20 @@ function useSystemMetrics(): {
 // Lightweight selector hook into systemStore
 // Components re-render only on changed metrics
 
-// --- Hook: useVoiceCommands
+// --- Hook: useVoiceCommands ✅ Implemented
 // File: src/hooks/useVoiceCommands.ts
 function useVoiceCommands(): {
   isListening: boolean;
-  startListening: () => void;
-  stopListening: () => void;
-  speak: (text: string, lang?: string) => Promise<void>;
-  isSpeaking: boolean;
+  transcript: string;
   interimTranscript: string;
-  finalTranscript: string;
+  isSpeaking: boolean;
+  isSupported: boolean;
+  startListening: (language?: string) => void;
+  stopListening: () => void;
 };
-// High-level voice integration hook
-// Combines voiceService + useAudioWS with fallback logic
+// High-level Web Speech API voice integration hook
+// Uses browser SpeechRecognition API natively
+// Manages full lifecycle: start, stop, interim/final transcripts, cleanup
 
 // --- Hook: useStreamingLLM
 // File: src/hooks/useStreamingLLM.ts
@@ -1547,7 +1554,7 @@ From `index.css` — all interactive elements must have:
 
 | # | Task | Type | Hours | Dependencies | Files |
 |---|---|---|---|---|---|
-| P1.1 | **UseAudioWS production hardening** (reconnect, timeout) | Hook | 4h | P0.2 | `src/hooks/useAudioWS.ts` |
+| P1.1 | **UseAudioWS production hardening** (reconnect, timeout) | Hook | 4h | P0.2 | `src/hooks/useAudioWS.ts` | ✅ Completed |
 | P1.2 | **Build ConfirmationModal** for dangerous actions | Component | 3h | None | `src/components/ConfirmationModal.tsx` |
 | P1.3 | **Build AuditTimeline page** | Page | 8h | P0.1 | `src/pages/AuditTimeline.tsx` |
 | P1.4 | **Build AutomationDashboard + AutomationEditor** | Pages | 12h | P0.1 | `src/pages/AutomationDashboard.tsx` |
@@ -1687,7 +1694,7 @@ src/
 │   ├── useAgentStream.ts      # SSE streaming hook (~112 lines)
 │   ├── useJarvisSync.ts       # Command sync effects
 │   ├── useJarvisBridge.ts     # WS bridge integration
-│   ├── useVoiceController.ts  # Voice lifecycle
+│   ├── useVoiceCommands.ts    # Voice lifecycle
 │   ├── useKeyboardShortcut.ts
 │   ├── useWebSocket.ts        # Reactive WS hook
 │   ├── useCommand.ts          # Command execution hook

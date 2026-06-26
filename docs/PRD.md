@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 4.0.0-alpha.2 |
+| **Version** | 4.0.0-alpha.4 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
-| **Last Updated** | 2026-06-23 |
+| **Last Updated** | 2026-06-26 |
 | **Status** | Active Development |
 
 ---

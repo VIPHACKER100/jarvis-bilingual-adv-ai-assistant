@@ -120,7 +120,7 @@ jarvis-bilingual-adv-ai-assistant/
 │   │   └── middleware_security.py
 │   ├── migrations/             # Database migration scripts
 │   └── tests/                  # pytest test suite
-├── src/                        # 🏗️ React + TypeScript frontend (to be rebuilt — see docs/FRD.md)
+├── src/                        # React + TypeScript frontend (44+ components, 172 tests)
 ├── memory/                     # Persistent memory nodes (Markdown)
 ├── docs/                       # Project documentation
 └── .opencode/agents/           # AI agent definitions

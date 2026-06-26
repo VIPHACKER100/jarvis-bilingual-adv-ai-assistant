@@ -1,4 +1,4 @@
-# Backend Requirements Document (FRD)
+# Backend Requirements Document (BRD)
 
 ## 1. Introduction
 This document outlines the backend architectural requirements, API specifications, and real-time communication protocols required to support the **JARVIS Core v4** neural interface application. The frontend is built as a highly responsive single-page React application, requiring a robust, real-time backend to facilitate its device management, remote control, security oversight, automation, and AI features.

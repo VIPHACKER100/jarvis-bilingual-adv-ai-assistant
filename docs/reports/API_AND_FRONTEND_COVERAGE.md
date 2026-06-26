@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-25  
 **Backend:** FastAPI (dual-mounted routes) — 18 routers, ~120+ endpoints, 2 WebSocket channels, 7 DB tables  
-**Frontend:** 🏗️ To be rebuilt — see [FRD.md](../FRD.md) for the complete frontend specification
+**Frontend:** ✅ Implemented in `src/` — see [FRD.md](../FRD.md) for the complete frontend specification
 
 ---
 
@@ -269,14 +269,17 @@ The following components were untested in the previous report and now have full 
 | `ArcReactor` | — | Still uncovered (voice UX, requires browser APIs) |
 | `MainHUD` | — | Still uncovered |
 | `useJarvisBridge` | — | Still uncovered (WebSocket integration) |
-| `useVoiceController` | — | Still uncovered (STT/TTS) |
+| `useAudioWS` | `useAudioWS.ts` | ✅ Implemented (no tests yet — WS dependent) |
+| `useAgentStream` | `useAgentStream.ts` | ✅ Implemented (no tests yet — fetch dependent) |
+| `useVoiceCommands` | `useVoiceCommands.ts` | ✅ Implemented — replaces `useVoiceController` (no tests yet) |
+| `useCommand` | `useCommand.ts` | ✅ Implemented (no tests yet — WS dependent) |
 | `DesktopControls` | — | Still uncovered |
 | `MediaTools` | — | Superseded by `MediaToolsPanel` (covered) |
 | `ConfirmationModal` | — | Still uncovered |
 | `VisionOverlay` | — | Still uncovered |
 | `AutomationDashboard` | — | Still uncovered |
 
-**Recommendation:** Add React Testing Library tests for `useJarvisBridge`, `ArcReactor`, and remaining legacy components to achieve full coverage.
+**Recommendation:** Add React Testing Library tests for `useAudioWS`, `useAgentStream`, `useVoiceCommands`, `useCommand`, `useJarvisBridge`, `ArcReactor`, and remaining legacy components to achieve full coverage.
 
 ---
 
@@ -286,6 +289,8 @@ The following components were untested in the previous report and now have full 
 |---------|--------|--------|------|
 | REST | `apiClient.ts` → `/api/v1` | FastAPI routers | API key header |
 | WebSocket | `websocketService.ts` → `/ws` | `websocket.py` | Session |
+| Audio WS | `useAudioWS.ts` → `/api/v1/audio/ws/audio` | `audio.py` | API key query param |
+| SSE Stream | `useAgentStream.ts` → `POST /api/v1/agent/stream` | `agent.py` | API key header |
 | Voice | `voiceService.ts` → bridge | `handle_command` | — |
 
 Documented flow: `BACKEND_FRONTEND_SYNC.md`

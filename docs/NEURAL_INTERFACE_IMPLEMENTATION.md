@@ -1,10 +1,8 @@
 # JARVIS Neural Interface Dashboard — Historical Record
 
-> **⚠️ This document describes a previously implemented feature whose source code has been removed.**
-> The Neural Interface Dashboard components (including the HUD, Session Log Terminal, Critical Alerts Panel,
-> System Health Monitoring, etc.) were part of the deleted frontend. This document is preserved as a
-> historical reference and feature specification. The frontend will be rebuilt from scratch per the
-> [Frontend Requirements Document (FRD.md)](FRD.md), which supersedes this document as the build spec.
+> This document describes the Neural Interface Dashboard feature. The frontend source code is fully
+> present in `src/`. See the [Frontend Requirements Document (FRD.md)](FRD.md) for the complete
+> build specification.
 
 ## Overview
 

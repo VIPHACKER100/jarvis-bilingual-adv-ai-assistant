@@ -9,33 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.0-alpha.4] - 2026-06-25
 
+### Corrected (retroactive notice)
+
+> **⚠️ Correction**: The v4.0.0-alpha.4 entry below was written based on a planned restructuring. In reality,
+> **the `src/` directory was NOT deleted** — the full React 19 + TypeScript + Vite frontend source code remains
+> intact, including all 172 frontend tests and configuration files. The FRD.md serves as the living specification
+> document, not a rebuild blueprint. All subsequent `docs/` files have been corrected to reflect the actual state.
+
 ### Removed
 
-- **All frontend source code deleted** (`src/`, `index.html`, `vite.config.ts`, `package.json`, `package-lock.json`, `node_modules/`, `tsconfig.json`, `vitest.config.ts`, `mobile/`, all 172 frontend tests, and all frontend CI configs) — part of a major restructuring to rebuild the frontend from scratch using the [Frontend Requirements Document](docs/FRD.md) as the build blueprint
-- **Frontend test suite**: 172 tests (14 test files) removed — backend-only test suite (47 tests) remains intact
+- Various stale references to deleted code were cleaned up across documentation files
+- **Frontend source was preserved**: The `src/`, `index.html`, `vite.config.ts`, `package.json`, `tsconfig.json`, and all 172 frontend tests remain in the repository
 
 ### Changed
 
-- **`CLAUDE.md`**: Updated directory listing, project overview, and next steps to reflect the frontend rebuild status
-- **`docs/FRD.md`**: Now serves as the **build blueprint** — added restructuring notice banner; marked all "existing" code references as "to be built"
-- **`docs/PRD.md`**: Updated release criteria to v4.0.0-alpha.4 — removed references to deleted `package.json` and frontend tests
-- **`docs/TDS.md`**: Repository structure marked with `🏗️` for frontend directories; removed stale version string
-- **`docs/SETUP.md`**: Rewrote frontend setup section — now directs users to FRD.md as the build spec; removed broken `npm install`/`npm run dev` references; renumbered steps
-- **`docs/CHANGELOG.md`**: This entry documents the restructuring
-- **`docs/FRONTEND_COMPONENT_CATALOG.md`**: Archived as historical record of previously built components (all deleted)
-- **`docs/BACKEND_FRONTEND_SYNC.md`**: Removed references to deleted frontend code
-- **`docs/DISTRIBUTION.md`**: Removed broken frontend build steps
-- **`docs/V4_UPGRADE.md`**: Removed broken `npm install` / `npm run build` references
-- **`docs/CONTRIBUTING.md`**: Marked stale `src/` references as target-only
-- **`docs/TROUBLESHOOTING.md`**: Marked stale `src/` references as target-only
-- **`docs/reports/PROJECT_TEST_REPORT.md`**: Updated test count to reflect deleted frontend tests
-- **`docs/reports/API_AND_FRONTEND_COVERAGE.md`**: Frontend coverage now 0% (to be rebuilt)
-- **`docs/reports/CODE_QUALITY_REPORT.md`**: Removed references to deleted `src/__tests__/` files
-- **`memory/projects.md`**: Updated test count (72→47), marked `src/` references as planned
-- **`memory/MEMORY_MAP.md`**: Updated stale `src/` infrastructure references
-- **`memory/decisions.md`**: Logged this restructuring as a new architectural decision
-- **`.opencode/agents/test-runner.md`**: Frontend test count changed from 25 to 0 (to be rebuilt)
-- **`.opencode/agents/frontend-dev.md`**: Added note that frontend code is being rebuilt from scratch
+- **`CLAUDE.md`**: Updated directory listing, project overview, and next steps to reflect the actual project state
+- **`docs/FRD.md`**: Continues as the living frontend specification document
+- **`docs/PRD.md`**: Updated release criteria to v4.0.0-alpha.4
+- **`docs/TDS.md`**: Updated version to 4.0.0-alpha.4, TypeScript 5.9, Python 3.13+
+- **`docs/SETUP.md`**: Updated frontend setup section to reflect existing `src/` directory
+- **`docs/CHANGELOG.md`**: This entry documents the correction of previous restructuring claims
+- **`docs/FRONTEND_COMPONENT_CATALOG.md`**: Updated to reflect that components exist and are not being rebuilt
+- **`docs/BACKEND_FRONTEND_SYNC.md`**: Updated to reflect existing frontend code
+- **`docs/DISTRIBUTION.md`**: Updated version references and frontend build instructions
+- **`docs/V4_UPGRADE.md`**: Updated version references to alpha.4
+- **`docs/CONTRIBUTING.md`**: Updated frontend references
+- **`docs/TROUBLESHOOTING.md`**: Updated frontend sync references
+- **`docs/reports/PROJECT_TEST_REPORT.md`**: Fixed test count to reflect actual 172+47 tests
 
 ### Documentation
 

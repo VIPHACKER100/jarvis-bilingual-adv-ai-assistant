@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Version** | 4.0.0-alpha.1 |
+| **Version** | 4.0.0-alpha.4 |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
-| **Last Updated** | 2026-06-23 |
+| **Last Updated** | 2026-06-26 |
 | **Status** | Active Development |
 | **Companion** | [PRD.md](PRD.md) |
 
@@ -22,7 +22,7 @@ This Technical Design Specification describes **how** JARVIS is built: architect
 JARVIS is a **local-first client–server application**:
 
 - **Frontend (React 19 + Vite + TypeScript):** Glassmorphic HUD, voice capture, WebSocket client, REST consumer.
-- **Backend (FastAPI + Python 3.11+):** Command dispatch, OS automation, LLM orchestration, persistence, real-time broadcasts.
+- **Backend (FastAPI + Python 3.13+):** Command dispatch, OS automation, LLM orchestration, persistence, real-time broadcasts.
 - **Data Layer (PostgreSQL + pgvector):** Conversations, memory facts, performance metrics, sessions, vector embeddings.
 
 ```mermaid
@@ -85,7 +85,7 @@ flowchart TB
 |-------|------------|---------|
 | Framework | React | 19.x |
 | Build | Vite | 6.x |
-| Language | TypeScript | 5.8 |
+| Language | TypeScript | 5.9 |
 | State | Zustand (+ persist, devtools) | 4.x |
 | Data fetching | TanStack React Query | 5.x |
 | Animation | Framer Motion | 12.x |
@@ -121,9 +121,9 @@ flowchart TB
 
 ```
 jarvis-bilingual-adv-ai-assistant/
-├── src/                          # 🏗️ React frontend (to be rebuilt — see FRD.md)
+├── src/                          # React frontend (TypeScript, 44+ components)
 │   ├── components/               # HUD panels (27+ components planned)
-│   ├── hooks/                    # useJarvisBridge, useVoiceController, useTheme
+│   ├── hooks/                    # useAudioWS, useAgentStream, useVoiceCommands, useCommand, useJarvisBridge, useTheme
 │   ├── services/                 # apiClient, websocketService, voiceService
 │   ├── store/                    # jarvisStore (Zustand)
 │   ├── types/                    # api.ts (350+ interfaces), bridge.ts
@@ -294,7 +294,10 @@ sequenceDiagram
 | `useTheme` | Dark/light + design tokens |
 | `useJarvisSync` | Mobile pairing state |
 | `useJarvisBridge` | WebSocket + REST command flow |
-| `useVoiceController` | STT/TTS lifecycle |
+| `useAudioWS` | Audio WebSocket STT/TTS |
+| `useAgentStream` | SSE LLM response streaming |
+| `useVoiceCommands` | Web Speech API STT lifecycle |
+| `useCommand` | WS command execution + confirmation flow |
 
 ### 7.2 State Management (`src/store/jarvisStore.ts`)
 
@@ -514,7 +517,7 @@ Full template: [`.env.example`](.env.example).
 
 ```python
 # backend/config/environment.py
-VERSION = "3.9.1"
+VERSION = "4.0.0-alpha.4"
 ```
 
 Referenced by `main.py`, OpenAPI metadata, and frontend via `/api/health`.
@@ -557,7 +560,7 @@ npm run build          # → dist/
 | `backend` | windows-latest | pytest + coverage |
 | `frontend` | windows-latest | `npm ci`, `tsc`, `vitest`, `vite build` |
 
-Python **3.12**, Node **20** in CI (project supports 3.11+ / 18+).
+Python **3.13**, Node **20** in CI (project supports 3.13+ / 18+).
 
 ---
 

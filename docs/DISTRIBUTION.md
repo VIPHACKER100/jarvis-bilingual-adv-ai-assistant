@@ -1,4 +1,4 @@
-# 📦 JARVIS Distribution Guide (v4.0.0-alpha.2)
+# 📦 JARVIS Distribution Guide (v4.0.0-alpha.4)
 
 Complete guide for packaging and distributing JARVIS AI Assistant with enhanced asset bundling.
 
@@ -29,7 +29,7 @@ pip install pyinstaller
 cd backend
 python -m PyInstaller JARVIS_Backend.spec --clean
 
-# 4. Build frontend (after rebuilding from FRD.md)
+# 4. Build frontend
 cd ..
 npm install
 npm run build
@@ -43,7 +43,7 @@ python scripts/build.py
 ## 📁 Distribution Structure
 
 ```
-JARVIS_v4.0.0-alpha.2/
+JARVIS_v4.0.0-alpha.4/
 ├── START_JARVIS.bat          # One-click launcher
 ├── README.md                 # Project instructions
 ├── .env                      # Configuration file
@@ -67,7 +67,7 @@ JARVIS_v4.0.0-alpha.2/
 ```bash
 # Create zip archive
 cd release
-zip -r ../JARVIS_v4.0.0-alpha.2_Windows.zip .
+zip -r ../JARVIS_v4.0.0-alpha.4_Windows.zip .
 
 # Or on Windows:
 # Right-click release folder → Send to → Compressed folder
@@ -90,10 +90,10 @@ Create professional installer using:
 ; JARVIS.iss
 [Setup]
 AppName=JARVIS AI Assistant
-AppVersion=4.0.0-alpha.2
+AppVersion=4.0.0-alpha.4
 DefaultDirName={autopf}\JARVIS
 OutputDir=.
-OutputBaseFilename=JARVIS_v4.0.0-alpha.2_Setup
+OutputBaseFilename=JARVIS_v4.0.0-alpha.4_Setup
 
 [Files]
 Source: "release\*"; DestDir: "{app}"; Flags: recursesubdirs
@@ -108,7 +108,7 @@ Name: "{autodesktop}\JARVIS"; Filename: "{app}\START_JARVIS.bat"
 ```nsis
 ; JARVIS.nsi
 Name "JARVIS AI Assistant"
-OutFile "JARVIS_v4.0.0-alpha.2_Setup.exe"
+OutFile "JARVIS_v4.0.0-alpha.4_Setup.exe"
 InstallDir $PROGRAMFILES\JARVIS
 Section
   SetOutPath $INSTDIR

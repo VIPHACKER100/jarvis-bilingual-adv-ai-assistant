@@ -5,9 +5,8 @@
 **Total Components (planned):** 44  
 **Test Coverage (planned):** 172+ tests across 14+ files
 
-> ⚠️ **All components listed in this document were removed from the repository.**
-> This catalog now serves as the **target architecture** — a specification of what must be rebuilt.
-> See [docs/FRD.md](FRD.md) for the full build blueprint including API types, hooks, state management,
+> This catalog documents the **current frontend implementation** — all components listed below exist in `src/`.
+> See [docs/FRD.md](FRD.md) for the full specification including API types, hooks, state management,
 > and the prioritized Master Task List.
 
 A living reference for on-boarding developers. Lists every frontend component (planned), its props, the backend endpoints it consumes, and its target test coverage status.
@@ -152,7 +151,10 @@ A living reference for on-boarding developers. Lists every frontend component (p
 | `apiClient` | `src/services/apiClient.ts` | All REST endpoints | 11 | ✅ Full coverage |
 | `voiceService` | `src/services/voiceService.ts` | Web Speech API (browser) | 7 | ✅ Full coverage |
 | `websocketService` | `src/services/websocketService.ts` | `WS /ws` | — | — |
-| `useAudioWS` | `src/hooks/useAudioWS.ts` | `WS /api/v1/audio/ws/audio` | — | — |
+| `useAudioWS` | `src/hooks/useAudioWS.ts` | `WS /api/v1/audio/ws/audio` | — | ✅ Implemented |
+| `useCommand` | `src/hooks/useCommand.ts` | WS + broadcastRouter | — | ✅ Implemented |
+| `useAgentStream` | `src/hooks/useAgentStream.ts` | `POST /api/v1/agent/stream` | — | ✅ Implemented |
+| `useVoiceCommands` | `src/hooks/useVoiceCommands.ts` | Web Speech API | — | ✅ Implemented |
 | `useJarvisBridge` | `src/hooks/useJarvisBridge.ts` | WebSocket commands | — | Not tested |
 
 ---
@@ -210,6 +212,10 @@ A living reference for on-boarding developers. Lists every frontend component (p
 | `useTestApiKey` | `useSystemQuery.ts` | `POST /settings/test-key` | `CloudSettings` |
 | `useSettings` | `useSystemQuery.ts` | `GET /settings` | `SettingsModal` |
 | `useUpdateSettings` | `useSystemQuery.ts` | `POST /settings` | `SettingsModal` |
+| `useAudioWS` | `useAudioWS.ts` | `WS /api/v1/audio/ws/audio` | Audio STT/TTS lifecycle |
+| `useAgentStream` | `useAgentStream.ts` | `POST /api/v1/agent/stream` | SSE LLM response streaming |
+| `useVoiceCommands` | `useVoiceCommands.ts` | Web Speech API | Browser speech recognition lifecycle |
+| `useCommand` | `useCommand.ts` | WS + broadcastRouter | Command execution + confirmation flow |
 
 ---
 
@@ -243,12 +249,15 @@ A living reference for on-boarding developers. Lists every frontend component (p
 
 ### Uncovered components (not yet tested)
 
-These components lack automated tests:
+These components and hooks lack automated tests:
 
 - `ArcReactor` (browser voice API dependent)
 - `MainHUD`
 - `useJarvisBridge` (WebSocket dependent)
 - `useAudioWS` (WebSocket dependent)
+- `useAgentStream` (fetch dependent)
+- `useVoiceCommands` (browser SpeechRecognition API dependent)
+- `useCommand` (WebSocket + broadcastRouter dependent)
 - `DesktopControls`
 - `ConfirmationModal`
 - `VisionOverlay`

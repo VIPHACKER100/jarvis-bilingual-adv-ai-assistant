@@ -1,7 +1,7 @@
 # Task 1.2 Completion Summary: Configure Theme System and Design Tokens
 
-> **⚠️ Historical record**: The files described here (`src/styles/`, `src/hooks/`, `src/types/`) were removed
-> in the v4.0.0-alpha.4 restructuring. See [FRD.md](FRD.md) for the current frontend build specification.
+> **Historical record**: The files described here (`src/styles/`, `src/hooks/`, `src/types/`) remain fully
+> present in the repository. See [FRD.md](FRD.md) for the full frontend specification.
 
 ## Overview
 Successfully implemented and enhanced the comprehensive theme system for the JARVIS Neural Interface, ensuring full compliance with the cyberpunk aesthetic requirements and design specifications.

@@ -3,16 +3,16 @@
 | Field | Value |
 |-------|-------|
 | **Product** | JARVIS — Bilingual Advanced AI Assistant |
-| **Current Version** | 3.9.1 |
+| **Current Version** | 4.0.0-alpha.4 |
 | **Document Type** | Future Implementation Plan & Roadmap |
 | **Author** | Aryan Ahirwar (VIPHACKER100) |
-| **Last Updated** | 2026-06-16 |
+| **Last Updated** | 2026-06-26 |
 
 ---
 
 ## 1. Executive Summary
 
-This document outlines the strategic roadmap and future implementation plan for JARVIS, transitioning from the current stable release (v3.9.1) to upcoming major (v4.0+) versions. The focus of future development will shift from local workstation stability to ecosystem expansion, cross-device capabilities, and an extensible architecture.
+This document outlines the strategic roadmap and future implementation plan for JARVIS, transitioning from the current development release (v4.0.0-alpha.4) to upcoming major versions. The focus of future development will shift from local workstation stability to ecosystem expansion, cross-device capabilities, and an extensible architecture.
 
 ---
 

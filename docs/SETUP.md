@@ -59,18 +59,19 @@ git clone https://github.com/VIPHACKER100/jarvis-bilingual-adv-ai-assistant.git
 cd jarvis-bilingual-adv-ai-assistant
 ```
 
-### Step 2: (Frontend) Rebuild from Scratch
+### Step 2: (Frontend) Install Dependencies
 
-> The frontend source code (`src/`, `package.json`, `vite.config.ts`, `index.html`) has been removed from the
-> repository as part of a major restructuring. The [Frontend Requirements Document (FRD.md)](FRD.md) serves as the
-> **build blueprint** for recreating the frontend from scratch.
->
-> **To rebuild the frontend:**
-> 1. Read [docs/FRD.md](FRD.md) — this is the complete specification
-> 2. Follow the Master Task List (§14) for prioritized development
-> 3. Create `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`, and `src/` directory
-> 4. Install dependencies: `npm install`
-> 5. See [docs/FRONTEND_COMPONENT_CATALOG.md](FRONTEND_COMPONENT_CATALOG.md) for the target component inventory
+> The frontend source code (`src/`, `package.json`, `vite.config.ts`, `tsconfig.json`, `index.html`) is fully
+> present in the repository. Install dependencies and start the dev server:
+
+```bash
+# From project root
+npm install
+npm run dev
+```
+
+> See [docs/FRD.md](FRD.md) for the full frontend specification and
+> [docs/FRONTEND_COMPONENT_CATALOG.md](FRONTEND_COMPONENT_CATALOG.md) for the component inventory.
 
 ### Step 3: Setup PostgreSQL Database
 
@@ -277,7 +278,7 @@ TTS_LANGUAGE=en
 # OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
 ```
 
-Also create a `.env` file in the project root for the frontend (after the frontend is rebuilt):
+Also create a `.env` file in the project root for the frontend:
 
 ```env
 # Frontend .env (project root)
@@ -286,7 +287,7 @@ VITE_JARVIS_API_KEY=your-secure-api-key-here
 VITE_BACKEND_URL=http://localhost:8000
 ```
 
-> **Frontend URL configuration** *(after rebuild)*: WebSocket and API URLs are computed automatically in `src/config.ts` from the detected hostname and `BACKEND_PORT`. For remote deployments, edit `src/config.ts` to set custom `WS_API_BASE_URL` and `AUDIO_WS_URL` values.
+> **Frontend URL configuration**: WebSocket and API URLs are computed automatically in `src/config.ts` from the detected hostname and `BACKEND_PORT`. For remote deployments, edit `src/config.ts` to set custom `WS_API_BASE_URL` and `AUDIO_WS_URL` values.
 
 ### Step 6: Run Tests (Optional)
 
@@ -298,10 +299,10 @@ source venv/bin/activate   # or venv\Scripts\activate on Windows
 pytest                     # runs 47+ backend tests
 ```
 
-#### Frontend Tests (after rebuild)
+#### Frontend Tests
 
 ```bash
-# From project root — runs frontend tests via vitest
+# From project root — runs 172 frontend tests via vitest
 npm test
 ```
 
@@ -323,7 +324,7 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-### Step 8: Start Frontend (after rebuild)
+### Step 8: Start Frontend
 
 ```bash
 npm run dev
@@ -331,7 +332,7 @@ npm run dev
 
 > **Important**: The frontend `.env` (project root) and backend `.env` (`backend/`) must share the same `BACKEND_API_KEY` / `VITE_JARVIS_API_KEY` value. Both `.env` files use the same secret for API authentication.
 
-### Step 9: First Run (after rebuild)
+### Step 9: First Run
 
 1. Open browser to: `http://localhost:5173`
 2. Allow microphone permissions when prompted

@@ -1,7 +1,7 @@
 # Task 1.1 Completion Summary: Initialize React TypeScript project with Vite
 
-> **⚠️ Historical record**: The files described here were removed in the v4.0.0-alpha.4 restructuring.
-> See [FRD.md](FRD.md) for the current frontend build specification.
+> **Historical record**: The infrastructure described here remains in place. The `src/` directory is fully
+> present with all components, hooks, services, and types implemented.
 
 ## ✅ Task Status: COMPLETED (Historical)
 
