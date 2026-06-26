@@ -17,7 +17,7 @@ export function AppShell() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-cyber-dark">
+    <div className="flex h-dvh min-h-dvh w-full overflow-hidden bg-cyber-dark">
       {/* Sidebar */}
       <SidebarNav
         collapsed={sidebarCollapsed}
@@ -29,7 +29,7 @@ export function AppShell() {
         <Header
           onMenuToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        <main className="flex-1 overflow-auto overflow-x-hidden p-3 sm:p-4 md:p-6">
           <Outlet />
         </main>
       </div>

@@ -45,7 +45,7 @@ export function SettingsPage() {
             Select the primary logic engine for JARVIS operations.
           </p>
 
-          <div className="grid grid-cols-2 gap-3 mt-2">
+          <div className="grid grid-cols-1 gap-3 mt-2 sm:grid-cols-2">
             {["openai", "anthropic", "gemini", "local"].map((p) => (
               <motion.div
                 whileHover={{ scale: 1.02 }}

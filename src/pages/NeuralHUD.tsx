@@ -57,11 +57,11 @@ export function NeuralHUD() {
   }));
 
   return (
-    <div className="grid grid-cols-12 gap-4 h-full pb-4">
+    <div className="grid grid-cols-1 gap-4 h-full pb-4 xl:grid-cols-12">
       {/* Left Column (3 spans) */}
-      <div className="col-span-3 flex flex-col gap-4">
+      <div className="flex flex-col gap-4 xl:col-span-3">
         {/* Metric Cards */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <MetricWidget
             title="CPU USAGE"
             value={`${systemStatus?.cpu?.percent ?? 0}%`}
@@ -94,7 +94,7 @@ export function NeuralHUD() {
         </div>
 
         {/* Connection & Agent Status */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Card className="hud-bg hud-border p-4 flex flex-col gap-3 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-2 opacity-20">
               <Wifi size={40} />
@@ -150,7 +150,7 @@ export function NeuralHUD() {
           <h3 className="text-xs font-bold text-slate-400 tracking-wider mb-1">
             QUICK ACTIONS
           </h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Button
               variant="secondary"
               className="justify-start px-3 py-2 h-auto border-cyan-500/20 hover:border-cyan-500/50 bg-cyan-950/20"
@@ -183,9 +183,9 @@ export function NeuralHUD() {
       </div>
 
       {/* Center Column (5 spans) */}
-      <div className="col-span-5 flex flex-col gap-4">
+      <div className="flex flex-col gap-4 xl:col-span-5">
         {/* Smart Suggestion */}
-        <div className="bg-gradient-to-r from-amber-950/40 to-transparent border border-amber-500/30 rounded-lg p-3 flex items-center gap-3">
+        <div className="bg-gradient-to-r from-amber-950/40 to-transparent border border-amber-500/30 rounded-lg p-3 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="p-2 bg-amber-500/20 rounded-full text-amber-400">
             <Lightbulb size={16} />
           </div>
@@ -197,7 +197,7 @@ export function NeuralHUD() {
               System memory usage is above 80%.
             </div>
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
             <Button
               size="sm"
               className="bg-cyan-600/20 text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500/30"
@@ -229,7 +229,7 @@ export function NeuralHUD() {
           </div>
 
           {/* Arc Reactor Rings */}
-          <div className="relative w-64 h-64 flex items-center justify-center">
+          <div className="relative flex h-48 w-48 items-center justify-center sm:h-64 sm:w-64">
             {/* Outer dotted ring */}
             <div className="absolute inset-0 border-2 border-dashed border-cyan-500/30 rounded-full animate-[spin_60s_linear_infinite]"></div>
             {/* Middle segmented ring */}
@@ -243,7 +243,7 @@ export function NeuralHUD() {
             </div>
           </div>
 
-          <div className="absolute bottom-6 flex items-center gap-3">
+          <div className="absolute bottom-4 flex flex-wrap items-center justify-center gap-2 px-4 text-center sm:bottom-6 sm:gap-3">
             <div className="h-px w-16 bg-cyan-500/30"></div>
             <span className="text-cyan-400 text-xs font-mono tracking-widest uppercase">
               MODE: <span className="text-slate-200">IDLE</span>
@@ -254,7 +254,7 @@ export function NeuralHUD() {
 
         {/* Command Input Area */}
         <Card className="hud-bg hud-border p-4 flex flex-col gap-3 relative">
-          <form onSubmit={handleCommand} className="flex gap-3">
+          <form onSubmit={handleCommand} className="flex flex-col gap-3 sm:flex-row">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-cyan-950 border border-cyan-500/30 box-shadow-cyan shrink-0">
               <Mic size={20} className="text-cyan-400" />
             </div>
@@ -274,12 +274,12 @@ export function NeuralHUD() {
             <Button
               type="submit"
               loading={loading}
-              className="w-12 h-12 rounded-xl bg-blue-600 hover:bg-blue-500 text-white p-0 flex items-center justify-center"
+              className="h-12 w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white p-0 flex items-center justify-center sm:w-12"
             >
               <Send size={18} />
             </Button>
           </form>
-          <div className="flex items-center justify-between px-2 text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-1">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-2 text-[10px] text-slate-400 uppercase tracking-wide font-semibold mt-1">
             <div className="flex items-center gap-2">
               <Mic size={10} className="text-cyan-500" /> Voice Active
             </div>
@@ -298,7 +298,7 @@ export function NeuralHUD() {
       </div>
 
       {/* Right Column (4 spans) */}
-      <div className="col-span-4 flex flex-col gap-4">
+      <div className="flex flex-col gap-4 xl:col-span-4">
         {/* Offline Banner (Mocking) */}
         {!isConnected && (
           <div className="bg-red-950/40 border border-red-500/30 rounded-lg p-3 flex items-start gap-3 relative overflow-hidden">

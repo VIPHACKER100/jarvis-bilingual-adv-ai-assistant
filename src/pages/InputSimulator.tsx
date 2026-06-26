@@ -69,7 +69,7 @@ export function InputSimulator() {
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-6 sm:grid-cols-3">
             <Button variant="secondary" className="h-14 font-mono">
               Ctrl + C
             </Button>

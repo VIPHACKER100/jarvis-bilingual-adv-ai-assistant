@@ -66,7 +66,7 @@ export function NotificationCenter() {
   return (
     <NotificationContext.Provider value={{ addNotification, removeNotification }}>
       <div
-        className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"
+        className="fixed top-4 left-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none sm:left-auto sm:right-4 sm:w-[400px]"
         aria-live="polite"
         aria-label="Notifications"
       >
@@ -123,7 +123,7 @@ function ToastNotification({ notification, onDismiss }: ToastProps) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 100, scale: 0.9 }}
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-      className={`pointer-events-auto flex items-start gap-3 glass-panel p-4 min-w-[300px] max-w-[400px] border ${borderMap[type]}`}
+      className={`pointer-events-auto flex w-full items-start gap-3 glass-panel p-4 min-w-0 border ${borderMap[type]}`}
       role="alert"
     >
       <div className="shrink-0 mt-0.5">{iconMap[type]}</div>
