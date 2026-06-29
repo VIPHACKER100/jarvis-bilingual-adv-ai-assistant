@@ -1,5 +1,5 @@
 # Server Framework & API
-fastapi==0.138.0
+fastapi==0.138.1
 uvicorn[standard]==0.49.0
 websockets==16.0
 python-multipart==0.0.32
@@ -17,7 +17,7 @@ werkzeug==3.1.8           # CVE-2026-27199
 
 # Database
 asyncpg==0.31.0
-alembic==1.18.4
+alembic==1.18.5
 pgvector==0.4.2
 sqlalchemy==2.0.51
 
@@ -49,7 +49,7 @@ rapidfuzz==3.14.5
 fuzzywuzzy==0.18.0
 
 # LLM APIs
-openai==2.43.0
+openai==2.44.0
 google-generativeai==0.8.6
 
 # Voice Activation & Wake Word (v3.9.0)
@@ -65,11 +65,11 @@ PyYAML==6.0.3
 
 # Structured Logging & Observability (v4.0)
 structlog==26.1.0
-opentelemetry-api==1.42.1
-opentelemetry-sdk==1.42.1
-opentelemetry-exporter-otlp-proto-http==1.42.1
-opentelemetry-instrumentation-fastapi==0.63b1
-opentelemetry-instrumentation-httpx==0.63b1
+opentelemetry-api==1.43.0
+opentelemetry-sdk==1.43.0
+opentelemetry-exporter-otlp-proto-http==1.43.0
+opentelemetry-instrumentation-fastapi==0.64b0
+opentelemetry-instrumentation-httpx==0.64b0
 
 # Audio Streaming (v4.0)
 edge-tts==7.2.8
