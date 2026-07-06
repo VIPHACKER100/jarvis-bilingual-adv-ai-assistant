@@ -1,5 +1,7 @@
 # Setup Guide
 
+<!-- ponytail: setup is `uvicorn backend.main:app` + `npm run dev` -->
+
 ## 📋 Table of Contents
 
 1. [System Requirements](#system-requirements)

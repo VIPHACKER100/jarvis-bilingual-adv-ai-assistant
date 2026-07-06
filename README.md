@@ -12,15 +12,13 @@
 **A futuristic, voice-activated system controller for Windows, macOS, and Linux.**
 *Bilingual (English/Hindi/Hinglish) • 100+ Commands • Full Hardware Control*
 
-[Setup Guide](docs/SETUP.md) • [Command List](docs/COMMANDS.md) • [API Docs](docs/API_DOCUMENTATION.md) • [Frontend Plan](docs/FRD.md)
+[Setup Guide](docs/SETUP.md) • [Command List](docs/COMMANDS.md) • [API Docs](docs/API_DOCUMENTATION.md)
 
 ---
 
 ## Current State (v4.0.0-alpha.4)
 
-The project is in a **frontend rebuild** phase. All previous React/TypeScript frontend code has been stripped out to make way for a brand-new implementation. The Python/FastAPI backend is fully operational with 47/47 tests passing.
-
-See the [Frontend Requirements Document](docs/FRD.md) for the build blueprint.
+Python/FastAPI backend fully operational with 47/47 tests passing. React/TypeScript frontend in active development in `src/`.
 
 ### Backend — Fully Operational
 
@@ -32,16 +30,11 @@ See the [Frontend Requirements Document](docs/FRD.md) for the build blueprint.
 - 🗄️ **PostgreSQL + pgvector** — Semantic vector search with asyncpg and Alembic migrations
 - 🛡️ **Security Hardened** — API key auth (constant-time comparison), SQLi protection, rate limiting, CSP headers
 - 🚀 **Async-First** — asyncio event loop with thread offloading for blocking I/O
-- 📝 **Structured Logging** — structlog + OpenTelemetry with JSON output
 
-### Frontend — Being Rebuilt from Scratch
+### Frontend — In Development
 
-- Previous React 19 + TypeScript + Vite frontend removed in v4.0.0-alpha.4
-- New frontend planned per [docs/FRD.md](docs/FRD.md) with:
-  - React 19, Vite 6, TypeScript 5.9, Zustand, TanStack Query
-  - Design System V3 — glassmorphism + cyberpunk aesthetic
-  - 44 components across 13 feature modules
-  - Voice-first interaction with Arc Reactor visual core
+- React/TypeScript frontend being built per requirements in `docs/`
+- Voice-first interaction with Arc Reactor visual core
 
 ---
 
@@ -339,11 +332,9 @@ jarvis-bilingual-adv-ai-assistant/
 │   └── main.py                   # Server Entry Point
 │
 ├── docs/                         # Documentation
-│   ├── FRD.md                    # Frontend Requirements (build blueprint)
 │   ├── API_DOCUMENTATION.md      # REST/WS API reference
 │   ├── COMMANDS.md               # Voice command reference
-│   ├── adr/                      # Architecture Decision Records
-│   └── reports/                  # Test & quality reports
+│   ├── SETUP.md                  # Setup instructions
 │
 ├── memory/                       # AI persistent memory system
 ├── .opencode/agents/             # AI agent definitions
