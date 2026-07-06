@@ -1,129 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import { websocketService } from '@/services/websocketService';
-import { broadcastRouter } from '@/services/broadcastRouter';
-import type { CommandResult, PendingConfirmationInfo } from '@/types/api';
-import type {
-  CommandOutbound,
-  ConfirmationOutbound,
-  WebSocketMessage,
-} from '@/types/bridge';
 
-export interface UseCommandReturn {
-  pendingConfirmation: PendingConfirmationInfo | null;
-  lastResult: CommandResult | null;
-  isLoading: boolean;
-  error: string | null;
-  executeCommand: (command: string, language?: string) => void;
-  confirmAction: (confirmationId: string, approved: boolean) => void;
-  clearPendingConfirmation: () => void;
-  clearError: () => void;
-}
-
-export function useCommand(): UseCommandReturn {
-  const [pendingConfirmation, setPendingConfirmation] =
-    useState<PendingConfirmationInfo | null>(null);
-  const [lastResult, setLastResult] = useState<CommandResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function useCommand() {
+  const [pendingConfirmation, setPendingConfirmation] = useState<{ id: string; command: string } | null>(null);
+  const [lastResult, setLastResult] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleCommandResult = (message: WebSocketMessage) => {
-      const data = message.data as CommandResult;
-      if (!data || data.success === undefined) return;
-      setLastResult(data);
-      setIsLoading(false);
-      if (
-        data.requires_confirmation &&
-        data.confirmation_id
-      ) {
-        setPendingConfirmation({
-          confirmation_id: data.confirmation_id,
-          command_key: data.command_key ?? '',
-          command_text: data.command ?? '',
-          language: data.language ?? 'en',
-          response: data.response ?? '',
-          timeout: 0,
-          created_at: '',
-        });
-      }
+    const handler = (e: Event) => {
+      const msg = (e as CustomEvent).detail;
+      if (msg.type === 'confirmation_request') setPendingConfirmation({ id: msg.data?.confirmation_id, command: msg.data?.command_info });
+      if (msg.type === 'command_result') setLastResult(msg.data?.response);
     };
-
-    const handleConfirmationRequest = (message: WebSocketMessage) => {
-      const data = message.data as PendingConfirmationInfo;
-      if (!data || !data.confirmation_id) return;
-      setPendingConfirmation(data);
-      setIsLoading(false);
-    };
-
-    const handleError = (message: WebSocketMessage) => {
-      const data = message.data as string;
-      if (typeof data !== 'string') return;
-      setError(data);
-      setIsLoading(false);
-    };
-
-    broadcastRouter.on('command_result', handleCommandResult);
-    broadcastRouter.on('confirmation_request', handleConfirmationRequest);
-    broadcastRouter.on('error', handleError);
-
-    return () => {
-      broadcastRouter.off('command_result', handleCommandResult);
-      broadcastRouter.off('confirmation_request', handleConfirmationRequest);
-      broadcastRouter.off('error', handleError);
-    };
+    websocketService.addEventListener('message', handler);
+    return () => websocketService.removeEventListener('message', handler);
   }, []);
 
-  const executeCommand = useCallback(
-    (command: string, language?: string) => {
-      setIsLoading(true);
-      setError(null);
-      setLastResult(null);
-      setPendingConfirmation(null);
+  const executeCommand = useCallback((cmd: string, lang = 'en') => {
+    websocketService.send({ type: 'command', command: cmd, language: lang, timestamp: Date.now() });
+  }, []);
 
-      const msg: CommandOutbound = {
-        type: 'command',
-        command,
-        language: language ?? 'en',
-        timestamp: Date.now(),
-      };
-      websocketService.send(msg);
-    },
-    [],
-  );
-
-  const confirmAction = useCallback(
-    (confirmationId: string, approved: boolean) => {
-      const msg: ConfirmationOutbound = {
-        type: 'confirmation',
-        data: {
-          confirmation_id: confirmationId,
-          approved,
-        },
-      };
-      websocketService.send(msg);
-      setPendingConfirmation(null);
-    },
-    [],
-  );
-
-  const clearPendingConfirmation = useCallback(() => {
+  const confirmAction = useCallback((id: string, approved: boolean) => {
+    websocketService.send({ type: 'confirmation', data: { confirmation_id: id, approved } });
     setPendingConfirmation(null);
   }, []);
 
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
-
-  return {
-    pendingConfirmation,
-    lastResult,
-    isLoading,
-    error,
-    executeCommand,
-    confirmAction,
-    clearPendingConfirmation,
-    clearError,
-  };
+  return { pendingConfirmation, lastResult, executeCommand, confirmAction, clearPendingConfirmation: () => setPendingConfirmation(null) };
 }
-
-export default useCommand;

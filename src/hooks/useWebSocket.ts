@@ -1,65 +1,30 @@
-/**
- * useWebSocket — React hook wrapping websocketService with reactive state.
- *
- * Provides:
- * - Reactive isConnected, connectionStatus
- * - sendCommand, requestStatus, sendConfirmation helpers
- * - Auto-connect on mount, disconnect on unmount
- */
-
 import { useEffect, useState, useCallback } from 'react';
-import type { ConnectionStatus } from '@/config';
 import { websocketService } from '@/services/websocketService';
+import { useStore } from '@/store';
 
 export function useWebSocket() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected');
+  const setConnected = useStore((s) => s.setConnected);
 
   useEffect(() => {
-    // Subscribe to connection state changes
-    const unsubscribe = websocketService.onStateChange((state) => {
-      setIsConnected(state === 'connected');
-      setConnectionStatus(state);
-    });
-
-    // Connect on mount
+    const onOpen = () => { setConnectionStatus('connected'); setConnected(true); };
+    const onClose = () => { setConnectionStatus('disconnected'); setConnected(false); };
+    websocketService.addEventListener('open', onOpen);
+    websocketService.addEventListener('close', onClose);
     websocketService.connect();
-
     return () => {
-      unsubscribe();
-      // Don't disconnect on unmount — let the singleton manage its lifecycle
-      // Components that need cleanup should call websocketService.disconnect() explicitly
+      websocketService.removeEventListener('open', onOpen);
+      websocketService.removeEventListener('close', onClose);
     };
-  }, []);
+  }, [setConnected]);
 
   const sendCommand = useCallback((command: string, language?: string) => {
-    websocketService.send({
-      type: 'command',
-      command,
-      language: language ?? 'en',
-      timestamp: Date.now(),
-    });
-  }, []);
-
-  const requestStatus = useCallback(() => {
-    websocketService.send({
-      type: 'get_status',
-      timestamp: Date.now(),
-    });
+    websocketService.send({ type: 'command', command, language: language ?? 'en', timestamp: Date.now() });
   }, []);
 
   const sendConfirmation = useCallback((confirmationId: string, approved: boolean) => {
-    websocketService.send({
-      type: 'confirmation',
-      data: { confirmation_id: confirmationId, approved },
-    });
+    websocketService.send({ type: 'confirmation', data: { confirmation_id: confirmationId, approved } });
   }, []);
 
-  return {
-    isConnected,
-    connectionStatus,
-    sendCommand,
-    requestStatus,
-    sendConfirmation,
-  };
+  return { isConnected: connectionStatus === 'connected', connectionStatus, sendCommand, sendConfirmation };
 }

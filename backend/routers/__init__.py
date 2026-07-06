@@ -13,7 +13,6 @@ from . import (
     memory,  # noqa: F401
     notifications,  # noqa: F401
     pdf_tools,  # noqa: F401
-    probes,  # noqa: F401
     settings,  # noqa: F401
     sync,  # noqa: F401
     system,  # noqa: F401

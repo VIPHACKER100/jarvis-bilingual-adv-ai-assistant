@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 
 from config import BACKEND_PORT, FRONTEND_URL, PLATFORM, VERSION
 from config.environment import get_backend_api_key
-from fastapi import FastAPI, Request, Response
+from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -42,7 +42,6 @@ from routers import (
     memory,
     notifications,
     pdf_tools,
-    probes,
     settings,
     sync,
     system,
@@ -50,10 +49,7 @@ from routers import (
     whatsapp,
     windows,
 )
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
-from utils.logger_structured import OTEL_ENABLED, log_system_event, logger
+from utils.logger_structured import log_system_event, logger
 from utils.middleware_security import MaxBodySizeMiddleware, SecurityHeadersMiddleware, SQLInjectionMiddleware
 
 # Security — centralized API key resolution (see config.environment.get_backend_api_key)
@@ -72,16 +68,6 @@ async def lifespan(app: FastAPI):
     from modules.personalities import personality_manager
 
     personality_manager.set_personality(CONFIG.get("personality", "stark"))
-
-    # Initialize OpenTelemetry if enabled
-    if OTEL_ENABLED:
-        try:
-            from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-
-            FastAPIInstrumentor.instrument_app(app)
-            logger.info("FastAPI OpenTelemetry instrumentation enabled.")
-        except ImportError:
-            logger.warning("FastAPI OpenTelemetry packages missing.")
 
     try:
         await memory_manager.initialize()
@@ -153,19 +139,12 @@ async def lifespan(app: FastAPI):
     log_system_event("SHUTDOWN", {})
 
 
-# Initialize Limiter
-limiter = Limiter(key_func=get_remote_address, default_limits=["200 per minute"])
-
 app = FastAPI(
     title="JARVIS Backend",
     description="Modular AI assistant backend with high-fidelity HUD support",
     version=VERSION,
     lifespan=lifespan,
 )
-
-# Set limiter state and handler
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS middleware — accept requests from the frontend dev server,
 # production Docker deployment (http://localhost), and common dev ports.
@@ -281,8 +260,6 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # Register Routers
-from fastapi import APIRouter
-
 api_v1 = APIRouter(prefix="/api/v1")
 
 # Include routers in V1
@@ -306,8 +283,6 @@ api_v1.include_router(health.router)
 api_v1.include_router(context.router)
 api_v1.include_router(agent.router)
 api_v1.include_router(audio.router)
-api_v1.include_router(probes.router)
-
 app.include_router(api_v1)
 
 # WebSocket does not need prefix as it is typically handled separately
