@@ -333,8 +333,13 @@ jarvis-bilingual-adv-ai-assistant/
 │
 ├── docs/                         # Documentation
 │   ├── API_DOCUMENTATION.md      # REST/WS API reference
+│   ├── CHANGELOG.md              # Release history
 │   ├── COMMANDS.md               # Voice command reference
+│   ├── CONTRIBUTING.md           # Contribution guidelines
+│   ├── SECURITY.md               # Security policies
 │   ├── SETUP.md                  # Setup instructions
+│   ├── TROUBLESHOOTING.md        # Common issues & fixes
+│   └── assets/                   # Images (logo, etc.)
 │
 ├── memory/                       # AI persistent memory system
 ├── .opencode/agents/             # AI agent definitions

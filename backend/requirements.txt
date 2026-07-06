@@ -10,7 +10,6 @@ aiofiles>=25.1.0
 # Database
 asyncpg>=0.31.0
 alembic>=1.18.4
-pgvector>=0.4.2
 sqlalchemy>=2.0.51
 
 # System Monitoring & Hardware
@@ -48,16 +47,8 @@ pytest-asyncio>=1.4.0
 openai>=2.43.0
 google-generativeai>=0.8.0
 
-# Voice Activation & Wake Word
-openwakeword>=0.6.0
-numpy>=2.4.6
-pyaudio>=0.2.14
-
 # Network Discovery
 zeroconf>=0.150.0
 
 # Serialization
 PyYAML>=6.0.3
-
-# Audio Streaming
-edge-tts>=7.2.8

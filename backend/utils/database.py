@@ -1,299 +1,220 @@
 """
-JARVIS v4.0 — Async PostgreSQL Database Manager
-Drop-in replacement for the SQLite DatabaseManager using asyncpg.
+JARVIS v4.0 — SQLite Database Manager (stdlib sqlite3 + asyncio.to_thread)
+
+Replaces the former asyncpg/PostgreSQL manager with a zero-dependency SQLite
+backend.  Single-user desktop assistant doesn't need connection pools.
 """
 
 import os
-import re
-from contextlib import asynccontextmanager
+import sqlite3
+import asyncio
 from pathlib import Path
-from typing import Any, AsyncGenerator, Optional
+from typing import Any, Optional
 
-import asyncpg
 from utils.logger_structured import logger
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://jarvis:jarvis_dev_password@localhost:5432/jarvis")
+# Database lives next to data/ (PROJECT_ROOT / data / jarvis.db)
+from config import DATA_DIR
+
+DB_PATH = os.getenv("DB_PATH", str(DATA_DIR / "jarvis.db"))
 
 
-def _parse_url(url: str) -> dict:
-    raw = url.replace("postgresql+asyncpg://", "postgresql://")
-    from urllib.parse import urlparse
+# ── Schema (all tables at once, no migrations needed) ──────────────────────
 
-    parsed = urlparse(raw)
-    return {
-        "host": parsed.hostname or "localhost",
-        "port": parsed.port or 5432,
-        "user": parsed.username or "jarvis",
-        "password": parsed.password or "jarvis_dev_password",
-        "database": parsed.path.lstrip("/") or "jarvis",
-    }
+_SCHEMA_SQL = """
+CREATE TABLE IF NOT EXISTS conversations (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp       TEXT    NOT NULL DEFAULT (datetime('now')),
+    user_input      TEXT    NOT NULL,
+    jarvis_response TEXT    NOT NULL,
+    command_type    TEXT,
+    success         INTEGER DEFAULT 1,
+    context         TEXT,
+    language        TEXT    DEFAULT 'en',
+    session_id      TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_conversations_timestamp ON conversations(timestamp);
+CREATE INDEX IF NOT EXISTS idx_conversations_session   ON conversations(session_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_command_type ON conversations(command_type);
+
+CREATE TABLE IF NOT EXISTS memory (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    key         TEXT    UNIQUE NOT NULL,
+    value       TEXT    NOT NULL,
+    category    TEXT    DEFAULT 'general',
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    confidence  REAL    DEFAULT 1.0,
+    source      TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_memory_category ON memory(category);
+CREATE INDEX IF NOT EXISTS idx_memory_key      ON memory(key);
+
+CREATE TABLE IF NOT EXISTS sessions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id    TEXT    UNIQUE NOT NULL,
+    started_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    ended_at      TEXT,
+    command_count INTEGER DEFAULT 0,
+    metadata      TEXT
+);
+
+CREATE TABLE IF NOT EXISTS performance_metrics (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp       TEXT    NOT NULL DEFAULT (datetime('now')),
+    event_loop_lag  REAL    NOT NULL,
+    cpu_percent     REAL,
+    memory_percent  REAL
+);
+CREATE INDEX IF NOT EXISTS idx_performance_timestamp ON performance_metrics(timestamp);
+
+CREATE TABLE IF NOT EXISTS paired_devices (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id    TEXT    UNIQUE NOT NULL,
+    device_name  TEXT    NOT NULL,
+    device_type  TEXT    DEFAULT 'mobile',
+    access_token TEXT    NOT NULL,
+    paired_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    last_seen    TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS quick_actions (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    label   TEXT    NOT NULL,
+    command TEXT    NOT NULL,
+    icon    TEXT,
+    "order" INTEGER DEFAULT 0
+);
+"""
 
 
-def _translate_sql(sql: str) -> str:
-    count = 1
-
-    def repl(m):
-        nonlocal count
-        res = f"${count}"
-        count += 1
-        return res
-
-    return re.sub(r"\?", repl, sql)
+# ── Helpers ────────────────────────────────────────────────────────────────
 
 
-class MockCursor:
-    def __init__(self, lastrowid=None, rowcount=0, rows=None):
+def _init_db(db_path: str) -> None:
+    """Create tables on a fresh database."""
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.executescript(_SCHEMA_SQL)
+        conn.commit()
+
+
+class CursorResult:
+    """Mimics sqlite3.Cursor metadata so callers can read .lastrowid / .rowcount."""
+    __slots__ = ("lastrowid", "rowcount")
+
+    def __init__(self, lastrowid: Optional[int] = None, rowcount: int = 0):
         self.lastrowid = lastrowid
         self.rowcount = rowcount
-        self._rows = rows or []
-
-    async def fetchall(self):
-        return self._rows
-
-    async def fetchone(self):
-        return self._rows[0] if self._rows else None
-
-    def __await__(self):
-        async def _ret():
-            return self
-
-        return _ret().__await__()
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        pass
 
 
-class MockCursorWrapper:
-    def __init__(self, pool: asyncpg.Pool, sql: str, params: tuple):
-        self.pool = pool
-        self.sql = sql
-        self.params = params
-        self.lastrowid = None
-        self.rowcount = 0
-        self._rows = []
-
-    def __await__(self):
-        return self._execute().__await__()
-
-    async def _execute(self):
-        if self.pool is None:
-            return self
-
-        is_insert = self.sql.strip().upper().startswith("INSERT")
-        pg_sql = _translate_sql(self.sql)
-
-        if is_insert and "RETURNING" not in pg_sql.upper():
-            pg_sql = f"{pg_sql.rstrip(';')} RETURNING id"
-
-        async with self.pool.acquire() as conn:
-            if is_insert:
-                try:
-                    self.lastrowid = await conn.fetchval(pg_sql, *self.params)
-                    self.rowcount = 1
-                except asyncpg.exceptions.UndefinedColumnError:
-                    # In case the table doesn't have an ID column
-                    pg_sql = _translate_sql(self.sql)
-                    await conn.execute(pg_sql, *self.params)
-                    self.rowcount = 1
-            else:
-                if self.sql.strip().upper().startswith("SELECT") or "RETURNING" in pg_sql.upper():
-                    self._rows = await conn.fetch(pg_sql, *self.params)
-                    self.rowcount = len(self._rows)
-                else:
-                    res = await conn.execute(pg_sql, *self.params)
-                    if res:
-                        parts = res.split()
-                        if len(parts) > 1 and parts[-1].isdigit():
-                            self.rowcount = int(parts[-1])
-        return self
-
-    async def __aenter__(self):
-        return await self._execute()
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-    async def fetchall(self):
-        return self._rows
-
-    async def fetchone(self):
-        return self._rows[0] if self._rows else None
+# ── Public Manager ─────────────────────────────────────────────────────────
 
 
 class DatabaseManager:
-    """
-    PostgreSQL connection pool manager with:
-    - Async connection pooling (asyncpg)
-    - Schema migration runner
-    - SQLite backward compatibility layer
-    """
+    """SQLite database manager — every public method is async via asyncio.to_thread."""
 
-    def __init__(self, dsn: Optional[str] = None):
-        self.dsn = dsn or DATABASE_URL
-        self._pool: Optional[asyncpg.Pool] = None
+    def __init__(self, db_path: Optional[str] = None):
+        self.db_path = db_path or DB_PATH
         self._initialized = False
         self._degraded = False
-        self.row_factory = None  # Absorb SQLite row factory assignments
+        self.row_factory = None  # absorb stray assignments from old code
 
     async def initialize(self) -> None:
-        if self._initialized or self._degraded:
+        if self._initialized:
             return
-
         try:
-            params = _parse_url(self.dsn)
-            self._pool = await asyncpg.create_pool(
-                host=params["host"],
-                port=params["port"],
-                user=params["user"],
-                password=params["password"],
-                database=params["database"],
-                min_size=2,
-                max_size=10,
-                command_timeout=30,
-            )
+            await asyncio.to_thread(_init_db, self.db_path)
             self._initialized = True
-            logger.info(f"PostgreSQL pool initialized: {params['host']}:{params['port']}/{params['database']}")
-
-            await self._run_migrations()
-        except Exception as e:
-            logger.warning(f"Database connection failed, running in degraded mode: {e}")
+            self._degraded = False
+            logger.info("SQLite database ready at %s", self.db_path)
+        except Exception as exc:
+            logger.warning("Database init failed — degraded mode: %s", exc)
             self._degraded = True
 
-    @asynccontextmanager
-    async def connection(self) -> AsyncGenerator[Any, None]:
-        """Yield a real asyncpg Connection from the pool.
+    # ── Internal helpers ───────────────────────────────────────────────
 
-        Usage:
-            async with db_manager.connection() as conn:
-                row = await conn.fetchrow("SELECT ...")
-        """
-        if not self._initialized or self._pool is None:
-            await self.initialize()
+    def _conn(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        return conn
 
+    # ── Public query API ───────────────────────────────────────────────
+
+    async def execute(self, sql: str, params: tuple = ()) -> CursorResult:
         if self._degraded:
-            yield MockCursor()
-            return
+            return CursorResult()
 
-        conn = await self._pool.acquire()
-        try:
-            yield conn
-        finally:
-            await self._pool.release(conn)
+        def _run() -> CursorResult:
+            with self._conn() as conn:
+                cur = conn.execute(sql, params)
+                conn.commit()
+                return CursorResult(lastrowid=cur.lastrowid, rowcount=cur.rowcount)
 
-    @asynccontextmanager
-    async def transaction(self) -> AsyncGenerator[Any, None]:
-        """Yield a real asyncpg Connection inside a transaction.
+        return await asyncio.to_thread(_run)
 
-        Usage:
-            async with db_manager.transaction() as conn:
-                await conn.execute("INSERT ...")
-                # Automatically committed on success, rolled back on exception
-        """
-        if not self._initialized or self._pool is None:
-            await self.initialize()
-
-        if self._degraded:
-            yield MockCursor()
-            return
-
-        conn = await self._pool.acquire()
-        try:
-            async with conn.transaction():
-                yield conn
-        finally:
-            await self._pool.release(conn)
-
-    def execute(self, sql: str, params: tuple = ()) -> MockCursorWrapper:
-        # Compatibility wrapper for `await db.execute` and `async with db.execute`
-        return MockCursorWrapper(self._pool, sql, params)
-
-    async def fetchrow(self, sql: str, params: tuple = ()) -> Optional[asyncpg.Record]:
-        return await self.fetchone(sql, params)
-
-    async def fetchone(self, sql: str, params: tuple = ()) -> Optional[asyncpg.Record]:
+    async def fetchone(self, sql: str, params: tuple = ()) -> Optional[sqlite3.Row]:
         if self._degraded:
             return None
-        pg_sql = _translate_sql(sql)
-        async with self._pool.acquire() as conn:
-            return await conn.fetchrow(pg_sql, *params)
 
-    async def fetchall(self, sql: str, params: tuple = ()) -> list[asyncpg.Record]:
+        def _run():
+            with self._conn() as conn:
+                return conn.execute(sql, params).fetchone()
+
+        return await asyncio.to_thread(_run)
+
+    async def fetchall(self, sql: str, params: tuple = ()) -> list[sqlite3.Row]:
         if self._degraded:
             return []
-        pg_sql = _translate_sql(sql)
-        async with self._pool.acquire() as conn:
-            return await conn.fetch(pg_sql, *params)
+
+        def _run():
+            with self._conn() as conn:
+                return conn.execute(sql, params).fetchall()
+
+        return await asyncio.to_thread(_run)
+
+    async def fetchrow(self, sql: str, params: tuple = ()) -> Optional[sqlite3.Row]:
+        """Alias for fetchone (used by old code)."""
+        return await self.fetchone(sql, params)
 
     async def fetchval(self, sql: str, params: tuple = ()) -> Any:
         if self._degraded:
             return None
-        pg_sql = _translate_sql(sql)
-        async with self._pool.acquire() as conn:
-            return await conn.fetchval(pg_sql, *params)
+
+        def _run():
+            row = self._conn().execute(sql, params).fetchone()
+            return row[0] if row else None
+
+        return await asyncio.to_thread(_run)
+
+    # ── Health ─────────────────────────────────────────────────────────
 
     async def health_check(self) -> dict:
         try:
-            row = await self.fetchrow("SELECT COUNT(*) AS cnt FROM conversations")
+            row = await self.fetchone("SELECT COUNT(*) AS cnt FROM conversations")
             conv_count = row["cnt"] if row else 0
 
-            row = await self.fetchrow("SELECT COUNT(*) AS cnt FROM memory")
+            row = await self.fetchone("SELECT COUNT(*) AS cnt FROM memory")
             fact_count = row["cnt"] if row else 0
 
-            size = await self.fetchval("SELECT pg_database_size(current_database()) AS size")
-            db_size = size if size else 0
+            size = os.path.getsize(self.db_path) if os.path.exists(self.db_path) else 0
 
             return {
                 "status": "healthy",
-                "type": "postgresql",
+                "type": "sqlite",
                 "conversations": conv_count,
                 "facts": fact_count,
-                "size_bytes": db_size,
+                "size_bytes": size,
             }
-        except Exception as e:
-            return {"status": "unhealthy", "error": str(e), "type": "postgresql"}
+        except Exception as exc:
+            return {"status": "unhealthy", "error": str(exc), "type": "sqlite"}
 
     async def close(self) -> None:
-        if self._pool:
-            await self._pool.close()
-            self._pool = None
-            self._initialized = False
-            logger.info("PostgreSQL pool closed")
-
-    async def _run_migrations(self) -> None:
-        migrations_dir = Path(__file__).parent.parent / "migrations"
-
-        # Ensure version tracking table exists
-        async with self._pool.acquire() as conn:
-            await conn.execute("""
-                CREATE TABLE IF NOT EXISTS schema_version (
-                    version TEXT PRIMARY KEY,
-                    applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-                )
-            """)
-
-        # Read sorted migration files
-        migration_files = sorted(migrations_dir.glob("*.sql"))
-        if not migration_files:
-            logger.warning("No migration files found")
-            return
-
-        for migration_file in migration_files:
-            version = migration_file.stem  # e.g. "001_initial_pg" or "002_pgvector"
-
-            row = await self.fetchrow("SELECT version FROM schema_version WHERE version = ?", (version,))
-            if row:
-                logger.debug(f"Migration {version} already applied")
-                continue
-
-            sql = migration_file.read_text(encoding="utf-8")
-            async with self._pool.acquire() as conn:
-                async with conn.transaction():
-                    await conn.execute(sql)
-                    await conn.execute("INSERT INTO schema_version (version) VALUES ($1)", version)
-            logger.info(f"Migration {version} applied successfully")
+        self._initialized = False
+        logger.info("SQLite database closed")
 
 
+# Singleton
 db_manager = DatabaseManager()

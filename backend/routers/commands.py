@@ -12,7 +12,7 @@ router = APIRouter(prefix="", tags=["Commands"])
 @router.post("/command", response_model=CommandResult)
 async def execute_command(request: Request, data: CommandRequest):
     """Execute a single command via REST"""
-    from handlers.command_handler import handle_command
+    from modules.command_handler import handle_command
 
     command = data.command
     language = data.language or "en"

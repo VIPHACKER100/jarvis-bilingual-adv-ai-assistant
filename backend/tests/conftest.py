@@ -1,11 +1,13 @@
 """
-JARVIS v3.8.0 — Test Configuration & Shared Fixtures
+JARVIS v4.0 — Test Configuration & Shared Fixtures
 
-Provides isolated test database, mock LLM client, and mock system modules
-for reliable, repeatable backend testing.
+Provides isolated test database (in-memory SQLite), mock LLM client,
+and mock system modules for reliable, repeatable backend testing.
 """
 
 import asyncio
+import os
+import sqlite3
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,6 +18,47 @@ import pytest_asyncio
 
 # Ensure backend is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# ── In-memory SQLite schema ───────────────────────────────────────────
+
+_SCHEMA_SQL = """
+CREATE TABLE IF NOT EXISTS conversations (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp       TEXT    NOT NULL DEFAULT (datetime('now')),
+    user_input      TEXT    NOT NULL,
+    jarvis_response TEXT    NOT NULL,
+    command_type    TEXT,
+    success         INTEGER DEFAULT 1,
+    context         TEXT,
+    language        TEXT    DEFAULT 'en',
+    session_id      TEXT
+);
+CREATE TABLE IF NOT EXISTS memory (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    key         TEXT    UNIQUE NOT NULL,
+    value       TEXT    NOT NULL,
+    category    TEXT    DEFAULT 'general',
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    updated_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    confidence  REAL    DEFAULT 1.0,
+    source      TEXT
+);
+CREATE TABLE IF NOT EXISTS sessions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id    TEXT    UNIQUE NOT NULL,
+    started_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    ended_at      TEXT,
+    command_count INTEGER DEFAULT 0,
+    metadata      TEXT
+);
+CREATE TABLE IF NOT EXISTS performance_metrics (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp       TEXT    NOT NULL DEFAULT (datetime('now')),
+    event_loop_lag  REAL    NOT NULL,
+    cpu_percent     REAL,
+    memory_percent  REAL
+);
+"""
 
 
 # ─── Event Loop ──────────────────────────────────────────────────────────────
@@ -29,67 +72,47 @@ def event_loop():
     loop.close()
 
 
-# ─── Mock Database ───────────────────────────────────────────────────────────
-
-
-class MockConnection:
-    """Mock asyncpg-compatible connection backed by in-memory dicts."""
-
-    def __init__(self):
-        self._tables = {
-            "conversations": [],
-            "memory": [],
-            "sessions": [],
-            "performance_metrics": [],
-        }
-        self._sequences = {"id": 0}
-
-    async def execute(self, sql: str, *args) -> str:
-        return "INSERT 0 1"
-
-    async def fetchrow(self, sql: str, *args):
-        return None
-
-    async def fetch(self, sql: str, *args):
-        return []
-
-    async def fetchval(self, sql: str, *args):
-        return self._sequences["id"]
-
-    def cursor(self, *args, **kwargs):
-        return self
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, *args):
-        pass
-
-    async def close(self):
-        pass
-
-
-class MockPool:
-    """Mock asyncpg.Pool."""
-
-    def __init__(self):
-        self._conn = MockConnection()
-
-    def acquire(self):
-        return self._conn
-
-    async def release(self, conn):
-        pass
-
-    async def close(self):
-        pass
+# ─── Test Database (in-memory SQLite) ────────────────────────────────────────
 
 
 @pytest_asyncio.fixture
 async def test_db():
-    pool = MockPool()
-    with patch("utils.database.db_manager._pool", pool), patch("utils.database.db_manager._initialized", True):
-        yield pool._conn
+    """
+    Patch db_manager with a temporary file-based SQLite database.
+    Uses a temp file so each test gets an isolated, persistent database.
+    """
+    import tempfile
+    from utils.database import db_manager
+
+    tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+    tmp.close()
+    tmp_path = tmp.name
+
+    # Create tables
+    c = sqlite3.connect(tmp_path)
+    c.row_factory = sqlite3.Row
+    c.executescript(_SCHEMA_SQL)
+    c.commit()
+    c.close()
+
+    # Monkey-patch singleton
+    orig_initialized = db_manager._initialized
+    orig_degraded = db_manager._degraded
+    orig_db_path = db_manager.db_path
+
+    db_manager.db_path = tmp_path
+    db_manager._initialized = True
+    db_manager._degraded = False
+
+    yield db_manager
+
+    db_manager._initialized = orig_initialized
+    db_manager._degraded = orig_degraded
+    db_manager.db_path = orig_db_path
+    try:
+        os.unlink(tmp_path)
+    except OSError:
+        pass
 
 
 # ─── Mock LLM Client ─────────────────────────────────────────────────────────

@@ -162,7 +162,7 @@ def audit_env() -> dict:
 
 async def smoke_dispatch() -> list[dict]:
     """Safe read-only command smoke tests (no shutdown/restart)."""
-    from handlers.command_handler import dispatch_command
+    from modules.command_handler import dispatch_command
 
     tests = [
         ("time", None, "en", "what time is it"),

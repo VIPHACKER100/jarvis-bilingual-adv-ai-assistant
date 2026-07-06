@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { apiClient } from "@/services/api";
 import {
   Mic, Send, Lightbulb, X, Wifi, ShieldCheck, Zap, Terminal,
-  Activity, ChevronRight, Triangle, RefreshCcw, LayoutGrid,
+  Activity, ChevronRight, Triangle, LayoutGrid,
 } from "lucide-react";
 
 export function NeuralHUD() {

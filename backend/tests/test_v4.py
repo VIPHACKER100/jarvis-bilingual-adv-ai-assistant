@@ -12,115 +12,24 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-# ─── LLM Gateway Tests ────────────────────────────────────────────────────────
-
-
-class TestCostTracker:
-    @pytest.fixture
-    def cost_tracker(self):
-        from modules.llm_gateway.cost import CostTracker
-
-        ct = CostTracker()
-        ct.record(provider="test_provider", model="test-model", prompt_tokens=100, completion_tokens=50, latency_ms=200)
-        ct.record(provider="test_provider", model="test-model", prompt_tokens=50, completion_tokens=25, latency_ms=100)
-        return ct
-
-    def test_track_and_stats(self, cost_tracker):
-        stats = cost_tracker.stats()
-        assert stats["total_calls"] == 2
-        assert stats["total_tokens"] == 225
-
-    def test_reset(self, cost_tracker):
-        from modules.llm_gateway.cost import CostTracker
-
-        ct = CostTracker()
-        stats = ct.stats()
-        assert stats["total_calls"] == 0
-
-    def test_estimate_cost(self):
-        from modules.llm_gateway.cost import CostTracker
-
-        ct = CostTracker()
-        ct.record(provider="nvidia", model="test-model", prompt_tokens=100, completion_tokens=50)
-        cost = ct.total_cost()
-        assert isinstance(cost, float)
-        assert cost >= 0
-
-
-class TestCircuitBreaker:
-    @pytest.fixture
-    def cb(self):
-        from modules.llm_gateway.circuit import CircuitBreaker
-
-        return CircuitBreaker(failure_threshold=2, recovery_timeout=1.0)
-
-    @pytest.mark.asyncio
-    async def test_initial_state(self, cb):
-        assert cb.state == "closed"
-
-    @pytest.mark.asyncio
-    async def test_trip_on_failures(self, cb):
-        cb.record_failure()
-        cb.record_failure()
-        assert cb.state == "open"
-
-    @pytest.mark.asyncio
-    async def test_reset_after_timeout(self, cb):
-        cb.record_failure()
-        cb.record_failure()
-        assert cb.state == "open"
-        import asyncio
-
-        await asyncio.sleep(1.1)
-        assert cb.state == "half-open"
-
-    @pytest.mark.asyncio
-    async def test_success_resets(self, cb):
-        cb.record_failure()
-        cb.record_failure()
-        assert cb.state == "open"
-        import asyncio
-
-        await asyncio.sleep(1.1)
-        assert cb.is_available()
-        cb.record_success()
-        assert cb.state == "closed"
+# ─── LLM Client Tests ─────────────────────────────────────────────────────────
 
 
 @pytest.mark.asyncio
-class TestLLMGateway:
+class TestLLMClient:
     async def test_no_provider_returns_none(self):
         with patch.dict("os.environ", {}, clear=True):
-            from modules.llm_gateway.gateway import LLMGateway
+            from modules.llm_client import LLMClient
 
-            gw = LLMGateway()
-            result = await gw.generate("hello")
+            client = LLMClient()
+            result = await client.chat("hello")
             assert result is None
 
-    async def test_gateway_import(self):
+    async def test_client_import(self):
         from modules.llm_wrapper import llm_client, llm_module
 
         assert llm_module is not None
         assert llm_client is not None
-
-
-# ─── RAG Pipeline Tests ───────────────────────────────────────────────────────
-
-
-@pytest.mark.asyncio
-class TestRAGPipeline:
-    async def test_empty_context(self):
-        from modules.rag import rag_pipeline
-
-        ctx = await rag_pipeline.retrieve("hello world", force_refresh=False)
-        assert ctx is not None
-        assert ctx.query == "hello world"
-
-    async def test_format_context(self):
-        from modules.rag import rag_pipeline
-
-        result = await rag_pipeline.format_context_for_llm("test query", max_tokens=100)
-        assert isinstance(result, str)
 
 
 # ─── Agent Router Tests ───────────────────────────────────────────────────────
@@ -175,18 +84,6 @@ class TestSecurityMiddleware:
         )
         # Should either be blocked (400) or pass through to auth (403)
         assert resp.status_code in (400, 403)
-
-    def test_per_route_limiter(self):
-        from utils.middleware_security import per_route_limiter
-
-        key = "test_key"
-        # First 3 calls should pass
-        assert per_route_limiter.check(key, max_calls=3, window_sec=60)
-        assert per_route_limiter.check(key, max_calls=3, window_sec=60)
-        assert per_route_limiter.check(key, max_calls=3, window_sec=60)
-        # 4th should fail
-        assert not per_route_limiter.check(key, max_calls=3, window_sec=60)
-
 
 # ─── Audio Module Tests ───────────────────────────────────────────────────────
 

@@ -135,8 +135,8 @@ class AgentController:
 
     async def _execute_action(self, name: str, params: Dict[str, Any], language: str, session_id: str) -> Any:
         """Invoke the system tools via the direct dispatcher with safety checks."""
-        from config.commands import DANGEROUS_COMMANDS
-        from handlers.command_handler import dispatch_command
+        from config import DANGEROUS_COMMANDS
+        from modules.command_handler import dispatch_command
 
         if name in DANGEROUS_COMMANDS:
             logger.warning(f"Agent attempted to execute dangerous command: {name}")

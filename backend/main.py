@@ -23,7 +23,6 @@ from modules.automation import automation_manager
 from modules.memory import memory_manager
 from modules.proactive import proactive_manager
 from modules.system import system_module
-from modules.wake_word import wake_word_engine
 from modules.whatsapp import whatsapp_manager
 
 # Import routers
@@ -71,42 +70,12 @@ async def lifespan(app: FastAPI):
 
     try:
         await memory_manager.initialize()
-        # Trigger semantic vector sync in background to avoid blocking startup
-        asyncio.create_task(memory_manager.neural.sync_vectors())
     except Exception as e:
         logger.warning(f"Database unavailable — running in degraded mode: {e}")
     await whatsapp_manager.initialize()
     await automation_manager.initialize()
     await automation_manager.start()
     await proactive_manager.start()
-
-    # Initialize and start Wake-Word Engine if enabled
-    from config import WAKE_WORD_ENABLED
-
-    logger.info(f"DEBUG: WAKE_WORD_ENABLED is {WAKE_WORD_ENABLED}")
-    if WAKE_WORD_ENABLED:
-        try:
-            wake_word_engine.initialize()
-
-            def on_wake(model, score):
-                # Broadcast wake event to all WebSocket clients
-                from utils.websocket_manager import manager
-
-                asyncio.run_coroutine_threadsafe(
-                    manager.broadcast(
-                        {
-                            "type": "wake_detected",
-                            "data": {"model": model, "score": score},
-                            "timestamp": datetime.now().isoformat(),
-                        }
-                    ),
-                    asyncio.get_event_loop(),
-                )
-                logger.info("Wake event broadcasted to clients.")
-
-            wake_word_engine.start(callback=on_wake)
-        except Exception as e:
-            logger.error(f"Failed to start Wake-Word Engine: {e}")
 
     # Start background tasks
     status_broadcast_task = asyncio.create_task(broadcast_system_status())
@@ -133,8 +102,6 @@ async def lifespan(app: FastAPI):
     prune_task.cancel()
     await automation_manager.stop()
     await proactive_manager.stop()
-    if WAKE_WORD_ENABLED:
-        wake_word_engine.stop()
     logger.info("JARVIS Backend shutting down...")
     log_system_event("SHUTDOWN", {})
 

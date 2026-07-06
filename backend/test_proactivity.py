@@ -5,7 +5,7 @@ from pathlib import Path
 # Add backend to path
 sys.path.append(str(Path(__file__).parent.parent / "backend"))
 
-from handlers.command_handler import handle_command
+from modules.command_handler import handle_command
 from modules.context import context_manager
 from modules.window_manager import window_manager
 

@@ -1,16 +1,7 @@
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, AlertCircle, CheckCircle, AlertTriangle, Info } from 'lucide-react';
 
 export interface Notification { id: string; title: string; message: string; type: 'info' | 'success' | 'warning' | 'error'; duration: number }
-
-interface NotificationContextType { addNotification: (n: Omit<Notification, 'id'>) => void; removeNotification: (id: string) => void }
-
-const NotificationContext = createContext<NotificationContextType | null>(null);
-export function useNotifications(): NotificationContextType {
-  const ctx = useContext(NotificationContext);
-  if (!ctx) throw new Error('useNotifications must be used within NotificationCenter');
-  return ctx;
-}
 
 let counter = 0;
 
@@ -23,13 +14,11 @@ export function NotificationCenter() {
   const removeNotification = useCallback((id: string) => setNotifications((prev) => prev.filter((n) => n.id !== id)), []);
 
   return (
-    <NotificationContext.Provider value={{ addNotification, removeNotification }}>
-      <div className="fixed top-4 left-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none sm:left-auto sm:right-4 sm:w-[400px]" aria-live="polite" aria-label="Notifications">
-        {notifications.map((n) => (
-          <ToastNotification key={n.id} notification={n} onDismiss={removeNotification} />
-        ))}
-      </div>
-    </NotificationContext.Provider>
+    <div className="fixed top-4 left-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none sm:left-auto sm:right-4 sm:w-[400px]" aria-live="polite" aria-label="Notifications">
+      {notifications.map((n) => (
+        <ToastNotification key={n.id} notification={n} onDismiss={removeNotification} />
+      ))}
+    </div>
   );
 }
 

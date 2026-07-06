@@ -1,5 +1,4 @@
 import asyncio
-import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -148,150 +147,51 @@ class NeuralMemoryManager:
         return {"content": content, "metadata": metadata}
 
     async def get_neural_context(self, query: Optional[str] = None) -> str:
-        """
-        Dynamically collect relevant memory nodes for LLM context.
-        Uses hybrid search (fuzzy + semantic) if a query is provided.
-        """
+        """Collect relevant memory nodes for LLM context via keyword/fuzzy search."""
         nodes = await self.list_nodes()
         if not nodes:
             return ""
 
-        # Always include core nodes
         core_node_names = ["personality.md", "user.md", "preferences.md"]
         selected_nodes_with_scores = []
         for n in nodes:
             if n["name"] in core_node_names:
-                selected_nodes_with_scores.append((n, 200))  # Core nodes get max priority
+                selected_nodes_with_scores.append((n, 200))
 
-        # If we have a query, find additional relevant nodes
         if query:
             query_lower = query.lower()
-
-            # 1. Semantic Search (Vector)
-            semantic_scores = await self._get_semantic_scores(query)
-
-            # 2. Fuzzy/Keyword Search
             other_nodes = [n for n in nodes if n["name"] not in core_node_names]
-
             for node in other_nodes:
                 name_clean = node["name"].replace(".md", "").lower()
                 fuzzy_score = fuzz.partial_ratio(query_lower, name_clean)
-
-                # Bonus for exact keyword matches
                 if any(word in query_lower for word in name_clean.split("_")):
                     fuzzy_score += 20
+                if fuzzy_score >= 50:
+                    selected_nodes_with_scores.append((node, fuzzy_score))
 
-                # Combine with semantic score (if available)
-                semantic_score = semantic_scores.get(node["name"], 0) * 100
-
-                # Hybrid score: 40% Fuzzy, 60% Semantic
-                total_score = (fuzzy_score * 0.4) + (semantic_score * 0.6)
-
-                if total_score >= 50:
-                    selected_nodes_with_scores.append((node, total_score))
-
-            # Sort by score and take top 5
             selected_nodes_with_scores.sort(key=lambda x: x[1], reverse=True)
-            top_nodes = []
-            seen = set()
-            for node, score in selected_nodes_with_scores:
+            top_nodes, seen = [], set()
+            for node, _score in selected_nodes_with_scores:
                 if node["name"] not in seen:
                     top_nodes.append(node)
                     seen.add(node["name"])
-                if len(top_nodes) >= 6:  # Total limit
+                if len(top_nodes) >= 6:
                     break
             selected_nodes = top_nodes
         else:
-            selected_nodes = [n for n, s in selected_nodes_with_scores]
+            selected_nodes = [n for n, _s in selected_nodes_with_scores]
 
         context_parts = []
-        seen_names = set()
         for node in selected_nodes:
-            if node["name"] in seen_names:
-                continue
-            seen_names.add(node["name"])
-
             content = await self.get_node(node["name"])
             if content:
                 if content.startswith("---"):
                     parts = content.split("---", 2)
                     if len(parts) >= 3:
                         content = parts[2].strip()
-
                 context_parts.append(f"### {node['name'].replace('.md', '').upper()} ###\n{content}")
 
         return "\n\n".join(context_parts)
-
-    async def _get_semantic_scores(self, query: str) -> Dict[str, float]:
-        """Calculate semantic similarity scores via pgvector cosine distance"""
-        from modules.llm_wrapper import llm_client
-
-        query_vector = await llm_client.get_embedding(query)
-        if not query_vector:
-            return {}
-
-        rows = await db_manager.fetchall(
-            "SELECT filename, 1 - (embedding <=> ?::vector) AS similarity FROM neural_vectors WHERE embedding IS NOT NULL ORDER BY embedding <=> ?::vector LIMIT 20",
-            (query_vector, query_vector),
-        )
-        return {row["filename"]: row["similarity"] for row in rows}
-
-    async def sync_vectors(self):
-        """Synchronize Markdown nodes with vector embeddings in the database"""
-        from utils.database import db_manager
-        if db_manager._degraded:
-            logger.info("Semantic memory sync skipped (Database unavailable).")
-            return
-
-        logger.info("Synchronizing semantic memory vectors...")
-        from modules.llm_wrapper import llm_client
-
-        nodes = await self.list_nodes()
-        synced_count = 0
-
-        for node in nodes:
-            try:
-                content = await self.get_node(node["name"])
-                if not content:
-                    continue
-
-                # Calculate hash to see if it changed
-                content_hash = hashlib.md5(content.encode("utf-8")).hexdigest()
-
-                # Check DB for existing hash
-                row = await db_manager.fetchone(
-                    "SELECT content_hash FROM neural_vectors WHERE filename = ?", (node["name"],)
-                )
-
-                if row and row[0] == content_hash:
-                    continue  # Already up to date
-
-                # Generate new embedding
-                embedding = await llm_client.get_embedding(content)
-                if not embedding:
-                    logger.warning(f"Could not generate embedding for {node['name']}")
-                    continue
-
-                if row:
-                    await db_manager.execute(
-                        "UPDATE neural_vectors SET content_hash = ?, embedding = ?::vector, updated_at = ? WHERE filename = ?",
-                        (content_hash, embedding, datetime.now().isoformat(), node["name"]),
-                    )
-                else:
-                    await db_manager.execute(
-                        "INSERT INTO neural_vectors (filename, content_hash, embedding) VALUES (?, ?, ?::vector)",
-                        (node["name"], content_hash, embedding),
-                    )
-
-                synced_count += 1
-
-            except Exception as e:
-                logger.error(f"Error syncing vector for {node['name']}: {e}")
-
-        if synced_count > 0:
-            logger.info(f"Semantic memory sync complete. Updated {synced_count} vectors.")
-        else:
-            logger.info("Semantic memory already synchronized.")
 
 
 class MemoryManager:
@@ -482,12 +382,7 @@ class MemoryManager:
             return {}
 
     async def get_command_insights(self, days: int = 30) -> Dict:
-        """Mines command history to produce behavioral usage insights.
-
-        Uses PostgreSQL-native date functions:
-          - DATE(timestamp)     → (timestamp AT TIME ZONE 'UTC')::date
-          - STRFTIME('%H', ts)  → EXTRACT(HOUR FROM timestamp AT TIME ZONE 'UTC')::int
-        """
+        """Mines command history to produce behavioral usage insights (SQLite-compatible)."""
         try:
             since = (datetime.now() - timedelta(days=days)).isoformat()
 
@@ -496,7 +391,7 @@ class MemoryManager:
                 """
                 SELECT command_type, COUNT(*) AS count
                 FROM conversations
-                WHERE timestamp > $1
+                WHERE timestamp > ?
                 GROUP BY command_type
                 ORDER BY count DESC
                 LIMIT 5
@@ -508,10 +403,10 @@ class MemoryManager:
             # Commands per day (last 7 days)
             daily_rows = await db_manager.fetchall(
                 """
-                SELECT (timestamp AT TIME ZONE 'UTC')::date AS day,
+                SELECT date(timestamp) AS day,
                        COUNT(*) AS count
                 FROM conversations
-                WHERE timestamp > (NOW() AT TIME ZONE 'UTC' - INTERVAL '7 days')
+                WHERE timestamp > datetime('now', '-7 days')
                 GROUP BY day
                 ORDER BY day ASC
                 """,
@@ -521,10 +416,10 @@ class MemoryManager:
             # Peak usage hour (0-23)
             peak_row = await db_manager.fetchone(
                 """
-                SELECT EXTRACT(HOUR FROM timestamp AT TIME ZONE 'UTC')::int AS hour,
+                SELECT CAST(strftime('%H', timestamp) AS INTEGER) AS hour,
                        COUNT(*) AS count
                 FROM conversations
-                WHERE timestamp > $1
+                WHERE timestamp > ?
                 GROUP BY hour
                 ORDER BY count DESC
                 LIMIT 1
@@ -537,12 +432,12 @@ class MemoryManager:
             failure_rows = await db_manager.fetchall(
                 """
                 SELECT command_type,
-                       SUM(CASE WHEN success = FALSE THEN 1 ELSE 0 END) AS failures,
+                       SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) AS failures,
                        COUNT(*) AS total
                 FROM conversations
-                WHERE timestamp > $1
+                WHERE timestamp > ?
                 GROUP BY command_type
-                HAVING SUM(CASE WHEN success = FALSE THEN 1 ELSE 0 END) > 0
+                HAVING SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) > 0
                 ORDER BY failures DESC
                 LIMIT 5
                 """,

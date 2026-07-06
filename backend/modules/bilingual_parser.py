@@ -1,3 +1,4 @@
+import json
 import re
 import sys
 from pathlib import Path
@@ -5,7 +6,15 @@ from typing import Dict, Optional, Tuple
 
 from rapidfuzz import fuzz
 
-from config import HINDI_COMMANDS, RESPONSES  # type: ignore
+# Load command data from JSON file
+_commands_path = Path(__file__).parent.parent / "config" / "commands.json"
+_commands_data = {}
+if _commands_path.exists():
+    with open(_commands_path, "r", encoding="utf-8") as _f:
+        _commands_data = json.load(_f)
+
+HINDI_COMMANDS: dict = _commands_data.get("hindi_commands", {})
+RESPONSES: dict = _commands_data.get("responses", {})
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 

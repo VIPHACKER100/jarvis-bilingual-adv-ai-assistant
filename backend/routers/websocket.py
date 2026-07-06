@@ -23,7 +23,7 @@ async def websocket_endpoint(
     api_key: Optional[str] = None,
 ):
     """Real-time bidirectional communication with authentication"""
-    from handlers.command_handler import handle_command
+    from modules.command_handler import handle_command
     from modules.memory import memory_manager
 
     # API key gate — uses centralized resolver from config.environment
