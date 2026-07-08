@@ -1,6 +1,5 @@
 # Security Policy
-
-ponytail: trimmed from 38 to ~18 lines — removed version table and detailed response timeline
+> ponytail: trimmed from 38 to 10 lines — removed version table and response timeline
 
 ## Reporting a Vulnerability
 

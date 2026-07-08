@@ -1,595 +1,123 @@
-# JARVIS Voice Commands
+# Voice Commands
+> ponytail: trimmed from 595 to 93 lines — removed OCR/PDF/image/WhatsApp/memory/automation/macro/persona/clipboard/settings/performance/UI-nav sections
 
-Complete reference of all voice commands supported by JARVIS.
+## How to use
 
----
+1. Click the Arc Reactor to activate
+2. Speak naturally in English or Hinglish
+3. Wait for beep, then JARVIS responds
 
-## 🎙️ How to Use
-
-1. **Activate JARVIS** - Click the Arc Reactor or say "Hey JARVIS"
-2. **Speak naturally** - Commands work seamlessly in English, Hinglish, and **Native Devanagari Script** (Hindi natively transcribed via Web Speech API).
-3. **Wait for beep** - JARVIS will respond when ready
-4. **Use parameters** - Add details like "Open Chrome", "Volume up 20" or "लड़कियों की फोटो गूगल सर्च करो"
-
----
-
-## 📊 System Commands
+## System Commands
 
 ### Time & Date
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "What time is it?" | "Samay kya hai?" | Get current time |
-| "What's the time?" | "Kitne baje hai?" | Get current time |
-| "Tell me the time" | "Time batao" | Get current time |
-| "What date is it?" | "Aaj kaun si tareekh hai?" | Get current date |
-| "What's today's date?" | "Aaj ki tareekh kya hai?" | Get current date |
-| "What day is it?" | "Aaj kaun sa din hai?" | Get current day |
+| English | Hinglish |
+|---------|----------|
+| "What time is it?" | "Samay kya hai?" |
+| "What's the time?" | "Kitne baje hai?" |
+| "Tell me the time" | "Time batao" |
+| "What date is it?" | "Aaj kaun si tareekh hai?" |
+| "What's today's date?" | "Aaj ki tareekh kya hai?" |
+| "What day is it?" | "Aaj kaun sa din hai?" |
 
 ### Battery & Power
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Battery status" | "Battery kitni hai?" | Check battery level |
-| "How much battery?" | "Kitni charge bachi hai?" | Check battery level |
-| "Is charging?" | "Charge ho raha hai?" | Check if plugged in |
-| "System status" | "System check karo" | Full system info |
-| "PC status" | "Computer status" | System overview |
+| English | Hinglish |
+|---------|----------|
+| "Battery status" | "Battery kitni hai?" |
+| "How much battery?" | "Kitni charge bachi hai?" |
+| "Is charging?" | "Charge ho raha hai?" |
+| "System status" | "System check karo" |
 
-### Diagnostics & Weather
+### Diagnostics
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "IP address" | "Mera IP batao" | Get current IP address |
-| "Uptime" | "Kitne time se chal raha hai?" | System uptime |
-| "Weather" | "Aaj ka mausam kaisa hai?" | Current weather information |
-| "System summary" | "System ki summary" | Overall system status |
+| English | Hinglish |
+|---------|----------|
+| "IP address" | "Mera IP batao" |
+| "Uptime" | "Kitne time se chal raha hai?" |
+| "Weather" | "Aaj ka mausam kaisa hai?" |
 
-### Power Control ⚠️
+### Power Control (requires confirmation)
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Shutdown computer" | "Computer band karo" | Shutdown (needs confirmation) |
-| "Turn off PC" | "PC band karo" | Shutdown (needs confirmation) |
-| "Restart computer" | "Computer restart karo" | Restart (needs confirmation) |
-| "Reboot system" | "System dobara chalu karo" | Restart (needs confirmation) |
-| "Sleep mode" | "Sleep mode mein daalo" | Sleep (needs confirmation) |
-| "Hibernate" | "Hibernate karo" | Hibernate (needs confirmation) |
+| English | Hinglish |
+|---------|----------|
+| "Shutdown computer" | "Computer band karo" |
+| "Restart computer" | "Computer restart karo" |
+| "Sleep mode" | "Sleep mode mein daalo" |
 
 ### Volume Control
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Volume up [amount]" | "Aawaz [amount] badhao" | Increase volume by % |
-| "Volume down [amount]" | "Aawaz [amount] kam karo" | Decrease volume by % |
-| "Mute" | "Mute karo" | Mute system |
-| "Unmute" | "Unmute karo" | Unmute system |
-| "Set volume to [X]" | "Aawaz [X] par set karo" | Set exact volume % |
+| English | Hinglish |
+|---------|----------|
+| "Volume up [amount]" | "Aawaz [amount] badhao" |
+| "Volume down [amount]" | "Aawaz [amount] kam karo" |
+| "Mute" | "Mute karo" |
+| "Unmute" | "Unmute karo" |
+| "Set volume to [X]" | "Aawaz [X] par set karo" |
 
 ### Brightness Control
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Brightness up" | "Roshni badhao" | Increase brightness |
-| "Brightness down" | "Roshni kam karo" | Decrease brightness |
-| "Raise brightness" | "Brightness badhao" | Screen brightness +10% |
-| "Lower brightness" | "Brightness kam karo" | Screen brightness -10% |
-| "Max brightness" | "Poori brightness" | Set brightness to 100% |
+| English | Hinglish |
+|---------|----------|
+| "Brightness up" | "Roshni badhao" |
+| "Brightness down" | "Roshni kam karo" |
+| "Max brightness" | "Poori brightness" |
 
----
+## Web & Search Commands
 
-## 🌐 Web & Search Commands
+| English | Hinglish |
+|---------|----------|
+| "Google search [query]" | "Google search karo [query]" |
+| "Search for [query]" | "[query] dhoondo" |
+| "Open browser" | "Browser kholo" |
+| "New tab" | "Naya tab kholo" |
+| "Close tab" | "Tab band karo" |
+| "Open [website.com]" | "[website.com] kholo" |
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Google search [query]" | "Google search karo [query]" | Executed Google search |
-| "Search for [query]" | "[query] dhoondo" | Search on Google |
-| "Open browser" | "Browser kholo" | Open default browser |
-| "New tab" | "Naya tab kholo" | Open new browser tab |
-| "Close tab" | "Tab band karo" | Close current tab |
-| "New window" | "Naya window kholo" | Open new browser window |
-| "Open [website.com]" | "[website.com] kholo" | Open specific URL |
-| "Search [query]" | "[query] search karo" | Smart search extraction |
-| "Find on page [text]" | "Page par [text] dhoondo" | Find text in browser |
-
----
-
-## 🪟 Window Management Commands
+## App Commands
 
 ### Open Applications
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Open Chrome" | "Chrome kholo" | Open Google Chrome |
-| "Open Firefox" | "Firefox kholo" | Open Firefox browser |
-| "Open Edge" | "Edge kholo" | Open Microsoft Edge |
-| "Open Notepad" | "NotePad kholo" | Open Notepad |
-| "Open Notepad (Devanagari)" | "नोटपैड खोलो" | Open Notepad (Native) |
-| "Open Calculator" | "Calculator kholo" | Open Calculator |
-| "Open Calculator (Devanagari)" | "कैलकुलेटर खोलो" | Open Calc (Native) |
-| "Open VS Code" | "VS Code kholo" | Open VS Code |
-| "Open Code" | "कोड खोलो" | Open VS Code (Native) |
-| "Start [app name]" | "[app] chalu karo" | Open any application |
+| English | Hinglish |
+|---------|----------|
+| "Open Chrome" | "Chrome kholo" |
+| "Open Firefox" | "Firefox kholo" |
+| "Open Notepad" | "NotePad kholo" |
+| "Open Calculator" | "Calculator kholo" |
+| "Open VS Code" | "VS Code kholo" |
+| "Open [app]" | "[app] kholo" |
 
 ### Close Applications
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Close Chrome" | "Chrome band karo" | Close Chrome |
-| "Close Notepad" | "Notepad band karo" | Close Notepad |
-| "Close window" | "Window band karo" | Close active window |
-| "Exit app" | "App band karo" | Close application |
-| "Kill [app name]" | "[app] band karo" | Force close app |
+| English | Hinglish |
+|---------|----------|
+| "Close Chrome" | "Chrome band karo" |
+| "Close Notepad" | "Notepad band karo" |
+| "Close window" | "Window band karo" |
+| "Exit app" | "App band karo" |
 
 ### Window Control
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Minimize window" | "Window chhota karo" | Minimize active window |
-| "Maximize window" | "Window bada karo" | Maximize active window |
-| "Restore window" | "Window wapas lao" | Restore window |
-| "Show desktop" | "Desktop dikhavo" | Minimize all windows |
-| "Snap left" | "Bayan taraf karo" | Snap window to left |
-| "Snap right" | "Dayan taraf karo" | Snap window to right |
-| "Snap up" | "Upar karo" | Snap to top |
-| "Snap down" | "Neeche karo" | Snap to bottom |
+| English | Hinglish |
+|---------|----------|
+| "Minimize window" | "Window chhota karo" |
+| "Maximize window" | "Window bada karo" |
+| "Restore window" | "Window wapas lao" |
+| "Show desktop" | "Desktop dikhavo" |
 
----
+## Safety
 
-## 🖱️ Input Control Commands
+Commands with warning icons require confirmation. JARVIS asks, waits 30 seconds, and executes only if you say "Yes" or click Confirm.
 
-### Mouse Movement
+## Tips
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Move cursor to X Y" | "Cursor X Y le jao" | Move to coordinates |
-| "Move mouse to center" | "Mouse center mein le jao" | Center of screen |
-| "Get cursor position" | "Cursor position batao" | Current coordinates |
+- Speak clearly, moderate pace
+- Use simple keywords: "Open Chrome" not "Can you please open Chrome"
+- Be specific: "Open Downloads" vs "Open folder"
+- Mix Hindi and English freely — "Chrome kholo", "Volume badhao"
 
-### Mouse Actions
+## Resources
 
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Click" | "Click karo" | Left click |
-| "Double click" | "Do bar click karo" | Double click |
-| "Right click" | "Right click karo" | Right click |
-| "Scroll up" | "Upar scroll karo" | Scroll up (Standard: 300) |
-| "Scroll up a lot" | "Jyada upar scroll" | Scroll up 3x faster |
-| "Scroll up slightly" | "Thoda upar scroll" | Scroll up 0.5x speed |
-| "Scroll down" | "Neeche scroll karo" | Scroll down (Standard: 300) |
-| "Scroll down a lot" | "Jyada neeche scroll" | Scroll down 3x faster |
-| "Scroll down slightly" | "Thoda neeche scroll" | Scroll down 0.5x speed |
-| "Drag to X Y" | "X Y pe drag karo" | Drag and drop |
-
-### Keyboard Input
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Type [text]" | "[text] likho" | Type text |
-| "Press Enter" | "Enter daba" | Press Enter key |
-| "Press Escape" | "Escape daba" | Press Escape |
-| "Press Tab" | "Tab daba" | Press Tab |
-| "Press Space" | "Space daba" | Press Space |
-| "Press Delete" | "Delete daba" | Press Delete |
-| "Press Backspace" | "Backspace daba" | Press Backspace |
-| "Press F1" | "F1 daba" | Press F1 key |
-| "Copy" | "Copy karo" | Ctrl+C |
-| "Paste" | "Paste karo" | Ctrl+V |
-| "Cut" | "Cut karo" | Ctrl+X |
-| "Select all" | "Sab select karo" | Ctrl+A |
-| "Undo" | "Undo karo" | Ctrl+Z |
-| "Save" | "Save karo" | Ctrl+S |
-| "Find" | "Find karo" | Ctrl+F |
-
----
-
-## 📁 File Management Commands
-
-### Open Folders
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Open Downloads" | "Downloads kholo" | Open Downloads folder |
-| "Open Documents" | "Documents kholo" | Open Documents folder |
-| "Open Desktop" | "Desktop kholo" | Open Desktop folder |
-| "Open Pictures" | "Pictures kholo" | Open Pictures folder |
-| "Open Videos" | "Videos kholo" | Open Videos folder |
-| "Open Music" | "Music kholo" | Open Music folder |
-| "Open Home" | "Home kholo" | Open Home directory (User Profile) |
-| "Open folder [name]" | "[name] folder kholo" | Open specific folder |
-
-### File Operations
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Search file [name]" | "[name] file dhoondo" | Search for file |
-| "Find [name]" | "[name] dhundho" | Search files |
-| "Create folder [name]" | "[name] folder banao" | Create new folder |
-| "Delete file [path]" | "[path] file hatao" | Delete file ⚠️ |
-| "Remove [name]" | "[name] hatao" | Delete file ⚠️ |
-| "Copy file" | "File copy karo" | Copy file |
-| "Move file" | "File move karo" | Move file |
-| "Rename file" | "File ka naam badlo" | Rename file |
-| "File info" | "File ki jankari" | Get file details |
-
-⚠️ **Note**: Delete operations require confirmation and move files to trash (recoverable).
-
----
-
-## 🖼️ OCR & Text Extraction Commands
-
-### Image OCR
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Extract text from image" | "Image se text nikalo" | OCR on image file |
-| "Read this image" | "Ye image padho" | Extract image text |
-| "Get text from photo" | "Photo se text lo" | OCR on photo |
-
-### PDF OCR
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Extract text from PDF" | "PDF se text nikalo" | OCR on PDF |
-| "Read PDF" | "PDF padho" | Extract PDF text |
-| "PDF to text" | "PDF ko text mein badlo" | Convert PDF to text |
-
-### Screenshot OCR & Analysis
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Screenshot and extract text" | "Screenshot lo aur text nikalo" | Capture & OCR HUD |
-| "Read screen" | "Screen padho" | JARVIS Vision V3 HUD |
-| "Copy text from screen" | "Screen se text copy karo" | Extract visible text |
-| "Analyze my screen" | "Screen analyze karo" | Premium Robotic Vision protocol |
-| "Narrate screen" | "Screen padho" | Reads out visible text |
-| "Screen summary" | "Screen ka summary" | High-level summary of the screen |
-
----
-
-## 📄 PDF Commands
-
-### PDF Operations
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Merge PDFs" | "PDFs jodo" | Combine multiple PDFs |
-| "Combine PDF files" | "PDF files jodo" | Merge PDFs |
-| "Split PDF" | "PDF alag karo" | Extract pages |
-| "PDF to images" | "PDF ko images mein badlo" | Convert PDF pages to images |
-| "Images to PDF" | "Images ko PDF mein badlo" | Create PDF from images |
-| "Compress PDF" | "PDF compress karo" | Reduce PDF size |
-
----
-
-## 🎨 Image Processing Commands
-
-### Format Conversion
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Convert to PNG" | "PNG mein convert karo" | Convert image to PNG |
-| "Convert to JPG" | "JPG mein convert karo" | Convert image to JPEG |
-| "Convert to WebP" | "WebP mein convert karo" | Convert to WebP |
-| "Change format" | "Format badlo" | Change image format |
-
-### Image Editing
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Resize image" | "Image resize karo" | Change image size |
-| "Make image smaller" | "Image chhota karo" | Reduce dimensions |
-| "Compress image" | "Image compress karo" | Reduce file size |
-| "Crop image" | "Image crop karo" | Crop image |
-| "Rotate image" | "Image ghumao" | Rotate image |
-| "Batch convert" | "Sabko convert karo" | Convert multiple images |
-
----
-
-## 📸 Screenshot Commands
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Take screenshot" | "Screenshot lo" | Full screen capture |
-| "Snapshot" | "स्क्रीनशॉट खींचो" | Native Hindi action |
-| "Capture screen" | "स्क्रीन कैप्चर करो" | Full screenshot |
-| "Take photo" | "फोटो खींचो" | Casual Hindi command |
-| "Screenshot region" | "Region ka screenshot lo" | Capture specific area |
-| "Save screenshot" | "Screenshot save karo" | Save to file |
-
----
-
-## 📋 Clipboard Commands
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Get clipboard" | "Clipboard dekhoo" | Read clipboard text |
-| "Show clipboard" | "Clipboard dikhavo" | Display clipboard |
-| "Set clipboard [text]" | "[text] clipboard mein daalo" | Copy text |
-| "Copy to clipboard" | "Clipboard mein copy karo" | Copy text |
-| "Clear clipboard" | "Clipboard saaf karo" | Clear clipboard |
-
----
-
-## 🎵 Media Control Commands
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Play music" | "Music chalao" | Play/Pause media |
-| "Pause music" | "Music roko" | Pause playback |
-| "Toggle playback" | "प्ले पॉज करो" | Media toggle |
-| "Next song" | "Agla gaana" | Next track |
-| "Next" | "आगे बढ़ाओ" | Skip forward |
-| "Previous song" | "Pichla gaana" | Previous track |
-| "Go back" | "पीछे करो" | Skip backward |
-| "Stop music" | "Music band karo" | Stop playback |
-| "Volume up" | "Volume badhao" | Increase volume |
-| "Volume down" | "Volume kam karo" | Decrease volume |
-| "Mute" | "Mute karo" | Mute audio |
-| "Kill media" | "Gaana khatam karo" | Force stop all media |
-
----
-
-## 📱 WhatsApp Commands
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Open WhatsApp" | "WhatsApp kholo" | Open WhatsApp |
-| "Send message to [name]" | "[name] ko message bhejo" | Smart Contact Resolution |
-| "Message [name] saying [text]" | "[name] ko bolo [text]" | Relationship Mapping (Dad/Boss) |
-| "Call [name]" | "[name] ko call karo" | Intelligent Dialing |
-| "Video call [name]" | "[name] se video call karo" | Video call |
-
-> [!TIP]
-> **Smart Contacts**: JARVIS now remembers your relationships. You can say "Message Mom" or "Call The Boss" if these are mapped in your `contacts.json` profile.
-
----
-
-## 📱 Mobile Companion & Sync
-
-### Pairing & Connection
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Show pairing code" | "Pairing code dikhao" | Display dynamic 6-digit sync code |
-| "Link mobile device" | "Mobile link karo" | Open sync panel with QR code |
-| "Disconnect all devices" | "Saare devices hatao" | Revoke all mobile session tokens |
-| "Who is connected?" | "Kaun connected hai?" | List paired mobile devices |
-
-### Remote Control
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Sync my status" | "Status sync karo" | Push telemetry to mobile HUD |
-| "Force mobile update" | "Mobile update karo" | Trigger instant remote UI refresh |
-| "Broadcast to mobile" | "Mobile par bhejo" | Send current screen/data to phone |
-
----
-
-## 🤖 Automation & Macro Commands
-
-### Scheduled Tasks
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Create task [name]" | "Task banao [name]" | Schedule a new recurring task |
-| "Schedule [command] at [time]" | "[time] par [command] schedule karo" | Schedule command execution |
-| "List my tasks" | "Saare tasks dikhao" | List all scheduled tasks |
-| "Toggle task [name]" | "Task [name] on/off karo" | Enable/disable a task |
-| "Delete task [name]" | "Task [name] hatao" | Remove a scheduled task |
-| "Show task status" | "Task status dikhao" | Scheduler health & queue status |
-
-### Macros
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Create macro [name]" | "Macro banao [name]" | Record a macro (sequence of actions) |
-| "List macros" | "Macros dikhao" | List saved macros |
-| "Run macro [name]" | "Macro [name] chalao" | Execute a saved macro |
-
----
-
-## 🧠 Memory Commands
-
-### Conversation History
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Show history" | "History dikhao" | View recent conversation history |
-| "Clear my history" | "History saaf karo" | Delete all conversation history |
-| "What did I ask yesterday?" | "Maine kal kya poocha tha?" | Recall past conversations |
-
-### Facts & Knowledge
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Remember that [fact]" | "Yaad rakho ki [fact]" | Save a memory fact |
-| "What do you know about me?" | "Mere baare mein kya jaante ho?" | List saved facts |
-| "Recall [topic]" | "[topic] yaad karo" | Retrieve a specific fact |
-| "Forget [fact]" | "[fact] bhool jao" | Delete a memory fact |
-
-### Neural Memory Nodes
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Show memory nodes" | "Memory nodes dikhao" | List neural memory documents |
-| "Read memory [name]" | "Memory [name] padho" | View node content |
-| "Update memory [name]" | "Memory [name] update karo" | Modify node content |
-
----
-
-## ⚙️ Settings Commands
-
-### Configuration
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Open settings" | "Settings kholo" | Open Cloud Settings panel |
-| "Change language to [en/hi]" | "Language [en/hi] karo" | Switch between English/Hindi |
-| "Set provider to [nvidia/openrouter/openai/ollama]" | "Provider [name] karo" | Change LLM provider |
-| "Show current settings" | "Current settings dikhao" | View all configuration |
-| "Enable dangerous commands" | "Dangerous commands on karo" | Allow shutdown/delete without prompt |
-| "Disable dangerous commands" | "Dangerous commands off karo" | Require confirmation for dangerous actions |
-
-### API Keys
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Manage API keys" | "API keys management karo" | Open API key panel |
-| "Test API key" | "API key test karo" | Verify current provider key works |
-| "Show key status" | "Key status dikhao" | List which keys are configured |
-
----
-
-## 📊 Performance & Analytics Commands
-
-### System Metrics
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Show performance" | "Performance dikhao" | Open live Performance Monitor |
-| "CPU usage" | "CPU usage batao" | Current CPU utilization |
-| "Memory usage" | "Memory usage batao" | Current RAM utilization |
-| "Disk usage" | "Disk usage batao" | Storage usage |
-| "Network stats" | "Network statistics" | Network throughput |
-| "Show performance history" | "Performance history dikhao" | Historical metrics chart |
-
-### Command Analytics
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Command insights" | "Command insights dikhao" | Usage analytics dashboard |
-| "Most used commands" | "Sabse zyada use commands" | Top command frequency |
-| "Peak usage time" | "Sabse active time" | Peak activity hour |
-
----
-
-## 🖥️ UI Panel Navigation Commands
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Open file browser" | "File browser kholo" | Open File Explorer panel |
-| "Show windows" | "Windows dikhao" | Open Window Manager panel |
-| "Show performance monitor" | "Performance monitor kholo" | Open Performance Monitor panel |
-| "Open WhatsApp panel" | "WhatsApp panel kholo" | Open WhatsApp messaging panel |
-| "Show devices" | "Devices dikhao" | Open Device Sync panel |
-| "Open Cloud settings" | "Cloud settings kholo" | Open API key management panel |
-| "Switch to [HUD/Timeline/Sync/Training]" | "[view] mein jao" | Switch tactical view |
-| "Show home" | "Home screen dikhao" | Return to main HUD |
-
----
-
-## 🆘 Help Commands
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Help" | "Madad chahiye" | Show help |
-| "What can you do?" | "Tum kya kar sakte ho?" | List capabilities |
-| "Commands" | "Commands batao" | Show command list |
-| "Features" | "Features batao" | List features |
-| "Show analytics" | "Analytics dikhao" | Open Command Insights |
-| "Command insights" | "Usage statistics" | View behavioral patterns |
-| "Peak usage" | "Most used commands" | Top command metrics |
-
-### 🎭 Personality & Persona Switching
-
-| English | Hindi | Description |
-| :--- | :--- | :--- |
-| "Activate Stark Mode" | "Stark mode chalu karo" | Switch to Stark Personality |
-| "Midnight Protocol" | "Midnight mode" | Switch to Midnight (Dark) |
-| "Switch to Avenue" | "Avenue persona" | Switch to Avenue Style |
-| "Linear Mode" | "Linear interface" | Switch to Linear Design |
-| "Change your persona" | "Apna vyaktitva badlo" | Randomly switch personality |
-
----
-
-## 💡 Tips for Best Results
-
-### Speaking Tips
-
-1. **Speak clearly** - Enunciate words
-2. **Moderate pace** - Not too fast, not too slow
-3. **Minimal background noise** - Quiet environment works best
-4. **Use keywords** - Say "Open Chrome" rather than "Can you please open Chrome"
-
-### Command Tips
-
-1. **Be specific** - "Open Downloads" vs "Open folder"
-2. **Use proper names** - "Close Notepad" vs "Close text editor"
-3. **Add parameters** - "Volume up 20" vs just "Volume up"
-4. **Wait for response** - Let JARVIS finish before next command
-
-### Language Mixing
-
-JARVIS supports Hinglish (mixed Hindi-English):
-
-- "Chrome kholo"
-- "Volume badhao"
-- "Downloads folder kholo"
-- "Screenshot lo"
-
----
-
-## 🔒 Safety Features
-
-Commands marked with ⚠️ require confirmation:
-
-- Shutdown/Restart/Sleep
-- Delete files
-- Close applications
-- Format operations
-
-**Confirmation Process:**
-
-1. JARVIS asks for confirmation
-2. You have 30 seconds to respond
-3. Say "Yes" or click Confirm
-4. Action executes
-5. Or say "No" to cancel
-
----
-
-## 📝 Command Categories Summary
-
-| Category | English Commands | Hindi Commands | Total |
-| :--- | :--- | :--- | :--- |
-| System | 15 | 15 | 30 |
-| Window Management | 12 | 12 | 24 |
-| Input Control | 18 | 18 | 36 |
-| File Management | 14 | 14 | 28 |
-| OCR & Media | 12 | 12 | 24 |
-| PDF Tools | 6 | 6 | 12 |
-| Image Processing | 10 | 10 | 20 |
-| Desktop Utilities | 8 | 8 | 16 |
-| WhatsApp | 5 | 5 | 10 |
-| Automation & Macros | 8 | 8 | 16 |
-| Memory | 10 | 10 | 20 |
-| Settings | 7 | 7 | 14 |
-| Performance & Analytics | 8 | 8 | 16 |
-| UI Navigation | 8 | 8 | 16 |
-| Persona | 5 | 5 | 10 |
-| Mobile Sync | 7 | 7 | 14 |
-| **Total** | **158** | **158** | **316+** |
-
----
-
-## 🆘 Troubleshooting Commands
-
-If JARVIS doesn't understand:
-
-1. **Rephrase** - Try different words
-2. **Speak slower** - Reduce speed
-3. **Check language** - Verify EN/हिंदी toggle
-4. **Use simpler words** - "Open Chrome" vs "Launch Google Chrome browser"
-
----
-
-## 📚 Additional Resources
-
-- [SETUP.md](SETUP.md) - Installation guide
-- [API_DOCUMENTATION.md](API_DOCUMENTATION.md) - API reference
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues
-
----
-
-### Happy Voice Controlling! 🎙️
+- [Setup guide](SETUP.md)
+- [API reference](API_DOCUMENTATION.md)
+- [Troubleshooting](TROUBLESHOOTING.md)

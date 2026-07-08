@@ -5,7 +5,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()  # loads root .env (for VITE_ vars)
+load_dotenv(Path(__file__).parent.parent / ".env")  # loads backend/.env (for backend vars)
 
 # Base paths
 if getattr(sys, "frozen", False):

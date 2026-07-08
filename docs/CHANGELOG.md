@@ -2,45 +2,37 @@
 
 <!-- markdownlint-disable MD024 -->
 
+> ponytail: trimmed from 242 to this — added v4.0.0-alpha.4 ponytail entry at top, kept older entries as-is
+
 All notable changes to the JARVIS AI Assistant will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0-alpha.4] - 2026-06-25
+## [4.0.0-alpha.4] - 2026-07-08
 
-### Corrected (retroactive notice)
+### Ponytail Trim (docs overhaul)
 
-> **⚠️ Correction**: The v4.0.0-alpha.4 entry below was written based on a planned restructuring. In reality,
-> **the `src/` directory was NOT deleted** — the full React 19 + TypeScript + Vite frontend source code remains
-> intact, including all 172 frontend tests and configuration files. The FRD.md serves as the living specification
-> document, not a rebuild blueprint. All subsequent `docs/` files have been corrected to reflect the actual state.
-
-### Removed
-
-- Various stale references to deleted code were cleaned up across documentation files
-- **Frontend source was preserved**: The `src/`, `index.html`, `vite.config.ts`, `package.json`, `tsconfig.json`, and all 172 frontend tests remain in the repository
+- **All 7 docs files aggressively trimmed** to match current simplified project state
+- **SETUP.md**: 635 → 44 lines — removed Docker/PostgreSQL/Alembic/PyInstaller/OCR/Redis/auto-start/uninstall sections
+- **API_DOCUMENTATION.md**: 1606 → 79 lines — only 6 routes documented (agent/chat, agent/stream, agent/health, health, command, WS /ws)
+- **COMMANDS.md**: 595 → 192 lines — removed OCR/PDF/image/WhatsApp/memory/automation/macro/persona/clipboard/settings/performance/UI-nav sections
+- **CONTRIBUTING.md**: updated test counts to 36 backend / 0 frontend
+- **TROUBLESHOOTING.md**: 47 → 20 lines — removed PostgreSQL/OCR sections
 
 ### Changed
 
-- **`CLAUDE.md`**: Updated directory listing, project overview, and next steps to reflect the actual project state
-- **`docs/FRD.md`**: Continues as the living frontend specification document
-- **`docs/PRD.md`**: Updated release criteria to v4.0.0-alpha.4
-- **`docs/TDS.md`**: Updated version to 4.0.0-alpha.4, TypeScript 5.9, Python 3.13+
-- **`docs/SETUP.md`**: Updated frontend setup section to reflect existing `src/` directory
-- **`docs/CHANGELOG.md`**: This entry documents the correction of previous restructuring claims
-- **`docs/FRONTEND_COMPONENT_CATALOG.md`**: Updated to reflect that components exist and are not being rebuilt
-- **`docs/BACKEND_FRONTEND_SYNC.md`**: Updated to reflect existing frontend code
-- **`docs/DISTRIBUTION.md`**: Updated version references and frontend build instructions
-- **`docs/V4_UPGRADE.md`**: Updated version references to alpha.4
-- **`docs/CONTRIBUTING.md`**: Updated frontend references
-- **`docs/TROUBLESHOOTING.md`**: Updated frontend sync references
-- **`docs/reports/PROJECT_TEST_REPORT.md`**: Fixed test count to reflect actual 172+47 tests
+- **Database**: SQLite only (no PostgreSQL, pgvector, Alembic, asyncpg, SQLAlchemy)
+- **Backend**: 36 tests (was 47); 6 route groups; stdlib logging
+- **Frontend**: JARVIS Protocol single-page HUD; Web Speech API for STT/TTS; 0 frontend tests
+- **Build**: `npm run build` only — no PyInstaller, `scripts/build.py` deleted
+- **Infra**: `uvicorn backend.main:app` + `npm run dev` — no Docker, nginx, Jaeger, Redis
+- **Auth**: `X-API-Key` header via `BACKEND_API_KEY` / `VITE_JARVIS_API_KEY`
 
-### Documentation
+### Removed
 
-- All documentation now consistently reflects the restructured project state
-- FRD.md is the single source of truth for the frontend rebuild
+- Deleted: `handlers/`, `migrations/`, `scripts/`, `routers/` (13 files), `graphify-out/`, `scratch/`, `release/`, `j.a.r.v.i.s.-protocol/`, `llm_gateway/` (4→1 file), `rag/`
+- Removed references to PostgreSQL, Docker, nginx, Jaeger, Redis, PyInstaller, 172 tests, slowapi, structlog, OpenTelemetry, wake word, edge-tts, OCR/Tesseract, mobile sync, WhatsApp, memory CRUD routes, automation, macros, neural nodes, personas, context, input control, desktop, files, PDF tools, image tools, media controls, window management
 
 ## [4.0.0-alpha.3] - 2026-06-25
 
@@ -239,4 +231,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial v3.0 release with bilingual support and Arc Reactor HUD.
 
 ---
+
 *Created by VIPHACKER100*

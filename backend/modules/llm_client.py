@@ -29,24 +29,20 @@ class LLMClient:
         self._setup()
 
     def _setup(self):
-        api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key:
-            api_key = os.getenv("NVIDIA_API_KEY")
-        if not api_key:
-            api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            api_key = os.getenv("GOOGLE_API_KEY")
+        providers = [
+            ("openrouter", os.getenv("OPENROUTER_API_KEY") or os.getenv("VITE_JARVIS_API_KEY"), "https://openrouter.ai/api/v1"),
+            ("openai", os.getenv("OPENAI_API_KEY"), "https://api.openai.com/v1"),
+            ("google", os.getenv("GOOGLE_API_KEY"), "https://generativelanguage.googleapis.com/v1beta/openai"),
+            ("nvidia", os.getenv("NVIDIA_API_KEY"), "https://integrate.api.nvidia.com/v1"),
+        ]
+        for name, key, base_url in providers:
+            if key:
+                self._client = AsyncOpenAI(base_url=base_url, api_key=key, timeout=httpx.Timeout(45.0))
+                self._active_provider = name
+                return
 
-        if api_key:
-            self._client = AsyncOpenAI(
-                base_url="https://openrouter.ai/api/v1",
-                api_key=api_key,
-                timeout=httpx.Timeout(45.0),
-            )
-            self._active_provider = "openrouter"
-        else:
-            self._ollama_client = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
-            self._active_provider = "ollama"
+        self._ollama_client = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
+        self._active_provider = "ollama"
 
     def _build_messages(self, text: str, system_prompt: str, context: Optional[str] = None,
                         history: Optional[List[Dict]] = None) -> List[Dict[str, str]]:

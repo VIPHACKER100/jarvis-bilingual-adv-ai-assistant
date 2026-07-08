@@ -1,6 +1,6 @@
 # Contributing to JARVIS
 
-ponytail: trimmed from 397 to ~45 lines — removed performance testing, code review checklist, and deep async async rules (covered by CLAUDE.md conventions)
+ponytail: trimmed from 397 to ~40 lines — removed performance testing, code review checklist, and deep async rules; updated test counts to 36 backend / 0 frontend
 
 ## Development setup
 
@@ -31,8 +31,8 @@ npm run dev
 ## Testing
 
 ```bash
-pytest tests/ -v                    # Backend (47 tests)
-npm test                             # Frontend
+pytest tests/ -v                    # Backend (36 tests)
+# npm test                          # Frontend (0 tests — single-page HUD, no test framework)
 npm run check                        # TypeScript + Vite build
 ```
 
