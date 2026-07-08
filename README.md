@@ -9,6 +9,8 @@
 
 Bilingual (English + Hinglish) voice assistant. React/Python.
 
+Frontend is currently being rebuilt from the [Frontend Requirements Document (FRD)](docs/FRD.md) — the complete blueprint for the new UI.
+
 ## Quick Start
 
 ```bash
@@ -26,7 +28,7 @@ npm run dev
 
 ## Architecture
 
-- **Frontend**: React 19 + Vite + lucide-react — JARVIS Protocol HUD (Arc Reactor, Web Speech API STT/TTS, contact manager, system logs)
+- **Frontend**: React + Vite + TypeScript — being rebuilt from [FRD blueprint](docs/FRD.md) (planned: Zustand, Tailwind CSS, Recharts, React Router)
 - **Backend**: FastAPI + stdlib sqlite3 — async-first, ~12 routers, single LLM client with multi-provider routing
 - **LLM Providers**: OpenRouter, OpenAI, NVIDIA NIM, Google Gemini, Ollama
 - **Database**: SQLite (zero deps — stdlib `sqlite3` + `asyncio.to_thread`)
@@ -34,7 +36,7 @@ npm run dev
 ## Tests
 
 ```bash
-pytest backend/tests/ -v   # 36 tests
+pytest backend/tests/ -v   # 36 backend tests
 ```
 
 ## Project Structure
@@ -67,3 +69,4 @@ docs/                # Documentation
 - [Contributing](docs/CONTRIBUTING.md)
 - [Security](docs/SECURITY.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Frontend Requirements (FRD)](docs/FRD.md)

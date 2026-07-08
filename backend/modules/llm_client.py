@@ -64,7 +64,7 @@ class LLMClient:
         lang_desc = self._language_desc(language)
         system_prompt = SYSTEM_PROMPT_TEMPLATE.format(language=lang_desc, extra_context=context or "")
         messages = self._build_messages(text, system_prompt, context, history)
-        model_name = model or os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
+        model_name = model or os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-20b:free")
 
         if self._client:
             try:
@@ -104,7 +104,7 @@ class LLMClient:
         if self._client:
             try:
                 stream = await self._client.chat.completions.create(
-                    model=os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001"),
+                    model=os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-20b:free"),
                     messages=messages, stream=True,
                 )
                 async for chunk in stream:
