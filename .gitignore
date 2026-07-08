@@ -61,6 +61,13 @@ memory/
 CLAUDE.md
 *.local
 
+# Graph analysis output
+graphify-out/
+
+# Runtime data
+backend/data/
+data/
+
 # Scratch / debug scripts (not for production)
 scratch/
 backend/scratch/

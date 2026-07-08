@@ -29,24 +29,11 @@ from modules.whatsapp import whatsapp_manager
 from routers import (
     agent,
     audio,
-    automation,
     commands,
-    context,
-    desktop,
-    files,
     health,
-    image_tools,
-    input_control,
-    media,
-    memory,
-    notifications,
-    pdf_tools,
     settings,
-    sync,
     system,
     websocket,
-    whatsapp,
-    windows,
 )
 from utils.logger_structured import log_system_event, logger
 from utils.middleware_security import MaxBodySizeMiddleware, SecurityHeadersMiddleware, SQLInjectionMiddleware
@@ -231,23 +218,9 @@ api_v1 = APIRouter(prefix="/api/v1")
 
 # Include routers in V1
 api_v1.include_router(system.router)
-api_v1.include_router(windows.router)
-api_v1.include_router(windows.apps_router)
-api_v1.include_router(files.router)
-api_v1.include_router(media.router)
-api_v1.include_router(pdf_tools.router)
-api_v1.include_router(image_tools.router)
-api_v1.include_router(desktop.router)
-api_v1.include_router(memory.router)
-api_v1.include_router(automation.router)
 api_v1.include_router(commands.router)
 api_v1.include_router(settings.router)
-api_v1.include_router(whatsapp.router)
-api_v1.include_router(input_control.router)
-api_v1.include_router(notifications.router)
-api_v1.include_router(sync.router)
 api_v1.include_router(health.router)
-api_v1.include_router(context.router)
 api_v1.include_router(agent.router)
 api_v1.include_router(audio.router)
 app.include_router(api_v1)

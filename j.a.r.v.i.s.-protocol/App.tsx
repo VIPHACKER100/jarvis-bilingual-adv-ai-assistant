@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ArcReactor } from './components/ArcReactor';
 import { StatusDisplay } from './components/StatusDisplay';
 import { LogPanel } from './components/LogPanel';
@@ -8,11 +8,8 @@ import { useSpeechRecognition } from './hooks/useSpeechRecognition';
 import { useTextToSpeech } from './hooks/useTextToSpeech';
 import { processCommand } from './utils/commandHandler';
 import { LogEntry, SystemState, ContactsMap } from './types';
-import { CONTACTS as DEFAULT_CONTACTS } from './constants';
+import { COMMAND_CONSTANTS, CONTACTS as DEFAULT_CONTACTS } from './constants';
 import { ShieldAlert, Globe, Wifi, Cpu, Database } from 'lucide-react';
-
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) ?? 'http://localhost:8000';
-const JARVIS_API_KEY = (import.meta.env.VITE_JARVIS_API_KEY as string) ?? '';
 
 export default function App() {
   const [systemState, setSystemState] = useState<SystemState>('IDLE');
@@ -32,7 +29,7 @@ export default function App() {
     localStorage.setItem('JARVIS_CONTACTS', JSON.stringify(contacts));
   }, [contacts]);
   
-  const { speak, stopSpeaking } = useTextToSpeech();
+  const { speak, isSpeaking, stopSpeaking } = useTextToSpeech();
   
   const handleCommandResult = useCallback(async (transcript: string) => {
     setLastTranscript(transcript);
@@ -44,12 +41,10 @@ export default function App() {
     if (result.action === 'UNKNOWN') {
       addLog('SYSTEM', 'Processing natural language query...');
       try {
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (JARVIS_API_KEY) headers['X-API-Key'] = JARVIS_API_KEY;
-        const response = await fetch(`${BACKEND_URL}/api/v1/agent/chat`, {
+        const response = await fetch('/api/chat', {
           method: 'POST',
-          headers,
-          body: JSON.stringify({ query: transcript, language: 'en', stream: false }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: transcript }),
         });
         
         if (!response.ok) {
@@ -61,11 +56,11 @@ export default function App() {
         if (data.error) {
           addLog('ERROR', data.error);
           speak(data.error);
-        } else if (data.response) {
-          addLog('SYSTEM', `J.A.R.V.I.S.: ${data.response}`);
-          speak(data.response);
+        } else if (data.text) {
+          addLog('SYSTEM', `J.A.R.V.I.S.: ${data.text}`);
+          speak(data.text);
         }
-      } catch {
+      } catch (error) {
         addLog('ERROR', 'Connection to neural network failed.');
         speak('Connection to neural network failed.');
       }

@@ -47,7 +47,7 @@ MDNS_SERVICE_NAME = os.getenv("MDNS_SERVICE_NAME", "JARVIS-CORE")
 PAIRING_SECRET = os.getenv("PAIRING_SECRET", "JARVIS-SECRET-KEY")
 
 # Version
-VERSION = "4.0.0-alpha.2"
+VERSION = "4.0.0-alpha.4"
 
 
 def get_backend_api_key() -> str | None:

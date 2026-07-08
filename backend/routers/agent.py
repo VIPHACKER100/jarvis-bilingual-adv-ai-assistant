@@ -79,7 +79,4 @@ async def agent_health():
     }
 
 
-@router.post("/rag")
-async def agent_rag_search(body: AgentQuery):
-    """RAG search endpoint — returns empty results (RAG removed)."""
-    return {"success": True, "query": body.query, "results": [], "total_scanned": 0}
+

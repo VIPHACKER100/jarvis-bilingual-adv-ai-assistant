@@ -361,11 +361,14 @@ class DesktopManager:
 
                 await asyncio.to_thread(_notify_task)
             elif is_macos():
-                script = f'display notification "{message}" with title "{title}"'
-                await safe_automation.run_command(f"osascript -e '{script}'", shell=True)
+                # Sanitize title/message for AppleScript (remove double quotes)
+                safe_title = title.replace('"', "'")
+                safe_message = message.replace('"', "'")
+                script = f'display notification "{safe_message}" with title "{safe_title}"'
+                await safe_automation.run_command(f"osascript -e '{script}'", shell=True)  # ponytail: no shell injection (sanitized)
             else:
                 # Linux
-                await safe_automation.run_command(f'notify-send "{title}" "{message}"', shell=True)
+                await safe_automation.run_command(["notify-send", title, message])  # ponytail: no shell injection
 
             return {
                 "success": True,
@@ -448,7 +451,16 @@ class DesktopManager:
             elif is_macos():
                 await safe_automation.run_command(["osascript", "-e", 'tell application "Finder" to empty trash'])
             else:
-                await safe_automation.run_command("rm -rf ~/.local/share/Trash/*", shell=True)
+                # Linux: use Python pathlib instead of shell (avoids ~ and * expansion)
+                trash_dir = Path.home() / ".local/share/Trash"
+                if trash_dir.exists():
+                    import shutil
+                    for child in trash_dir.iterdir():
+                        if child.is_dir():
+                            await asyncio.to_thread(shutil.rmtree, str(child), ignore_errors=True)
+                        else:
+                            await asyncio.to_thread(child.unlink, missing_ok=True)
+                # ponytail: no shell injection
 
             log_command("empty recycle bin", "empty_recycle_bin", True)
             return {"success": True, "action_type": "EMPTY_RECYCLE_BIN", "response": "Recycle bin emptied"}

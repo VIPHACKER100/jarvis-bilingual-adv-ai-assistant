@@ -26,7 +26,7 @@ import asyncio
 from utils.automation_utils import safe_automation  # noqa: E402
 
 
-async def run_command(command, shell=True):
+async def run_command(command, shell=False):  # ponytail: no shell injection (default False)
     """Run system command safely (async wrapper)"""
     result = await safe_automation.run_command(command, shell=shell)
     return result.get("success", False), result.get("stdout", ""), result.get("stderr", "")
@@ -65,33 +65,33 @@ def get_whatsapp_desktop_path():
 async def shutdown_system():
     """Shutdown computer"""
     if is_windows():
-        return await run_command("shutdown /s /t 0")
+        return await run_command(["shutdown", "/s", "/t", "0"])  # ponytail: no shell injection
     elif is_macos():
-        return await run_command("osascript -e 'tell app \"System Events\" to shut down'")
+        return await run_command("osascript -e 'tell app \"System Events\" to shut down'", shell=True)  # ponytail: no shell injection (fixed cmd)
     elif is_linux():
-        return await run_command("systemctl poweroff")
+        return await run_command(["systemctl", "poweroff"])  # ponytail: no shell injection
     return False, "", "Unsupported platform"
 
 
 async def restart_system():
     """Restart computer"""
     if is_windows():
-        return await run_command("shutdown /r /t 0")
+        return await run_command(["shutdown", "/r", "/t", "0"])  # ponytail: no shell injection
     elif is_macos():
-        return await run_command("osascript -e 'tell app \"System Events\" to restart'")
+        return await run_command("osascript -e 'tell app \"System Events\" to restart'", shell=True)  # ponytail: no shell injection (fixed cmd)
     elif is_linux():
-        return await run_command("systemctl reboot")
+        return await run_command(["systemctl", "reboot"])  # ponytail: no shell injection
     return False, "", "Unsupported platform"
 
 
 async def sleep_system():
     """Sleep computer"""
     if is_windows():
-        return await run_command("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+        return await run_command(["rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0"])  # ponytail: no shell injection
     elif is_macos():
-        return await run_command("osascript -e 'tell app \"System Events\" to sleep'")
+        return await run_command("osascript -e 'tell app \"System Events\" to sleep'", shell=True)  # ponytail: no shell injection (fixed cmd)
     elif is_linux():
-        return await run_command("systemctl suspend")
+        return await run_command(["systemctl", "suspend"])  # ponytail: no shell injection
     return False, "", "Unsupported platform"
 
 
@@ -132,10 +132,10 @@ async def set_volume(percent):
     if is_windows():
         return await asyncio.to_thread(_set_volume_windows, percent)
     elif is_macos():
-        success, stdout, stderr = await run_command(f"osascript -e 'set volume output volume {percent}'")
+        success, stdout, stderr = await run_command(f"osascript -e 'set volume output volume {percent}'", shell=True)  # ponytail: no shell injection (percent is int)
         return success
     elif is_linux():
-        success, stdout, stderr = await run_command(f"amixer set Master {percent}%")
+        success, stdout, stderr = await run_command(["amixer", "set", "Master", f"{percent}%"])  # ponytail: no shell injection
         return success
     return False
 
@@ -173,10 +173,10 @@ async def get_volume():
     if is_windows():
         return await asyncio.to_thread(_get_volume_windows)
     elif is_macos():
-        success, output, _ = await run_command("osascript -e 'output volume of (get volume settings)'")
+        success, output, _ = await run_command("osascript -e 'output volume of (get volume settings)'", shell=True)  # ponytail: no shell injection (fixed cmd)
         return int(output.strip()) if success else 50
     elif is_linux():
-        success, output, _ = await run_command("amixer get Master | grep -oP '\\[\\K[0-9]+(?=%\\])'")
+        success, output, _ = await run_command("amixer get Master | grep -oP '\\[\\K[0-9]+(?=%\\])'", shell=True)  # ponytail: no shell injection (fixed cmd)
         return int(output.strip()) if success and output.strip() else 50
     return 50
 
@@ -215,11 +215,11 @@ async def set_mute(mute_state):
         return await asyncio.to_thread(_set_mute_windows, mute_state)
     elif is_macos():
         state = "true" if mute_state else "false"
-        success, stdout, stderr = await run_command(f"osascript -e 'set volume output muted {state}'")
+        success, stdout, stderr = await run_command(f"osascript -e 'set volume output muted {state}'", shell=True)  # ponytail: no shell injection (state is "true"/"false")
         return success
     elif is_linux():
         action = "mute" if mute_state else "unmute"
-        success, stdout, stderr = await run_command(f"amixer set Master {action}")
+        success, stdout, stderr = await run_command(["amixer", "set", "Master", action])  # ponytail: no shell injection
         return success
     return False
 
@@ -256,9 +256,9 @@ async def is_muted():
     if is_windows():
         return await asyncio.to_thread(_is_muted_windows)
     elif is_macos():
-        success, output, _ = await run_command("osascript -e 'output muted of (get volume settings)'")
+        success, output, _ = await run_command("osascript -e 'output muted of (get volume settings)'", shell=True)  # ponytail: no shell injection (fixed cmd)
         return output.strip().lower() == "true" if success else False
     elif is_linux():
-        success, output, _ = await run_command("amixer get Master")
+        success, output, _ = await run_command(["amixer", "get", "Master"])  # ponytail: no shell injection
         return "[off]" in output if success else False
     return False

@@ -3,26 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JARVIS AI | Bilingual Personal Assistant</title>
+  <title>J.A.R.V.I.S. | Voice-Activated AI System</title>
   <meta name="description" content="JARVIS — A premium bilingual AI assistant with voice control, automation, and system management." />
-  <meta name="color-scheme" content="dark light" />
-  <meta name="theme-color" content="#050A12" />
-  <meta name="application-name" content="JARVIS AI" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#050505" />
+  <meta name="application-name" content="J.A.R.V.I.S." />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Aryan Ahirwar (VIPHACKER100)" />
-  <meta name="keywords" content="JARVIS, AI assistant, bilingual AI, Hindi AI, English AI, voice assistant, Aryan Ahirwar, VIPHACKER100" />
-  <meta property="og:title" content="JARVIS AI | Built by Aryan Ahirwar (VIPHACKER100)" />
-  <meta property="og:description" content="Bilingual AI voice assistant with voice control, automation, and system management — built by Aryan Ahirwar." />
+  <meta name="keywords" content="JARVIS, AI assistant, bilingual AI, Hindi AI, English AI, voice assistant" />
+  <meta property="og:title" content="J.A.R.V.I.S. | Built by Aryan Ahirwar (VIPHACKER100)" />
+  <meta property="og:description" content="Bilingual AI voice assistant with voice control, automation, and system management." />
   <meta property="og:url" content="https://viphacker100.com" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="JARVIS AI | VIPHACKER100" />
-  <meta name="twitter:description" content="AI voice assistant by Aryan Ahirwar — Ethical Hacker, Pen Tester, Founder of VIPHACKER.100" />
+  <meta name="twitter:title" content="J.A.R.V.I.S. | VIPHACKER100" />
+  <meta name="twitter:description" content="AI voice assistant by Aryan Ahirwar" />
   <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   <link rel="manifest" href="/manifest.json" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #050505;
+      color: #e0f7fa;
+      font-family: 'Rajdhani', sans-serif;
+      overflow: hidden;
+    }
+    .font-tech { font-family: 'Share Tech Mono', monospace; }
+    .font-hud { font-family: 'Orbitron', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #00bcd4; border-radius: 3px; }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    .scanline::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      z-index: 2;
+      background-size: 100% 2px, 3px 100%;
+      pointer-events: none;
+    }
+    .animate-scan { animation: scanline 4s linear infinite; }
+    .hologram-text { text-shadow: 0 0 5px rgba(0, 255, 255, 0.5), 0 0 10px rgba(0, 255, 255, 0.3); }
+    .hologram-text-red { text-shadow: 0 0 5px rgba(255, 0, 0, 0.5), 0 0 10px rgba(255, 0, 0, 0.3); }
+  </style>
 </head>
 <body>
   <div id="root"></div>

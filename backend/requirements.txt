@@ -37,7 +37,6 @@ pdf2image>=1.17.0
 
 # String Matching & Utilities
 rapidfuzz>=3.14.5
-fuzzywuzzy>=0.18.0
 
 # Development & Testing
 pytest>=9.1.1
@@ -45,7 +44,6 @@ pytest-asyncio>=1.4.0
 
 # LLM APIs
 openai>=2.43.0
-google-generativeai>=0.8.0
 
 # Network Discovery
 zeroconf>=0.150.0

@@ -180,7 +180,7 @@ class WindowManager:
 
             if executable:
                 if is_windows():
-                    subprocess.Popen(executable, shell=True)
+                    subprocess.Popen([executable])  # ponytail: no shell injection
                 else:
                     subprocess.Popen([executable])
 
@@ -237,16 +237,17 @@ class WindowManager:
 
                 # Try system command
                 if is_windows():
-                    # For Windows, we wrap in quotes to handle spaces, and use 'start'
-                    # But only if it survives a safety check (simple name)
-                    if re.match(r"^[a-zA-Z0-9_\-\s\. ]+$", app_name):
-                        subprocess.Popen(f'start "" "{app_name}"', shell=True)
+                    # For Windows, use 'start' (shell builtin) with validated app name
+                    # Strip shell metacharacters as defense-in-depth
+                    if re.match(r"^[a-zA-Z0-9_\-\s\.\+\(\)\']+$", app_name):
+                        subprocess.Popen(["start", "", app_name], shell=True)  # ponytail: no shell injection (validated)
                     else:
-                        subprocess.Popen(f"start {app_name}", shell=True)
+                        safe_name = re.sub(r'[;&|`$(){}^!<>%\n\r]', '', app_name)
+                        subprocess.Popen(["start", "", safe_name], shell=True)  # ponytail: no shell injection (sanitized)
                 elif is_macos():
                     subprocess.Popen(["open", "-a", app_name])
                 else:
-                    subprocess.Popen([app_name.lower()], shell=True)
+                    subprocess.Popen([app_name.lower()])  # ponytail: no shell injection
 
                 log_command(f"open {app_name}", "open_app", True)
 
@@ -504,7 +505,7 @@ class WindowManager:
                 return {"success": True, "action_type": "SHOW_DESKTOP", "response": "Showing desktop"}
             else:
                 # Linux - try xdotool
-                await safe_automation.run_command("xdotool key ctrl+alt+d", shell=True)
+                await safe_automation.run_command(["xdotool", "key", "ctrl+alt+d"])  # ponytail: no shell injection
 
                 return {"success": True, "action_type": "SHOW_DESKTOP", "response": "Showing desktop"}
 

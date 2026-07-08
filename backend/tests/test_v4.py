@@ -51,12 +51,7 @@ class TestAgentRouter:
         # Empty query should fail validation
         assert resp.status_code in (422, 403)
 
-    def test_rag_endpoint(self):
-        from backend.main import app
 
-        client = TestClient(app)
-        resp = client.post("/api/v1/agent/rag", json={"query": "test"})
-        assert resp.status_code in (200, 403)
 
 
 # ─── Security Middleware Tests ─────────────────────────────────────────────────
@@ -79,8 +74,8 @@ class TestSecurityMiddleware:
         client = TestClient(app)
         # SQL injection attempt in JSON body
         resp = client.post(
-            "/api/v1/memory/fact",
-            json={"key": "test'; DROP TABLE conversations; --", "value": "test", "category": "test"},
+            "/api/v1/agent/chat",
+            json={"query": "test'; DROP TABLE conversations; --", "language": "en", "stream": False},
         )
         # Should either be blocked (400) or pass through to auth (403)
         assert resp.status_code in (400, 403)
