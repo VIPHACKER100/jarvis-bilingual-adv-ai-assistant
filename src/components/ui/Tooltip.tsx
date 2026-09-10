@@ -22,7 +22,7 @@ export function Tooltip({ content, children, position = 'top' }: TooltipProps) {
 
   return (
     <div
-      className="relative inline-flex"
+      className='relative inline-flex'
       onMouseEnter={() => setVisible(true)}
       onMouseLeave={() => setVisible(false)}
       onFocus={() => setVisible(true)}

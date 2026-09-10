@@ -36,7 +36,9 @@ export function validateQuery(text: string): ValidationResult {
 /**
  * Validate that a language code is supported.
  */
-export function validateLanguage(lang: string): lang is 'en' | 'hi' | 'hinglish' {
+export function validateLanguage(
+  lang: string
+): lang is 'en' | 'hi' | 'hinglish' {
   return ['en', 'hi', 'hinglish'].includes(lang);
 }
 

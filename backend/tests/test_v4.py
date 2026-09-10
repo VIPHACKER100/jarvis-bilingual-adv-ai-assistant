@@ -41,15 +41,17 @@ class TestAgentRouter:
 
         client = TestClient(app)
         resp = client.get("/api/v1/agent/health")
-        assert resp.status_code == 403 or resp.status_code == 200
+        # Health endpoints are auth-exempt; TestClient comes from localhost
+        # where the auth bypass applies, so this must always succeed
+        assert resp.status_code == 200
 
     def test_chat_endpoint_validation(self):
         from backend.main import app
 
         client = TestClient(app)
         resp = client.post("/api/v1/agent/chat", json={"query": ""})
-        # Empty query should fail validation
-        assert resp.status_code in (422, 403)
+        # Empty query fails min_length validation (no auth failure: localhost bypass)
+        assert resp.status_code == 422
 
 
 
@@ -62,7 +64,8 @@ class TestSecurityMiddleware:
         from backend.main import app
 
         client = TestClient(app)
-        resp = client.get("/health")
+        resp = client.get("/api/v1/health")
+        assert resp.status_code == 200
         headers = resp.headers
         assert "X-Content-Type-Options" in headers
         assert "X-Frame-Options" in headers
@@ -77,8 +80,9 @@ class TestSecurityMiddleware:
             "/api/v1/agent/chat",
             json={"query": "test'; DROP TABLE conversations; --", "language": "en", "stream": False},
         )
-        # Should either be blocked (400) or pass through to auth (403)
-        assert resp.status_code in (400, 403)
+        # The SQLi pattern filter rejects the body with 400 before it reaches
+        # the endpoint (known over-blocking trade-off, see security report)
+        assert resp.status_code == 400
 
 # ─── Audio Module Tests ───────────────────────────────────────────────────────
 

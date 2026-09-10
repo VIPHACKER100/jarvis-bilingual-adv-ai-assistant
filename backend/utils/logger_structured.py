@@ -22,8 +22,8 @@ def log_event(event: str, **kwargs: Any) -> None:
 
 logger = get_logger("jarvis")
 
-def log_command(cmd: str, cmd_type: str, success: bool) -> None:
-    log_event("command", command=cmd, command_type=cmd_type, success=success)
+def log_command(cmd: str, cmd_type: str, success: bool, details: dict | None = None) -> None:
+    log_event("command", command=cmd, command_type=cmd_type, success=success, **(details or {}))
 
 def log_system_event(event: str, data: dict) -> None:
     log_event(event, **data)

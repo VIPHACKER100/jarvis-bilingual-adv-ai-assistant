@@ -19,7 +19,8 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary: 'glass-button glass-button-primary',
   danger: 'glass-button glass-button-danger',
   success: 'glass-button glass-button-success',
-  ghost: 'bg-transparent border border-cyan-800/30 text-cyan-400 hover:bg-cyan-950/30 hover:border-cyan-600/50 transition-all duration-300',
+  ghost:
+    'bg-transparent border border-cyan-800/30 text-cyan-400 hover:bg-cyan-950/30 hover:border-cyan-600/50 transition-all duration-300',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -44,9 +45,20 @@ export function Button({
       {...rest}
     >
       {isLoading && (
-        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        <svg className='animate-spin h-4 w-4' viewBox='0 0 24 24' fill='none'>
+          <circle
+            className='opacity-25'
+            cx='12'
+            cy='12'
+            r='10'
+            stroke='currentColor'
+            strokeWidth='4'
+          />
+          <path
+            className='opacity-75'
+            fill='currentColor'
+            d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z'
+          />
         </svg>
       )}
       {children}

@@ -279,16 +279,40 @@ export type StreamEvent =
 // ── WebSocket Message Types ──
 export type WSMessage =
   | { type: 'system_status'; data: SystemStatusResponse; timestamp: string }
-  | { type: 'notification'; data: { title: string; message: string; type: 'info' | 'warning' | 'error' | 'success'; duration: number } }
+  | {
+      type: 'notification';
+      data: {
+        title: string;
+        message: string;
+        type: 'info' | 'warning' | 'error' | 'success';
+        duration: number;
+      };
+    }
   | { type: 'proactive_suggestion'; data: { text: string; timestamp: string } }
-  | { type: 'agent_thinking'; session_id: string; data?: { thought: string; session_id: string } }
-  | { type: 'agent_resolved'; data: { full_response: string; session_id: string } }
+  | {
+      type: 'agent_thinking';
+      session_id: string;
+      data?: { thought: string; session_id: string };
+    }
+  | {
+      type: 'agent_resolved';
+      data: { full_response: string; session_id: string };
+    }
   | { type: 'command_result'; data: Record<string, unknown> }
   | { type: 'pong' };
 
 export type WSOutgoingMessage =
-  | { type: 'command'; command: string; language: 'en' | 'hi' | 'hinglish'; params?: Record<string, unknown>; session_id?: string }
-  | { type: 'confirmation'; data: { confirmation_id: string; approved: boolean } }
+  | {
+      type: 'command';
+      command: string;
+      language: 'en' | 'hi' | 'hinglish';
+      params?: Record<string, unknown>;
+      session_id?: string;
+    }
+  | {
+      type: 'confirmation';
+      data: { confirmation_id: string; approved: boolean };
+    }
   | { type: 'ping' }
   | { type: 'get_status' };
 

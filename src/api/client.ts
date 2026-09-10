@@ -27,8 +27,10 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
 // ── Response interceptor: global error handling ──
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<{ detail?: string; error?: string; message?: string }>) => {
+  response => response,
+  (
+    error: AxiosError<{ detail?: string; error?: string; message?: string }>
+  ) => {
     if (error.response?.status === 403) {
       authService.clearApiKey();
       window.dispatchEvent(new CustomEvent('auth:invalid-key'));
@@ -43,11 +45,11 @@ apiClient.interceptors.response.use(
             type: 'warning',
             duration: 5000,
           },
-        }),
+        })
       );
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export default apiClient;

@@ -41,14 +41,16 @@ jobs:
       - name: TypeScript type check
         run: npx tsc --noEmit
 
+      - name: ESLint
+        run: npx eslint src/
+
       - name: Markdown lint
-        run: npx markdownlint-cli '**/*.md' --ignore node_modules --ignore backend/venv
+        run: npx markdownlint-cli '**/*.md' --ignore node_modules --ignore backend/venv --ignore memory --ignore skills
 
       - name: Check build
         run: npm run build
 
       - name: npm audit
-        continue-on-error: true
         run: npm audit --audit-level=high
 
   backend-lint:
@@ -71,7 +73,7 @@ jobs:
         working-directory: backend
         run: |
           pip install --upgrade pip
-          pip install ruff mypy pip-audit
+          pip install ruff pip-audit
           pip install -r requirements.txt
 
       - name: Ruff lint check
@@ -83,7 +85,6 @@ jobs:
         run: python -c "import main; import models; print('Backend imports OK')"
 
       - name: pip-audit
-        continue-on-error: true
         run: pip-audit --desc -r backend/requirements.txt
 
   test:
@@ -109,7 +110,7 @@ jobs:
 
       - name: Run frontend tests
         if: matrix.component == 'frontend'
-        run: npx vitest run --coverage.enabled=false
+        run: npm test
 
       - name: Setup Python (backend)
         if: matrix.component == 'backend'
@@ -125,13 +126,12 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-asyncio httpx
 
+      # Run from the repo root so `from backend.main import app` resolves and
+      # pytest.ini's testpaths apply; pytest-timeout comes from requirements.txt
       - name: Run backend tests
         if: matrix.component == 'backend'
-        working-directory: backend
-        run: python -m pytest tests/ -v --timeout=30 -x --ignore=venv
-        continue-on-error: true
+        run: python -m pytest backend/tests/ -v --timeout=30
 
   dependency-scan:
     name: Dependency — Scan

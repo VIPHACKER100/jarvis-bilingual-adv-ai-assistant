@@ -1,5 +1,7 @@
 # FRONTEND REQUIREMENTS DOCUMENT (FRD) — JARVIS v4.0
 
+<!-- markdownlint-disable MD025 MD024 --><!-- generated doc: intentionally multiple H1 phases / repeated task-list headings -->
+
 > **Generated from:** Python/FastAPI Backend at `backend/`
 > **Backend Version:** `4.0.0-alpha.4`
 > **Date:** July 8, 2026
@@ -57,22 +59,27 @@
 ### A.2 Detailed Endpoint Specifications
 
 #### E1: GET `/api/v1/health`
+
 - **Auth:** None (health-exempt)
 - **Query params:** None
 - **Response:** `{status, version, uptime_seconds, timestamp, performance: {db_latency_ms, cpu_usage_percent, memory_usage_percent}, automation: {active_macros, scheduler_active}}`
 - **Errors:** None (always 200)
 
 #### E2: GET `/api/v1/ready`
+
 - **Auth:** None
 - **Response:** `{status: "ready"|"not ready", database: "connected"|"disconnected"}`
 
 #### E3: GET `/api/v1/live`
+
 - **Auth:** None
 - **Response:** `{status: "alive"}`
 
 #### E4: POST `/api/v1/command`
+
 - **Auth:** X-API-Key header (non-localhost)
 - **Body:**
+
   ```json
   {
     "command": "string (1-500 chars)",
@@ -80,7 +87,9 @@
     "session_id": "string (optional, max 100 chars)"
   }
   ```
+
 - **Response:** `CommandResult` model:
+
   ```json
   {
     "success": true,
@@ -100,18 +109,22 @@
     "data": {...} or null
   }
   ```
+
 - **Errors:** 400 (no command), 403 (bad API key), 422 (validation), 500
 - **Note:** If command can't be handled directly, the autonomous agent (ReAct loop) resolves it. The backend returns `action_type: "AGENT_RESOLVED"`. If the command is dangerous (e.g., shutdown), returns `requires_confirmation: true`.
 
 #### E5: POST `/api/v1/confirm/{confirmation_id}`
+
 - **Body:** `{"approved": bool, "details": {...} or null}`
 - **Response:** `BaseResponse {success: bool, response: string}`
 - **Errors:** 403, 404 (invalid ID), 500
 
 #### E6: GET `/api/v1/pending`
+
 - **Response:** `{...pending_confirmations dict...}` — raw dict of pending confirmation objects
 
 #### E7-E20: System Endpoints
+
 All accept optional `language` query param (`en`/`hi`). All return a model extending `BaseResponse`.
 
 - **E7** `GET /system/status?language=en` → `SystemStatusResponse` (battery, cpu, memory, disk, network, uptime, volume, platform, active_window, context_suggestion, personality, event_loop_lag)
@@ -130,36 +143,46 @@ All accept optional `language` query param (`en`/`hi`). All return a model exten
 - **E20** `POST /system/search?query=hello&language=en` → `BaseResponse` (opens browser)
 
 #### E21: GET `/api/v1/system/performance/history`
+
 - **Query Params:** `limit` (int, 1-1440, default 60)
 - **Response:** `{success: true, data: [{timestamp, event_loop_lag, cpu_percent, memory_percent}, ...]}`
 
 #### E22: GET `/api/v1/system/personalities`
+
 - **Response:** `{success: true, data: [{id: "stark", name: "Stark Legacy", accent: "#facc15"}, ...]}`
 
 #### E23: POST `/api/v1/system/personality/{p_id}`
+
 - **Path Params:** `p_id` — "stark" | "midnight" | "avenue" | "linear"
 - **Success:** `{success: true, message: "Personality set to stark", config: {name, accent, primary, secondary, voice_pitch, voice_rate, style, motto, id}}`
 - **Error:** 400 "Invalid personality ID"
 
 #### E24: GET `/api/v1/system/command-insights`
+
 - **Query Params:** `days` (int, 1-365, default 30)
 - **Response:** `{success: true, data: {top_commands: [...], daily_activity: [...], peak_hour: {hour, count}, failure_patterns: [...], period_days: 30}}`
 
 #### E25: GET `/api/v1/system/security/processes`
+
 - **Response:** `{success: true, processes: [{pid, name, cpu_percent, memory_mb, status, threat_level: "safe"}, ...]}` — top 50 by CPU
 
 #### E26: GET `/api/v1/system/security/connections`
+
 - **Response:** `{success: true, connections: [{pid, process, local_addr, remote_addr, status}, ...]}`
 
 #### E27: POST `/api/v1/system/security/quarantine`
+
 - **Query Params:** `pid` (int), `action` ("suspend" | "resume" | "terminate", default "suspend")
 - **Response:** `{success: bool, response: string}`
 
 #### E28: GET `/api/v1/settings`
+
 - **Response:** `{success: true, settings: {llm_provider, nvidia_model, openrouter_model, language, port, log_level, enable_dangerous_commands, confirmation_timeout, wake_word_enabled, wake_word_phrase}}`
 
 #### E29: POST `/api/v1/settings`
+
 - **Body:** `SettingsUpdateRequest` (partial):
+
   ```json
   {
     "llm_provider": "openrouter | nvidia | openai | google | ollama",
@@ -169,13 +192,17 @@ All accept optional `language` query param (`en`/`hi`). All return a model exten
     "wake_word_phrase": "jarvis"
   }
   ```
+
 - **Response:** Full settings object (same as GET)
 
 #### E30: GET `/api/v1/settings/keys`
+
 - **Response:** `{NVIDIA_API_KEY: true|false, OPENROUTER_API_KEY: true|false, BACKEND_API_KEY: true|false}` — returns whether each key is set, not the key value
 
 #### E31: POST `/api/v1/settings/keys`
+
 - **Body:** `ApiKeyUpdateRequest` (partial):
+
   ```json
   {
     "nvidia_api_key": "nvapi-...",
@@ -184,19 +211,23 @@ All accept optional `language` query param (`en`/`hi`). All return a model exten
     "backend_api_key": "..."
   }
   ```
+
 - **Response:** `{success: true, response: "Updated N keys in .env"}`
 
 #### E32: POST `/api/v1/settings/test-key`
+
 - **Body:** `{provider: "string", api_key: "string"}`
 - **Response:** `{success: true, response: "Verified {provider} key (simulated)"}` — ⚠️ **Note: Simulated, not actually tested**
 
 #### E33: POST `/api/v1/agent/chat`
+
 - **Auth:** X-API-Key header + rate limited (30 req/min per IP)
 - **Body:** `AgentQuery {query: string (1-2000), language: "en"|"hi"|"hinglish", stream: false, use_rag: false, session_id: string|null}`
 - **Response:** `{success: true, response: "string", provider: "openrouter"|"nvidia"|..., language: "en"}`
 - **Errors:** 422 (validation), 429 (rate limit), 500
 
 #### E34: POST `/api/v1/agent/stream`
+
 - **Auth:** X-API-Key header + rate limited (15 req/min per IP)
 - **Body:** Same as E33 with `stream: true`
 - **Response:** Server-Sent Events (SSE) stream:
@@ -208,10 +239,12 @@ All accept optional `language` query param (`en`/`hi`). All return a model exten
 - **Errors:** 422, 429, errors emitted in-stream with `type: "error"`
 
 #### E35: GET `/api/v1/agent/health`
+
 - **Auth:** None (health-exempt)
 - **Response:** `{success: true, online: bool, active_provider: string|null}`
 
 #### E36: WS `/api/v1/audio/ws/audio`
+
 - **Query Params:** `language` (default "en"), `api_key` (for non-local auth)
 - **Message Protocol (JSON):**
   - **STT:** `{"type": "stt", "audio": "<base64>"}` → response: `{"type": "stt_result", "text": "..."}` or `{"type": "error", "error": "..."}`
@@ -221,6 +254,7 @@ All accept optional `language` query param (`en`/`hi`). All return a model exten
 - **Limits:** Max audio payload 10 MB, max TTS text 2000 chars
 
 #### E37: WS `/ws`
+
 - **Query Params:** `client_id`, `token`, `device_id`, `api_key` (optional)
 - **Auth:** API key for non-local; device auth for mobile
 - **Message Protocol (JSON):**
@@ -289,12 +323,15 @@ All accept optional `language` query param (`en`/`hi`). All return a model exten
 ## D. BUSINESS LOGIC & RULES
 
 ### Dangerous Commands (Require Confirmation)
+
 The following commands require user confirmation via `/api/v1/confirm/{id}` or WS confirmation:
+
 - `shutdown`, `restart`, `sleep`, `hibernate`
 - `delete` (file), `remove`, `format`, `uninstall`
 - Empty recycle bin, close app, send WhatsApp message via desktop
 
 **Confirmation flow:**
+
 1. User issues a dangerous command → server returns `requires_confirmation: true`, `confirmation_id: "uuid"`
 2. Frontend must show a confirmation dialog
 3. User approves/rejects → POST `/confirm/{id}` with `{approved: true/false}`
@@ -302,12 +339,14 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 5. If timeout → auto-rejected → logged to neural memory
 
 ### Bilingual Support
+
 - Language detection in parser: Hindi (Devanagari + Latin script Hinglish keywords) vs English
 - All system responses available in `en` and `hi`
 - Language param on most endpoints
 - Auto-persist `preferred_language` setting in memory
 
 ### Agent Flow
+
 1. User command → bilingual parser extracts `command_key`
 2. Direct dispatch if known command (70+ command keys)
 3. If `command_key == "unknown"` → autonomous agent loop (max 5 iterations)
@@ -316,18 +355,21 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 6. Agent can use tools: system_status, google_search, open_app, close_app, whatsapp_message, take_screenshot, search_files, read_file, analyze_screen, get_screen_summary, narrate_screen, ocr_image, get_clipboard, set_clipboard, get_time, save_memory, list_memories
 
 ### Proactive System
+
 - Backend broadcasts `system_status` every 5 seconds via WebSocket
 - Backend broadcasts `proactive_suggestion` based on active window context via LLM analysis every 15 seconds
 - System health: low battery alert (<20%, not charging) and high CPU alert (>90%) broadcast as notifications
 - 5-minute periodic conversation pruning to prevent unbounded table growth (max 500 old entries)
 
 ### Context Management
+
 - Extracts personal facts from conversation (name, location, birthday, profession, preferences, contacts)
 - Detects user mood (frustrated, happy, urgent, neutral)
 - Tracks conversation topics
 - Generates context-aware follow-up suggestions
 
 ### File Uploads
+
 - **No file upload REST endpoints exist** in the backend
 - Screenshots are generated server-side and returned as base64 `data:image/png;base64,...`
 - Audio for STT is received via WebSocket as base64
@@ -337,6 +379,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 ## E. ERROR PATTERNS
 
 ### Standard Error Response Shape
+
 ```json
 {
   "success": false,
@@ -367,6 +410,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 ## 📄 PAGES REQUIRED
 
 ### PAGE-1: Home / Landing
+
 - **Route:** `/`
 - **Access:** Public
 - **Purpose:** Main landing that serves as both a dashboard and the primary voice assistant interface. Shows system status overview and provides quick command input.
@@ -380,6 +424,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 | C3 | POST `/api/v1/command` | When user submits text command | Command result display |
 
 **UI Sections:**
+
 1. **System Status Bar** — Real-time CPU%, RAM%, battery%, volume, uptime (updated via WS every 5s). Shows `status.battery.percent`, `status.battery.is_charging`, `status.cpu.percent`, `status.memory.percent`, `status.volume`, `status.uptime`.
 2. **Command Input** — Text input field + submit button. Sends to `POST /command`. Shows loading spinner during execution. Displays result response text.
 3. **Conversation Log** — Scrollable list of user commands and JARVIS responses. Stored in-memory for session. Could optionally fetch history via WS.
@@ -389,6 +434,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 7. **Personality Indicator** — Shows current personality. Shows `status.personality.name`, accent color.
 
 **Page States:**
+
 - **Loading:** Skeleton/spinner while connecting WebSocket
 - **Connected:** Full UI active
 - **Disconnected:** Show reconnection banner, attempt reconnect every 3s
@@ -397,6 +443,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 ---
 
 ### PAGE-2: Settings / Configuration
+
 - **Route:** `/settings`
 - **Access:** Protected (requires valid API key in store)
 - **Purpose:** View and modify all JARVIS settings, API keys, personality selection, dangerous command preferences.
@@ -414,6 +461,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 | C10 | POST `/api/v1/system/personality/{id}` | On personality select | Personality indicator + message |
 
 **UI Sections:**
+
 1. **General Settings Form**
    - LLM Provider (select: openrouter | nvidia | openai | google | ollama). Maps to `settings.llm_provider`.
    - Wake Word Toggle (checkbox). Maps to `settings.wake_word_enabled`.
@@ -430,6 +478,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 4. **Information Display** — Read-only: nvidia_model, openrouter_model, port, log_level.
 
 **Forms:**
+
 - **Settings form:** Fields → select/toggle/input → client-side validation (confirmation_timeout: >= 5, wake_word_phrase: max 50 chars) → API field: exact match to SettingsUpdateRequest → On success: toast "Settings saved" → On error: toast with error
 - **API Keys form:** Fields → password input → no client validation → API field: ApiKeyUpdateRequest → On success: toast "Keys updated" → On failure: toast with error
 
@@ -438,6 +487,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 ---
 
 ### PAGE-3: System Dashboard / Analytics
+
 - **Route:** `/analytics`
 - **Access:** Protected
 - **Purpose:** Detailed system monitoring, performance history, command insights, security overview.
@@ -454,6 +504,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 | C16 | GET `/api/v1/system/network` | On mount | Network info |
 
 **UI Sections:**
+
 1. **Performance Charts** — Line charts for CPU %, Memory %, Event Loop Lag over time. X = time, Y = percentage. Use data from `/performance/history`.
 2. **Command Insights** — Bar chart of top commands, daily activity line chart, peak hour display, failure patterns table.
 3. **Running Processes** — Table with columns: PID, Name, CPU%, Memory MB, Status, Threat Level, Actions (Suspend/Resume/Terminate buttons). Top 50 by CPU.
@@ -465,6 +516,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 ---
 
 ### PAGE-4: Audio / Voice Interface *(optional but implied by backend)*
+
 - **Route:** `/voice` (or integrated into Home)
 - **Access:** Protected
 - **Purpose:** Full voice interaction using Web Audio API + WebSocket. Record mic → send to STT → display result → send to command → read response via TTS.
@@ -478,6 +530,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 | C19 | POST `/api/v1/agent/stream` | For LLM chat responses | Streaming text display |
 
 **UI Sections:**
+
 1. **Mic Button** — Big button, pulsing when recording. Toggle on/off.
 2. **Audio Waveform** — Live audio visualization during recording.
 3. **Transcript Display** — Shows `stt_result.text` as it comes in.
@@ -491,6 +544,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 ## 🧩 COMPONENTS REQUIRED
 
 ### COMP-1: SystemStatusBar
+
 - **Type:** UI Component
 - **Used On Pages:** PAGE-1, PAGE-3
 - **Props:** `status: SystemStatusResponse` (from WS or REST)
@@ -499,6 +553,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Loading (skeleton bars), Normal, Warning (cpu > 80, battery < 20), Error
 
 ### COMP-2: CommandInput
+
 - **Type:** Form
 - **Used On Pages:** PAGE-1
 - **Props:** `onSubmit: (command, language) => void`, `disabled: boolean`
@@ -506,6 +561,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Default, Focused, Disabled (during processing), Error (validation)
 
 ### COMP-3: ConversationLog
+
 - **Type:** UI Component
 - **Used On Pages:** PAGE-1
 - **Props:** `entries: Array<{type: 'user'|'jarvis', text: string, timestamp: string, action_type?: string}>`
@@ -513,6 +569,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Empty ("Start by typing or speaking a command"), Active, Typing indicator
 
 ### COMP-4: NotificationToast
+
 - **Type:** UI Component
 - **Used On Pages:** PAGE-1, PAGE-2, PAGE-3
 - **Props:** `id, title, message, type: 'info'|'success'|'warning'|'error', duration: number, onDismiss`
@@ -520,6 +577,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Entering, Visible, Exiting
 
 ### COMP-5: ConfirmationDialog
+
 - **Type:** Modal
 - **Used On Pages:** PAGE-1
 - **Props:** `command: string, details: string, onApprove: () => void, onReject: () => void, timeout: number`
@@ -527,6 +585,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Open (with timer), Approving (loading), Rejecting (loading), Timed Out
 
 ### COMP-6: PersonalityCard
+
 - **Type:** Card
 - **Used On Pages:** PAGE-2
 - **Props:** `personality: {id, name, accent}, isActive: boolean, onClick: (id) => void`
@@ -534,6 +593,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Default, Active, Hover
 
 ### COMP-7: PerformanceChart
+
 - **Type:** Widget
 - **Used On Pages:** PAGE-3
 - **Props:** `data: Array<{timestamp, value}>, label: string, color: string, yAxisLabel: string`
@@ -541,6 +601,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Loading (skeleton), Empty (no data), Data, Error
 
 ### COMP-8: ProcessTable
+
 - **Type:** Table
 - **Used On Pages:** PAGE-3
 - **Props:** `processes: Array<{pid, name, cpu_percent, memory_mb, status, threat_level}>, onAction: (pid, action) => void`
@@ -548,6 +609,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Loading, Empty ("No processes available"), Data, Action loading
 
 ### COMP-9: ApiKeyCard
+
 - **Type:** Card
 - **Used On Pages:** PAGE-2
 - **Props:** `name: string, value: string|null, isSet: boolean, onChange: (value) => void, onTest: () => void`
@@ -555,6 +617,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Hidden/Visible password, Unset/Set, Testing, Saving, Test Result
 
 ### COMP-10: SettingsToggle
+
 - **Type:** UI Component
 - **Used On Pages:** PAGE-2
 - **Props:** `label: string, description: string, checked: boolean, onChange: (checked) => void`
@@ -562,6 +625,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** On, Off
 
 ### COMP-11: LoadingOverlay
+
 - **Type:** UI Component
 - **Used On Pages:** All
 - **Props:** `visible: boolean, message?: string`
@@ -569,24 +633,28 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **States:** Visible, Hidden
 
 ### COMP-12: ErrorBoundary
+
 - **Type:** UI Component
 - **Used On Pages:** All
 - **Props:** `children, fallback?: ReactNode`
 - **Behavior:** Catches rendering errors. Shows fallback UI with "Something went wrong" message + retry button.
 
 ### COMP-13: VoiceButton (optional, for PAGE-4)
+
 - **Type:** UI Component
 - **Props:** `isRecording: boolean, onToggle: () => void, disabled: boolean`
 - **Behavior:** Animated mic button. Pulsing ring when recording. Red when active, gray when idle.
 - **States:** Idle, Recording, Processing, Disabled
 
 ### COMP-14: AudioWaveform (optional, for PAGE-4)
+
 - **Type:** UI Component
 - **Props:** `analyserNode: AnalyserNode | null`
 - **Behavior:** Real-time audio frequency visualization using Canvas API.
 - **States:** Idle (flat line), Active (moving bars), Hidden
 
 ### COMP-15: QuickActionsBar
+
 - **Type:** UI Component
 - **Used On Pages:** PAGE-1
 - **Props:** `onAction: (actionKey: string) => void`
@@ -598,6 +666,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 ## ⚡ FUNCTIONS / HOOKS / SERVICES REQUIRED
 
 ### FN-1: useWebSocket
+
 - **Type:** Custom hook
 - **Purpose:** Manages a WebSocket connection to `/ws` with auto-reconnect, message parsing, and typed event callbacks
 - **Input:** `apiKey: string`, `options: {onMessage, onStatus, onNotification, onSuggestion}`
@@ -612,6 +681,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
 - **Error handling:** Catch WebSocket errors, trigger reconnection
 
 ### FN-2: useAudioWebSocket
+
 - **Type:** Custom hook
 - **Purpose:** Manages a WebSocket connection to `/api/v1/audio/ws/audio` for STT/TTS
 - **Input:** `apiKey: string`, `language: string`
@@ -623,6 +693,7 @@ The following commands require user confirmation via `/api/v1/confirm/{id}` or W
   4. `requestTTSStream(text, voice)` → sends `{type: "tts_stream", text, voice}` → receives `tts_chunk` chunks → plays incrementally
 
 ### FN-3: apiService
+
 - **Type:** API call library (singleton object)
 - **Purpose:** All REST API calls, typed, with auth header injection
 - **Used by:** All pages and components
@@ -678,12 +749,14 @@ getAgentHealth(): Promise<AgentHealthResponse>
 - **Error handling:** All functions catch HTTP errors and throw typed `ApiError` with status and message.
 
 ### FN-4: authService
+
 - **Type:** Auth helper
 - **Purpose:** Manage API key storage, validation, and injection
 - **Input:** None
 - **Returns:** `{ getApiKey, setApiKey, clearApiKey, hasApiKey, getAuthHeaders }`
 
 **Logic:**
+
 1. `getApiKey()` → reads `BACKEND_API_KEY` from localStorage
 2. `setApiKey(key)` → writes to localStorage
 3. `clearApiKey()` → removes from localStorage
@@ -691,6 +764,7 @@ getAgentHealth(): Promise<AgentHealthResponse>
 5. `getAuthHeaders()` → returns `{"X-API-Key": key}` object (empty object if no key)
 
 ### FN-5: useAudioRecorder
+
 - **Type:** Custom hook (optional, for voice features)
 - **Purpose:** Record microphone audio using Web Audio API, return audio blob
 - **Input:** None
@@ -702,6 +776,7 @@ getAgentHealth(): Promise<AgentHealthResponse>
 - **Error handling:** Catch permission denied, no microphone
 
 ### FN-6: notificationService
+
 - **Type:** Utility
 - **Purpose:** Manage in-app notification queue, display toasts
 - **Logic:**
@@ -711,18 +786,21 @@ getAgentHealth(): Promise<AgentHealthResponse>
   4. Deduplicate by title+message
 
 ### FN-7: useSSE
+
 - **Type:** Custom hook
 - **Purpose:** Connect to Server-Sent Events for agent streaming
 - **Input:** `url: string, options: FetchOptions`
 - **Returns:** `{ data: StreamEvent, isConnected, error, start, stop }`
 
 **Logic:**
+
 1. POST to `POST /api/v1/agent/stream` with fetch + `ReadableStream`
 2. Parse `data: ...` lines
 3. Dispatch `{type: "meta"}`, `{type: "chunk"}`, `{type: "done"}` etc.
 4. Handle `{type: "error"}` and `{type: "partial_done"}` gracefully
 
 ### FN-8: formatters
+
 - **Type:** Utility module
 - **Purpose:** Format data for display
 - **Functions:**
@@ -734,6 +812,7 @@ getAgentHealth(): Promise<AgentHealthResponse>
   - `formatPercent(value: number): string` → "85%"
 
 ### FN-9: validators
+
 - **Type:** Utility module
 - **Purpose:** Client-side validation (mirroring backend rules)
 - **Functions:**
@@ -748,6 +827,7 @@ getAgentHealth(): Promise<AgentHealthResponse>
 ## 🔐 AUTH FLOWS TO IMPLEMENT
 
 ### Flow 1: Login (API Key Entry)
+
 1. User navigates to settings page
 2. If `authService.hasApiKey()` is false → show API key entry prompt
 3. User enters `BACKEND_API_KEY`
@@ -758,6 +838,7 @@ getAgentHealth(): Promise<AgentHealthResponse>
 8. **No backend login endpoint exists** — API key is the sole auth mechanism
 
 ### Flow 2: Logout
+
 1. User clicks "Disconnect" / "Clear API Key"
 2. `authService.clearApiKey()`
 3. Close all WebSocket connections
@@ -765,6 +846,7 @@ getAgentHealth(): Promise<AgentHealthResponse>
 5. All protected calls will now 403
 
 ### Flow 3: Persistent Session
+
 1. On app start, check `localStorage` for api key
 2. If found → attempt GET `/api/v1/system/status`
 3. If success → full app mode
@@ -772,6 +854,7 @@ getAgentHealth(): Promise<AgentHealthResponse>
 5. If network error → show offline mode banner
 
 ### Flow 4: WebSocket Auth
+
 1. Open WS connection: `new WebSocket("ws://{host}/ws?api_key={key}&client_id={uuid}")`
 2. If server rejects → `close` with code 1008 → attempt reconnection with 3s delay (max 3 attempts)
 3. If reconnection fails → show "WebSocket disconnected" banner, fall back to REST polling
@@ -827,6 +910,7 @@ AppState {
 ```
 
 ### Persistence Strategy
+
 - **localStorage:** `BACKEND_API_KEY` (auth), `preferred_language`, `personality_id`
 - **sessionStorage:** Nothing (all transient)
 - **Cookies:** Nothing (API key is localStorage + header)
@@ -888,16 +972,19 @@ const AUDIO_WS_PATH = "/api/v1/audio/ws/audio";
 ### All Service Functions (by Entity)
 
 **Health Service:**
+
 - `healthApi.getHealth()` → GET `/health`
 - `healthApi.getReady()` → GET `/ready`
 - `healthApi.getLive()` → GET `/live`
 
 **Command Service:**
+
 - `commandsApi.execute(data: CommandRequest)` → POST `/command`
 - `commandsApi.confirm(id: string, data: ConfirmationRequest)` → POST `/confirm/{id}`
 - `commandsApi.getPending()` → GET `/pending`
 
 **System Service:**
+
 - `systemApi.getStatus(lang?)` → GET `/system/status`
 - `systemApi.getBattery(lang?)` → GET `/system/battery`
 - `systemApi.getTime(lang?)` → GET `/system/time`
@@ -921,6 +1008,7 @@ const AUDIO_WS_PATH = "/api/v1/audio/ws/audio";
 - `systemApi.quarantine(pid, action)` → POST `/system/security/quarantine`
 
 **Settings Service:**
+
 - `settingsApi.get()` → GET `/settings`
 - `settingsApi.update(data)` → POST `/settings`
 - `settingsApi.getKeys()` → GET `/settings/keys`
@@ -928,6 +1016,7 @@ const AUDIO_WS_PATH = "/api/v1/audio/ws/audio";
 - `settingsApi.testKey(provider, key)` → POST `/settings/test-key`
 
 **Agent Service:**
+
 - `agentApi.chat(data: AgentQuery)` → POST `/agent/chat`
 - `agentApi.stream(data: AgentQuery)` → POST `/agent/stream` (returns Response for SSE parsing)
 - `agentApi.health()` → GET `/agent/health`
@@ -965,25 +1054,31 @@ const AUDIO_WS_PATH = "/api/v1/audio/ws/audio";
 | Language is `"hi"` | UI language toggle affects all response text display |
 
 ### Proactive Suggestion Display
+
 When a `proactive_suggestion` WS message is received, display a small, non-intrusive suggestion banner at the bottom of the screen with:
+
 - Suggestion text (15 words max)
 - "Dismiss" button
 - "Execute" button (sends command)
 
 ### Confirmation Timer
+
 When a `requires_confirmation` result is received, show a modal with:
+
 - The dangerous command text
 - A circular countdown timer (30 seconds default)
 - "Approve" (green) and "Reject" (red) buttons
 - Auto-reject + notification on timeout
 
 ### Personality Theme Application
+
 - Personality `accent` color → CSS variable `--accent-color`
 - Personality `primary` color → CSS variable `--primary-color`
 - Personality `secondary` color → CSS variable `--secondary-color`
 - All theme transitions should be smooth (300ms ease)
 
 ### File Uploads
+
 - **Backend has no file upload endpoints.** Screenshots are generated server-side. Audio is sent via WebSocket base64. No file upload component needed.
 
 ---
@@ -1064,11 +1159,13 @@ When a `requires_confirmation` result is received, show a modal with:
 | **Reusable Services** | 6 (api, auth, notifications, validators, formatters, i18n) | Low-Medium |
 
 ### Estimated Frontend Build Time
+
 - **Solo developer:** 4–5 weeks (18 working days)
 - **Team of 2:** 2.5–3 weeks (12 working days)
 - **Team of 3+:** 2 weeks (10 working days)
 
 ### Recommended Tech Stack
+
 | Layer | Technology | Reasoning |
 |-------|-----------|-----------|
 | **Framework** | React 18+ with Vite | Fast builds, modern ecosystem |

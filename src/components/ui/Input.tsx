@@ -21,11 +21,11 @@ export function Input({
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className='flex flex-col gap-1.5'>
       {label && (
         <label
           htmlFor={inputId}
-          className="font-display text-sm font-semibold uppercase tracking-wider text-cyan-300"
+          className='font-display text-sm font-semibold uppercase tracking-wider text-cyan-300'
         >
           {label}
         </label>
@@ -39,9 +39,11 @@ export function Input({
         } ${className}`}
         {...rest}
       />
-      {error && <span className="text-xs text-neon-error font-medium">{error}</span>}
+      {error && (
+        <span className='text-xs text-neon-error font-medium'>{error}</span>
+      )}
       {helperText && !error && (
-        <span className="text-xs text-slate-500">{helperText}</span>
+        <span className='text-xs text-slate-500'>{helperText}</span>
       )}
     </div>
   );

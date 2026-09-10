@@ -1,10 +1,10 @@
 import asyncio
 import uuid
 from datetime import datetime, timedelta
-from typing import Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from config import CONFIRMATION_TIMEOUT, DANGEROUS_COMMANDS
-from utils.logger_structured import log_command, log_system_event
+from utils.logger_structured import log_command, log_system_event, logger
 
 
 class SecurityManager:
@@ -79,21 +79,27 @@ class SecurityManager:
                     callback = self.confirmation_callbacks[confirmation_id]
                     await callback(confirmation_id, False, "timeout")
 
-    async def confirm_command(self, confirmation_id: str, approved: bool) -> bool:
-        """User confirms or rejects command"""
+    async def confirm_command(self, confirmation_id: str, approved: bool) -> Optional[Dict[str, Any]]:
+        """User confirms or rejects a dangerous command.
+
+        Returns None when the confirmation does not exist, was already decided,
+        or has expired. On a successful decision returns
+        ``{"confirmed": bool, "result": dict | None}`` where ``result`` is the
+        outcome of re-executing the command (set on approval only).
+        """
         if confirmation_id not in self.pending_confirmations:
-            return False
+            return None
 
         confirmation = self.pending_confirmations[confirmation_id]
 
         # Check if already decided
         if confirmation["confirmed"] is not None:
-            return False
+            return None
 
         # Check if expired
         if datetime.now() > confirmation["expires_at"]:
             confirmation["confirmed"] = False
-            return False
+            return None
 
         confirmation["confirmed"] = approved
 
@@ -114,7 +120,43 @@ class SecurityManager:
             reason="Explicit user interaction.",
         )
 
-        return True
+        execution: Optional[Dict[str, Any]] = None
+        if approved:
+            execution = await self._execute_confirmed(confirmation)
+
+        return {"confirmed": approved, "result": execution}
+
+    async def _execute_confirmed(self, confirmation: dict) -> Dict[str, Any]:
+        """Re-dispatch the original command with the confirmed flag set."""
+        from modules.command_handler import dispatch_command
+
+        details = confirmation.get("details") or {}
+        try:
+            return await dispatch_command(
+                confirmation["command_key"],
+                details.get("params"),
+                confirmation.get("language") or "en",
+                confirmed=True,
+            )
+        except Exception as e:
+            logger.error(f"Confirmed command '{confirmation['command_key']}' failed: {e}")
+            return {"success": False, "response": f"Confirmed action failed: {e}"}
+
+    def get_pending_actions(self) -> list:
+        """List confirmations still awaiting a decision (for GET /pending)."""
+        now = datetime.now()
+        return [
+            {
+                "confirmation_id": cid,
+                "command_key": conf["command_key"],
+                "command_text": conf["command_text"],
+                "language": conf["language"],
+                "expires_at": conf["expires_at"].isoformat(),
+                "is_expired": now > conf["expires_at"],
+            }
+            for cid, conf in self.pending_confirmations.items()
+            if conf["confirmed"] is None
+        ]
 
     def get_confirmation_status(self, confirmation_id: str) -> Optional[bool]:
         """Get status of confirmation: None=pending, True=confirmed, False=rejected/timeout"""

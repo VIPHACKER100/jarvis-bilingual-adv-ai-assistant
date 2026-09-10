@@ -1,4 +1,5 @@
 # Setup
+>
 > ponytail: trimmed from 635 to 44 lines — removed Docker/PostgreSQL/PyInstaller/OCR/sections
 
 ## Quick start

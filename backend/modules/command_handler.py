@@ -27,7 +27,9 @@ from utils.logger_structured import log_command, logger
 # Each entry is a callable that accepts (params, current_lang) and returns Optional[Dict]
 
 
-async def _dispatch_direct(command_key: str, params: Any, current_lang: str) -> Optional[Dict[str, Any]]:
+async def _dispatch_direct(
+    command_key: str, params: Any, current_lang: str, confirmed: bool = False
+) -> Optional[Dict[str, Any]]:
     """Direct dispatch to module functions — no handler classes."""
 
     # ── System ──
@@ -40,11 +42,11 @@ async def _dispatch_direct(command_key: str, params: Any, current_lang: str) -> 
     if command_key == "battery":
         return await system_module.get_battery_status(current_lang)
     if command_key == "shutdown":
-        return await system_module.shutdown(current_lang)
+        return await system_module.shutdown(current_lang, confirmed=confirmed)
     if command_key == "restart":
-        return await system_module.restart(current_lang)
+        return await system_module.restart(current_lang, confirmed=confirmed)
     if command_key == "sleep":
-        return await system_module.sleep(current_lang)
+        return await system_module.sleep(current_lang, confirmed=confirmed)
     if command_key == "volume_up":
         amount = None
         if params:
@@ -317,8 +319,9 @@ async def dispatch_command(
     command: str = "",
     websocket: Optional[WebSocket] = None,
     session_id: Optional[str] = None,
+    confirmed: bool = False,
 ) -> Dict[str, Any]:
-    result = await _dispatch_direct(command_key, params, current_lang)
+    result = await _dispatch_direct(command_key, params, current_lang, confirmed)
     if result is not None:
         return result
     return {"success": False, "action_type": "UNKNOWN", "response": "Unknown command."}
@@ -388,7 +391,9 @@ async def handle_command(
         data=result.get("data"),
     )
 
-    if res_obj.success and result.get("requires_confirmation") and not result.get("confirmation_id"):
+    # Dangerous actions return requires_confirmation with success=False —
+    # that is exactly the case that needs a pending confirmation created.
+    if result.get("requires_confirmation") and not result.get("confirmation_id"):
         res_obj.requires_confirmation = True
         res_obj.confirmation_id = security.request_confirmation(
             command_key=command_key, command_text=command, language=current_lang, details={"params": params, "language": current_lang},

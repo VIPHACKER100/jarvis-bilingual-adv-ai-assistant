@@ -111,6 +111,7 @@ Error responses include `request_id` and `timestamp` for 500-level errors.
 ### WS `/ws` — Command & Status
 
 **Send:**
+
 ```json
 { "type": "command", "command": "open chrome", "language": "en" }
 { "type": "confirmation", "data": { "confirmation_id": "...", "approved": true } }
@@ -119,6 +120,7 @@ Error responses include `request_id` and `timestamp` for 500-level errors.
 ```
 
 **Receive:**
+
 ```json
 { "type": "command_result", "data": { "success": true, "response": "..." } }
 { "type": "system_status", "data": {...}, "timestamp": "..." }          // every 5s
@@ -132,6 +134,7 @@ Error responses include `request_id` and `timestamp` for 500-level errors.
 ### WS `/api/v1/audio/ws/audio` — STT/TTS
 
 **Send:**
+
 ```json
 { "type": "stt", "audio": "<base64>" }
 { "type": "tts", "text": "...", "voice": "alloy" }
@@ -140,6 +143,7 @@ Error responses include `request_id` and `timestamp` for 500-level errors.
 ```
 
 **Receive:**
+
 ```json
 { "type": "stt_result", "text": "..." }
 { "type": "tts_audio", "audio": "<base64>", "format": "opus" }
@@ -179,6 +183,7 @@ data: {"type": "partial_done", "full_text": "...", "truncated": true}\n\n
 ## Dangerous Commands (Require Confirmation)
 
 The following actions require `POST /api/v1/confirm/{id}` or WS confirmation:
+
 - `shutdown`, `restart`, `sleep`, `hibernate`
 - `delete`, `remove`, `format`, `uninstall`
 - Empty recycle bin, close app, send WhatsApp message

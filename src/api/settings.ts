@@ -20,13 +20,17 @@ export const settingsApi = {
 
   /** Update settings */
   async update(updates: SettingsUpdateRequest): Promise<SettingsResponse> {
-    const { data } = await apiClient.post<SettingsResponse>('/settings', updates);
+    const { data } = await apiClient.post<SettingsResponse>(
+      '/settings',
+      updates
+    );
     return data;
   },
 
   /** Get API key status (redacted booleans) */
   async getKeys(): Promise<ApiKeyStatusResponse> {
-    const { data } = await apiClient.get<ApiKeyStatusResponse>('/settings/keys');
+    const { data } =
+      await apiClient.get<ApiKeyStatusResponse>('/settings/keys');
     return data;
   },
 

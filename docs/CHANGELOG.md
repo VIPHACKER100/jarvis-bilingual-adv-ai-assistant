@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **pip patch upgrades**: 14 packages updated (fastapi, uvicorn, python-dotenv, slowapi, Pillow, openai, zeroconf, pywin32, comtypes, screen-brightness-control, rapidfuzz, pytest, pytest-asyncio, httptools)
 - **pgvector Docker image**: postgres:16-alpine → pgvector/pgvector:0.7.4-pg16 for native vector search
 - **Database fixes**: Alembic schema fixed (embedding: Text + quick_actions table + pgvector index), script.py.mako rewritten as async-compatible, database_async.py deleted
-- **Code review cleanup**: 47 __pycache__ files untracked, jaeger pinned to 1.62.0, duplicate rapidfuzz removed, docker-compose.dev.yml got postgres+redis services
+- **Code review cleanup**: 47 **pycache** files untracked, jaeger pinned to 1.62.0, duplicate rapidfuzz removed, docker-compose.dev.yml got postgres+redis services
 - **Docker hardening**: All Dockerfiles use pinned base images, non-root user, HEALTHCHECK
 - **Version bumped** from 4.0.0-alpha.1 to 4.0.0-alpha.2
 

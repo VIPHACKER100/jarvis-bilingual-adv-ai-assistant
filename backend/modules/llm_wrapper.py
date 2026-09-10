@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import httpx
-from modules.llm_client import llm_client
+from modules.llm_client import llm_client as _llm_client
 from utils.logger_structured import logger
 
 AGENT_SYSTEM_PROMPT = """You are JARVIS, an autonomous AI agent. 
@@ -32,13 +32,13 @@ RULES:
 2. Output valid JSON for the Action field.
 3. Be concise but precise.
 4. If a tool fails, try an alternative or explain why.
-5. Use the user's language ({{language}}) for the Final Answer.
+5. Use the user's language ({language}) for the Final Answer.
 
 Available Tools:
-{{tools_context}}
+{tools_context}
 
 Relevant Context:
-{{neural_context}}
+{neural_context}
 """
 
 
@@ -52,7 +52,7 @@ class LLMModule:
         full_context = context or ""
         if neural_context:
             full_context += f"\n\nNEURAL MEMORY MAP (Core Identity & Behavioral Matrix):\n{neural_context}"
-        return await llm_client.chat(text, language=language, context=full_context)
+        return await _llm_client.chat(text, language=language, context=full_context)
 
     async def get_response_stream(self, text: str, language: str = "en", context: Optional[str] = None) -> AsyncGenerator[str, None]:
         from modules.memory import memory_manager
@@ -60,7 +60,7 @@ class LLMModule:
         full_context = context or ""
         if neural_context:
             full_context += f"\n\nNEURAL MEMORY MAP:\n{neural_context}"
-        async for chunk in llm_client.chat_stream(text, language=language, context=full_context):
+        async for chunk in _llm_client.chat_stream(text, language=language, context=full_context):
             yield chunk
 
     async def get_visual_response(self, image_path: str, prompt: str = "Analyze this image and describe what you see.", language: str = "en") -> Optional[str]:
@@ -106,7 +106,7 @@ class LLMModule:
 
     async def extract_command(self, text: str, available_commands: List[str]) -> Optional[Dict[str, Any]]:
         system_prompt = f"You are the NLU core of JARVIS. AVAILABLE COMMANDS: {', '.join(available_commands)}\n\nOutput ONLY a JSON with 'command_key' (string) and 'params' (Any or null). If no match, set 'command_key' to 'unknown'."
-        result = await llm_client.chat(f"Extract command from: '{text}'", language="en", context=system_prompt, max_tokens=256, temperature=0.1)
+        result = await _llm_client.chat(f"Extract command from: '{text}'", language="en", context=system_prompt, max_tokens=256, temperature=0.1)
         if not result:
             return None
         json_text = result.strip()
@@ -126,10 +126,10 @@ class LLMModule:
         return None
 
     async def ping_llm(self) -> bool:
-        return await llm_client.ping()
+        return await _llm_client.ping()
 
     async def get_embedding(self, text: str) -> Optional[List[float]]:
-        return await llm_client.get_embedding(text)
+        return await _llm_client.get_embedding(text)
 
     async def summarize_context(self, conversation_entries: List[Any]) -> str:
         if not conversation_entries:
@@ -145,13 +145,16 @@ class LLMModule:
 
     async def get_agent_response(self, query: str, tools_context: str, neural_context: str, history: List[Dict[str, Any]], language: str = "en") -> str:
         system_prompt = AGENT_SYSTEM_PROMPT.format(tools_context=tools_context, neural_context=neural_context, language=language)
-        messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": query}]
+        # Feed the ReAct transcript back so each iteration sees prior steps
+        transcript: List[Dict[str, Any]] = []
         for step in history:
-            messages.append({"role": "assistant", "content": f"Thought: {step['thought']}\nAction: {step['action']}"})
-            messages.append({"role": "user", "content": f"Observation: {step['observation']}"})
-        result = await llm_client.chat(messages[-1]["content"], language=language, context=system_prompt)
+            transcript.append({"role": "assistant", "content": f"Thought: {step['thought']}\nAction: {step['action']}"})
+            transcript.append({"role": "user", "content": f"Observation: {step['observation']}"})
+        result = await _llm_client.chat(query, language=language, context=system_prompt, history=transcript)
         return result or "Error: No LLM response."
 
 
 llm_module = LLMModule()
-llm_client = llm_module  # backward compat alias
+# Public alias: external importers (agent, media, proactive, tests) expect the
+# LLMModule interface (get_response, get_agent_response, ...).
+llm_client = llm_module

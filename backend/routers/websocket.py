@@ -53,11 +53,11 @@ async def websocket_endpoint(
     try:
         while True:
             data = await websocket.receive_text()
-            message_dict = json.loads(data)
 
-            # Validate with Pydantic
+            # Parse + validate with Pydantic — malformed frames get an error
+            # response instead of dropping the connection
             try:
-                message = WebSocketMessage(**message_dict)
+                message = WebSocketMessage(**json.loads(data))
             except Exception as e:
                 await manager.send_personal_message(
                     jsonable_encoder(WebSocketResponse(type="error", data=f"Invalid message format: {str(e)}")), cid
@@ -97,18 +97,24 @@ async def websocket_endpoint(
                     cid_to_confirm = conf_data.get("confirmation_id")
                     approved = conf_data.get("approved", False)
                     if cid_to_confirm:
-                        success = await security.confirm_command(cid_to_confirm, approved)
+                        outcome = await security.confirm_command(cid_to_confirm, approved)
+                        if outcome is None:
+                            notif = {
+                                "title": "Security Protocol",
+                                "message": "Confirmation not found or already handled",
+                                "type": "error",
+                            }
+                        elif outcome.get("confirmed"):
+                            exec_result = outcome.get("result") or {}
+                            notif = {
+                                "title": "Security Protocol",
+                                "message": exec_result.get("response") or "Action approved",
+                                "type": "success" if exec_result.get("success", True) else "error",
+                            }
+                        else:
+                            notif = {"title": "Security Protocol", "message": "Action cancelled", "type": "success"}
                         await manager.send_personal_message(
-                            jsonable_encoder(
-                                WebSocketResponse(
-                                    type="notification",
-                                    data={
-                                        "title": "Security Protocol",
-                                        "message": "Action approved" if approved else "Action cancelled",
-                                        "type": "success" if success else "error",
-                                    },
-                                )
-                            ),
+                            jsonable_encoder(WebSocketResponse(type="notification", data=notif)),
                             cid,
                         )
 

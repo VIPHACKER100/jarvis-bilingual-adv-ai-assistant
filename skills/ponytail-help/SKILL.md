@@ -46,11 +46,13 @@ Say "stop ponytail" or "normal mode". Resume anytime with `/ponytail`.
 Default mode = `full`, auto-active every session. Change it:
 
 **Environment variable** (highest priority):
+
 ```bash
 export PONYTAIL_DEFAULT_MODE=ultra
 ```
 
 **Config file** (`~/.config/ponytail/config.json`, Windows: `%APPDATA%\ponytail\config.json`):
+
 ```json
 { "defaultMode": "lite" }
 ```
@@ -68,4 +70,4 @@ If `/plugin` is not recognized, your Claude Code is out of date. Update it (`npm
 
 ## More
 
-Full docs + examples: https://github.com/DietrichGebert/ponytail
+Full docs + examples: <https://github.com/DietrichGebert/ponytail>

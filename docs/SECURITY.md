@@ -1,9 +1,11 @@
 # Security Policy
+>
 > ponytail: trimmed from 38 to 10 lines — removed version table and response timeline
 
 ## Reporting a Vulnerability
 
 Do **not** create a public issue. Email **<viphacker.100.org@gmail.com>** with:
+
 - Description and steps to reproduce
 - Potential impact
 - JARVIS version and OS

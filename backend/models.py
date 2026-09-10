@@ -436,11 +436,12 @@ class ScreenshotResponse(BaseResponse):
 
 
 class WebSocketMessage(BaseModel):
-    type: str  # "command", "ping", "get_status"
+    type: str  # "command", "confirmation", "ping", "get_status"
     command: Optional[str] = None
     language: Optional[str] = "en"
     params: Optional[Dict[str, Any]] = None
     session_id: Optional[str] = None
+    data: Optional[Dict[str, Any]] = None  # "confirmation" payloads: {confirmation_id, approved}
 
 
 class WebSocketResponse(BaseModel):

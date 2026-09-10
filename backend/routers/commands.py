@@ -28,15 +28,26 @@ async def execute_command(request: Request, data: CommandRequest):
 
 @router.post("/confirm/{confirmation_id}", response_model=BaseResponse)
 async def confirm_command(confirmation_id: str, data: ConfirmationRequest):
-    """Confirm or deny a pending dangerous command"""
-    from modules.security import security
+    """Confirm or deny a pending dangerous command.
 
-    approved = data.approved
-    result = await security.confirm_command(confirmation_id, approved)
-    return {"success": result, "response": "Action confirmed" if approved else "Action cancelled"}
+    On approval the original command is re-dispatched with the confirmed
+    flag set, so the action actually executes.
+    """
+    outcome = await security.confirm_command(confirmation_id, data.approved)
+    if outcome is None:
+        raise HTTPException(status_code=404, detail="Confirmation not found, already decided, or expired")
+
+    exec_result = outcome.get("result") or {}
+    if outcome["confirmed"]:
+        response_text = exec_result.get("response") or "Action confirmed"
+        success = bool(exec_result.get("success", True))
+    else:
+        response_text = "Action cancelled"
+        success = True
+    return {"success": success, "response": response_text}
 
 
 @router.get("/pending")
 async def get_pending_actions():
     """List actions awaiting confirmation"""
-    return await security.get_pending_actions()
+    return security.get_pending_actions()

@@ -6,17 +6,21 @@ interface IWindow extends Window {
   SpeechRecognition: any;
 }
 
-export const useSpeechRecognition = (onResult: (transcript: string) => void) => {
+export const useSpeechRecognition = (
+  onResult: (transcript: string) => void
+) => {
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    const { webkitSpeechRecognition, SpeechRecognition } = window as unknown as IWindow;
-    const SpeechRecognitionConstructor = SpeechRecognition || webkitSpeechRecognition;
+    const { webkitSpeechRecognition, SpeechRecognition } =
+      window as unknown as IWindow;
+    const SpeechRecognitionConstructor =
+      SpeechRecognition || webkitSpeechRecognition;
 
     if (!SpeechRecognitionConstructor) {
-      setError("Speech Recognition API not supported in this browser.");
+      setError('Speech Recognition API not supported in this browser.');
       return;
     }
 
@@ -34,14 +38,14 @@ export const useSpeechRecognition = (onResult: (transcript: string) => void) => 
       // Logic for continuous listening:
       // If we are still supposed to be listening (shouldListen is true), restart.
       if (recognitionRef.current && recognitionRef.current.shouldListen) {
-          try {
-             recognition.start();
-          } catch (e) {
-             // If start fails here, it might be due to rapid restart denial
-             console.log("Restart attempted too quickly");
-          }
+        try {
+          recognition.start();
+        } catch (e) {
+          // If start fails here, it might be due to rapid restart denial
+          console.log('Restart attempted too quickly');
+        }
       } else {
-          setIsListening(false);
+        setIsListening(false);
       }
     };
 
@@ -57,13 +61,16 @@ export const useSpeechRecognition = (onResult: (transcript: string) => void) => 
         // handled by onend usually, but good to not flag as critical error
         return;
       }
-      
-      console.error("Speech Error:", event.error);
+
+      console.error('Speech Error:', event.error);
       setError(event.error);
       setIsListening(false);
-      
+
       // If permission is denied, we must stop the loop completely
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      if (
+        event.error === 'not-allowed' ||
+        event.error === 'service-not-allowed'
+      ) {
         if (recognitionRef.current) recognitionRef.current.shouldListen = false;
       }
     };
@@ -72,10 +79,10 @@ export const useSpeechRecognition = (onResult: (transcript: string) => void) => 
     recognitionRef.current.shouldListen = false;
 
     return () => {
-       if (recognitionRef.current) {
-         recognitionRef.current.shouldListen = false;
-         recognitionRef.current.abort();
-       }
+      if (recognitionRef.current) {
+        recognitionRef.current.shouldListen = false;
+        recognitionRef.current.abort();
+      }
     };
   }, [onResult]);
 
@@ -86,7 +93,7 @@ export const useSpeechRecognition = (onResult: (transcript: string) => void) => 
       try {
         recognitionRef.current.start();
       } catch (e) {
-        console.log("Recognition start error (likely already started):", e);
+        console.log('Recognition start error (likely already started):', e);
       }
     }
   }, []);

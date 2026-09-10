@@ -15,7 +15,10 @@ import { authService } from '../services/auth';
 export const agentApi = {
   /** Non-streaming LLM chat */
   async chat(query: AgentQuery): Promise<AgentChatResponse> {
-    const { data } = await apiClient.post<AgentChatResponse>('/agent/chat', query);
+    const { data } = await apiClient.post<AgentChatResponse>(
+      '/agent/chat',
+      query
+    );
     return data;
   },
 
@@ -28,7 +31,7 @@ export const agentApi = {
     query: AgentQuery,
     onEvent: (event: StreamEvent) => void,
     onError?: (err: Error) => void,
-    onComplete?: () => void,
+    onComplete?: () => void
   ): { abort: () => void } {
     const controller = new AbortController();
 
@@ -44,7 +47,7 @@ export const agentApi = {
       body: JSON.stringify({ ...query, stream: true }),
       signal: controller.signal,
     })
-      .then(async (response) => {
+      .then(async response => {
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -68,7 +71,11 @@ export const agentApi = {
             try {
               const parsed = JSON.parse(trimmed.slice(6)) as StreamEvent;
               onEvent(parsed);
-              if (parsed.type === 'done' || parsed.type === 'error' || parsed.type === 'partial_done') {
+              if (
+                parsed.type === 'done' ||
+                parsed.type === 'error' ||
+                parsed.type === 'partial_done'
+              ) {
                 onComplete?.();
                 return;
               }

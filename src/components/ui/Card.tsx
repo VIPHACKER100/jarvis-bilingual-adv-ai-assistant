@@ -11,7 +11,12 @@ interface CardProps {
   hoverable?: boolean;
 }
 
-export function Card({ children, className = '', onClick, hoverable = false }: CardProps) {
+export function Card({
+  children,
+  className = '',
+  onClick,
+  hoverable = false,
+}: CardProps) {
   return (
     <div
       className={`glass-panel rounded-xl p-4 ${
@@ -20,7 +25,13 @@ export function Card({ children, className = '', onClick, hoverable = false }: C
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+      onKeyDown={
+        onClick
+          ? e => {
+              if (e.key === 'Enter' || e.key === ' ') onClick();
+            }
+          : undefined
+      }
     >
       {children}
     </div>

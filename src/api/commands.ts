@@ -20,11 +20,11 @@ export const commandsApi = {
   /** Confirm/deny a dangerous action */
   async confirm(
     confirmationId: string,
-    data: ConfirmationRequest,
+    data: ConfirmationRequest
   ): Promise<BaseResponse> {
     const { data: res } = await apiClient.post<BaseResponse>(
       `/confirm/${confirmationId}`,
-      data,
+      data
     );
     return res;
   },

@@ -21,12 +21,10 @@ function notify() {
  * Auto-removes after `duration` ms (default 5000).
  * Deduplicates by title+message.
  */
-export function addNotification(
-  n: Omit<Notification, 'id'>,
-): string {
+export function addNotification(n: Omit<Notification, 'id'>): string {
   // Deduplicate
   const dup = notifications.find(
-    (existing) => existing.title === n.title && existing.message === n.message,
+    existing => existing.title === n.title && existing.message === n.message
   );
   if (dup) return dup.id;
 
@@ -49,7 +47,7 @@ export function addNotification(
  * Remove a notification by ID.
  */
 export function dismissNotification(id: string): void {
-  notifications = notifications.filter((n) => n.id !== id);
+  notifications = notifications.filter(n => n.id !== id);
   notify();
 }
 
@@ -65,9 +63,7 @@ export function clearAllNotifications(): void {
  * Subscribe to notification changes.
  * Returns an unsubscribe function.
  */
-export function subscribeToNotifications(
-  listener: Listener,
-): () => void {
+export function subscribeToNotifications(listener: Listener): () => void {
   listeners.add(listener);
   // Immediately call with current state
   listener([...notifications]);

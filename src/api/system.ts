@@ -25,9 +25,12 @@ export const systemApi = {
 
   /** Full system status */
   async getStatus(language?: string): Promise<SystemStatusResponse> {
-    const { data } = await apiClient.get<SystemStatusResponse>('/system/status', {
-      params: language ? { language } : undefined,
-    });
+    const { data } = await apiClient.get<SystemStatusResponse>(
+      '/system/status',
+      {
+        params: language ? { language } : undefined,
+      }
+    );
     return data;
   },
 
@@ -57,17 +60,28 @@ export const systemApi = {
 
   // ── Power Actions ──
 
-  async shutdown(language?: string, confirmed?: boolean): Promise<BaseResponse> {
-    const { data } = await apiClient.post<BaseResponse>('/system/shutdown', null, {
-      params: { language, confirmed },
-    });
+  async shutdown(
+    language?: string,
+    confirmed?: boolean
+  ): Promise<BaseResponse> {
+    const { data } = await apiClient.post<BaseResponse>(
+      '/system/shutdown',
+      null,
+      {
+        params: { language, confirmed },
+      }
+    );
     return data;
   },
 
   async restart(language?: string, confirmed?: boolean): Promise<BaseResponse> {
-    const { data } = await apiClient.post<BaseResponse>('/system/restart', null, {
-      params: { language, confirmed },
-    });
+    const { data } = await apiClient.post<BaseResponse>(
+      '/system/restart',
+      null,
+      {
+        params: { language, confirmed },
+      }
+    );
     return data;
   },
 
@@ -81,16 +95,27 @@ export const systemApi = {
   // ── Volume ──
 
   async volumeUp(amount?: number, language?: string): Promise<VolumeResponse> {
-    const { data } = await apiClient.post<VolumeResponse>('/system/volume/up', null, {
-      params: { amount, language },
-    });
+    const { data } = await apiClient.post<VolumeResponse>(
+      '/system/volume/up',
+      null,
+      {
+        params: { amount, language },
+      }
+    );
     return data;
   },
 
-  async volumeDown(amount?: number, language?: string): Promise<VolumeResponse> {
-    const { data } = await apiClient.post<VolumeResponse>('/system/volume/down', null, {
-      params: { amount, language },
-    });
+  async volumeDown(
+    amount?: number,
+    language?: string
+  ): Promise<VolumeResponse> {
+    const { data } = await apiClient.post<VolumeResponse>(
+      '/system/volume/down',
+      null,
+      {
+        params: { amount, language },
+      }
+    );
     return data;
   },
 
@@ -111,9 +136,12 @@ export const systemApi = {
   },
 
   async getNetworkInfo(language?: string): Promise<NetworkInfoResponse> {
-    const { data } = await apiClient.get<NetworkInfoResponse>('/system/network', {
-      params: language ? { language } : undefined,
-    });
+    const { data } = await apiClient.get<NetworkInfoResponse>(
+      '/system/network',
+      {
+        params: language ? { language } : undefined,
+      }
+    );
     return data;
   },
 
@@ -125,47 +153,53 @@ export const systemApi = {
   },
 
   async googleSearch(query: string, language?: string): Promise<BaseResponse> {
-    const { data } = await apiClient.post<BaseResponse>('/system/search', null, {
-      params: { query, language },
-    });
+    const { data } = await apiClient.post<BaseResponse>(
+      '/system/search',
+      null,
+      {
+        params: { query, language },
+      }
+    );
     return data;
   },
 
   // ── Performance & Analytics ──
 
   async getPerformanceHistory(
-    limit?: number,
+    limit?: number
   ): Promise<{ success: boolean; data: PerformanceEntry[] }> {
-    const { data } = await apiClient.get<{ success: boolean; data: PerformanceEntry[] }>(
-      '/system/performance/history',
-      { params: { limit } },
-    );
+    const { data } = await apiClient.get<{
+      success: boolean;
+      data: PerformanceEntry[];
+    }>('/system/performance/history', { params: { limit } });
     return data;
   },
 
-  async getPersonalities(): Promise<{ success: boolean; data: PersonalityInfo[] }> {
-    const { data } = await apiClient.get<{ success: boolean; data: PersonalityInfo[] }>(
-      '/system/personalities',
-    );
+  async getPersonalities(): Promise<{
+    success: boolean;
+    data: PersonalityInfo[];
+  }> {
+    const { data } = await apiClient.get<{
+      success: boolean;
+      data: PersonalityInfo[];
+    }>('/system/personalities');
     return data;
   },
 
-  async setPersonality(
-    id: string,
-  ): Promise<SetPersonalityResponse> {
+  async setPersonality(id: string): Promise<SetPersonalityResponse> {
     const { data } = await apiClient.post<SetPersonalityResponse>(
-      `/system/personality/${id}`,
+      `/system/personality/${id}`
     );
     return data;
   },
 
   async getCommandInsights(
-    days?: number,
+    days?: number
   ): Promise<{ success: boolean; data: CommandInsights }> {
-    const { data } = await apiClient.get<{ success: boolean; data: CommandInsights }>(
-      '/system/command-insights',
-      { params: { days } },
-    );
+    const { data } = await apiClient.get<{
+      success: boolean;
+      data: CommandInsights;
+    }>('/system/command-insights', { params: { days } });
     return data;
   },
 
@@ -193,14 +227,11 @@ export const systemApi = {
     return data;
   },
 
-  async quarantineProcess(
-    pid: number,
-    action: string,
-  ): Promise<BaseResponse> {
+  async quarantineProcess(pid: number, action: string): Promise<BaseResponse> {
     const { data } = await apiClient.post<BaseResponse>(
       '/system/security/quarantine',
       null,
-      { params: { pid, action } },
+      { params: { pid, action } }
     );
     return data;
   },

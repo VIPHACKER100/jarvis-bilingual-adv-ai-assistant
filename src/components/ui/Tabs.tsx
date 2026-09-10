@@ -2,8 +2,6 @@
 // JARVIS v4.0 — Tabs primitive
 // ==========================================================================
 
-
-
 interface Tab {
   id: string;
   label: string;
@@ -19,7 +17,7 @@ interface TabsProps {
 export function Tabs({ tabs, activeTab, onChange, className = '' }: TabsProps) {
   return (
     <div className={`flex gap-1 border-b border-cyan-900/30 ${className}`}>
-      {tabs.map((tab) => (
+      {tabs.map(tab => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}

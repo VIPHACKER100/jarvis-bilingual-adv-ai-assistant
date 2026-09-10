@@ -35,19 +35,23 @@ export function useSSE(): UseSSEReturn {
 
     const { abort } = agentApi.stream(
       query,
-      (event) => {
+      event => {
         setData(event);
-        if (event.type === 'done' || event.type === 'error' || event.type === 'partial_done') {
+        if (
+          event.type === 'done' ||
+          event.type === 'error' ||
+          event.type === 'partial_done'
+        ) {
           setIsConnected(false);
         }
       },
-      (err) => {
+      err => {
         setError(err);
         setIsConnected(false);
       },
       () => {
         setIsConnected(false);
-      },
+      }
     );
 
     abortRef.current = abort;

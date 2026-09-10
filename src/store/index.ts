@@ -80,36 +80,35 @@ export type AppState = AuthSlice &
   SettingsSlice &
   ConfirmationsSlice;
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>(set => ({
   // ── Auth ──
   apiKey: null,
   isAuthenticated: false,
   isCheckingAuth: true,
-  setApiKey: (apiKey) => set({ apiKey }),
-  setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-  setCheckingAuth: (isCheckingAuth) => set({ isCheckingAuth }),
+  setApiKey: apiKey => set({ apiKey }),
+  setAuthenticated: isAuthenticated => set({ isAuthenticated }),
+  setCheckingAuth: isCheckingAuth => set({ isCheckingAuth }),
 
   // ── WebSocket ──
   isConnected: false,
   clientId: crypto.randomUUID(),
   reconnectAttempts: 0,
-  setIsConnected: (isConnected) => set({ isConnected, reconnectAttempts: 0 }),
-  setClientId: (clientId) => set({ clientId }),
-  setReconnectAttempts: (reconnectAttempts) => set({ reconnectAttempts }),
+  setIsConnected: isConnected => set({ isConnected, reconnectAttempts: 0 }),
+  setClientId: clientId => set({ clientId }),
+  setReconnectAttempts: reconnectAttempts => set({ reconnectAttempts }),
 
   // ── System Status ──
   systemStatus: null,
-  setSystemStatus: (systemStatus) => set({ systemStatus }),
+  setSystemStatus: systemStatus => set({ systemStatus }),
 
   // ── Conversation ──
   entries: [],
   isProcessing: false,
-  addEntry: (entry) =>
-    set((state) => ({ entries: [...state.entries, entry] })),
-  setProcessing: (isProcessing) => set({ isProcessing }),
+  addEntry: entry => set(state => ({ entries: [...state.entries, entry] })),
+  setProcessing: isProcessing => set({ isProcessing }),
   clearEntries: () => set({ entries: [] }),
-  updateLastEntry: (text) =>
-    set((state) => {
+  updateLastEntry: text =>
+    set(state => {
       const entries = [...state.entries];
       if (entries.length > 0) {
         const last = entries[entries.length - 1];
@@ -120,33 +119,31 @@ export const useStore = create<AppState>((set) => ({
 
   // ── Notifications ──
   notifications: [],
-  addNotification: (n) =>
-    set((state) => ({
+  addNotification: n =>
+    set(state => ({
       notifications: [...state.notifications, n].slice(-5),
     })),
-  dismissNotification: (id) =>
-    set((state) => ({
-      notifications: state.notifications.filter((n) => n.id !== id),
+  dismissNotification: id =>
+    set(state => ({
+      notifications: state.notifications.filter(n => n.id !== id),
     })),
   clearNotifications: () => set({ notifications: [] }),
 
   // ── Settings ──
   data: null,
   isLoading: false,
-  setSettings: (data) => set({ data }),
-  setLoading: (isLoading) => set({ isLoading }),
+  setSettings: data => set({ data }),
+  setLoading: isLoading => set({ isLoading }),
 
   // ── Pending Confirmations ──
   pendingConfirmations: [],
-  addConfirmation: (c) =>
-    set((state) => ({
+  addConfirmation: c =>
+    set(state => ({
       pendingConfirmations: [...state.pendingConfirmations, c],
     })),
-  removeConfirmation: (id) =>
-    set((state) => ({
-      pendingConfirmations: state.pendingConfirmations.filter(
-        (c) => c.id !== id,
-      ),
+  removeConfirmation: id =>
+    set(state => ({
+      pendingConfirmations: state.pendingConfirmations.filter(c => c.id !== id),
     })),
   clearConfirmations: () => set({ pendingConfirmations: [] }),
 }));

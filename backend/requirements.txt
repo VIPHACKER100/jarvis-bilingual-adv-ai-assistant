@@ -41,6 +41,7 @@ rapidfuzz>=3.14.5
 # Development & Testing
 pytest>=9.1.1
 pytest-asyncio>=1.4.0
+pytest-timeout>=2.3.1
 
 # LLM APIs
 openai>=2.43.0

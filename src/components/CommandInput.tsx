@@ -23,7 +23,11 @@ const LANGUAGE_LABELS: Record<Language, string> = {
 
 const LANGUAGE_CYCLE: Language[] = ['en', 'hi', 'hinglish'];
 
-export function CommandInput({ onSubmit, disabled = false, placeholder = 'Type a command or ask me anything...' }: CommandInputProps) {
+export function CommandInput({
+  onSubmit,
+  disabled = false,
+  placeholder = 'Type a command or ask me anything...',
+}: CommandInputProps) {
   const [text, setText] = useState('');
   const [language, setLanguage] = useState<Language>('en');
   const [error, setError] = useState<string | null>(null);
@@ -56,31 +60,31 @@ export function CommandInput({ onSubmit, disabled = false, placeholder = 'Type a
   };
 
   const cycleLanguage = () => {
-    setLanguage((prev) => {
+    setLanguage(prev => {
       const idx = LANGUAGE_CYCLE.indexOf(prev);
       return LANGUAGE_CYCLE[(idx + 1) % LANGUAGE_CYCLE.length] ?? 'en';
     });
   };
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-2 glass-panel rounded-lg px-4 py-2 focus-within:border-cyan-400/50 transition-all duration-300">
+    <div className='flex flex-col gap-1.5'>
+      <div className='flex items-center gap-2 glass-panel rounded-lg px-4 py-2 focus-within:border-cyan-400/50 transition-all duration-300'>
         <button
           onClick={cycleLanguage}
           disabled={disabled}
           title={`Language: ${language}`}
           aria-label={`Current language: ${language}. Click to change.`}
-          className="flex items-center gap-1 px-2 py-1 text-xs font-mono font-bold uppercase rounded-md bg-cyan-900/40 text-cyan-300 border border-cyan-700/30 hover:bg-cyan-800/40 transition-all duration-200 disabled:opacity-40"
+          className='flex items-center gap-1 px-2 py-1 text-xs font-mono font-bold uppercase rounded-md bg-cyan-900/40 text-cyan-300 border border-cyan-700/30 hover:bg-cyan-800/40 transition-all duration-200 disabled:opacity-40'
         >
-          <Languages className="w-3 h-3" />
+          <Languages className='w-3 h-3' />
           {LANGUAGE_LABELS[language]}
         </button>
 
         <input
           ref={inputRef}
-          type="text"
+          type='text'
           value={text}
-          onChange={(e) => {
+          onChange={e => {
             setText(e.target.value);
             setError(null);
           }}
@@ -88,23 +92,29 @@ export function CommandInput({ onSubmit, disabled = false, placeholder = 'Type a
           disabled={disabled}
           placeholder={placeholder}
           maxLength={500}
-          className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-slate-200 placeholder-slate-500 disabled:opacity-40"
-          aria-label="Command input"
+          className='flex-1 bg-transparent border-none outline-none text-sm font-mono text-slate-200 placeholder-slate-500 disabled:opacity-40'
+          aria-label='Command input'
         />
 
-        <span className="text-[10px] text-slate-600 font-mono">{text.length}/500</span>
+        <span className='text-[10px] text-slate-600 font-mono'>
+          {text.length}/500
+        </span>
 
         <button
           onClick={handleSubmit}
           disabled={disabled || text.trim().length === 0}
-          title="Send command"
-          aria-label="Send command"
-          className="glass-button !p-2 !rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+          title='Send command'
+          aria-label='Send command'
+          className='glass-button !p-2 !rounded-lg disabled:opacity-30 disabled:cursor-not-allowed'
         >
-          <Send className="w-4 h-4" />
+          <Send className='w-4 h-4' />
         </button>
       </div>
-      {error && <span className="text-xs text-neon-error font-medium px-1">{error}</span>}
+      {error && (
+        <span className='text-xs text-neon-error font-medium px-1'>
+          {error}
+        </span>
+      )}
     </div>
   );
 }
