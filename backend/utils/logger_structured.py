@@ -27,5 +27,3 @@ def log_command(cmd: str, cmd_type: str, success: bool, details: dict | None = N
 
 def log_system_event(event: str, data: dict) -> None:
     log_event(event, **data)
-
-OTEL_ENABLED = False

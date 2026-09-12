@@ -11,7 +11,7 @@ import sqlite3
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 import pytest_asyncio
@@ -58,6 +58,34 @@ CREATE TABLE IF NOT EXISTS performance_metrics (
     cpu_percent     REAL,
     memory_percent  REAL
 );
+CREATE INDEX IF NOT EXISTS idx_performance_timestamp ON performance_metrics(timestamp);
+
+CREATE TABLE IF NOT EXISTS paired_devices (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id    TEXT    UNIQUE NOT NULL,
+    device_name  TEXT    NOT NULL,
+    device_type  TEXT    DEFAULT 'mobile',
+    access_token TEXT    NOT NULL,
+    paired_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    last_seen    TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS quick_actions (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    label   TEXT    NOT NULL,
+    command TEXT    NOT NULL,
+    icon    TEXT,
+    "order" INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL DEFAULT (datetime('now')),
+    event     TEXT NOT NULL,
+    details   TEXT,
+    success   INTEGER DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_audit_log_timestamp ON audit_log(timestamp);
 """
 
 
@@ -82,6 +110,7 @@ async def test_db():
     Uses a temp file so each test gets an isolated, persistent database.
     """
     import tempfile
+
     from utils.database import db_manager
 
     tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)

@@ -417,7 +417,7 @@ class WhatsAppManager:
         """Draft a reply based on the current WhatsApp screen context using OCR"""
         try:
             from modules.context import context_manager
-            from modules.llm_wrapper import llm_module
+            from modules.llm_client import llm_module
 
             visual_context = await context_manager.get_visual_context()
 

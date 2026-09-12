@@ -21,6 +21,7 @@ from modules.security import security
 from modules.system import system_module
 from modules.whatsapp import whatsapp_manager
 from modules.window_manager import window_manager
+from pydantic import BaseModel
 from utils.logger_structured import log_command, logger
 
 # Direct dispatch map: command_key -> (module_function_call)
@@ -323,6 +324,10 @@ async def dispatch_command(
 ) -> Dict[str, Any]:
     result = await _dispatch_direct(command_key, params, current_lang, confirmed)
     if result is not None:
+        # Some module functions return Pydantic response models (TimeResponse,
+        # SystemStatusResponse, ...) — normalize so dict-based consumers work
+        if isinstance(result, BaseModel):
+            return result.model_dump()
         return result
     return {"success": False, "action_type": "UNKNOWN", "response": "Unknown command."}
 

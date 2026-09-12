@@ -4,10 +4,9 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from rapidfuzz import fuzz
-
 import aiofiles
 from config import PROJECT_ROOT
+from rapidfuzz import fuzz
 from utils.database import db_manager
 from utils.logger_structured import logger
 
@@ -122,9 +121,6 @@ class NeuralMemoryManager:
         # Append to the end
         new_content = content + entry
         await self.update_node(node_name, new_content)
-
-        # Also sync vectors so the agent 'learns' immediately
-        asyncio.create_task(self.sync_vectors())
 
     async def get_node_with_metadata(self, name: str) -> Dict[str, Any]:
         """Read content and parse metadata of a memory node"""
@@ -727,9 +723,9 @@ class MemoryManager:
             if session_id:
                 rows = await db_manager.fetchall(
                     """
-                    SELECT id FROM conversations 
-                    WHERE session_id = ? 
-                    ORDER BY timestamp DESC 
+                    SELECT id FROM conversations
+                    WHERE session_id = ?
+                    ORDER BY timestamp DESC
                     LIMIT ?
                 """,
                     (session_id, limit),
@@ -737,8 +733,8 @@ class MemoryManager:
             else:
                 rows = await db_manager.fetchall(
                     """
-                    SELECT id FROM conversations 
-                    ORDER BY timestamp DESC 
+                    SELECT id FROM conversations
+                    ORDER BY timestamp DESC
                     LIMIT ?
                 """,
                     (limit,),
@@ -754,7 +750,7 @@ class MemoryManager:
             if session_id:
                 cursor = await db_manager.execute(
                     f"""
-                    DELETE FROM conversations 
+                    DELETE FROM conversations
                     WHERE session_id = ? AND id NOT IN ({placeholders})
                 """,
                     (session_id,) + tuple(keep_ids),
@@ -762,7 +758,7 @@ class MemoryManager:
             else:
                 cursor = await db_manager.execute(
                     f"""
-                    DELETE FROM conversations 
+                    DELETE FROM conversations
                     WHERE id NOT IN ({placeholders})
                 """,
                     tuple(keep_ids),

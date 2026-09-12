@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from .defaults import *
-from .environment import *
+from .defaults import *  # noqa: F403 -- intentional re-export of config surface
+from .environment import *  # noqa: F403 -- intentional re-export of config surface
 
 # Load command data from JSON instead of Python dicts
 _commands_path = Path(__file__).parent / "commands.json"

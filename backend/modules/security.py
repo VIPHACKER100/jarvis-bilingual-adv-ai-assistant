@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Any, Callable, Dict, Optional
 
-from config import CONFIRMATION_TIMEOUT, DANGEROUS_COMMANDS
+from config import CONFIRMATION_TIMEOUT
 from utils.logger_structured import log_command, log_system_event, logger
 
 
@@ -13,17 +13,6 @@ class SecurityManager:
     def __init__(self):
         self.pending_confirmations: Dict[str, dict] = {}
         self.confirmation_callbacks: Dict[str, Callable] = {}
-
-    def is_dangerous(self, command_key: str, command_text: str) -> bool:
-        """Check if command requires confirmation"""
-        command_lower = command_text.lower()
-
-        # Check against dangerous command keywords
-        for dangerous in DANGEROUS_COMMANDS:
-            if dangerous in command_key.lower() or dangerous in command_lower:
-                return True
-
-        return False
 
     def request_confirmation(self, command_key: str, command_text: str, language: str, details: dict) -> str:
         """

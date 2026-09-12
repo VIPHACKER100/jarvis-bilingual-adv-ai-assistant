@@ -64,7 +64,7 @@ async def update_settings(data: SettingsUpdateRequest):
         # Return full updated settings
         return await get_settings()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}") from e
 
 
 @router.post("/keys", response_model=BaseResponse)
@@ -133,7 +133,7 @@ async def update_keys(data: ApiKeyUpdateRequest):
 
         return {"success": True, "response": f"Updated {len(updates)} keys in .env"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update API keys: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update API keys: {str(e)}") from e
 
 
 @router.post("/test-key", response_model=BaseResponse)

@@ -45,10 +45,11 @@ WAKE_WORD_THRESHOLD = float(os.getenv("WAKE_WORD_THRESHOLD", 0.5))
 # Mobile Sync & Auto-Discovery
 MDNS_ENABLED = os.getenv("MDNS_ENABLED", "true").lower() == "true"
 MDNS_SERVICE_NAME = os.getenv("MDNS_SERVICE_NAME", "JARVIS-CORE")
-PAIRING_SECRET = os.getenv("PAIRING_SECRET", "JARVIS-SECRET-KEY")
+# No insecure fallback: unset means pairing-dependent features must stay disabled
+PAIRING_SECRET = os.getenv("PAIRING_SECRET") or None
 
 # Version
-VERSION = "4.0.0-alpha.4"
+VERSION = "4.0.0-alpha.5"
 
 
 def get_backend_api_key() -> str | None:

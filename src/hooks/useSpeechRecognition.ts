@@ -6,12 +6,40 @@ interface IWindow extends Window {
   SpeechRecognition: any;
 }
 
-export const useSpeechRecognition = (
-  onResult: (transcript: string) => void
-) => {
+export type AppLanguage = 'en' | 'hi' | 'hinglish';
+
+/** App language → BCP-47 tag for the Web Speech API */
+export const SPEECH_LOCALES: Record<AppLanguage, string> = {
+  en: 'en-US',
+  hi: 'hi-IN',
+  // Hinglish: English-India recognizer catches romanized Hindi words best
+  hinglish: 'en-IN',
+};
+
+interface UseSpeechRecognitionOptions {
+  onResult: (transcript: string) => void;
+  lang?: AppLanguage;
+}
+
+export const useSpeechRecognition = ({
+  onResult,
+  lang = 'en',
+}: UseSpeechRecognitionOptions) => {
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  // Callbacks/locale live in refs: inline options objects must not tear down
+  // the recognition instance (or an active listening session) on re-render
+  const onResultRef = useRef(onResult);
+  const langRef = useRef(lang);
+
+  useEffect(() => {
+    onResultRef.current = onResult;
+  });
+
+  useEffect(() => {
+    langRef.current = lang;
+  }, [lang]);
 
   useEffect(() => {
     const { webkitSpeechRecognition, SpeechRecognition } =
@@ -27,7 +55,7 @@ export const useSpeechRecognition = (
     const recognition = new SpeechRecognitionConstructor();
     recognition.continuous = false; // We want single command processing for better accuracy then restart
     recognition.interimResults = false;
-    recognition.lang = 'en-US';
+    recognition.lang = langRef.current;
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -51,7 +79,7 @@ export const useSpeechRecognition = (
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[event.results.length - 1][0].transcript;
-      onResult(transcript);
+      onResultRef.current(transcript);
     };
 
     recognition.onerror = (event: any) => {
@@ -84,11 +112,12 @@ export const useSpeechRecognition = (
         recognitionRef.current.abort();
       }
     };
-  }, [onResult]);
+  }, []);
 
   const startListening = useCallback(() => {
     setError(null); // Clear previous errors on new attempt
     if (recognitionRef.current) {
+      recognitionRef.current.lang = SPEECH_LOCALES[langRef.current];
       recognitionRef.current.shouldListen = true;
       try {
         recognitionRef.current.start();

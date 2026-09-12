@@ -1,6 +1,7 @@
 import os
 import socket
 
+from config.environment import VERSION
 from utils.logger_structured import logger
 from zeroconf import IPVersion, ServiceInfo
 from zeroconf.asyncio import AsyncZeroconf
@@ -32,7 +33,7 @@ class mDNSBroadcaster:
             finally:
                 s.close()
 
-            desc = {"version": "3.9.0", "platform": os.name}
+            desc = {"version": VERSION, "platform": os.name}
 
             self.service_info = ServiceInfo(
                 "_jarvis._tcp.local.",

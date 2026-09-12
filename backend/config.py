@@ -1,3 +1,2 @@
-from config.defaults import *
-from config.environment import *
-from config import DANGEROUS_COMMANDS, HINDI_COMMANDS, RESPONSES
+from config.defaults import *  # noqa: F403 -- intentional re-export shim
+from config.environment import *  # noqa: F403 -- intentional re-export shim

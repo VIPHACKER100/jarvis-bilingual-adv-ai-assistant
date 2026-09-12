@@ -52,7 +52,6 @@ export function AnalyticsPage() {
 
   const [commandInsights, setCommandInsights] =
     useState<CommandInsights | null>(null);
-  const [cmdLoading, setCmdLoading] = useState(true);
   const [processes, setProcesses] = useState<ProcessInfo[]>([]);
   const [procLoading, setProcLoading] = useState(true);
   const [actionLoadingPid, setActionLoadingPid] = useState<number | null>(null);
@@ -61,10 +60,6 @@ export function AnalyticsPage() {
   const [networkInfo, setNetworkInfo] = useState<NetworkInfoResponse | null>(
     null
   );
-  const [netLoading, setNetLoading] = useState(true);
-  // Used in JSX for conditional rendering
-  void cmdLoading;
-  void netLoading;
 
   // Fetch functions
   const fetchPerformance = useCallback(async () => {
@@ -86,7 +81,6 @@ export function AnalyticsPage() {
   }, [addNotification]);
 
   const fetchCommands = useCallback(async () => {
-    setCmdLoading(true);
     try {
       const res = await systemApi.getCommandInsights(30);
       setCommandInsights(res.data);
@@ -98,8 +92,6 @@ export function AnalyticsPage() {
         type: 'error',
         duration: 5000,
       });
-    } finally {
-      setCmdLoading(false);
     }
   }, [addNotification]);
 
@@ -123,7 +115,6 @@ export function AnalyticsPage() {
 
   const fetchNetwork = useCallback(async () => {
     setConnLoading(true);
-    setNetLoading(true);
     try {
       const [connRes, netRes] = await Promise.all([
         systemApi.getNetworkConnections(),
@@ -141,7 +132,6 @@ export function AnalyticsPage() {
       });
     } finally {
       setConnLoading(false);
-      setNetLoading(false);
     }
   }, [addNotification]);
 

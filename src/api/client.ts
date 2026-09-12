@@ -4,6 +4,7 @@
 
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { authService } from '../services/auth';
+import { useStore } from '../store';
 
 export const API_BASE_URL =
   (import.meta.env.VITE_BACKEND_URL as string) ?? 'http://localhost:8000';
@@ -25,6 +26,22 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
+function pushNotification(
+  title: string,
+  message: string,
+  type: 'error' | 'warning',
+  duration: number
+) {
+  // Global 403/429 handling — every page sees these, not just Home
+  useStore.getState().addNotification({
+    id: crypto.randomUUID(),
+    title,
+    message,
+    type,
+    duration,
+  });
+}
+
 // ── Response interceptor: global error handling ──
 apiClient.interceptors.response.use(
   response => response,
@@ -33,19 +50,19 @@ apiClient.interceptors.response.use(
   ) => {
     if (error.response?.status === 403) {
       authService.clearApiKey();
-      window.dispatchEvent(new CustomEvent('auth:invalid-key'));
+      pushNotification(
+        'Auth Error',
+        'Invalid or missing API key. Please configure it in Settings.',
+        'error',
+        8000
+      );
     }
     if (error.response?.status === 429) {
-      // Rate limit hit — could dispatch an event
-      window.dispatchEvent(
-        new CustomEvent('notification:add', {
-          detail: {
-            title: 'Rate Limited',
-            message: 'Too many requests. Please wait before trying again.',
-            type: 'warning',
-            duration: 5000,
-          },
-        })
+      pushNotification(
+        'Rate Limited',
+        'Too many requests. Please wait before trying again.',
+        'warning',
+        5000
       );
     }
     return Promise.reject(error);

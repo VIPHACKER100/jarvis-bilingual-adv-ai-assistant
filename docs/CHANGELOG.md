@@ -9,6 +9,41 @@ All notable changes to the JARVIS AI Assistant will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0-alpha.5] - 2026-09-13
+
+Audit-driven hardening release. Full analysis in [PROJECT_STATUS_REPORT.md](PROJECT_STATUS_REPORT.md),
+fix plan in [UPGRADE_AND_FIX_PLAN.md](UPGRADE_AND_FIX_PLAN.md). Backend tests 36 → 66, frontend 0 → 5, all CI gates green and able to fail.
+
+### Fixed
+
+- **LLM agent revived** — a module-level alias made every wrapper method call itself (`AttributeError`); the ReAct agent, streaming, vision, and embeddings all now delegate to the real client. Agent prompt actually receives tools + neural context; history feeds back each iteration; `run_loop` no longer crashes on its first line.
+- **Dangerous-command confirmation works end-to-end** — `/command` creates the pending confirmation (it never did: the check required `success=true` while unconfirmed actions return `success=false`), and approving re-executes the original command with the outcome returned. `/confirm/{id}` no longer 500s; unknown/expired ids return 404.
+- **Volume/mute/brightness report success correctly** — `log_command()` signature mismatch raised `TypeError` on every call, swallowed into "command not understood" despite the action succeeding.
+- **WebSocket `confirmation` message works** — `WebSocketMessage` gained the `data` field; malformed JSON frames now get an error frame instead of dropping the connection.
+- **Frontend WebSocket stays connected** — unstable `options` identity tore the socket down on every render and exhausted the retry budget; manual disconnects no longer poison reconnection; duplicate notification toasts eliminated; `isConnected` is reactive.
+- `GET /api/v1/pending` no longer 500s (called a method that did not exist).
+
+### Added
+
+- Voice input (locale-aware: `en-US` / `hi-IN` / `en-IN`) and spoken responses with a mute toggle on Home; language selection shared between typed and spoken commands.
+- LLM agent health badge on Home (`/agent/health`).
+- `audit_log` table + `log_audit`/`get_audit_log` — quarantine actions now write an audit trail and broadcast a WS event.
+- Frontend test tooling: vitest + testing-library (`npm test`), ESLint (typescript-eslint + react-hooks), `npm run build` type-checks. `Dockerfile.frontend` (nginx + Vite build). PWA favicon + icons.
+
+### Security
+
+- `ENABLE_DANGEROUS_COMMANDS` now defaults to `false`; `PAIRING_SECRET` no longer falls back to a hardcoded value.
+- `/api/v1/command` exempted from the SQLi keyword filter ("delete file x" works again; other endpoints stay filtered).
+- No `shell=True` with user-controlled input (AppleScript → argv + escaping; Windows `start` → `cmd /c` argv).
+- Pairing tokens compared constant-time; rate-limiter buckets evicted; 512 KB body cap enforced on streamed bytes (chunked requests no longer bypass).
+
+### Changed
+
+- `llm_wrapper.py` folded into `llm_client.py` (`llm_module` exported there); PyPDF2 → `pypdf` (with `PdfWriter.append` merge API); fuzzywuzzy → `rapidfuzz`; dead deps removed (`asyncpg`, `alembic`, `sqlalchemy`, `win10toast`, `google-generativeai`, `fuzzywuzzy`, frontend `uuid`).
+- Removed dead code: `security.is_dangerous`, no-op response middleware block, OTEL residue, stale audit scripts, dead `show_notification` (Win10Toast path).
+- mDNS advertises the real version instead of `3.9.0`; OpenRouter vision requests no longer send a third-party referer.
+- CI: all `continue-on-error` flags removed; backend tests run from repo root with `pytest-timeout`; ruff gate calibrated to `E,F,W,I,B` and clean; markdownlint clean repo-wide.
+
 ## [4.0.0-alpha.4] - 2026-07-08
 
 ### Ponytail Trim (docs overhaul)

@@ -17,7 +17,9 @@ GOOGLE_EMBEDDING_MODEL = os.getenv("GOOGLE_EMBEDDING_MODEL", "models/text-embedd
 
 # Security
 CONFIRMATION_TIMEOUT = int(os.getenv("CONFIRMATION_TIMEOUT", 30))
-ENABLE_DANGEROUS_COMMANDS = os.getenv("ENABLE_DANGEROUS_COMMANDS", "true").lower() == "true"
+# Opt-in only — dangerous actions (shutdown/restart/sleep) always require
+# explicit user confirmation regardless of this flag
+ENABLE_DANGEROUS_COMMANDS = os.getenv("ENABLE_DANGEROUS_COMMANDS", "false").lower() == "true"
 
 
 def get_config():

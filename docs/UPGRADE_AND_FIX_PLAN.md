@@ -91,6 +91,10 @@ Fix vacuous assertions meanwhile: `status_code in (200,403)` patterns (`test_api
 
 ## Phase 2 — Security Hardening (target: 2–4 days) — **required before Docker/LAN exposure** 🔒
 
+> **Status: ✅ COMPLETE for all *(now)* items (2026-09-13); *(LAN)* items remain open pending the deployment-posture decision.**
+> Done: 2.3 dangerous-commands default `false` (flag was decorative — also documented as opt-in); 2.4 `PAIRING_SECRET` has no insecure fallback (env-unset → `None`, `.env.example` shows how to generate one); 2.5 `/api/v1/command` exempted from the SQLi keyword filter ("delete file x" now reaches the pipeline; other JSON endpoints still filtered); 2.7 AppleScript moved to list-argv with proper escaping and Windows `start` to `cmd /c` list form (no `shell=True` with user-controlled input remains — `platform_utils.py` fixed-string osascript calls are constant and safe); 2.8 pairing token compared via `hmac.compare_digest`; 2.9 quarantine writes to a new `audit_log` table (schema + `log_audit`/`get_audit_log` in `utils/database.py`, conftest schema synced — also closes the Phase-4 conftest-drift and `fetchval` connection-leak items) and broadcasts a WS notification; 2.11 rate-limiter buckets evicted every 128 checks and the body cap now enforced on actual streamed bytes inside the ASGI reader (chunked requests no longer bypass it).
+> Also fixed while verifying the CI gate: ruff was red with 641 pre-existing findings — rule selection calibrated to bug-catching rules (`E,F,W,I,B`; UP/SIM/N/ARG style-modernization debt documented in `pyproject.toml`), the auto-fixable remainder applied, and 10 hand-fixed. `ruff check` is now clean. New tests: `backend/tests/test_security_hardening.py` (13) — backend suite now **66/66**.
+>
 > Decision point: if JARVIS stays a single-user loopback tool, items marked *(LAN)* can defer; items marked *(now)* apply regardless.
 
 | # | Item | Fix | Priority |
@@ -110,6 +114,8 @@ Fix vacuous assertions meanwhile: `status_code in (200,403)` patterns (`test_api
 ---
 
 ## Phase 3 — Frontend Completion per FRD (target: 3–5 days) 🎨
+
+> **Status: ✅ COMPLETE (2026-09-13).** Voice in/out is live: `useSpeechRecognition` (now locale-aware — en→`en-US`, hi→`hi-IN`, hinglish→`en-IN`, with ref-stable callbacks so re-renders don't kill an active session) feeds spoken commands straight into the command flow, and `useTextToSpeech` speaks responses in the matching language, with a header mute toggle. Language selection is lifted to Home so typed and spoken input share the locale. The agent is surfaced via a health badge (`agentApi.health()` → provider/online indicator in the header); open queries already reach the agent automatically through `/command`'s fallback, so a separate chat panel would have duplicated the primary path — the dead `useSSE.ts` was deleted and `api/agent.ts` is now used by the badge. Deleted dead files: `useSSE.ts`, `services/notifications.ts`, `ui/Modal.tsx`, `ui/Tooltip.tsx`, and the unused `uuid`/`@types-uuid` deps. `ConfirmationDialog` is now accessible (role/aria-modal, focus trap, Escape-to-reject, focus restore). 403/429 handling moved into the axios interceptor (direct store notifications — all pages react, not just Home). Small fixes: Home dead conditional, Analytics `void`-suppressed duplicate loading states removed, unused `@` path alias dropped from vite/tsconfig, index.html stripped to the fonts/CSS actually used (Orbitron/Share Tech Mono conflict gone). PWA: generated `favicon.ico` + `icons/icon-192x192.png` + `icon-512x512.png`; service worker intentionally deferred (needs vite-plugin-pwa — tracked in Phase 5). All gates green: tsc, eslint (0 errors), prettier, vitest 5/5, build.
 
 ### 3.1 Wire the orphaned headline features 🟡
 
@@ -133,6 +139,8 @@ Fix vacuous assertions meanwhile: `status_code in (200,403)` patterns (`test_api
 ---
 
 ## Phase 4 — Dependency & Code Cleanup (target: 1–2 days) 🧹
+
+> **Status: ✅ COMPLETE (2026-09-13).** Deps: `asyncpg`/`alembic`/`sqlalchemy` removed (stdlib sqlite3; the only mention was a docstring), `google-generativeai` removed (Gemini goes through its OpenAI-compatible endpoint), `win10toast` removed along with the dead `show_notification` method (zero callers — frontend notifications come over WS), `fuzzywuzzy` → `rapidfuzz` (all call sites use positional `[0]`/`[1]` indexing, verified 3-tuple compatible), `PyPDF2` → `pypdf` **with the real API migration**: pypdf ≥5 removed `PdfMerger`, so `merge_pdfs` now uses `PdfWriter.append()` (prod pin `6.18.1`, tested). Code: `llm_wrapper.py` folded into `llm_client.py` (`llm_module` exported there; 6 import sites updated; third-party referer removed; latent bug fixed — `proactive.py` passed `max_tokens` to `get_response`, which now forwards it); stale `scripts/` deleted; `security.is_dangerous`, no-op middleware block, and OTEL residue removed; mDNS advertises the real `VERSION`. Version bumped to **4.0.0-alpha.5** (environment, package.json, CHANGELOG entry added; API doc's confirmation-flow and error-code sections corrected to describe actual behavior). Earlier-completed items: conftest schema sync + `fetchval` leak (Phase 2). Verified: pytest 66/66, ruff clean, `import main` OK, markdownlint clean.
 
 **Backend deps** (`backend/requirements.txt` / `requirements-prod.txt`):
 

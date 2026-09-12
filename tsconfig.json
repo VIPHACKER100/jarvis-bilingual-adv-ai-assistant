@@ -18,11 +18,7 @@
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "allowJs": false,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "baseUrl": "."
+    "allowJs": false
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

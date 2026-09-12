@@ -6,8 +6,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
 
-from fuzzywuzzy import fuzz, process
 from modules.bilingual_parser import parser
+from rapidfuzz import fuzz, process
 from utils.logger_structured import log_command, logger
 from utils.platform_utils import is_macos, is_windows
 

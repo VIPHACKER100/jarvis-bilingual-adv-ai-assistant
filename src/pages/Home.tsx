@@ -7,8 +7,11 @@ import { useEffect, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import { useTextToSpeech } from '../hooks/useTextToSpeech';
 import { commandsApi } from '../api/commands';
 import { systemApi } from '../api/system';
+import { agentApi } from '../api/agent';
 import { SystemStatusBar } from '../components/SystemStatusBar';
 import { CommandInput } from '../components/CommandInput';
 import { ConversationLog } from '../components/ConversationLog';
@@ -16,7 +19,19 @@ import { NotificationStack } from '../components/NotificationToast';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { QuickActionsBar } from '../components/QuickActionsBar';
 import type { QuickActionKey } from '../components/QuickActionsBar';
-import { Bot, Settings, BarChart3, Wifi, WifiOff } from 'lucide-react';
+import type { AgentHealthResponse } from '../types';
+import {
+  Bot,
+  Settings,
+  BarChart3,
+  Wifi,
+  WifiOff,
+  Volume2,
+  VolumeX,
+  Cpu,
+} from 'lucide-react';
+
+type Language = 'en' | 'hi' | 'hinglish';
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -47,6 +62,12 @@ export function HomePage() {
   } | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [language, setLanguage] = useState<Language>('en');
+  const [voiceFeedback, setVoiceFeedback] = useState(true);
+  const [agentHealth, setAgentHealth] = useState<AgentHealthResponse | null>(
+    null
+  );
+  const { speak } = useTextToSpeech();
 
   // WebSocket
   useWebSocket({
@@ -85,24 +106,21 @@ export function HomePage() {
     fetchStatus();
   }, [setSystemStatus]);
 
-  // Auth key listener
+  // Agent subsystem health (LLM provider badge)
   useEffect(() => {
-    const handler = () => {
-      addNotification({
-        id: crypto.randomUUID(),
-        title: 'Auth Error',
-        message: 'Invalid or missing API key. Please configure it in Settings.',
-        type: 'error',
-        duration: 8000,
-      });
+    const fetchAgentHealth = async () => {
+      try {
+        setAgentHealth(await agentApi.health());
+      } catch {
+        // Badge stays hidden when the agent status is unknown
+      }
     };
-    window.addEventListener('auth:invalid-key', handler);
-    return () => window.removeEventListener('auth:invalid-key', handler);
-  }, [addNotification]);
+    fetchAgentHealth();
+  }, []);
 
   // Handle command submission
   const handleCommand = useCallback(
-    async (command: string, language: 'en' | 'hi' | 'hinglish') => {
+    async (command: string, language: Language) => {
       addEntry({
         id: crypto.randomUUID(),
         type: 'user',
@@ -122,7 +140,7 @@ export function HomePage() {
 
         if (result.requires_confirmation && result.confirmation_id) {
           // Show confirmation dialog
-          const timeout = systemStatus?.personality?.id === 'stark' ? 30 : 30;
+          const timeout = 30;
           setCurrentConfirmation({
             id: result.confirmation_id,
             command,
@@ -140,13 +158,16 @@ export function HomePage() {
           return;
         }
 
+        const responseText =
+          result.response ?? result.error ?? 'Command processed';
         addEntry({
           id: crypto.randomUUID(),
           type: 'jarvis',
-          text: result.response ?? result.error ?? 'Command processed',
+          text: responseText,
           timestamp: new Date().toISOString(),
           action_type: result.action_type,
         });
+        if (voiceFeedback) speak(responseText, language);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Command failed';
         addEntry({
@@ -167,8 +188,47 @@ export function HomePage() {
         setProcessing(false);
       }
     },
-    [addEntry, setProcessing, addNotification, systemStatus, addConfirmation]
+    [
+      addEntry,
+      setProcessing,
+      addNotification,
+      addConfirmation,
+      voiceFeedback,
+      speak,
+    ]
   );
+
+  // Voice input — commands spoken into the mic are executed in the
+  // language currently selected in the input bar
+  const {
+    isListening,
+    startListening,
+    stopListening,
+    error: micError,
+  } = useSpeechRecognition({
+    onResult: transcript => handleCommand(transcript, language),
+    lang: language,
+  });
+
+  const toggleMic = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }, [isListening, startListening, stopListening]);
+
+  useEffect(() => {
+    if (micError) {
+      addNotification({
+        id: crypto.randomUUID(),
+        title: 'Voice Input',
+        message: micError,
+        type: 'warning',
+        duration: 5000,
+      });
+    }
+  }, [micError, addNotification]);
 
   // Confirmation handlers
   const handleApprove = useCallback(async () => {
@@ -178,13 +238,15 @@ export function HomePage() {
       const result = await commandsApi.confirm(currentConfirmation.id, {
         approved: true,
       });
+      const responseText = result.response ?? 'Action confirmed and executed';
       addEntry({
         id: crypto.randomUUID(),
         type: 'jarvis',
-        text: result.response ?? 'Action confirmed and executed',
+        text: responseText,
         timestamp: new Date().toISOString(),
         action_type: 'CONFIRMED',
       });
+      if (voiceFeedback) speak(responseText);
       removeConfirmation(currentConfirmation.id);
       setCurrentConfirmation(null);
     } catch (err: unknown) {
@@ -198,7 +260,14 @@ export function HomePage() {
     } finally {
       setConfirmLoading(false);
     }
-  }, [currentConfirmation, addEntry, removeConfirmation, addNotification]);
+  }, [
+    currentConfirmation,
+    addEntry,
+    removeConfirmation,
+    addNotification,
+    voiceFeedback,
+    speak,
+  ]);
 
   const handleReject = useCallback(async () => {
     if (!currentConfirmation) return;
@@ -264,6 +333,40 @@ export function HomePage() {
         </div>
 
         <div className='flex items-center gap-2'>
+          {/* LLM agent status */}
+          {agentHealth && (
+            <div
+              className='hidden md:flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyan-900/20 border border-cyan-800/30'
+              title='LLM agent subsystem'
+            >
+              <Cpu className='w-3 h-3 text-cyan-400' />
+              <span className='text-[10px] font-mono text-cyan-300'>
+                {agentHealth.online
+                  ? (agentHealth.active_provider ?? 'agent ready')
+                  : 'agent offline'}
+              </span>
+            </div>
+          )}
+
+          {/* Voice feedback toggle */}
+          <button
+            onClick={() => setVoiceFeedback(v => !v)}
+            title={
+              voiceFeedback ? 'Mute voice responses' : 'Unmute voice responses'
+            }
+            aria-label={
+              voiceFeedback ? 'Mute voice responses' : 'Unmute voice responses'
+            }
+            aria-pressed={voiceFeedback}
+            className='p-2 glass-button !rounded-lg transition-all duration-200'
+          >
+            {voiceFeedback ? (
+              <Volume2 className='w-4 h-4' />
+            ) : (
+              <VolumeX className='w-4 h-4' />
+            )}
+          </button>
+
           {/* Connection indicator */}
           {showDisconnected ? (
             <div className='flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-900/20 border border-rose-800/30'>
@@ -339,8 +442,17 @@ export function HomePage() {
         {/* Quick Actions */}
         <QuickActionsBar onAction={handleQuickAction} disabled={isProcessing} />
 
-        {/* Command Input */}
-        <CommandInput onSubmit={handleCommand} disabled={isProcessing} />
+        {/* Command Input — language lifted so voice input shares the locale */}
+        <CommandInput
+          onSubmit={handleCommand}
+          disabled={isProcessing}
+          language={language}
+          onLanguageChange={setLanguage}
+          mic={{ isListening, onToggle: toggleMic, disabled: isProcessing }}
+          placeholder={
+            isListening ? 'Listening... speak your command' : undefined
+          }
+        />
 
         {/* Suggestion Banner */}
         {suggestion && (

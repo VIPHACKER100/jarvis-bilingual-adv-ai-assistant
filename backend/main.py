@@ -1,6 +1,5 @@
 import asyncio
 import hmac
-import os
 import sys
 import time
 from datetime import datetime
@@ -136,16 +135,6 @@ async def response_time_middleware(request: Request, call_next):
 
     process_time = round(time.time() - start_time, 4)
     response.headers["X-Response-Time"] = str(process_time)
-
-    # Attach response_time to JSON responses if possible, but safely
-    # Avoid reading the body if it's a stream or if it might hang
-    if response.media_type == "application/json" and hasattr(response, "body"):
-        try:
-            # Only attempt if it's a standard JSONResponse or has body already read
-            # Note: For many responses, .body is not available in middleware
-            pass  # We keep headers updated, but skip body mutation to avoid stream issues
-        except Exception:
-            pass
 
     return response
 

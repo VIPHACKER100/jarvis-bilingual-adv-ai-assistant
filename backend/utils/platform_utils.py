@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from config import PLATFORM
@@ -20,8 +21,6 @@ def is_macos():
 def is_linux():
     return PLATFORM == "linux"
 
-
-import asyncio
 
 from utils.automation_utils import safe_automation  # noqa: E402
 

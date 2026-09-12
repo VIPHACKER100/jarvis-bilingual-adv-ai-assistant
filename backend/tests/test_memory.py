@@ -2,6 +2,7 @@
 JARVIS v3.8.0 — Memory Module Tests
 """
 
+import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -67,7 +68,7 @@ class TestMemoryFacts:
         )
         assert r1.lastrowid is not None
         # Second insert with same key should raise IntegrityError (UNIQUE constraint)
-        with pytest.raises(Exception):
+        with pytest.raises(sqlite3.IntegrityError):
             await db_manager.execute(
                 "INSERT INTO memory (key, value, category, created_at, updated_at) VALUES (?,?,?,?,?)",
                 ("uniq", "v2", "test", now, now),

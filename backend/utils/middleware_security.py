@@ -24,6 +24,11 @@ BLOCKED_PATTERNS = re.compile(
 
 MAX_BODY_BYTES = 1024 * 512  # 512 KB
 
+# Paths whose JSON bodies legitimately contain blocked keywords ("delete file x",
+# "shutdown", ...) — the command pipeline validates input downstream and all SQL
+# is parameterized, so the keyword filter only produces false positives here.
+SQLI_EXEMPT_PATHS = {"/api/v1/command"}
+
 
 class _ReceiveWrapper:
     """Wraps an ASGI receive callable to deliver a pre-read body."""
@@ -72,13 +77,21 @@ class SQLInjectionMiddleware:
             await self.app(scope, receive, send)
             return
 
-        # Read the full body from the ASGI receive channel
+        # Read the full body from the ASGI receive channel, enforcing the size cap
+        # (Content-Length is client-controlled; chunked requests bypass header checks)
         chunks: list[bytes] = []
         more_body = True
+        total = 0
         while more_body:
             message = await receive()
             if message["type"] == "http.request":
-                chunks.append(message.get("body", b""))
+                chunk = message.get("body", b"")
+                total += len(chunk)
+                if total > MAX_BODY_BYTES:
+                    logger.warning(f"Body size cap exceeded on {scope['path']} ({total} bytes)")
+                    await self._send_raw_response(413, {"success": False, "error": "Request body too large"}, send)
+                    return
+                chunks.append(chunk)
                 more_body = message.get("more_body", False)
 
         body = b"".join(chunks)
@@ -87,7 +100,7 @@ class SQLInjectionMiddleware:
         headers: list[tuple[bytes, bytes]] = scope.get("headers", [])
         is_json = any(n == b"content-type" and b"json" in v for n, v in headers)
 
-        if body and is_json:
+        if body and is_json and scope["path"] not in SQLI_EXEMPT_PATHS:
             decoded = body.decode("utf-8", errors="ignore")
             if BLOCKED_PATTERNS.search(decoded):
                 client_host = ""
@@ -96,36 +109,21 @@ class SQLInjectionMiddleware:
                         client_host = value.decode()
                         break
                 logger.warning(f"Blocked SQLi attempt from {client_host}: {scope['path']}")
-                response = JSONResponse(
-                    status_code=400,
-                    content={"success": False, "error": "Invalid input pattern detected"},
-                )
-                await self._send_response(response, send)
+                await self._send_raw_response(400, {"success": False, "error": "Invalid input pattern detected"}, send)
                 return
 
         # Re-wrap receive with the pre-read body so downstream handlers can read it
         await self.app(scope, _ReceiveWrapper(receive, body), send)
 
     @staticmethod
-    async def _send_response(response: JSONResponse, send: Send) -> None:
-        body_bytes = json.dumps(response.body).encode() if isinstance(response.body, dict) else response.body
+    async def _send_raw_response(status: int, content: dict, send: Send) -> None:
+        body_bytes = json.dumps(content).encode()
         headers: list[tuple[bytes, bytes]] = [
             (b"content-type", b"application/json"),
             (b"content-length", str(len(body_bytes)).encode()),
         ]
-        await send(
-            {
-                "type": "http.response.start",
-                "status": response.status_code,
-                "headers": response.headers.raw if hasattr(response.headers, "raw") else headers,
-            }
-        )
-        await send(
-            {
-                "type": "http.response.body",
-                "body": body_bytes,
-            }
-        )
+        await send({"type": "http.response.start", "status": status, "headers": headers})
+        await send({"type": "http.response.body", "body": body_bytes})
 
 
 class MaxBodySizeMiddleware(BaseHTTPMiddleware):
@@ -142,9 +140,19 @@ class MaxBodySizeMiddleware(BaseHTTPMiddleware):
 class PerRouteRateLimiter:
     def __init__(self):
         self._buckets: Dict[str, Tuple[float, int]] = {}
+        self._checks = 0
+
+    def _evict_stale(self, now: float, max_age_sec: float = 300.0) -> None:
+        """Drop buckets idle beyond any plausible rate window (unbounded-growth guard)."""
+        stale = [key for key, (window_start, _) in self._buckets.items() if now - window_start > max_age_sec]
+        for key in stale:
+            del self._buckets[key]
 
     def check(self, key: str, max_calls: int, window_sec: float = 60.0) -> bool:
         now = time.monotonic()
+        self._checks += 1
+        if self._checks % 128 == 0:
+            self._evict_stale(now)
         window_start, count = self._buckets.get(key, (now, 0))
         if now - window_start > window_sec:
             window_start = now

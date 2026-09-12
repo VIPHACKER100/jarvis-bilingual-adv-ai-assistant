@@ -109,21 +109,23 @@ JARVIS is a bilingual (English / Hindi / Hinglish) voice-and-text desktop automa
 
 ### Security posture (dev-first; unsafe beyond localhost)
 
-1. **Total auth bypass on loopback.** Server binds `127.0.0.1` (`main.py:386`) and every auth path skips localhost IPs (`main.py:190-193`, `utils/middleware_security.py:186-188`, `routers/websocket.py:33`, `routers/audio.py:43`) → **every request is exempt**. Any local process can drive shutdown, file deletion, and process kill without a key. Acceptable for a single-user dev tool; unacceptable before any LAN/Docker exposure (`Dockerfile.backend:48` already binds `0.0.0.0`).
-2. **`ENABLE_DANGEROUS_COMMANDS` defaults to `true`** (`config/defaults.py:20`).
-3. **Hardcoded `PAIRING_SECRET` fallback** `"JARVIS-SECRET-KEY"` (`config/environment.py:48`), shipped in `.env.example:40`.
-4. **API keys written to `.env` and hot-injected into `os.environ` via unauthenticated-on-localhost API** (`routers/settings.py:70-134`).
-5. **WS API key in query string** (`websocket.py:23`, `audio.py:24`) — leaks into logs/proxies.
-6. **SQLi filter false-positives break the product:** any body containing `DELETE|DROP|INSERT|EXEC|TRUNCATE` is 400-rejected (`middleware_security.py:20-23`) — so the command "delete file X" never reaches the command system.
-7. **`shell=True` with interpolation:** `modules/desktop.py:364-368` (AppleScript, only double quotes sanitized — a single quote in a title/message breaks out) and `window_manager.py:243-246` (`start "", app_name`).
-8. **Pairing token compared with `==`,** not constant-time (`websocket.py:43`).
-9. **Quarantine endpoint can kill any PID** with only `logger.info` for audit (`routers/system.py:186-190` → `system.py:562-581`).
-10. Minor: rate-limiter buckets never evicted (`middleware_security.py:144-155`); body cap trusts `Content-Length` only so chunked requests bypass it (`middleware_security.py:133-138`).
+> **Update (2026-09-13):** items 2, 3, 6, 7, 8, 9, 10 below are **fixed** (Phase 2 of the fix plan — see its status note for details). Remaining open: item 1 (localhost auth bypass — the *(LAN)* posture decision), item 4 and item 5 (WS key in query string — also *(LAN)*-gated).
+
+1. **Total auth bypass on loopback.** Server binds `127.0.0.1` (`main.py:386`) and every auth path skips localhost IPs (`main.py:190-193`, `utils/middleware_security.py:186-188`, `routers/websocket.py:33`, `routers/audio.py:43`) → **every request is exempt**. Any local process can drive shutdown, file deletion, and process kill without a key. Acceptable for a single-user dev tool; unacceptable before any LAN/Docker exposure (`Dockerfile.backend:48` already binds `0.0.0.0`). — **OPEN (LAN decision)**
+2. **`ENABLE_DANGEROUS_COMMANDS` defaults to `true`** (`config/defaults.py:20`). — **FIXED** (defaults `false`, opt-in only)
+3. **Hardcoded `PAIRING_SECRET` fallback** `"JARVIS-SECRET-KEY"` (`config/environment.py:48`), shipped in `.env.example:40`. — **FIXED** (unset → `None`, no insecure default)
+4. **API keys written to `.env` and hot-injected into `os.environ` via unauthenticated-on-localhost API** (`routers/settings.py:70-134`). — **OPEN (LAN-gated; fine for loopback)**
+5. **WS API key in query string** (`websocket.py:23`, `audio.py:24`) — leaks into logs/proxies. — **OPEN (LAN-gated)**
+6. **SQLi filter false-positives break the product:** any body containing `DELETE|DROP|INSERT|EXEC|TRUNCATE` is 400-rejected (`middleware_security.py:20-23`) — so the command "delete file X" never reaches the command system. — **FIXED** (`/api/v1/command` exempt; other endpoints still filtered)
+7. **`shell=True` with interpolation:** `modules/desktop.py:364-368` (AppleScript, only double quotes sanitized — a single quote in a title/message breaks out) and `window_manager.py:243-246` (`start "", app_name`). — **FIXED** (list-argv everywhere; remaining `shell=True` in `platform_utils.py` uses constant strings only)
+8. **Pairing token compared with `==`,** not constant-time (`websocket.py:43`). — **FIXED** (`hmac.compare_digest`)
+9. **Quarantine endpoint can kill any PID** with only `logger.info` for audit (`routers/system.py:186-190` → `system.py:562-581`). — **FIXED** (new `audit_log` table + WS event)
+10. Minor: rate-limiter buckets never evicted (`middleware_security.py:144-155`); body cap trusts `Content-Length` only so chunked requests bypass it (`middleware_security.py:133-138`). — **FIXED** (eviction every 128 checks; cap enforced on streamed bytes)
 
 ### Correctness / reliability (P1)
 
-- Blocking sync file I/O inside async paths: `routers/system.py:132`, `modules/command_handler.py:275` (inconsistent with `routers/settings.py:62`, which does it right).
-- `DatabaseManager.fetchval()` never closes its connection — one leaked connection per call (`utils/database.py:186-188`).
+- Blocking sync file I/O inside async paths: `routers/system.py:132`, `modules/command_handler.py:275` (inconsistent with `routers/settings.py:62`, which does it right). — **OPEN**
+- `DatabaseManager.fetchval()` never closes its connection — one leaked connection per call (`utils/database.py:186-188`). — **FIXED** (2026-09-13, alongside the audit-log work)
 
 ---
 

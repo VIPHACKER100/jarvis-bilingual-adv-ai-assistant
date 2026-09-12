@@ -45,9 +45,9 @@ Error responses include `request_id` and `timestamp` for 500-level errors.
 
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
-| POST | `/api/v1/command` | ✅ | Execute a voice/text command. Body: `{command, language?, session_id?}` |
-| POST | `/api/v1/confirm/{confirmation_id}` | ✅ | Confirm/deny a dangerous action. Body: `{approved, details?}` |
-| GET | `/api/v1/pending` | ✅ | List pending confirmations |
+| POST | `/api/v1/command` | ✅ | Execute a voice/text command. Body: `{command, language?, session_id?}`. Dangerous actions return `requires_confirmation: true` + `confirmation_id` and are **not** executed yet |
+| POST | `/api/v1/confirm/{confirmation_id}` | ✅ | Confirm/deny a dangerous action. Body: `{approved, details?}`. **On approval the original command is re-executed** — the response carries the action's outcome. Returns 404 for unknown/expired/already-decided confirmations |
+| GET | `/api/v1/pending` | ✅ | List pending confirmations (id, command, expiry) |
 
 ### System
 
@@ -173,20 +173,30 @@ data: {"type": "partial_done", "full_text": "...", "truncated": true}\n\n
 |------|-------------|
 | 400 | Bad request (missing field, SQL injection pattern) |
 | 403 | Invalid/missing API key |
-| 404 | Not found |
-| 413 | Request body too large (>512 KB) |
+| 404 | Not found (incl. unknown confirmation id on `/confirm/{id}`) |
+| 413 | Request body too large (>512 KB — enforced on actual streamed bytes, incl. chunked requests) |
 | 422 | Pydantic validation failure |
 | 429 | Rate limit exceeded |
 | 500 | Internal server error |
 | 1008 (WS) | Unauthorized WebSocket |
 
+Note: the SQLi pattern filter does not apply to `/api/v1/command` — command
+bodies legitimately contain words like "delete"; the command pipeline and the
+database layer (stdlib sqlite3, fully parameterized) validate downstream.
+
 ## Dangerous Commands (Require Confirmation)
 
-The following actions require `POST /api/v1/confirm/{id}` or WS confirmation:
+The following actions require `POST /api/v1/confirm/{id}` or a WS
+`confirmation` message before they execute:
 
 - `shutdown`, `restart`, `sleep`, `hibernate`
 - `delete`, `remove`, `format`, `uninstall`
-- Empty recycle bin, close app, send WhatsApp message
+
+Flow: `POST /command` returns `requires_confirmation: true` +
+`confirmation_id` → the client shows a dialog → approval
+(`POST /confirm/{id}` with `{approved: true}`) re-executes the original
+command and returns its outcome; denial discards it. Empty recycle bin,
+close-app, and WhatsApp sends are **not** confirmation-gated.
 
 Confirmation timeout: 30 seconds (configurable). Auto-rejected on timeout.
 

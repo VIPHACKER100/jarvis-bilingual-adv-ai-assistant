@@ -8,8 +8,8 @@ from typing import Dict, List, Optional, Tuple
 
 import psutil
 import pyautogui
-from fuzzywuzzy import fuzz, process
 from modules.bilingual_parser import parser
+from rapidfuzz import fuzz, process
 from utils.automation_utils import safe_automation
 from utils.logger_structured import log_command, logger
 from utils.platform_utils import is_macos, is_windows
@@ -237,13 +237,13 @@ class WindowManager:
 
                 # Try system command
                 if is_windows():
-                    # For Windows, use 'start' (shell builtin) with validated app name
-                    # Strip shell metacharacters as defense-in-depth
+                    # 'start' is a cmd builtin — run via cmd /c in list-argv form
+                    # (no shell). Sanitize as defense-in-depth against cmd quirks.
                     if re.match(r"^[a-zA-Z0-9_\-\s\.\+\(\)\']+$", app_name):
-                        subprocess.Popen(["start", "", app_name], shell=True)  # ponytail: no shell injection (validated)
+                        subprocess.Popen(["cmd", "/c", "start", "", app_name])  # ponytail: no shell injection (validated)
                     else:
-                        safe_name = re.sub(r'[;&|`$(){}^!<>%\n\r]', '', app_name)
-                        subprocess.Popen(["start", "", safe_name], shell=True)  # ponytail: no shell injection (sanitized)
+                        safe_name = re.sub(r'[;&|`$(){}^!<>%\n\r"\']', '', app_name)
+                        subprocess.Popen(["cmd", "/c", "start", "", safe_name])  # ponytail: no shell injection (sanitized)
                 elif is_macos():
                     subprocess.Popen(["open", "-a", app_name])
                 else:

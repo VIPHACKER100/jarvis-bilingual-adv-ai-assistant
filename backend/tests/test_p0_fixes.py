@@ -170,14 +170,14 @@ class TestConfirmationFlow:
 
 class TestAgentLoop:
     async def test_get_agent_response_uses_real_client_and_injects_context(self):
-        """Regression: the `llm_client = llm_module` alias made every wrapper
-        method call itself (AttributeError), and doubled braces kept
-        tools/neural context out of the prompt entirely."""
-        import modules.llm_wrapper as lw
+        """Regression: a module-level alias once made every wrapper method
+        call itself (AttributeError), and doubled braces kept tools/neural
+        context out of the prompt entirely."""
+        import modules.llm_client as lc
 
-        with patch.object(lw, "_llm_client") as mock_client:
+        with patch.object(lc, "llm_client") as mock_client:
             mock_client.chat = AsyncMock(return_value="Thought: done.\nFinal Answer: 42")
-            result = await lw.llm_client.get_agent_response(
+            result = await lc.llm_module.get_agent_response(
                 query="What is the answer?",
                 tools_context='[{"name": "system_status"}]',
                 neural_context="NEURAL_FACT_123",
@@ -198,29 +198,29 @@ class TestAgentLoop:
         assert any("Observation: 10:00" in m["content"] for m in history)
 
     async def test_wrapper_chat_methods_reach_real_client(self):
-        """Regression: get_response/ping_llm/get_embedding resolved to the
-        alias and raised AttributeError. They must delegate to the client."""
-        import modules.llm_wrapper as lw
+        """Regression: get_response/ping_llm/get_embedding once resolved to a
+        self-alias and raised AttributeError. They must reach the client."""
+        import modules.llm_client as lc
 
-        with patch.object(lw, "_llm_client") as mock_client:
+        with patch.object(lc, "llm_client") as mock_client:
             mock_client.chat = AsyncMock(return_value="hello")
             mock_client.chat_stream = AsyncMock(return_value=iter(["a", "b"]))
             mock_client.ping = AsyncMock(return_value=True)
             mock_client.get_embedding = AsyncMock(return_value=[0.1, 0.2])
 
-            assert await lw.llm_client.get_response("hi") == "hello"
-            assert await lw.llm_client.ping_llm() is True
-            assert await lw.llm_client.get_embedding("hi") == [0.1, 0.2]
+            assert await lc.llm_module.get_response("hi") == "hello"
+            assert await lc.llm_module.ping_llm() is True
+            assert await lc.llm_module.get_embedding("hi") == [0.1, 0.2]
 
     async def test_run_loop_reaches_final_answer(self):
         """Full ReAct loop: one iteration must produce the final answer
         instead of exhausting MAX_ITERATIONS on AttributeError retries."""
+        import modules.llm_client as lc
         from modules.agent import agent_controller
-        import modules.llm_wrapper as lw
         from modules.memory import memory_manager
 
         with (
-            patch.object(lw, "_llm_client") as mock_client,
+            patch.object(lc, "llm_client") as mock_client,
             patch.object(memory_manager.neural, "get_neural_context", new=AsyncMock(return_value="")),
         ):
             mock_client.chat = AsyncMock(return_value="Thought: I have all the information needed.\nFinal Answer: The answer is 42.")
@@ -229,6 +229,43 @@ class TestAgentLoop:
         assert "42" in result
         assert "couldn't reach a final conclusion" not in result
         assert mock_client.chat.await_count == 1, "a Final Answer must stop the loop after one iteration"
+
+
+# ─── Live-run regressions (caught during the first real server session) ──────
+
+
+class TestPydanticCommandResponses:
+    async def test_time_command_returns_dict(self, quiet_memory):
+        """Regression: get_time returns a Pydantic TimeResponse, but
+        handle_command called .get() on the result — 'what time is it'
+        500'd via REST and WS. dispatch_command must normalize models."""
+        from modules.command_handler import handle_command
+
+        result = await handle_command(None, "what time is it", "en", session_id="test")
+        assert isinstance(result, dict)
+        assert result["success"] is True
+        assert result["response"]
+
+    async def test_dispatch_normalizes_pydantic_models(self):
+        from modules.command_handler import dispatch_command
+
+        result = await dispatch_command("date", None, "en")
+        assert isinstance(result, dict), "Pydantic responses must be model_dump'ed"
+        assert result.get("success") is True
+
+
+class TestDecisionLogging:
+    async def test_log_decision_writes_without_missing_sync(self, tmp_path):
+        """Regression: log_decision scheduled a self.sync_vectors() task that
+        no longer exists — every decision log raised AttributeError in a
+        fire-and-forget task."""
+        from modules.memory import NeuralMemoryManager
+
+        m = NeuralMemoryManager()
+        m.memory_dir = tmp_path  # keep the write hermetic
+        await m.log_decision("test command", "test_action", "APPROVED", "automated regression test")
+        content = await m.get_node("decisions.md")
+        assert content is not None and "test_action" in content
 
 
 # ─── 0.4 WebSocket message schema ────────────────────────────────────────────
@@ -256,7 +293,6 @@ class TestWebSocketHandler:
         """Regression: json.loads sat outside the validation try, so malformed
         JSON killed the connection instead of returning an error frame."""
         from fastapi.testclient import TestClient
-
         from main import app
 
         client = TestClient(app)

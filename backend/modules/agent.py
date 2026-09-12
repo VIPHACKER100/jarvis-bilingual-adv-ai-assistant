@@ -36,7 +36,7 @@ class AgentController:
         # Get relevant context from memory (Neural Context)
         memory_context = await memory_manager.neural.get_neural_context(query)
 
-        from modules.llm_wrapper import llm_client
+        from modules.llm_client import llm_module
 
         logger.info(f"Starting autonomous agent loop for: '{query}'")
 
@@ -49,7 +49,7 @@ class AgentController:
 
             # 1. Ask LLM for the next step (with back-off retry)
             try:
-                response = await llm_client.get_agent_response(
+                response = await llm_module.get_agent_response(
                     query=query,
                     tools_context=self.tools_context,
                     neural_context=memory_context,

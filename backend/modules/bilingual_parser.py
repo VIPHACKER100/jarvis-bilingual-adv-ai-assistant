@@ -114,7 +114,6 @@ class BilingualParser:
             "banao",
             "dikhao",
             "zyada",
-            "kam",
         }
 
         words = set(text.lower().split())

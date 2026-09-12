@@ -26,7 +26,7 @@ class TestLLMClient:
             assert result is None
 
     async def test_client_import(self):
-        from modules.llm_wrapper import llm_client, llm_module
+        from modules.llm_client import llm_client, llm_module
 
         assert llm_module is not None
         assert llm_client is not None

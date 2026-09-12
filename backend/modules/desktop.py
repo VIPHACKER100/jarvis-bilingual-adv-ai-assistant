@@ -348,45 +348,6 @@ class DesktopManager:
                 "response": "Failed to get screen resolution",
             }
 
-    async def show_notification(self, title: str, message: str, language: str = "en") -> Dict:
-        """Show system notification"""
-        try:
-            if is_windows():
-
-                def _notify_task():
-                    from win10toast import ToastNotifier
-
-                    toaster = ToastNotifier()
-                    toaster.show_toast(title, message, duration=5)
-
-                await asyncio.to_thread(_notify_task)
-            elif is_macos():
-                # Sanitize title/message for AppleScript (remove double quotes)
-                safe_title = title.replace('"', "'")
-                safe_message = message.replace('"', "'")
-                script = f'display notification "{safe_message}" with title "{safe_title}"'
-                await safe_automation.run_command(f"osascript -e '{script}'", shell=True)  # ponytail: no shell injection (sanitized)
-            else:
-                # Linux
-                await safe_automation.run_command(["notify-send", title, message])  # ponytail: no shell injection
-
-            return {
-                "success": True,
-                "action_type": "NOTIFICATION",
-                "title": title,
-                "message": message,
-                "response": "Notification shown",
-            }
-
-        except Exception as e:
-            logger.error(f"Error showing notification: {e}")
-            return {
-                "success": False,
-                "action_type": "NOTIFICATION",
-                "error": str(e),
-                "response": "Failed to show notification",
-            }
-
     # ==================== ADVANCED WINDOWS FEATURES ====================
 
     async def change_wallpaper(self, image_path: str, language: str = "en") -> Dict:

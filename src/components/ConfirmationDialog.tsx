@@ -30,6 +30,8 @@ export function ConfirmationDialog({
   const [remaining, setRemaining] = useState(timeout);
   const [timedOut, setTimedOut] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const rejectButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -55,6 +57,43 @@ export function ConfirmationDialog({
     };
   }, [isOpen, timeout, onReject]);
 
+  // Focus management: move focus into the dialog on open (reject is the safe
+  // default), trap Tab inside, and restore focus on close
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    rejectButtonRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !timedOut) {
+        e.preventDefault();
+        onReject();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled)'
+        );
+        if (!focusables || focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [isOpen, timedOut, onReject]);
+
   const circumference = 2 * Math.PI * 28;
   const offset = circumference - (remaining / timeout) * circumference;
 
@@ -71,13 +110,22 @@ export function ConfirmationDialog({
       />
 
       {/* Dialog */}
-      <div className='relative glass-panel-strong rounded-xl border border-rose-800/40 shadow-2xl max-w-md w-full p-6'>
+      <div
+        ref={dialogRef}
+        role='dialog'
+        aria-modal='true'
+        aria-labelledby='confirmation-dialog-title'
+        className='relative glass-panel-strong rounded-xl border border-rose-800/40 shadow-2xl max-w-md w-full p-6'
+      >
         <div className='flex items-center gap-3 mb-4'>
           <div className='p-2 rounded-full bg-rose-900/40'>
             <AlertTriangle className='w-6 h-6 text-neon-error' />
           </div>
           <div>
-            <h2 className='font-display text-lg font-bold text-slate-200'>
+            <h2
+              id='confirmation-dialog-title'
+              className='font-display text-lg font-bold text-slate-200'
+            >
               Confirm Action
             </h2>
             <p className='text-xs text-slate-400'>
@@ -144,6 +192,7 @@ export function ConfirmationDialog({
         {/* Actions */}
         <div className='flex gap-3'>
           <button
+            ref={rejectButtonRef}
             onClick={onReject}
             disabled={isRejecting || timedOut}
             title='Reject'

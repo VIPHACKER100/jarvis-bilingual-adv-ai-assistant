@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 from typing import List, Optional
 
-from modules.llm_wrapper import llm_client
+from modules.llm_client import llm_module
 from modules.media import media_manager
 from modules.window_manager import window_manager
 from utils.logger_structured import log_system_event, logger
@@ -143,7 +143,7 @@ class ProactiveManager:
             reject_context = f"\nDo NOT suggest actions related to: {', '.join(self._rejected_keywords)}. The user has previously rejected these."
 
         prompt = f"""
-        You are JARVIS, an advanced AI assistant. 
+        You are JARVIS, an advanced AI assistant.
         The user is currently focused on a window titled: "{title}"
         """
 
@@ -160,14 +160,14 @@ class ProactiveManager:
         - "User focused on GitHub. Shall I summarize the recent commits?"
         - "Detected Terminal error. Would you like me to suggest a fix?"
         - "You're writing an email. I can help draft a professional reply."
-        
+
         If no obvious helpful action exists, respond with "NONE".
         """
 
         try:
             async with self._lock:
                 # Use a very small token limit for speed
-                response = await llm_client.get_response(prompt, max_tokens=30)
+                response = await llm_module.get_response(prompt, max_tokens=30)
 
                 if "NONE" in response.upper() or len(response) < 5:
                     return None

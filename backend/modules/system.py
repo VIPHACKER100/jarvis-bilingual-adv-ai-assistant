@@ -16,6 +16,7 @@ from models import (
     TimeResponse,
 )
 from modules.bilingual_parser import parser
+from utils.database import db_manager
 from utils.logger_structured import log_command, logger
 from utils.platform_utils import (
     get_volume,
@@ -575,9 +576,26 @@ class SystemModule:
             elif action == "terminate":
                 await asyncio.to_thread(proc.terminate)
                 logger.warning(f"Process {pid} terminated by Guardian.")
+            else:
+                logger.warning(f"Unknown quarantine action '{action}' for pid {pid}")
+                return False
+
+            # Audit trail (DB) + live UI event — process control must be reviewable
+            past_tense = {"suspend": "suspended", "resume": "resumed", "terminate": "terminated"}
+            action_word = past_tense.get(action, action)
+            await db_manager.log_audit("quarantine", {"pid": pid, "action": action}, success=True)
+            try:
+                from routers.websocket import broadcast_notification
+
+                await broadcast_notification(
+                    "Security Protocol", f"Process {pid} {action_word}", "warning" if action != "resume" else "success"
+                )
+            except Exception as ws_err:
+                logger.debug(f"Quarantine WS broadcast unavailable: {ws_err}")
             return True
         except Exception as e:
             logger.error(f"Failed to quarantine process {pid}: {e}")
+            await db_manager.log_audit("quarantine", {"pid": pid, "action": action}, success=False)
             return False
 
     async def get_network_connections(self) -> List[Dict[str, Any]]:

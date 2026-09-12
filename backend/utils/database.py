@@ -5,16 +5,14 @@ Replaces the former asyncpg/PostgreSQL manager with a zero-dependency SQLite
 backend.  Single-user desktop assistant doesn't need connection pools.
 """
 
+import asyncio
 import os
 import sqlite3
-import asyncio
-from pathlib import Path
 from typing import Any, Optional
-
-from utils.logger_structured import logger
 
 # Database lives next to data/ (PROJECT_ROOT / data / jarvis.db)
 from config import DATA_DIR
+from utils.logger_structured import logger
 
 DB_PATH = os.getenv("DB_PATH", str(DATA_DIR / "jarvis.db"))
 
@@ -85,6 +83,15 @@ CREATE TABLE IF NOT EXISTS quick_actions (
     icon    TEXT,
     "order" INTEGER DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS audit_log (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL DEFAULT (datetime('now')),
+    event     TEXT NOT NULL,
+    details   TEXT,
+    success   INTEGER DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_audit_log_timestamp ON audit_log(timestamp);
 """
 
 
@@ -184,10 +191,38 @@ class DatabaseManager:
             return None
 
         def _run():
-            row = self._conn().execute(sql, params).fetchone()
-            return row[0] if row else None
+            with self._conn() as conn:
+                row = conn.execute(sql, params).fetchone()
+                return row[0] if row else None
 
         return await asyncio.to_thread(_run)
+
+    # ── Audit log ──────────────────────────────────────────────────────
+
+    async def log_audit(self, event: str, details: Optional[dict] = None, success: bool = True) -> bool:
+        """Append a security-relevant action to the immutable audit trail."""
+        import json as _json
+
+        try:
+            await self.execute(
+                "INSERT INTO audit_log (event, details, success) VALUES (?, ?, ?)",
+                (event, _json.dumps(details) if details else None, 1 if success else 0),
+            )
+            return True
+        except Exception as exc:
+            logger.warning("Audit log write failed: %s", exc)
+            return False
+
+    async def get_audit_log(self, limit: int = 50) -> list[dict]:
+        """Most recent audit entries, newest first."""
+        try:
+            rows = await self.fetchall(
+                "SELECT id, timestamp, event, details, success FROM audit_log ORDER BY id DESC LIMIT ?", (limit,)
+            )
+            return [dict(row) for row in rows]
+        except Exception as exc:
+            logger.warning("Audit log read failed: %s", exc)
+            return []
 
     # ── Health ─────────────────────────────────────────────────────────
 

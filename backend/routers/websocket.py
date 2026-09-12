@@ -37,10 +37,13 @@ async def websocket_endpoint(
                 await websocket.close(code=1008)
                 return
 
-    # Device auth check for mobile devices
+    # Device auth check for mobile devices — token compared constant-time
     if device_id and token:
         devices = await memory_manager.get_setting("paired_devices", [])
-        is_valid = any(d["id"] == device_id and d["token"] == token for d in devices)
+        is_valid = any(
+            d["id"] == device_id and hmac.compare_digest(str(d.get("token", "")).encode(), str(token).encode())
+            for d in devices
+        )
 
         if not is_valid:
             logger.warning(f"Unauthorized WebSocket connection attempt: {device_id}")

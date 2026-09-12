@@ -1,10 +1,10 @@
 // ==========================================================================
 // JARVIS v4.0 — COMP-2: CommandInput
-// Text input with language toggle and submit button
+// Text input with language toggle, mic button, and submit button
 // ==========================================================================
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Languages } from 'lucide-react';
+import { Send, Languages, Mic, MicOff } from 'lucide-react';
 import { validateCommand } from '../utils/validators';
 
 type Language = 'en' | 'hi' | 'hinglish';
@@ -13,6 +13,15 @@ interface CommandInputProps {
   onSubmit: (command: string, language: Language) => void;
   disabled?: boolean;
   placeholder?: string;
+  /** Controlled language — lifted so voice input shares the same locale */
+  language?: Language;
+  onLanguageChange?: (language: Language) => void;
+  /** Mic toggle — omit to hide the voice button */
+  mic?: {
+    isListening: boolean;
+    onToggle: () => void;
+    disabled?: boolean;
+  };
 }
 
 const LANGUAGE_LABELS: Record<Language, string> = {
@@ -27,9 +36,13 @@ export function CommandInput({
   onSubmit,
   disabled = false,
   placeholder = 'Type a command or ask me anything...',
+  language: controlledLanguage,
+  onLanguageChange,
+  mic,
 }: CommandInputProps) {
+  const [internalLanguage, setInternalLanguage] = useState<Language>('en');
+  const language = controlledLanguage ?? internalLanguage;
   const [text, setText] = useState('');
-  const [language, setLanguage] = useState<Language>('en');
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -60,10 +73,15 @@ export function CommandInput({
   };
 
   const cycleLanguage = () => {
-    setLanguage(prev => {
-      const idx = LANGUAGE_CYCLE.indexOf(prev);
-      return LANGUAGE_CYCLE[(idx + 1) % LANGUAGE_CYCLE.length] ?? 'en';
-    });
+    const next =
+      LANGUAGE_CYCLE[
+        (LANGUAGE_CYCLE.indexOf(language) + 1) % LANGUAGE_CYCLE.length
+      ] ?? 'en';
+    if (onLanguageChange) {
+      onLanguageChange(next);
+    } else {
+      setInternalLanguage(next);
+    }
   };
 
   return (
@@ -99,6 +117,29 @@ export function CommandInput({
         <span className='text-[10px] text-slate-600 font-mono'>
           {text.length}/500
         </span>
+
+        {mic && (
+          <button
+            onClick={mic.onToggle}
+            disabled={mic.disabled ?? disabled}
+            title={mic.isListening ? 'Stop listening' : 'Start voice command'}
+            aria-label={
+              mic.isListening ? 'Stop voice input' : 'Start voice input'
+            }
+            aria-pressed={mic.isListening}
+            className={`glass-button !p-2 !rounded-lg transition-all duration-200 disabled:opacity-30 ${
+              mic.isListening
+                ? 'animate-pulse !border-cyan-400/60 !text-cyan-300'
+                : ''
+            }`}
+          >
+            {mic.isListening ? (
+              <MicOff className='w-4 h-4' />
+            ) : (
+              <Mic className='w-4 h-4' />
+            )}
+          </button>
+        )}
 
         <button
           onClick={handleSubmit}

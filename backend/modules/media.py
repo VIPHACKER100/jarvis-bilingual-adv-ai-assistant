@@ -10,7 +10,7 @@ import pyperclip
 import pytesseract
 from pdf2image import convert_from_path
 from PIL import Image
-from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 from utils.logger_structured import log_command, logger
 from utils.platform_utils import is_macos, is_windows
 
@@ -125,7 +125,7 @@ class MediaProcessor:
                     "response": "PDF file not found",
                 }
 
-            # Try PyPDF2 first for text-based PDFs
+            # Try pypdf first for text-based PDFs
             try:
                 reader = PdfReader(str(path))
                 text = ""
@@ -274,7 +274,7 @@ class MediaProcessor:
         """Capture screenshot and analyze it using a multimodal LLM"""
         try:
             from modules.desktop import desktop_manager
-            from modules.llm_wrapper import llm_module
+            from modules.llm_client import llm_module
 
             # 1. Take a screenshot (saving to file for multimodal processing)
             screenshot_res = await desktop_manager.take_screenshot(save=True, language=language)
@@ -331,7 +331,7 @@ class MediaProcessor:
     async def merge_pdfs(self, pdf_files: List[str], output_path: str, language: str = "en") -> Dict:
         """Merge multiple PDFs into one"""
         try:
-            merger = PdfMerger()
+            merger = PdfWriter()
 
             for pdf_file in pdf_files:
                 path = Path(pdf_file).expanduser().resolve()
@@ -340,7 +340,6 @@ class MediaProcessor:
 
             output = Path(output_path).expanduser().resolve()
             await asyncio.to_thread(merger.write, str(output))
-            await asyncio.to_thread(merger.close)
 
             log_command(f"merge {len(pdf_files)} PDFs", "pdf_merge", True)
 
@@ -858,7 +857,7 @@ class MediaProcessor:
 
     async def get_screen_summary(self, language: str = "en") -> Dict:
         """Get a coherent summary of what's on screen using LLM"""
-        from modules.llm_wrapper import llm_client
+        from modules.llm_client import llm_module
 
         result = await self.extract_text_from_screenshot(language)
         if result["success"]:
@@ -868,21 +867,21 @@ class MediaProcessor:
 
             # Use LLM to summarize
             prompt = f"The following text was extracted from a screenshot via OCR. Summarize what is on the screen in one or two clear sentences. Response language: {language}. Text: {text[:2000]}"
-            summary = await llm_client.get_response(prompt, language)
+            summary = await llm_module.get_response(prompt, language)
 
             return {"success": True, "summary": summary, "response": f"Screen summary: {summary}"}
         return result
 
     async def analyze_screen_text(self, query: str, language: str = "en") -> Dict:
         """Answer a specific question about the current screen content using OCR + text LLM"""
-        from modules.llm_wrapper import llm_client
+        from modules.llm_client import llm_module
 
         result = await self.extract_text_from_screenshot(language)
         if result["success"]:
             text = result["text"]
 
             prompt = f"The following text was extracted from a screenshot via OCR. Based ONLY on this text, answer the user's question: '{query}'. Response language: {language}. If you cannot find the answer, say so. Text: {text[:3000]}"
-            answer = await llm_client.get_response(prompt, language)
+            answer = await llm_module.get_response(prompt, language)
 
             return {"success": True, "answer": answer, "response": answer}
         return result
