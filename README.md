@@ -198,7 +198,7 @@ python main.py
 npm run dev
 ```
 
-**Open browser:** <http://localhost:5173>
+**Open browser:** <http://localhost:3000>
 
 ---
 
@@ -400,7 +400,7 @@ Create `backend/.env`:
 
 ```env
 BACKEND_PORT=8000
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:3000
 CONFIRMATION_TIMEOUT=30
 LOG_LEVEL=INFO
 LOG_RETENTION_DAYS=30
