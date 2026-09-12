@@ -3,14 +3,14 @@ import { ArcReactor } from './components/ArcReactor';
 import { HistoryLog } from './components/HistoryLog';
 import { VolumeControl } from './components/VolumeControl';
 import { PermissionModal } from './components/PermissionModal';
-import { ConfirmationModal } from './src/components/ConfirmationModal';
-import { MemoryViewer } from './src/components/MemoryViewer';
-import { AutomationDashboard } from './src/components/AutomationDashboard';
+import { ConfirmationModal } from './components/ConfirmationModal';
+import { MemoryViewer } from './components/MemoryViewer';
+import { AutomationDashboard } from './components/AutomationDashboard';
 import { DesktopControls } from './components/DesktopControls';
 import { MediaTools } from './components/MediaTools';
 import { CommandResult, AppMode, Language } from './types';
 import { voiceService } from './services/voiceService';
-import { useJarvisBridge } from './src/hooks/useJarvisBridge';
+import { useJarvisBridge } from './hooks/useJarvisBridge';
 import { INITIAL_VOLUME } from './constants';
 import { sfx } from './utils/audioUtils';
 

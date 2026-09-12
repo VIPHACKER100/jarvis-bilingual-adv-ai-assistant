@@ -9,7 +9,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                        FRONTEND                              │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │  App.tsx                                              │  │
+│  │  src/App.tsx                                          │  │
 │  │  - Voice Recognition (voiceService)                   │  │
 │  │  - UI Components (ArcReactor, HistoryLog, etc.)      │  │
 │  │  - State Management                                   │  │
@@ -215,7 +215,7 @@ websocketService.connect() → ws://localhost:8000/ws
    ↓
 2. Frontend (voiceService) → Speech Recognition
    ↓
-3. Frontend (App.tsx) → handleCommandResult()
+3. Frontend (src/App.tsx) → handleCommandResult()
    ↓
 4. Frontend (useJarvisBridge) → sendCommand("take screenshot", "en")
    ↓
@@ -254,7 +254,7 @@ websocketService.connect() → ws://localhost:8000/ws
     ↓
 15. Frontend → setLastResponse(response)
     ↓
-16. Frontend (App.tsx) → useEffect detects lastResponse
+16. Frontend (src/App.tsx) → useEffect detects lastResponse
     ↓
 17. Frontend → addToHistory()
     ↓
@@ -282,7 +282,7 @@ websocketService.connect() → ws://localhost:8000/ws
    ↓
 6. Frontend → setSystemStatus(data)
    ↓
-7. Frontend (App.tsx) → UI updates automatically
+7. Frontend (src/App.tsx) → UI updates automatically
 ```
 
 ## Sync Verification Checklist
@@ -338,7 +338,7 @@ BACKEND_PORT = 8000
 FRONTEND_URL = "http://localhost:5173"
 ```
 
-### Frontend (websocketService.ts)
+### Frontend (src/services/websocketService.ts)
 
 ```typescript
 url: 'ws://localhost:8000/ws'

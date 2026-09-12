@@ -2,6 +2,9 @@
 
 # JARVIS Backend Spec File
 
+import os
+from pathlib import Path
+
 # Hidden imports required for proper loading of modules
 hidden_imports = [
     # Core dependencies
@@ -220,3 +223,4 @@ RESPONSES = {
         'command_not_understood': 'क्षमा करें, मुझे यह समझ नहीं आया।',
         'confirmation_timeout': 'पुष्टि का समय समाप्त हो गया। कार्य रद्द कर दिया गया है।',
     }
+}

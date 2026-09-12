@@ -307,45 +307,76 @@ graph TD
 
 ```text
 jarvis-bilingual-adv-ai-assistant/
-├── src/                          # Frontend
+├── index.html                    # Frontend HTML entry
+├── vite.config.ts                # Vite configuration
+├── tsconfig.json                 # TypeScript configuration
+├── package.json                  # Node dependencies & scripts
+├── metadata.json                 # Project metadata
+├── README.md                     # This file
+├── BACKEND_FRONTEND_SYNC.md      # Backend-frontend sync reference
+│
+├── src/                          # Frontend (all source code)
+│   ├── App.tsx                   # Main app component
+│   ├── index.tsx                 # React entry point
+│   ├── index.css                 # Global styles
+│   ├── constants.ts              # Shared constants
+│   ├── types.ts                  # Shared TypeScript types
 │   ├── components/               # React components
 │   │   ├── ArcReactor.tsx
-│   │   ├── HistoryLog.tsx
+│   │   ├── AutomationDashboard.tsx
 │   │   ├── ConfirmationModal.tsx
-│   │   └── PermissionModal.tsx
-│   ├── services/                 # API clients
-│   │   ├── websocketService.ts
-│   │   └── apiClient.ts
+│   │   ├── DesktopControls.tsx
+│   │   ├── HistoryLog.tsx
+│   │   ├── MediaTools.tsx
+│   │   ├── MemoryViewer.tsx
+│   │   ├── PermissionModal.tsx
+│   │   └── VolumeControl.tsx
+│   ├── services/                 # API & integration services
+│   │   ├── apiClient.ts
+│   │   ├── commandProcessor.ts
+│   │   ├── securityService.ts
+│   │   ├── voiceService.ts
+│   │   └── websocketService.ts
 │   ├── hooks/                    # Custom hooks
 │   │   └── useJarvisBridge.ts
 │   ├── types/                    # TypeScript types
 │   │   └── bridge.ts
-│   └── App.tsx                   # Main app
+│   └── utils/                    # Utilities
+│       └── audioUtils.ts
 │
 ├── backend/                      # Python backend
-│   ├── modules/                  # Feature modules
-│   │   ├── system.py
-│   │   ├── window_manager.py
-│   │   ├── input_control.py
-│   │   ├── file_manager.py
-│   │   ├── media.py
-│   │   ├── desktop.py
-│   │   ├── whatsapp.py
-│   │   ├── security.py
-│   │   └── bilingual_parser.py
-│   ├── utils/                    # Utilities
-│   │   ├── platform_utils.py
-│   │   └── logger.py
-│   ├── config.py                 # Configuration
 │   ├── main.py                   # Entry point
-│   └── requirements.txt          # Dependencies
+│   ├── config.py                 # Configuration
+│   ├── entry_point.py            # PyInstaller entry point
+│   ├── hidden_imports.py         # PyInstaller hidden imports
+│   ├── requirements.txt          # Dependencies
+│   ├── modules/                  # Feature modules
+│   │   ├── automation.py
+│   │   ├── bilingual_parser.py
+│   │   ├── context.py
+│   │   ├── desktop.py
+│   │   ├── file_manager.py
+│   │   ├── input_control.py
+│   │   ├── llm.py
+│   │   ├── media.py
+│   │   ├── memory.py
+│   │   ├── security.py
+│   │   ├── system.py
+│   │   ├── whatsapp.py
+│   │   └── window_manager.py
+│   ├── utils/                    # Utilities
+│   │   ├── logger.py
+│   │   └── platform_utils.py
+│   └── tests/                    # Test suites
 │
-├── docs/                         # Documentation
-│   ├── SETUP.md
-│   ├── API_DOCUMENTATION.md
-│   └── COMMANDS.md
-│
-└── README.md                     # This file
+└── docs/                         # Documentation
+    ├── SETUP.md
+    ├── API_DOCUMENTATION.md
+    ├── COMMANDS.md
+    ├── DISTRIBUTION.md
+    ├── TROUBLESHOOTING.md
+    └── assets/                   # Images & logos
+        └── jarvis_logo.svg
 ```
 
 ---

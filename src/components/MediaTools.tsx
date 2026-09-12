@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useJarvisBridge } from '../src/hooks/useJarvisBridge';
+import { useJarvisBridge } from '../hooks/useJarvisBridge';
 
 interface MediaToolsProps {
     language: 'en' | 'hi';
